@@ -1,48 +1,65 @@
 
+install.packages("available")
+library("available")
+available::suggest(" qPCR data and deltaCt method")
+# deltaCT
+
+available::available("deltaCT", browse = FALSE)
 
 
 
-#' @title prepare_data
-#'
-#' @description
-#' Imports Ct table in wide format, imports design file and merge both files to return long table ready for analysis.
-#' All parameters of this function have not default values and must be specified by user.
-#'
-#'
-#' @param Ct.file path to wide-format table (must be in .txt format) containing target names in the first column and
-#' Ct values in remaining columns named with sample names.
-#' @param design.file A .txt file with two columns: column named "Sample" with names of samples
-#' and column named "Group" with names of groups assigned to samples. Names of samples in this file
-#' must correspond to the names of columns in file with Ct values.
-#' @param sep A character of a field separator in both imported files.
-#' @param dec A character used for decimal points in Ct values.
-#'
-#' @return A table in long format ready to analysis.
-#' @export
-#'
-#' @examples
-#' data_long <- prepare_data(Ct.file = "Ct_wide.txt",
-#'                           design.file = "design.txt",
-#'                           sep ="\t",
-#'                           dec = ".")
-#'
-#' @importFrom utils read.csv
-#' @importFrom tidyr pivot_longer
-#'
+
+
+
+
+
+
+library(tidyverse)
+library("HTqPCR")
+
+data(qPCRraw)
+
+data <- exprs(qPCRraw)
+#write.table(data, "data_wide.txt", sep = "\t")
+
+targets <- rownames(data)
+data <- as.data.frame(data)
+data$Target <- targets 
+data_slim <- pivot_longer(data, -Target, names_to = "Sample", values_to = "Ct")
+#data_slim_3gr <- mutate(data_slim, Group = ifelse(Sample == "sample1" | Sample == "sample2", "A",
+#                                              ifelse(Sample == "sample3" | Sample == "sample4","B", "C")))
+
+data_slim_2gr <- mutate(data_slim, Group = ifelse(Sample == "sample1" | Sample == "sample2"| Sample == "sample3",
+                                                  "Condition1", "Condition2"))
+
+Ct <- data_slim_2gr
+View(Ct)
+####    simpleRQ package   #####
+
+#########   WCZYTYWANIE DANYCH #######
+
+## plik z danymi musi być w .txt, 
+## Pierwsza kolumna musi zawierać geny, pozostałe maja mieć wartości Ct
+
+####    design file musi mieć kolumny Sample i Group, nazwy targetów w obu plikach musza być tożsame!!!!
+#### muszą to byc pliki txt
+
+library(tidyverse)
+
 prepare_data <- function(Ct.file, design.file,  sep, dec){
   data_wide <- read.csv(Ct.file,
                         header = TRUE,
                         sep = sep,
                         dec = dec)
-
+  
   data_wide_design <- read.csv(design.file,
                                header = TRUE,
                                sep = sep)
-
+  
   colnames(data_wide)[1] <- "Target"
   data_slim <- pivot_longer(data_wide, -Target, names_to = "Sample", values_to = "Ct")
   data_slim[ ,"Group"] <- NA
-
+  
   for (x in 1:nrow(data_wide_design)) {
     index <- which(data_slim$Sample == data_wide_design$Sample[x])
     data_slim$Group[index] <- data_wide_design$Group[x]
@@ -51,8 +68,15 @@ prepare_data <- function(Ct.file, design.file,  sep, dec){
 }
 
 
+data_all <- prepare_data("data_wide.txt", "data_wide_design.txt", sep = "\t", dec = ".")
 
 
+
+
+
+
+################################################################
+library(tidyverse)
 
 read_Ct <- function(path, sep, dec, skip = 0, col.Sample, col.Target, col.Ct, col.Group, add.col.Flag = FALSE, col.Flag){
   data <- read.csv(path,
@@ -73,6 +97,24 @@ read_Ct <- function(path, sep, dec, skip = 0, col.Sample, col.Target, col.Ct, co
 
 
 
+Ct <- read_Ct(path = "dataMB.txt",
+             sep = "\t",
+             dec = ".",
+             skip = 0,
+             add.col.Flag = TRUE,
+             col.Sample = 1, col.Target = 2, col.Ct = 5, col.Group = 9, col.Flag = 4)
+
+str(Ct)
+summary(Ct)
+Ct$Ct
+
+#nazwa kolumny mus pozostac "Flag".
+Ct <- mutate(Ct, Flag = ifelse(Flag < 1, "Undetermined", "OK"))
+
+
+
+#########   KONTROLA CT - BARPLOT #######
+
 control_Ct_barplot <- function(data, mode, flag.Ct = "Undetermined", maxCt = 35, flag = "Undetermined",
                            col = c("#66c2a5", "#fc8d62"), axis.title.size = 12, axis.text.size = 10,
                            x.axis.title = "", y.axis.title = "Number",
@@ -83,7 +125,7 @@ control_Ct_barplot <- function(data, mode, flag.Ct = "Undetermined", maxCt = 35,
                            dpi = 600, width = 15, height = 15,
                            save.to.tiff = FALSE,
                            name.tiff = "Ct_control_barplot"){
-
+  
   data$Ct[data$Ct == flag.Ct] <- 40
   data$Ct <- as.numeric(data$Ct)
   if(sum(colnames(data) %in% "Flag") > 0){
@@ -107,17 +149,17 @@ control_Ct_barplot <- function(data, mode, flag.Ct = "Undetermined", maxCt = 35,
     theme(legend.title = element_text(size = legend.title.size, colour="black")) +
     theme(legend.text = element_text(size = legend.text.size, colour="black")) +
     scale_x_discrete(limits = order)
-
+    
   print(barr)
-
+  
     if (save.to.tiff == TRUE){
       ggsave(paste(name.tiff, ".tiff", sep = ""), barr, dpi = dpi, width = width, height = height, units = "cm", compression = "lzw")
     } else {}
-
-    return(table(data$Detected, data$Sample))
+    
+    return(table(data$Detected, data$Sample))  
 
   } else {
-
+    
     bar <- as.data.frame(table(data$Detected, data$Target, data$Group))
     order <- arrange(filter(bar, Var1 == "Yes"), Freq)$Var2
     cat("Returned object contains number of samples retained (Yes) or not retained (No) for each target after filtering.")
@@ -135,7 +177,7 @@ control_Ct_barplot <- function(data, mode, flag.Ct = "Undetermined", maxCt = 35,
       scale_x_discrete(limits = rev(unique(bar$Var2))) +
       facet_wrap(vars(Var3))
     print(barr)
-
+  
   if (save.to.tiff == TRUE){
     ggsave(paste(name.tiff, ".tiff", sep = ""), barr, dpi = dpi, width = width, height = height, units = "cm", compression = "lzw")
   }
@@ -143,6 +185,19 @@ control_Ct_barplot <- function(data, mode, flag.Ct = "Undetermined", maxCt = 35,
     }
 }
 
+tar <- control_Ct_barplot(data_all, mode = "Target",
+                          flag.Ct = "",
+                          maxCt = 35,
+                          flag = "",
+                          save.to.tiff = TRUE,
+                          name.tiff = "Ct_barplot_target")
+
+sam <- control_Ct_barplot(data_all, mode = "Sample",
+                          flag.Ct = "Undetermined",
+                          maxCt = 35,
+                          flag = "Undetermined",
+                          save.to.tiff = TRUE,
+                          name.tiff = "Ct_barplot_sample")
 
 
 
@@ -153,9 +208,10 @@ samples_to_remove <- function(data, fraction = 0.5){
   return(as.vector(data$Var2))
 }
 
+samples.to.remove <- samples_to_remove(sam, 0.5)
 
 
-
+# dla dwóch grup !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 targets_to_remove <- function(data, fraction = 0.5, groups){
   data <- as.data.frame(data)
   data1 <- dplyr::filter(data, Var3 == groups[1])
@@ -168,9 +224,17 @@ targets_to_remove <- function(data, fraction = 0.5, groups){
 }
 
 
+targets.to.remove <- targets_to_remove(data = tar, fraction = 0.5, groups = c("Condition1", "Condition2"))
+#targets.to.remove2 <- targets_to_remove(data = tar, fraction = 0.5, groups = c("A", "C"))
 
 
 
+
+
+#########   FILTROWANIE DANYCH CT #######
+
+#####   Najlepiej jest przefiltrowac tak aby zostały 2 grupy, trzecią może zostac ale moga zostac braki dnych po imputacji
+str(Ct)
 filter_Ct <- function(data, flag.Ct = "Undetermined", maxCt, flag = c(""),
                       remove.Target = c(""), remove.Sample = c(""), remove.Group = c("")){
   data <- dplyr::filter(data, Ct != flag.Ct)
@@ -189,7 +253,22 @@ filter_Ct <- function(data, flag.Ct = "Undetermined", maxCt, flag = c(""),
 
 
 
+CtF <- filter_Ct(Ct,
+                 flag.Ct = "Undetermined",
+                 maxCt = 35,
+                 remove.Group = c(""),
+                 remove.Target = targets.to.remove,
+                 remove.Sample = samples.to.remove,
+                 flag = "Undetermined")
+dim(CtF)
+str(CtF)
+table(CtF$Target)
 
+
+
+
+#########   Select reference gene        #######
+library(tidyverse)
 
 sel_ref <- function(data, candidates, line.width = 1,
                     col,
@@ -205,7 +284,7 @@ sel_ref <- function(data, candidates, line.width = 1,
                     dpi = 600, width = 15, height = 15,
                     save.to.tiff = FALSE,
                     name.tiff = "Ct_reference_selection"){
-
+  
   ref <- data %>%
     group_by(Group, Target, Sample) %>%
     summarise(mean = base::mean(Ct, na.rm = TRUE)) %>%
@@ -221,9 +300,9 @@ sel_ref <- function(data, candidates, line.width = 1,
     theme(axis.title = element_text(size = axis.title.size, color = 'black')) +
     theme(legend.title = element_text(size = legend.title.size, colour="black")) +
     theme(legend.text = element_text(size = legend.text.size, colour="black"))
-
+    
   print(ref_plot)
-
+  
   if (save.to.tiff == TRUE){
     ggsave(paste(name.tiff, ".tiff", sep = ""), ref_plot, dpi = dpi, width = width, height = height, units = "cm", compression = "lzw")
   }
@@ -237,9 +316,38 @@ sel_ref <- function(data, candidates, line.width = 1,
 }
 
 
+sel_ref(CtF, candidates = c("Gene1","Gene10","Gene100"), col = c("#66c2a5", "#fc8d62","red"))
 
 
 
+
+#########   COLLAPSING TECH REPLICATES        #######
+# 
+# # robimy to zawsze, bo nastepna funkcja chce dane sformatowane przez ta funkcję
+# tech_coll <- function(data){
+#   data <- group_by(data, Group, Target, Sample)
+#   data <- summarise(data, mean = base::mean(Ct, na.rm = FALSE))
+#   return(as.data.frame(data))
+# }
+# 
+# 
+# CtF_coll <- tech_coll(CtF)
+# dim(CtF_coll)
+# str(CtF_coll)
+# 
+# 
+# 
+# data <- group_by(CtF, Group, Target, Sample)
+# data <- summarise(data, mean = base::mean(Ct, na.rm = FALSE))
+# str(data)
+
+
+#########   DELTA CT      #######
+
+
+# Jeśli są braki danych w kontroli endogennej, to próbki z takimi brakami muszą zostac usunięte z danych,
+# chyba że zrobi się imputacje w danch Ct, to wtedy ok.
+### UWAGA, jeżeli braki danych dla jakiegoś genu są w całej grupie, to nie ulegną imputacji i zostaną dalej NA
 
 deltaCt <- function(data,
                     imput.by.mean.within.groups = FALSE,
@@ -268,9 +376,9 @@ deltaCt <- function(data,
     write.table(as.data.frame(dCt), paste(name.txt,".txt", sep = ""))
   }
   return(dCt)
-
+  
   } else {
-
+    
     data_wide <- data %>%
       select(Group, Sample, Target, mean) %>%
       pivot_wider(names_from = Target, values_from = mean)
@@ -289,8 +397,27 @@ deltaCt <- function(data,
   }
 }
 
+table(CtF$Target)
+dCt_noimput <- deltaCt(CtF, imput.by.mean.within.groups = FALSE, ref = "Gene1", save.to.txt = TRUE)
+dCt_imput <- deltaCt(CtF, imput.by.mean.within.groups = TRUE, ref = "Gene1", save.to.txt = TRUE)
 
 
+view(dCt_imput)
+sum(is.na(dCt_imput))
+sum(is.na(dCt_noimput))
+
+
+
+
+
+#summarise(across(where(is.numeric), ~ mean(.x, na.rm = TRUE)))
+#which(is.na(data_ok_wide), arr.ind = TRUE)
+#sum(is.na(data_ok_wide))/((ncol(data_ok_wide)-2)*nrow(data_ok_wide))
+
+
+
+
+#########   KONTROLA DCT BOXPLOT #######
 
 
 control_dCt_boxplot <- function(data, coef = 1.5,
@@ -306,7 +433,7 @@ control_dCt_boxplot <- function(data, coef = 1.5,
                                dpi = 600, width = 15, height = 15,
                                save.to.tiff = FALSE,
                                name.tiff = "dCt_control_boxplot"){
-
+  
     data <- pivot_longer(data, !c(Sample, Group), names_to = "Target" , values_to = "dCt")
     box_control <- ggplot(data, aes(x = Sample, y = dCt, color = Group)) +
       geom_boxplot(coef = coef) +
@@ -325,12 +452,22 @@ control_dCt_boxplot <- function(data, coef = 1.5,
     if (save.to.tiff == TRUE){
       ggsave(paste(name.tiff,".tiff", sep = ""), box_control, dpi = dpi, width = width, height = height, units = "cm", compression = "lzw")
     }
-}
+}  
+    
+
+control_dCt_boxplot(dCt_noimput,
+                    col = c("#66c2a5", "#fc8d62"),
+                    axis.title.size = 12,
+                    axis.text.size = 12,
+                    x.axis.title = "Sample", y.axis.title = "dCt",
+                    legend.title = "Group",
+                    plot.title = "",
+                    dpi = 600, width = 15, height = 15,
+                    save.to.tiff = TRUE)
 
 
 
-
-
+#########   KONTROLA DCT CLUSTEROWANIE HIERARCHICZNE    #######
 
 
 control_dCt_cluster <- function(data, method.dist = "euclidean", method.clust = "complete",
@@ -349,10 +486,16 @@ control_dCt_cluster <- function(data, method.dist = "euclidean", method.clust = 
   }
 }
 
+control_dCt_cluster(dCt_noimput, method.dist = "euclidean", method.clust = "average", save.to.tiff = TRUE)
+control_dCt_cluster(dCt_imput, method.dist = "euclidean", method.clust = "average", save.to.tiff = TRUE)
 
 
 
+#########   KONTROLA DCT PCA #######
 
+
+######   Uwaga braki danych blokują analizę, więc usuwam próbki z brakami danych przed analizą!!!!
+##########  Do PCA trzeba dać dane po imputacji, bo jak będzie NAs w każdum genie w jakiejś grupie to cała grupa zostanie usunięta i po analizie
 control_dCt_pca <- function(data, point.size = 4, alpha = 0.7, label.size = 3,
                             col = c("#66c2a5", "#fc8d62"),
                             axis.title.size = 12,
@@ -375,13 +518,13 @@ control_dCt_pca <- function(data, point.size = 4, alpha = 0.7, label.size = 3,
   pca_comp$Sample <- data$Sample
   pca_comp$Group <- data$Group
   control_pca <- ggplot(pca_comp, aes(x = PC1, y = PC2, label = Sample, color = Group)) +
-    geom_point(size = point.size, alpha = alpha) +
+    geom_point(size = point.size, alpha = alpha) + 
     scale_color_manual(values = c(col)) +
-    labs(colour = legend.title, title = plot.title) +
-    theme_bw() +
+    labs(colour = legend.title, title = plot.title) + 
+    theme_bw() + 
     labs(x = paste("PC1: ", round(var_pca1*100,2), "% variance explained", sep = ""),
-         y = paste("PC2: ", round(var_pca2*100,2), "% variance explained", sep = "")) +
-    theme(legend.position = legend.position) +
+         y = paste("PC2: ", round(var_pca2*100,2), "% variance explained", sep = "")) + 
+    theme(legend.position = legend.position) + 
     theme(axis.text = element_text(size = axis.text.size, colour = "black")) +
     theme(axis.title = element_text(size = axis.title.size, colour="black")) +
     theme(legend.text = element_text(size = legend.text.size, colour="black")) +
@@ -393,9 +536,24 @@ control_dCt_pca <- function(data, point.size = 4, alpha = 0.7, label.size = 3,
   }
 }
 
+control_dCt_pca(dCt_imput, col = c("#66c2a5", "#fc8d62"), save.to.tiff = TRUE)
+control_dCt_pca(dCt_noimput, col = c("#66c2a5", "#fc8d62"), save.to.tiff = TRUE)
+
+View(dCt_noimput)
 
 
 
+
+
+
+
+#########   KONTROLA DCT KORELACJE #######
+
+######   jak dużo braków danych to też nie pójdzie, lepiej po imputacji
+
+library(tidyverse)
+library("Hmisc")
+library("corrplot")
 control_dCt_corr <- function(data, add.coef = "black",
                              method = "pearson",
                              order = "hclust",
@@ -413,14 +571,14 @@ control_dCt_corr <- function(data, add.coef = "black",
   res_cor <- rcorr(as.matrix(data), type = method)
   if (order == "hclust"){
     corrplot(res_cor$r, type = "upper", tl.cex = size, tl.col = "black", cl.cex = size,
-             order = order,
+             order = order, 
              hclust.method = hclust.method,
              addCoef.col = add.coef,
              number.cex = size)
     if (save.to.tiff == TRUE){
       tiff(paste(name.tiff,".tiff", sep = ""), res = dpi, width = width, height = height, units = "cm", compression = "lzw")
       corrplot(res_cor$r, type = "upper", tl.cex = size, tl.col = "black", cl.cex = size,
-               order = order,
+               order = order, 
                hclust.method = hclust.method,
                addCoef.col = "black",
                number.cex = size)
@@ -455,10 +613,17 @@ control_dCt_corr <- function(data, add.coef = "black",
 }
 
 
+control_dCt_corr(dCt_noimput, order = "hclust",
+                 hclust.method = "average",
+                 size = 0.7,
+                 add.coef = "black",
+                 save.to.tiff = TRUE,
+                 save.to.txt = TRUE)
 
 
 
 
+library(ggpmisc)
 single_dCt_corr <- function(data, x, y, alpha = 0.7,
                             by.group = FALSE,
                             col = c("#66c2a5", "#fc8d62"),
@@ -508,16 +673,34 @@ single_dCt_corr <- function(data, x, y, alpha = 0.7,
   if (save.to.tiff == TRUE){
     ggsave(paste(name.tiff,".tiff", sep = ""), corr_control, dpi = dpi, width = width, height = height, units = "cm", compression = "lzw")
   }
-}
+}  
+
+
+single_dCt_corr(dCt_noimput, x = "Gene10", y = "Gene100", alpha = 0.7,
+                    by.group = TRUE,
+                    col = c("#66c2a5", "#fc8d62"),
+                    axis.title.size = 12,
+                    axis.text.size = 10,
+                    legend.text.size = 12,
+                    legend.title = "Group",
+                    legend.position = "right",
+                    plot.title = "",
+                    dpi = 600, width = 15, height = 15,
+                    save.to.tiff = TRUE,
+                label.position.x = c(1,1),
+                label.position.y = c(1,0.95))
 
 
 
 
 
 
-filter_dCt <- function(data,
-                       remove.Target = c(""),
-                       remove.Sample = c(""),
+#########   FILTROWANIE DCT    ##############
+
+dCt_imput
+filter_dCt <- function(data, 
+                       remove.Target = c(""), 
+                       remove.Sample = c(""), 
                        remove.Group = c("")){
   data <- dplyr::filter(data,
                         !Sample %in% remove.Sample,
@@ -527,8 +710,11 @@ filter_dCt <- function(data,
 }
 
 
+dCt_noimput_F <- filter_dCt(dCt_noimput, remove.Sample = c("KL11", "L62","L38","L39"))
+dCt_imput_F <- filter_dCt(dCt_imput, remove.Sample = c("KL11", "L62","L38","L39"))
 
 
+#########   RESULTS DCT BOXPLOT #######
 
 
 results_dCt_boxplot <- function(data, coef = 1.5, sel.Target = "all", angle = 0, rotate = FALSE, add.mean = FALSE,
@@ -547,7 +733,7 @@ results_dCt_boxplot <- function(data, coef = 1.5, sel.Target = "all", angle = 0,
                                 dpi = 600, width = 15, height = 15,
                                 save.to.tiff = FALSE,
                                 name.tiff = "dCt_results_boxplot"){
-
+  
   data <- pivot_longer(data, !c(Sample, Group), names_to = "Target" , values_to = "dCt")
   if (sel.Target[1] == "all"){
     data <- data
@@ -578,32 +764,49 @@ results_dCt_boxplot <- function(data, coef = 1.5, sel.Target = "all", angle = 0,
   }
   if (add.mean == TRUE){
     box_results <- box_results +
-      stat_summary(aes(group = Group),
-                   fun = mean,
-                   position = position_dodge(width = .75),
-                   geom = "point",
-                   shape = 15,
-                   size = add.mean.size,
+      stat_summary(aes(group = Group), 
+                   fun = mean, 
+                   position = position_dodge(width = .75), 
+                   geom = "point", 
+                   shape = 15, 
+                   size = add.mean.size, 
                    color = add.mean.color)
   }
   print(box_results)
   if (save.to.tiff == TRUE){
     ggsave(paste(name.tiff,".tiff", sep = ""), box_results, dpi = dpi, width = width, height = height, units = "cm", compression = "lzw")
   }
-}
+}  
+
+
+results_dCt_boxplot(dCt_imput, coef = 1.5, sel.Target = "all", angle = 45, rotate = FALSE, add.mean = TRUE,
+                    col = c("#66c2a5", "#fc8d62"),
+                    axis.title.size = 12,
+                    axis.text.size = 12,
+                    legend.text.size = 12,
+                    legend.title.size = 12,
+                    x.axis.title = "Target",
+                    y.axis.title = "dCt",
+                    legend.title = "Group",
+                    legend.position = "top",
+                    plot.title = "",
+                    dpi = 600, width = 15, height = 15,
+                    save.to.tiff = TRUE)
 
 
 
 
+#########   DDCT    ##############
 
+# tylko dla dwóch grup, pierwsza to badana, druga to kontrolna
 
-ddCt <- function(data,
+ddCt <- function(data, 
                  group.study,
                  group.ref,
                  do.tests = TRUE,
                  save.to.txt = FALSE,
                  name.txt = "ddCt_RQ_results"){
-
+  
   data_slim <- data %>%
     filter(Group == group.study | Group == group.ref) %>%
     pivot_longer(cols = -c(Group, Sample), names_to = "Target", values_to = "dCt")
@@ -639,6 +842,40 @@ ddCt <- function(data,
 }
 
 
+ddCt_results_noimp <- ddCt(dCt_noimput, do.tests = FALSE,
+                           group.study = "Condition1",
+                           group.ref = "Condition2",
+                           save.to.txt = TRUE,
+                           name.txt = "ddCt_noimput")
+ddCt_results_imp <- ddCt(dCt_imput, do.tests = TRUE,
+                         group.study = "Condition1", 
+                         group.ref = "Condition2", 
+                         save.to.txt = TRUE, 
+                         name.txt = "ddCt_imput")
+
+
+
+
+
+
+#########   RQ plot    ##############
+
+
+# my.name <- readline(prompt="Enter name: ")
+# my.age <- readline(prompt="Enter age: ")
+# # convert character into integer
+# my.age <- as.integer(my.age)
+# print(paste("Hi,", my.name, "next year you will be", my.age+1, "years old."))
+
+
+#pierwsza kolumna ma miec nazwy targetów, a druga "t" lub "mw" tylko.
+user <- as.data.frame(ddCt_results_imp$Target)
+user$test <- c("t","t","t","t","t","t","t","t","t","t","t","t","mw","mw")
+user
+#  zrób user z danych ddCt
+
+colnames(RQdata)
+user <- select(RQdata, Target, test.for.comaprison)
 
 
 
@@ -705,7 +942,7 @@ RQ_plot <- function(data, use.p = TRUE, mode, Target.sel = "all", p.threshold = 
       theme(legend.title = element_text(size = legend.title.size, colour="black")) +
       theme(panel.grid.major.x = element_blank())
   }
-
+  
   if (angle != 0){
     RQ <- RQ +
       guides(x =  guide_axis(angle = angle))
@@ -722,9 +959,21 @@ RQ_plot <- function(data, use.p = TRUE, mode, Target.sel = "all", p.threshold = 
 }
 
 
+RQ_plot(ddCt_results_noimp, use.p = FALSE, col = "red", mode = "depends", angle = 45, save.to.tiff = TRUE)
+RQdata <- RQ_plot(ddCt_results_imp, mode = "user", angle = 45, save.to.tiff = TRUE)
+
+
+sign.tar <- filter(RQdata, p.used < 0.05)$Target
+
+RQ_plot(ddCt_results_noimp, use.p = FALSE, Target.sel = sign.tar, col = "red", mode = "depends", angle = 45, save.to.tiff = TRUE)
 
 
 
+#########   ROC    ##############
+
+# tu chyba musi być imputacja, a dane muszą zawierac dwie grupy
+library(tidyverse)
+library(pROC)
 
 ROC <- function(data,
                 Target.sel = "all",
@@ -747,7 +996,7 @@ ROC <- function(data,
   colnames(roc_param) <- c("Target","Threshold", "Specificity", "Sensitivity", "Accuracy", "ppv", "npv", "youden", "AUC", "Target.control")
   roc_param$Target <- colnames(data)[-c(1:2)]
   for (x in 1:nrow(roc_param)){
-    myproc <- roc(response = data$Group, predictor = as.data.frame(data)[ ,x+2], levels = c(Groups),
+    myproc <- roc(response = data$Group, predictor = as.data.frame(data)[ ,x+2], levels = c(Groups), 
                   smooth = FALSE, auc = TRUE, plot=FALSE, ci=TRUE, of = "auc")
     parameters <- coords(myproc, "best", ret = c("threshold", "specificity", "sensitivity","accuracy", "ppv", "npv", "youden"))
     roc_param[x,2:8] <- parameters
@@ -758,10 +1007,10 @@ ROC <- function(data,
     tiff(paste(name.tiff,".tiff", sep = ""), res = dpi, width = width, height = height, units = "cm", compression = "lzw")
     par(mfrow = c(panels.row, panels.col))
     for (x in 1:nrow(roc_param)){
-      myproc <- roc(response = data$Group, predictor = as.data.frame(data)[ ,x+2], levels = c(Groups),
+      myproc <- roc(response = data$Group, predictor = as.data.frame(data)[ ,x+2], levels = c(Groups), 
                     smooth = FALSE, auc = TRUE, plot=FALSE, ci=TRUE, of = "auc")
-      plot.roc(myproc, main = roc_param$Target[x],
-               smooth = FALSE, cex.axis = text.size, cex.lab = text.size, identity.lwd = 2,
+      plot.roc(myproc, main = roc_param$Target[x], 
+               smooth = FALSE, cex.axis = text.size, cex.lab = text.size, identity.lwd = 2, 
                plot = TRUE, percent = TRUE, print.auc = print.auc, print.auc.x = 0.85, print.auc.y = 0.1, print.auc.cex = print.auc.cex)
     }
     dev.off()
@@ -772,11 +1021,30 @@ ROC <- function(data,
   return(roc_param)
 }
 
+ncol(dCt_imput)-2
+ROC(dCt_imput, Groups = c("A","B"), save.to.tiff = TRUE, panels.row = 37, panels.col = 4, save.to.txt = TRUE, height = 180)
+ROC(dCt_noimput, Groups = c("A","B"), save.to.tiff = TRUE, panels.row = 37, panels.col = 4, height = 180)
+
+
+
+#data_mean <- data_ok_wide %>%
+#  select(-Sample) %>%
+#  group_by(Group) %>%
+#  summarise(across(where(is.numeric), ~ mean(.x, na.rm = TRUE)))
 
 
 
 
 
+
+
+
+
+#########   REGRESJA LOGISTYCZNa    ##############
+
+library(oddsratio)
+
+####  Jeżeli z analizy wyjdą wartości inf lub NA, to są usuwane
 log_reg <- function(data, remove.Inf.NA = FALSE,
                     Target.sel = "all",
                     group.study,
@@ -822,16 +1090,16 @@ log_reg <- function(data, remove.Inf.NA = FALSE,
                         boxCIHigh = data.CI$CI_high,
                         boxLabels = data.CI$Target,
                         p = data.CI$p_coef)
-
+  
   if (remove.Inf.NA == TRUE){
     od_df[sapply(od_df, is.infinite)] <- NA
     od_df <- na.omit(od_df)
   }
-
+  
   odd.ratio <- ggplot(od_df, aes(x = boxOdds, y = boxLabels, label = boxOdds)) +
     geom_vline(aes(xintercept = 1), linewidth = .25, linetype = "dashed") +
     geom_errorbarh(aes(xmax = boxCIHigh, xmin = boxCILow), linewidth = .5, height = .2) +
-    geom_point(aes(color = p), size = 3.5) +
+    geom_point(aes(color = p), size = 3.5) + 
     scale_color_continuous(type = "viridis") +
     geom_text(aes(label = boxOdds), hjust=0.5, vjust = -1, size = 3) +
     xlab(x.axis.title) + ylab(y.axis.title) +
@@ -856,3 +1124,12 @@ log_reg <- function(data, remove.Inf.NA = FALSE,
   return(data.CI)
 }
 
+
+
+log_reg(dCt_imput, group.study = "C", group.ref = "B", ci = 0.95, save.to.tiff = TRUE, save.to.txt = TRUE, height = 50,
+        log.axis = TRUE, remove.Inf.NA = TRUE)
+log_reg(dCt_noimput, group.study = "A", group.ref = "B", ci = 0.95, save.to.tiff = TRUE, save.to.txt = TRUE)
+
+
+
+library(tidyverse)

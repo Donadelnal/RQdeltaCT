@@ -314,7 +314,7 @@ control_dCt_boxplot <- function(data, coef = 1.5,
       scale_color_manual(values = c(col)) +
       coord_flip() +
       xlab(x.axis.title) + ylab(y.axis.title) +
-      labs(fill = legend.title, title = plot.title) +
+      labs(color = legend.title, title = plot.title) +
       theme_classic() +
       theme(legend.position = legend.position) +
       theme(axis.text = element_text(size = axis.text.size, colour = "black")) +

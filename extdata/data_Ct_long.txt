@@ -1,0 +1,1289 @@
+Sample	Target	Amp_Status	Amp_Score	Ct	Number	Number_status	FLAG	Group
+Disease1	Gene1	Amp	1.379	32.563	19	2262	OK	Disease
+Disease10	Gene1	Amp	1.349	34.648	19	2262	OK	Disease
+Disease12	Gene1	Amp	1.340	35.059	19	2262	Undetermined	Disease
+Disease13	Gene1	Inconclusive	1.195	37.135	19	139	Undetermined	Disease
+Disease14	Gene1	Amp	1.387	34.038	19	2262	OK	Disease
+Disease15	Gene1	Amp	1.325	35.755	19	2262	Undetermined	Disease
+Disease16	Gene1	Inconclusive	1.213	36.895	19	139	Undetermined	Disease
+Disease17	Gene1	Inconclusive	1.197	36.910	19	139	Undetermined	Disease
+Disease18	Gene1	Amp	1.488	28.904	19	2262	OK	Disease
+Disease19	Gene1	Amp	1.505	28.710	19	2262	OK	Disease
+Disease2	Gene1	Amp	1.345	35.401	19	2262	Undetermined	Disease
+Disease22	Gene1	Amp	1.493	28.752	19	2262	OK	Disease
+Disease23	Gene1	Amp	1.469	31.909	19	2262	OK	Disease
+Disease24	Gene1	Amp	1.455	33.215	19	2262	OK	Disease
+Disease25	Gene1	Amp	1.473	31.663	19	2262	OK	Disease
+Disease26	Gene1	Amp	1.520	28.322	19	2262	OK	Disease
+Disease28	Gene1	Amp	1.467	28.409	19	2262	OK	Disease
+Disease29	Gene1	Amp	1.479	29.351	19	2262	OK	Disease
+Disease3	Gene1	Inconclusive	1.215	36.748	19	139	Undetermined	Disease
+Disease30	Gene1	Amp	1.518	30.244	19	2262	OK	Disease
+Disease31	Gene1	Amp	1.490	27.240	19	2262	OK	Disease
+Disease32	Gene1	Amp	1.472	29.819	19	2262	OK	Disease
+Disease33	Gene1	Amp	1.495	29.171	19	2262	OK	Disease
+Disease34	Gene1	Amp	1.505	30.658	19	2262	OK	Disease
+Disease35	Gene1	Amp	1.505	28.818	19	2262	OK	Disease
+Disease36	Gene1	Amp	1.498	28.309	19	2262	OK	Disease
+Disease37	Gene1	Amp	1.478	27.741	19	2262	OK	Disease
+Disease38	Gene1	Amp	1.497	28.034	19	2262	OK	Disease
+Disease39	Gene1	Amp	1.504	31.755	19	2262	OK	Disease
+Disease4	Gene1	Amp	1.327	35.750	19	2262	Undetermined	Disease
+Disease40	Gene1	Amp	1.507	30.513	19	2262	OK	Disease
+Disease41	Gene1	Amp	1.498	28.967	19	2262	OK	Disease
+Disease42	Gene1	Amp	1.346	35.089	19	2262	Undetermined	Disease
+Disease43	Gene1	Amp	1.413	33.471	19	2262	OK	Disease
+Disease44	Gene1	Amp	1.352	35.142	19	2262	Undetermined	Disease
+Disease5	Gene1	Amp	1.299	35.980	19	2262	Undetermined	Disease
+Disease6	Gene1	Amp	1.424	33.660	19	2262	OK	Disease
+Disease7	Gene1	Amp	1.313	35.889	19	2262	Undetermined	Disease
+Disease8	Gene1	Inconclusive	1.213	36.719	19	139	Undetermined	Disease
+Disease9	Gene1	Amp	1.400	33.777	19	2262	OK	Disease
+Disease1	Gene2	No Amp	1.118	36.554	19	487	Undetermined	Disease
+Disease10	Gene2	No Amp	0.000	37.262	19	487	Undetermined	Disease
+Disease12	Gene2	No Amp	0.000	36.977	19	487	Undetermined	Disease
+Disease13	Gene2	Inconclusive	0.000	38.295	19	139	Undetermined	Disease
+Disease14	Gene2	No Amp	0.000	Undetermined	19	487	Undetermined	Disease
+Disease15	Gene2	No Amp	0.000	37.724	19	487	Undetermined	Disease
+Disease16	Gene2	No Amp	0.611	Undetermined	19	487	Undetermined	Disease
+Disease17	Gene2	Inconclusive	0.000	38.340	19	139	Undetermined	Disease
+Disease18	Gene2	No Amp	1.194	35.888	19	487	Undetermined	Disease
+Disease19	Gene2	No Amp	0.000	37.878	19	487	Undetermined	Disease
+Disease2	Gene2	No Amp	0.000	Undetermined	19	487	Undetermined	Disease
+Disease22	Gene2	No Amp	1.171	36.380	19	487	Undetermined	Disease
+Disease23	Gene2	No Amp	0.679	Undetermined	19	487	Undetermined	Disease
+Disease24	Gene2	No Amp	0.000	Undetermined	19	487	Undetermined	Disease
+Disease25	Gene2	No Amp	1.276	35.286	19	487	Undetermined	Disease
+Disease26	Gene2	No Amp	1.254	35.226	19	487	Undetermined	Disease
+Disease28	Gene2	No Amp	0.000	36.540	19	487	Undetermined	Disease
+Disease29	Gene2	No Amp	1.230	35.583	19	487	Undetermined	Disease
+Disease3	Gene2	No Amp	0.000	Undetermined	19	487	Undetermined	Disease
+Disease30	Gene2	No Amp	0.000	37.276	19	487	Undetermined	Disease
+Disease31	Gene2	Inconclusive	1.382	34.203	19	139	Undetermined	Disease
+Disease32	Gene2	No Amp	1.219	35.827	19	487	Undetermined	Disease
+Disease33	Gene2	Inconclusive	1.319	34.437	19	139	Undetermined	Disease
+Disease34	Gene2	No Amp	0.000	37.125	19	487	Undetermined	Disease
+Disease35	Gene2	No Amp	1.224	35.804	19	487	Undetermined	Disease
+Disease36	Gene2	No Amp	1.299	34.851	19	487	Undetermined	Disease
+Disease37	Gene2	No Amp	0.000	36.735	19	487	Undetermined	Disease
+Disease38	Gene2	Amp	1.412	33.552	19	2262	OK	Disease
+Disease39	Gene2	No Amp	0.945	37.875	19	487	Undetermined	Disease
+Disease4	Gene2	No Amp	0.000	37.747	19	487	Undetermined	Disease
+Disease40	Gene2	Inconclusive	0.000	38.533	19	139	Undetermined	Disease
+Disease41	Gene2	No Amp	1.269	35.691	19	487	Undetermined	Disease
+Disease42	Gene2	Inconclusive	0.000	38.602	19	139	Undetermined	Disease
+Disease43	Gene2	No Amp	0.000	Undetermined	19	487	Undetermined	Disease
+Disease44	Gene2	No Amp	0.000	36.738	19	487	Undetermined	Disease
+Disease5	Gene2	Inconclusive	1.243	34.901	19	139	Undetermined	Disease
+Disease6	Gene2	No Amp	0.000	36.993	19	487	Undetermined	Disease
+Disease7	Gene2	No Amp	0.000	37.677	19	487	Undetermined	Disease
+Disease8	Gene2	Inconclusive	0.000	38.081	19	139	Undetermined	Disease
+Disease9	Gene2	No Amp	0.000	37.031	19	487	Undetermined	Disease
+Disease1	Gene3	Amp	1.360	31.334	19	2262	OK	Disease
+Disease10	Gene3	Amp	1.368	31.161	19	2262	OK	Disease
+Disease12	Gene3	Amp	1.366	32.077	19	2262	OK	Disease
+Disease13	Gene3	Amp	1.297	33.982	19	2262	OK	Disease
+Disease14	Gene3	Amp	1.346	31.916	19	2262	OK	Disease
+Disease15	Gene3	Amp	1.345	33.497	19	2262	OK	Disease
+Disease16	Gene3	Amp	1.228	35.357	19	2262	Undetermined	Disease
+Disease17	Gene3	Amp	1.363	30.078	19	2262	OK	Disease
+Disease18	Gene3	Amp	1.389	29.717	19	2262	OK	Disease
+Disease19	Gene3	Amp	1.344	34.185	19	2262	OK	Disease
+Disease2	Gene3	Amp	1.355	30.671	19	2262	OK	Disease
+Disease22	Gene3	Amp	1.417	30.011	19	2262	OK	Disease
+Disease23	Gene3	No Amp	0.000	Undetermined	19	487	Undetermined	Disease
+Disease24	Gene3	Amp	1.323	33.739	19	2262	OK	Disease
+Disease25	Gene3	Amp	1.371	32.467	19	2262	OK	Disease
+Disease26	Gene3	Amp	1.237	34.467	19	2262	OK	Disease
+Disease28	Gene3	Amp	1.367	29.316	19	2262	OK	Disease
+Disease29	Gene3	Amp	1.361	30.686	19	2262	OK	Disease
+Disease3	Gene3	Amp	1.316	33.826	19	2262	OK	Disease
+Disease30	Gene3	Amp	1.351	33.917	19	2262	OK	Disease
+Disease31	Gene3	Amp	1.431	28.202	19	2262	OK	Disease
+Disease32	Gene3	Amp	1.402	31.663	19	2262	OK	Disease
+Disease33	Gene3	Amp	1.416	30.249	19	2262	OK	Disease
+Disease34	Gene3	Amp	1.433	29.839	19	2262	OK	Disease
+Disease35	Gene3	Amp	1.450	28.324	19	2262	OK	Disease
+Disease36	Gene3	Amp	1.424	31.564	19	2262	OK	Disease
+Disease37	Gene3	Amp	1.421	29.860	19	2262	OK	Disease
+Disease38	Gene3	Amp	1.433	29.755	19	2262	OK	Disease
+Disease39	Gene3	Amp	1.414	28.885	19	2262	OK	Disease
+Disease4	Gene3	Amp	1.363	32.492	19	2262	OK	Disease
+Disease40	Gene3	No Amp	0.000	Undetermined	19	487	Undetermined	Disease
+Disease41	Gene3	Amp	1.366	33.670	19	2262	OK	Disease
+Disease42	Gene3	Amp	1.291	35.186	19	2262	Undetermined	Disease
+Disease43	Gene3	Amp	1.379	32.162	19	2262	OK	Disease
+Disease44	Gene3	Amp	1.323	34.141	19	2262	OK	Disease
+Disease5	Gene3	Amp	1.352	32.360	19	2262	OK	Disease
+Disease6	Gene3	Amp	1.354	30.905	19	2262	OK	Disease
+Disease7	Gene3	Amp	1.400	32.677	19	2262	OK	Disease
+Disease8	Gene3	Amp	1.347	32.021	19	2262	OK	Disease
+Disease9	Gene3	Amp	1.377	31.086	19	2262	OK	Disease
+Disease1	Gene4	Amp	1.394	23.415	19	2262	OK	Disease
+Disease10	Gene4	Amp	1.416	22.408	19	2262	OK	Disease
+Disease12	Gene4	Amp	1.428	24.332	19	2262	OK	Disease
+Disease13	Gene4	Amp	1.401	24.895	19	2262	OK	Disease
+Disease14	Gene4	Amp	1.387	24.139	19	2262	OK	Disease
+Disease15	Gene4	Amp	1.420	24.937	19	2262	OK	Disease
+Disease16	Gene4	Amp	1.424	23.072	19	2262	OK	Disease
+Disease17	Gene4	Amp	1.428	24.051	19	2262	OK	Disease
+Disease18	Gene4	Amp	1.463	21.193	19	2262	OK	Disease
+Disease19	Gene4	Amp	1.511	21.328	19	2262	OK	Disease
+Disease2	Gene4	Amp	1.452	21.847	19	2262	OK	Disease
+Disease22	Gene4	Amp	1.476	23.016	19	2262	OK	Disease
+Disease23	Gene4	Amp	1.463	23.886	19	2262	OK	Disease
+Disease24	Gene4	Amp	1.412	24.505	19	2262	OK	Disease
+Disease25	Gene4	Amp	1.471	23.750	19	2262	OK	Disease
+Disease26	Gene4	Amp	1.457	20.638	19	2262	OK	Disease
+Disease28	Gene4	Amp	1.461	20.144	19	2262	OK	Disease
+Disease29	Gene4	Amp	1.469	19.984	19	2262	OK	Disease
+Disease3	Gene4	Amp	1.404	25.117	19	2262	OK	Disease
+Disease30	Gene4	Amp	1.495	22.839	19	2262	OK	Disease
+Disease31	Gene4	Amp	1.453	20.417	19	2262	OK	Disease
+Disease32	Gene4	Amp	1.437	21.509	19	2262	OK	Disease
+Disease33	Gene4	Amp	1.487	20.855	19	2262	OK	Disease
+Disease34	Gene4	Amp	1.483	21.917	19	2262	OK	Disease
+Disease35	Gene4	Amp	1.488	20.480	19	2262	OK	Disease
+Disease36	Gene4	Amp	1.485	19.434	19	2262	OK	Disease
+Disease37	Gene4	Amp	1.481	19.295	19	2262	OK	Disease
+Disease38	Gene4	Amp	1.496	20.255	19	2262	OK	Disease
+Disease39	Gene4	Amp	1.456	22.475	19	2262	OK	Disease
+Disease4	Gene4	Amp	1.426	24.080	19	2262	OK	Disease
+Disease40	Gene4	Amp	1.319	31.508	19	2262	OK	Disease
+Disease41	Gene4	Amp	1.421	22.517	19	2262	OK	Disease
+Disease42	Gene4	Amp	1.437	23.976	19	2262	OK	Disease
+Disease43	Gene4	Amp	1.437	22.556	19	2262	OK	Disease
+Disease44	Gene4	Amp	1.432	23.310	19	2262	OK	Disease
+Disease5	Gene4	Amp	1.401	25.273	19	2262	OK	Disease
+Disease6	Gene4	Amp	1.407	23.273	19	2262	OK	Disease
+Disease7	Gene4	Amp	1.410	24.856	19	2262	OK	Disease
+Disease8	Gene4	Amp	1.412	24.404	19	2262	OK	Disease
+Disease9	Gene4	Amp	1.443	22.900	19	2262	OK	Disease
+Disease1	Gene5	Inconclusive	1.231	35.608	19	139	Undetermined	Disease
+Disease10	Gene5	Amp	1.361	33.385	19	2262	OK	Disease
+Disease12	Gene5	Inconclusive	1.162	36.374	19	139	Undetermined	Disease
+Disease13	Gene5	No Amp	1.097	36.997	19	487	Undetermined	Disease
+Disease14	Gene5	No Amp	0.000	Undetermined	19	487	Undetermined	Disease
+Disease15	Gene5	Inconclusive	1.210	35.582	19	139	Undetermined	Disease
+Disease16	Gene5	Amp	1.313	34.483	19	2262	OK	Disease
+Disease17	Gene5	No Amp	1.098	37.158	19	487	Undetermined	Disease
+Disease18	Gene5	Amp	1.402	33.878	19	2262	OK	Disease
+Disease19	Gene5	Inconclusive	1.310	34.741	19	139	Undetermined	Disease
+Disease2	Gene5	Inconclusive	1.226	35.687	19	139	Undetermined	Disease
+Disease22	Gene5	No Amp	1.184	36.406	19	487	Undetermined	Disease
+Disease23	Gene5	No Amp	1.204	36.165	19	487	Undetermined	Disease
+Disease24	Gene5	No Amp	1.069	37.540	19	487	Undetermined	Disease
+Disease25	Gene5	No Amp	1.134	36.910	19	487	Undetermined	Disease
+Disease26	Gene5	Amp	1.371	33.306	19	2262	OK	Disease
+Disease28	Gene5	Amp	1.468	32.347	19	2262	OK	Disease
+Disease29	Gene5	Amp	1.416	33.464	19	2262	OK	Disease
+Disease3	Gene5	No Amp	0.000	38.352	19	487	Undetermined	Disease
+Disease30	Gene5	No Amp	1.265	35.696	19	487	Undetermined	Disease
+Disease31	Gene5	Inconclusive	1.313	34.857	19	139	Undetermined	Disease
+Disease32	Gene5	No Amp	1.234	35.781	19	487	Undetermined	Disease
+Disease33	Gene5	Amp	1.492	31.699	19	2262	OK	Disease
+Disease34	Gene5	Inconclusive	1.318	34.832	19	139	Undetermined	Disease
+Disease35	Gene5	Inconclusive	1.324	34.590	19	139	Undetermined	Disease
+Disease36	Gene5	Amp	1.498	32.421	19	2262	OK	Disease
+Disease37	Gene5	Amp	1.424	33.738	19	2262	OK	Disease
+Disease38	Gene5	Amp	1.485	32.684	19	2262	OK	Disease
+Disease39	Gene5	Inconclusive	1.330	34.486	19	139	Undetermined	Disease
+Disease4	Gene5	Inconclusive	1.189	36.122	19	139	Undetermined	Disease
+Disease40	Gene5	No Amp	1.105	37.266	19	487	Undetermined	Disease
+Disease41	Gene5	Amp	1.333	34.501	19	2262	OK	Disease
+Disease42	Gene5	No Amp	1.084	37.400	19	487	Undetermined	Disease
+Disease43	Gene5	Amp	1.327	34.743	19	2262	OK	Disease
+Disease44	Gene5	Inconclusive	1.058	37.576	19	139	Undetermined	Disease
+Disease5	Gene5	No Amp	0.731	Undetermined	19	487	Undetermined	Disease
+Disease6	Gene5	Amp	1.311	34.821	19	2262	OK	Disease
+Disease7	Gene5	Inconclusive	1.082	37.205	19	139	Undetermined	Disease
+Disease8	Gene5	No Amp	0.900	38.812	19	487	Undetermined	Disease
+Disease9	Gene5	Amp	1.332	34.553	19	2262	OK	Disease
+Disease1	Gene7	Amp	1.446	32.789	19	2262	OK	Disease
+Disease10	Gene7	Amp	1.410	33.295	19	2262	OK	Disease
+Disease12	Gene7	Amp	1.498	31.318	19	2262	OK	Disease
+Disease13	Gene7	Inconclusive	1.270	35.526	19	139	Undetermined	Disease
+Disease14	Gene7	Amp	1.444	31.937	19	2262	OK	Disease
+Disease15	Gene7	Amp	1.476	31.363	19	2262	OK	Disease
+Disease16	Gene7	Amp	1.354	34.809	19	2262	OK	Disease
+Disease17	Gene7	Amp	1.356	34.122	19	2262	OK	Disease
+Disease18	Gene7	Amp	1.443	30.023	19	2262	OK	Disease
+Disease19	Gene7	Amp	1.478	28.986	19	2262	OK	Disease
+Disease2	Gene7	Amp	1.348	34.962	19	2262	OK	Disease
+Disease22	Gene7	Amp	1.475	32.927	19	2262	OK	Disease
+Disease23	Gene7	Amp	1.464	32.974	19	2262	OK	Disease
+Disease24	Gene7	Amp	1.397	33.868	19	2262	OK	Disease
+Disease25	Gene7	Amp	1.395	33.671	19	2262	OK	Disease
+Disease26	Gene7	Amp	1.513	29.983	19	2262	OK	Disease
+Disease28	Gene7	Amp	1.467	30.769	19	2262	OK	Disease
+Disease29	Gene7	Amp	1.491	29.289	19	2262	OK	Disease
+Disease3	Gene7	Amp	1.352	34.290	19	2262	OK	Disease
+Disease30	Gene7	Amp	1.498	31.573	19	2262	OK	Disease
+Disease31	Gene7	Amp	1.512	30.536	19	2262	OK	Disease
+Disease32	Gene7	Amp	1.494	31.532	19	2262	OK	Disease
+Disease33	Gene7	Amp	1.489	31.616	19	2262	OK	Disease
+Disease34	Gene7	Amp	1.514	32.901	19	2262	OK	Disease
+Disease35	Gene7	Amp	1.505	30.147	19	2262	OK	Disease
+Disease36	Gene7	Amp	1.468	30.017	19	2262	OK	Disease
+Disease37	Gene7	Amp	1.478	28.410	19	2262	OK	Disease
+Disease38	Gene7	Amp	1.518	29.559	19	2262	OK	Disease
+Disease39	Gene7	Amp	1.496	32.465	19	2262	OK	Disease
+Disease4	Gene7	Amp	1.384	33.886	19	2262	OK	Disease
+Disease40	Gene7	Amp	1.478	31.957	19	2262	OK	Disease
+Disease41	Gene7	Amp	1.489	30.274	19	2262	OK	Disease
+Disease42	Gene7	Amp	1.448	31.240	19	2262	OK	Disease
+Disease43	Gene7	Amp	1.391	33.499	19	2262	OK	Disease
+Disease44	Gene7	Amp	1.516	32.382	19	2262	OK	Disease
+Disease5	Gene7	Amp	1.358	34.624	19	2262	OK	Disease
+Disease6	Gene7	Amp	1.451	32.345	19	2262	OK	Disease
+Disease7	Gene7	Amp	1.379	33.313	19	2262	OK	Disease
+Disease8	Gene7	Amp	1.370	33.884	19	2262	OK	Disease
+Disease9	Gene7	Amp	1.450	32.242	19	2262	OK	Disease
+Disease1	Gene8	Amp	1.295	21.455	19	2262	OK	Disease
+Disease10	Gene8	Amp	1.282	22.896	19	2262	OK	Disease
+Disease12	Gene8	Amp	1.257	24.677	19	2262	OK	Disease
+Disease13	Gene8	Amp	1.301	23.973	19	2262	OK	Disease
+Disease14	Gene8	Amp	1.306	21.586	19	2262	OK	Disease
+Disease15	Gene8	Amp	1.315	23.714	19	2262	OK	Disease
+Disease16	Gene8	Amp	1.269	23.197	19	2262	OK	Disease
+Disease17	Gene8	Amp	1.269	24.710	19	2262	OK	Disease
+Disease18	Gene8	Amp	1.379	21.028	19	2262	OK	Disease
+Disease19	Gene8	Amp	1.404	19.841	19	2262	OK	Disease
+Disease2	Gene8	Amp	1.325	23.536	19	2262	OK	Disease
+Disease22	Gene8	Amp	1.366	22.667	19	2262	OK	Disease
+Disease23	Gene8	Amp	1.351	22.041	19	2262	OK	Disease
+Disease24	Gene8	Amp	1.370	24.492	19	2262	OK	Disease
+Disease25	Gene8	Amp	1.398	24.367	19	2262	OK	Disease
+Disease26	Gene8	Amp	1.312	22.024	19	2262	OK	Disease
+Disease28	Gene8	Amp	1.370	20.829	19	2262	OK	Disease
+Disease29	Gene8	Amp	1.372	19.564	19	2262	OK	Disease
+Disease3	Gene8	Amp	1.263	24.580	19	2262	OK	Disease
+Disease30	Gene8	Amp	1.374	21.499	19	2262	OK	Disease
+Disease31	Gene8	Amp	1.364	20.096	19	2262	OK	Disease
+Disease32	Gene8	Amp	1.358	21.560	19	2262	OK	Disease
+Disease33	Gene8	Amp	1.404	20.051	19	2262	OK	Disease
+Disease34	Gene8	Amp	1.402	22.069	19	2262	OK	Disease
+Disease35	Gene8	Amp	1.385	20.310	19	2262	OK	Disease
+Disease36	Gene8	Amp	1.389	20.479	19	2262	OK	Disease
+Disease37	Gene8	Amp	1.419	20.283	19	2262	OK	Disease
+Disease38	Gene8	Amp	1.427	18.314	19	2262	OK	Disease
+Disease39	Gene8	Amp	1.402	23.639	19	2262	OK	Disease
+Disease4	Gene8	Amp	1.278	24.142	19	2262	OK	Disease
+Disease40	Gene8	Amp	1.407	22.866	19	2262	OK	Disease
+Disease41	Gene8	Amp	1.298	22.233	19	2262	OK	Disease
+Disease42	Gene8	Amp	1.286	23.421	19	2262	OK	Disease
+Disease43	Gene8	Amp	1.317	22.804	19	2262	OK	Disease
+Disease44	Gene8	Amp	1.346	24.807	19	2262	OK	Disease
+Disease5	Gene8	Amp	1.269	25.792	19	2262	OK	Disease
+Disease6	Gene8	Amp	1.311	22.721	19	2262	OK	Disease
+Disease7	Gene8	Amp	1.286	24.089	19	2262	OK	Disease
+Disease8	Gene8	Amp	1.279	24.958	19	2262	OK	Disease
+Disease9	Gene8	Amp	1.301	23.070	19	2262	OK	Disease
+Disease1	Gene9	Inconclusive	1.226	35.037	19	139	Undetermined	Disease
+Disease10	Gene9	No Amp	1.159	36.360	19	487	Undetermined	Disease
+Disease12	Gene9	No Amp	1.180	35.946	19	487	Undetermined	Disease
+Disease13	Gene9	No Amp	1.076	36.885	19	487	Undetermined	Disease
+Disease14	Gene9	No Amp	0.000	37.730	19	487	Undetermined	Disease
+Disease15	Gene9	No Amp	1.191	35.667	19	487	Undetermined	Disease
+Disease16	Gene9	No Amp	0.000	37.560	19	487	Undetermined	Disease
+Disease17	Gene9	No Amp	1.123	36.580	19	487	Undetermined	Disease
+Disease18	Gene9	Inconclusive	1.238	34.689	19	139	Undetermined	Disease
+Disease19	Gene9	No Amp	1.147	36.155	19	487	Undetermined	Disease
+Disease2	Gene9	No Amp	1.037	37.123	19	487	Undetermined	Disease
+Disease22	Gene9	No Amp	1.233	35.123	19	487	Undetermined	Disease
+Disease23	Gene9	No Amp	1.112	36.420	19	487	Undetermined	Disease
+Disease24	Gene9	No Amp	0.745	39.073	19	487	Undetermined	Disease
+Disease25	Gene9	No Amp	1.142	36.185	19	487	Undetermined	Disease
+Disease26	Gene9	No Amp	1.190	35.694	19	487	Undetermined	Disease
+Disease28	Gene9	No Amp	1.189	35.435	19	487	Undetermined	Disease
+Disease29	Gene9	Inconclusive	1.236	34.743	19	139	Undetermined	Disease
+Disease3	Gene9	No Amp	0.000	37.599	19	487	Undetermined	Disease
+Disease30	Gene9	No Amp	0.000	37.159	19	487	Undetermined	Disease
+Disease31	Gene9	Amp	1.406	32.796	19	2262	OK	Disease
+Disease32	Gene9	No Amp	1.183	35.733	19	487	Undetermined	Disease
+Disease33	Gene9	No Amp	1.163	35.880	19	487	Undetermined	Disease
+Disease34	Gene9	No Amp	0.000	Undetermined	19	487	Undetermined	Disease
+Disease35	Gene9	Amp	1.481	31.571	19	2262	OK	Disease
+Disease36	Gene9	No Amp	1.231	35.298	19	487	Undetermined	Disease
+Disease37	Gene9	Amp	1.359	33.722	19	2262	OK	Disease
+Disease38	Gene9	Inconclusive	1.295	34.385	19	139	Undetermined	Disease
+Disease39	Gene9	No Amp	1.059	36.953	19	487	Undetermined	Disease
+Disease4	Gene9	No Amp	1.135	36.374	19	487	Undetermined	Disease
+Disease40	Gene9	No Amp	0.926	38.071	19	487	Undetermined	Disease
+Disease41	Gene9	No Amp	1.126	36.456	19	487	Undetermined	Disease
+Disease42	Gene9	No Amp	0.630	Undetermined	19	487	Undetermined	Disease
+Disease43	Gene9	No Amp	1.215	35.358	19	487	Undetermined	Disease
+Disease44	Gene9	Inconclusive	0.908	38.174	19	139	Undetermined	Disease
+Disease5	Gene9	No Amp	0.000	Undetermined	19	487	Undetermined	Disease
+Disease6	Gene9	No Amp	1.194	35.554	19	487	Undetermined	Disease
+Disease7	Gene9	No Amp	1.091	36.789	19	487	Undetermined	Disease
+Disease8	Gene9	No Amp	0.000	38.265	19	487	Undetermined	Disease
+Disease9	Gene9	No Amp	1.088	36.744	19	487	Undetermined	Disease
+Disease1	Gene10	Amp	1.423	26.552	19	2262	OK	Disease
+Disease10	Gene10	Amp	1.397	27.062	19	2262	OK	Disease
+Disease12	Gene10	Amp	1.366	26.697	19	2262	OK	Disease
+Disease13	Gene10	Amp	1.359	27.697	19	2262	OK	Disease
+Disease14	Gene10	Amp	1.390	26.849	19	2262	OK	Disease
+Disease15	Gene10	Amp	1.398	26.849	19	2262	OK	Disease
+Disease16	Gene10	Amp	1.393	25.994	19	2262	OK	Disease
+Disease17	Gene10	Amp	1.407	27.581	19	2262	OK	Disease
+Disease18	Gene10	Amp	1.504	25.127	19	2262	OK	Disease
+Disease19	Gene10	Amp	1.484	27.788	19	2262	OK	Disease
+Disease2	Gene10	Amp	1.364	27.540	19	2262	OK	Disease
+Disease22	Gene10	Amp	1.495	24.599	19	2262	OK	Disease
+Disease23	Gene10	Amp	1.463	24.039	19	2262	OK	Disease
+Disease24	Gene10	Amp	1.485	28.577	19	2262	OK	Disease
+Disease25	Gene10	Amp	1.465	27.408	19	2262	OK	Disease
+Disease26	Gene10	Amp	1.438	27.759	19	2262	OK	Disease
+Disease28	Gene10	Amp	1.459	24.657	19	2262	OK	Disease
+Disease29	Gene10	Amp	1.488	24.585	19	2262	OK	Disease
+Disease3	Gene10	Amp	1.393	29.349	19	2262	OK	Disease
+Disease30	Gene10	Amp	1.484	24.781	19	2262	OK	Disease
+Disease31	Gene10	Amp	1.468	23.042	19	2262	OK	Disease
+Disease32	Gene10	Amp	1.449	26.876	19	2262	OK	Disease
+Disease33	Gene10	Amp	1.491	26.788	19	2262	OK	Disease
+Disease34	Gene10	Amp	1.504	28.015	19	2262	OK	Disease
+Disease35	Gene10	Amp	1.510	22.043	19	2262	OK	Disease
+Disease36	Gene10	Amp	1.479	23.996	19	2262	OK	Disease
+Disease37	Gene10	Amp	1.502	25.341	19	2262	OK	Disease
+Disease38	Gene10	Amp	1.491	23.927	19	2262	OK	Disease
+Disease39	Gene10	Amp	1.490	26.675	19	2262	OK	Disease
+Disease4	Gene10	Amp	1.405	27.555	19	2262	OK	Disease
+Disease40	Gene10	Amp	1.483	26.108	19	2262	OK	Disease
+Disease41	Gene10	Amp	1.409	27.056	19	2262	OK	Disease
+Disease42	Gene10	Amp	1.420	26.494	19	2262	OK	Disease
+Disease43	Gene10	Amp	1.400	25.799	19	2262	OK	Disease
+Disease44	Gene10	Amp	1.404	28.087	19	2262	OK	Disease
+Disease5	Gene10	Amp	1.405	29.150	19	2262	OK	Disease
+Disease6	Gene10	Amp	1.386	25.711	19	2262	OK	Disease
+Disease7	Gene10	Amp	1.379	28.200	19	2262	OK	Disease
+Disease8	Gene10	Amp	1.374	26.952	19	2262	OK	Disease
+Disease9	Gene10	Amp	1.412	27.980	19	2262	OK	Disease
+Disease1	Gene11	Inconclusive	1.085	36.705	19	139	Undetermined	Disease
+Disease10	Gene11	Amp	1.300	34.112	19	2262	OK	Disease
+Disease12	Gene11	Inconclusive	1.265	35.402	19	139	Undetermined	Disease
+Disease13	Gene11	Inconclusive	1.059	37.134	19	139	Undetermined	Disease
+Disease14	Gene11	Amp	1.172	35.233	19	2262	Undetermined	Disease
+Disease15	Gene11	Inconclusive	1.203	35.135	19	139	Undetermined	Disease
+Disease16	Gene11	Inconclusive	1.101	36.637	19	139	Undetermined	Disease
+Disease17	Gene11	Amp	1.322	34.531	19	2262	OK	Disease
+Disease18	Gene11	Amp	1.432	32.600	19	2262	OK	Disease
+Disease19	Gene11	Amp	1.419	31.488	19	2262	OK	Disease
+Disease2	Gene11	Amp	1.192	35.133	19	2262	Undetermined	Disease
+Disease22	Gene11	Amp	1.393	33.173	19	2262	OK	Disease
+Disease23	Gene11	Amp	1.411	32.646	19	2262	OK	Disease
+Disease24	Gene11	No Amp	1.220	35.550	19	487	Undetermined	Disease
+Disease25	Gene11	Amp	1.341	33.747	19	2262	OK	Disease
+Disease26	Gene11	Amp	1.398	32.769	19	2262	OK	Disease
+Disease28	Gene11	Amp	1.416	32.123	19	2262	OK	Disease
+Disease29	Gene11	Amp	1.387	32.918	19	2262	OK	Disease
+Disease3	Gene11	Inconclusive	1.073	37.081	19	139	Undetermined	Disease
+Disease30	Gene11	Amp	1.272	34.298	19	2262	OK	Disease
+Disease31	Gene11	Amp	1.416	31.369	19	2262	OK	Disease
+Disease32	Gene11	Amp	1.425	32.641	19	2262	OK	Disease
+Disease33	Gene11	Amp	1.433	31.340	19	2262	OK	Disease
+Disease34	Gene11	Amp	1.343	34.296	19	2262	OK	Disease
+Disease35	Gene11	Amp	1.379	33.023	19	2262	OK	Disease
+Disease36	Gene11	Amp	1.438	30.882	19	2262	OK	Disease
+Disease37	Gene11	Amp	1.421	31.976	19	2262	OK	Disease
+Disease38	Gene11	Amp	1.438	30.214	19	2262	OK	Disease
+Disease39	Gene11	Amp	1.445	32.449	19	2262	OK	Disease
+Disease4	Gene11	Inconclusive	1.080	36.673	19	139	Undetermined	Disease
+Disease40	Gene11	Inconclusive	1.259	34.685	19	139	Undetermined	Disease
+Disease41	Gene11	Amp	1.350	30.664	19	2262	OK	Disease
+Disease42	Gene11	No Amp	1.086	36.948	19	487	Undetermined	Disease
+Disease43	Gene11	Amp	1.300	34.369	19	2262	OK	Disease
+Disease44	Gene11	Inconclusive	1.198	35.724	19	139	Undetermined	Disease
+Disease5	Gene11	Inconclusive	1.129	36.124	19	139	Undetermined	Disease
+Disease6	Gene11	Inconclusive	1.170	35.422	19	139	Undetermined	Disease
+Disease7	Gene11	Inconclusive	1.163	35.793	19	139	Undetermined	Disease
+Disease8	Gene11	Inconclusive	1.168	35.748	19	139	Undetermined	Disease
+Disease9	Gene11	Inconclusive	1.193	35.210	19	139	Undetermined	Disease
+Disease1	Gene12	Amp	1.467	28.179	19	2262	OK	Disease
+Disease10	Gene12	Amp	1.443	30.193	19	2262	OK	Disease
+Disease12	Gene12	Amp	1.465	29.426	19	2262	OK	Disease
+Disease13	Gene12	Amp	1.447	32.464	19	2262	OK	Disease
+Disease14	Gene12	Amp	1.447	29.642	19	2262	OK	Disease
+Disease15	Gene12	Amp	1.465	30.607	19	2262	OK	Disease
+Disease16	Gene12	Amp	1.444	30.709	19	2262	OK	Disease
+Disease17	Gene12	Amp	1.454	31.801	19	2262	OK	Disease
+Disease18	Gene12	Amp	1.541	26.653	19	2262	OK	Disease
+Disease19	Gene12	Amp	1.517	25.692	19	2262	OK	Disease
+Disease2	Gene12	Amp	1.437	29.506	19	2262	OK	Disease
+Disease22	Gene12	Amp	1.528	20.461	19	2262	OK	Disease
+Disease23	Gene12	Amp	1.506	21.091	19	2262	OK	Disease
+Disease24	Gene12	Amp	1.521	28.949	19	2262	OK	Disease
+Disease25	Gene12	Amp	1.512	25.438	19	2262	OK	Disease
+Disease26	Gene12	Amp	1.509	28.345	19	2262	OK	Disease
+Disease28	Gene12	Amp	1.533	24.633	19	2262	OK	Disease
+Disease29	Gene12	Amp	1.530	25.841	19	2262	OK	Disease
+Disease3	Gene12	Amp	1.443	32.356	19	2262	OK	Disease
+Disease30	Gene12	Amp	1.510	25.717	19	2262	OK	Disease
+Disease31	Gene12	Amp	1.509	17.990	19	2262	OK	Disease
+Disease32	Gene12	Amp	1.510	22.821	19	2262	OK	Disease
+Disease33	Gene12	Amp	1.540	26.012	19	2262	OK	Disease
+Disease34	Gene12	Amp	1.521	26.823	19	2262	OK	Disease
+Disease35	Gene12	Amp	1.527	20.637	19	2262	OK	Disease
+Disease36	Gene12	Amp	1.541	26.244	19	2262	OK	Disease
+Disease37	Gene12	Amp	1.562	26.172	19	2262	OK	Disease
+Disease38	Gene12	Amp	1.536	23.977	19	2262	OK	Disease
+Disease39	Gene12	Amp	1.543	27.323	19	2262	OK	Disease
+Disease4	Gene12	Amp	1.435	33.214	19	2262	OK	Disease
+Disease40	Gene12	Amp	1.540	26.635	19	2262	OK	Disease
+Disease41	Gene12	Amp	1.458	32.805	19	2262	OK	Disease
+Disease42	Gene12	Amp	1.441	28.816	19	2262	OK	Disease
+Disease43	Gene12	Amp	1.452	28.884	19	2262	OK	Disease
+Disease44	Gene12	Amp	1.466	28.021	19	2262	OK	Disease
+Disease5	Gene12	Amp	1.437	30.786	19	2262	OK	Disease
+Disease6	Gene12	Amp	1.417	24.810	19	2262	OK	Disease
+Disease7	Gene12	Amp	1.452	31.395	19	2262	OK	Disease
+Disease8	Gene12	Amp	1.429	29.242	19	2262	OK	Disease
+Disease9	Gene12	Amp	1.463	32.393	19	2262	OK	Disease
+Disease1	Gene13	Amp	1.330	28.227	19	2262	OK	Disease
+Disease10	Gene13	Amp	1.326	30.466	19	2262	OK	Disease
+Disease12	Gene13	Amp	1.316	29.889	19	2262	OK	Disease
+Disease13	Gene13	Amp	1.329	33.008	19	2262	OK	Disease
+Disease14	Gene13	Amp	1.313	29.817	19	2262	OK	Disease
+Disease15	Gene13	Amp	1.308	31.256	19	2262	OK	Disease
+Disease16	Gene13	Amp	1.311	32.053	19	2262	OK	Disease
+Disease17	Gene13	Amp	1.302	33.233	19	2262	OK	Disease
+Disease18	Gene13	Amp	1.411	26.743	19	2262	OK	Disease
+Disease19	Gene13	Amp	1.409	25.996	19	2262	OK	Disease
+Disease2	Gene13	Amp	1.347	30.915	19	2262	OK	Disease
+Disease22	Gene13	Amp	1.406	29.236	19	2262	OK	Disease
+Disease23	Gene13	Amp	1.369	28.831	19	2262	OK	Disease
+Disease24	Gene13	Amp	1.350	30.743	19	2262	OK	Disease
+Disease25	Gene13	Amp	1.409	30.279	19	2262	OK	Disease
+Disease26	Gene13	Amp	1.369	27.708	19	2262	OK	Disease
+Disease28	Gene13	Amp	1.361	26.740	19	2262	OK	Disease
+Disease29	Gene13	Amp	1.391	26.112	19	2262	OK	Disease
+Disease3	Gene13	Amp	1.337	32.459	19	2262	OK	Disease
+Disease30	Gene13	Amp	1.421	28.398	19	2262	OK	Disease
+Disease31	Gene13	Amp	1.387	26.617	19	2262	OK	Disease
+Disease32	Gene13	Amp	1.384	27.245	19	2262	OK	Disease
+Disease33	Gene13	Amp	1.416	26.110	19	2262	OK	Disease
+Disease34	Gene13	Amp	1.418	28.497	19	2262	OK	Disease
+Disease35	Gene13	Amp	1.429	26.949	19	2262	OK	Disease
+Disease36	Gene13	Amp	1.394	25.358	19	2262	OK	Disease
+Disease37	Gene13	Amp	1.416	25.402	19	2262	OK	Disease
+Disease38	Gene13	Amp	1.420	24.790	19	2262	OK	Disease
+Disease39	Gene13	Amp	1.393	28.822	19	2262	OK	Disease
+Disease4	Gene13	Amp	1.308	31.721	19	2262	OK	Disease
+Disease40	Gene13	Amp	1.398	28.001	19	2262	OK	Disease
+Disease41	Gene13	Amp	1.316	28.671	19	2262	OK	Disease
+Disease42	Gene13	Amp	1.328	29.924	19	2262	OK	Disease
+Disease43	Gene13	Amp	1.313	29.082	19	2262	OK	Disease
+Disease44	Gene13	Amp	1.301	30.038	19	2262	OK	Disease
+Disease5	Gene13	Amp	1.315	30.715	19	2262	OK	Disease
+Disease6	Gene13	Amp	1.313	29.472	19	2262	OK	Disease
+Disease7	Gene13	Amp	1.296	31.787	19	2262	OK	Disease
+Disease8	Gene13	Amp	1.297	31.961	19	2262	OK	Disease
+Disease9	Gene13	Amp	1.326	29.717	19	2262	OK	Disease
+Disease1	Gene14	Amp	1.447	27.905	19	2262	OK	Disease
+Disease10	Gene14	Amp	1.441	28.464	19	2262	OK	Disease
+Disease12	Gene14	Amp	1.472	28.120	19	2262	OK	Disease
+Disease13	Gene14	Amp	1.431	30.780	19	2262	OK	Disease
+Disease14	Gene14	Amp	1.405	30.881	19	2262	OK	Disease
+Disease15	Gene14	Amp	1.440	29.749	19	2262	OK	Disease
+Disease16	Gene14	Amp	1.424	30.425	19	2262	OK	Disease
+Disease17	Gene14	Amp	1.444	29.822	19	2262	OK	Disease
+Disease18	Gene14	Amp	1.450	28.189	19	2262	OK	Disease
+Disease19	Gene14	Amp	1.481	27.681	19	2262	OK	Disease
+Disease2	Gene14	Amp	1.457	27.712	19	2262	OK	Disease
+Disease22	Gene14	Amp	1.464	30.036	19	2262	OK	Disease
+Disease23	Gene14	Amp	1.475	30.988	19	2262	OK	Disease
+Disease24	Gene14	Amp	1.457	31.594	19	2262	OK	Disease
+Disease25	Gene14	Amp	1.470	31.212	19	2262	OK	Disease
+Disease26	Gene14	Amp	1.454	27.576	19	2262	OK	Disease
+Disease28	Gene14	Amp	1.509	27.682	19	2262	OK	Disease
+Disease29	Gene14	Amp	1.458	27.384	19	2262	OK	Disease
+Disease3	Gene14	Amp	1.431	30.782	19	2262	OK	Disease
+Disease30	Gene14	Amp	1.475	30.523	19	2262	OK	Disease
+Disease31	Gene14	Amp	1.492	27.948	19	2262	OK	Disease
+Disease32	Gene14	Amp	1.473	28.469	19	2262	OK	Disease
+Disease33	Gene14	Amp	1.475	27.428	19	2262	OK	Disease
+Disease34	Gene14	Amp	1.496	30.006	19	2262	OK	Disease
+Disease35	Gene14	Amp	1.486	27.992	19	2262	OK	Disease
+Disease36	Gene14	Amp	1.492	26.934	19	2262	OK	Disease
+Disease37	Gene14	Amp	1.468	26.537	19	2262	OK	Disease
+Disease38	Gene14	Amp	1.507	26.758	19	2262	OK	Disease
+Disease39	Gene14	Amp	1.490	28.353	19	2262	OK	Disease
+Disease4	Gene14	Amp	1.419	29.890	19	2262	OK	Disease
+Disease40	Gene14	Amp	1.496	29.048	19	2262	OK	Disease
+Disease41	Gene14	Amp	1.462	29.105	19	2262	OK	Disease
+Disease42	Gene14	Amp	1.465	30.067	19	2262	OK	Disease
+Disease43	Gene14	Amp	1.465	27.531	19	2262	OK	Disease
+Disease44	Gene14	Amp	1.465	29.282	19	2262	OK	Disease
+Disease5	Gene14	Amp	1.418	30.729	19	2262	OK	Disease
+Disease6	Gene14	Amp	1.427	28.947	19	2262	OK	Disease
+Disease7	Gene14	Amp	1.435	30.670	19	2262	OK	Disease
+Disease8	Gene14	Amp	1.438	29.683	19	2262	OK	Disease
+Disease9	Gene14	Amp	1.446	28.723	19	2262	OK	Disease
+Disease1	Gene15	Amp	1.425	30.048	19	2262	OK	Disease
+Disease10	Gene15	Amp	1.418	31.239	19	2262	OK	Disease
+Disease12	Gene15	Amp	1.422	31.990	19	2262	OK	Disease
+Disease13	Gene15	Amp	1.441	32.096	19	2262	OK	Disease
+Disease14	Gene15	Amp	1.396	29.436	19	2262	OK	Disease
+Disease15	Gene15	Amp	1.420	31.263	19	2262	OK	Disease
+Disease16	Gene15	Amp	1.422	31.051	19	2262	OK	Disease
+Disease17	Gene15	Amp	1.414	32.470	19	2262	OK	Disease
+Disease18	Gene15	Amp	1.457	29.848	19	2262	OK	Disease
+Disease19	Gene15	Amp	1.469	31.189	19	2262	OK	Disease
+Disease2	Gene15	Amp	1.420	30.169	19	2262	OK	Disease
+Disease22	Gene15	Amp	1.469	27.488	19	2262	OK	Disease
+Disease23	Gene15	Amp	1.456	26.899	19	2262	OK	Disease
+Disease24	Gene15	Amp	1.417	32.710	19	2262	OK	Disease
+Disease25	Gene15	Amp	1.441	31.056	19	2262	OK	Disease
+Disease26	Gene15	Amp	1.438	30.506	19	2262	OK	Disease
+Disease28	Gene15	Amp	1.441	30.020	19	2262	OK	Disease
+Disease29	Gene15	Amp	1.444	28.662	19	2262	OK	Disease
+Disease3	Gene15	Amp	1.413	31.458	19	2262	OK	Disease
+Disease30	Gene15	Amp	1.468	28.736	19	2262	OK	Disease
+Disease31	Gene15	Amp	1.455	25.900	19	2262	OK	Disease
+Disease32	Gene15	Amp	1.465	29.232	19	2262	OK	Disease
+Disease33	Gene15	Amp	1.449	29.121	19	2262	OK	Disease
+Disease34	Gene15	Amp	1.500	30.149	19	2262	OK	Disease
+Disease35	Gene15	Amp	1.463	26.361	19	2262	OK	Disease
+Disease36	Gene15	Amp	1.484	28.529	19	2262	OK	Disease
+Disease37	Gene15	Amp	1.470	28.891	19	2262	OK	Disease
+Disease38	Gene15	Amp	1.456	26.624	19	2262	OK	Disease
+Disease39	Gene15	Amp	1.477	30.426	19	2262	OK	Disease
+Disease4	Gene15	Amp	1.422	32.103	19	2262	OK	Disease
+Disease40	Gene15	Amp	1.465	30.730	19	2262	OK	Disease
+Disease41	Gene15	Amp	1.488	28.992	19	2262	OK	Disease
+Disease42	Gene15	Amp	1.422	29.436	19	2262	OK	Disease
+Disease43	Gene15	Amp	1.432	30.866	19	2262	OK	Disease
+Disease44	Gene15	Amp	1.436	31.693	19	2262	OK	Disease
+Disease5	Gene15	Amp	1.413	33.110	19	2262	OK	Disease
+Disease6	Gene15	Amp	1.406	28.651	19	2262	OK	Disease
+Disease7	Gene15	Amp	1.424	31.467	19	2262	OK	Disease
+Disease8	Gene15	Amp	1.434	31.653	19	2262	OK	Disease
+Disease9	Gene15	Amp	1.415	30.641	19	2262	OK	Disease
+Disease1	Gene16	Amp	1.469	21.691	19	2262	OK	Disease
+Disease10	Gene16	Amp	1.460	22.493	19	2262	OK	Disease
+Disease12	Gene16	Amp	1.462	23.580	19	2262	OK	Disease
+Disease13	Gene16	Amp	1.469	24.461	19	2262	OK	Disease
+Disease14	Gene16	Amp	1.430	22.741	19	2262	OK	Disease
+Disease15	Gene16	Amp	1.448	23.971	19	2262	OK	Disease
+Disease16	Gene16	Amp	1.460	23.443	19	2262	OK	Disease
+Disease17	Gene16	Amp	1.452	24.294	19	2262	OK	Disease
+Disease18	Gene16	Amp	1.469	22.928	19	2262	OK	Disease
+Disease19	Gene16	Amp	1.476	22.091	19	2262	OK	Disease
+Disease2	Gene16	Amp	1.461	22.332	19	2262	OK	Disease
+Disease22	Gene16	Amp	1.483	23.414	19	2262	OK	Disease
+Disease23	Gene16	Amp	1.493	23.691	19	2262	OK	Disease
+Disease24	Gene16	Amp	1.472	25.560	19	2262	OK	Disease
+Disease25	Gene16	Amp	1.492	25.737	19	2262	OK	Disease
+Disease26	Gene16	Amp	1.488	22.528	19	2262	OK	Disease
+Disease28	Gene16	Amp	1.446	22.034	19	2262	OK	Disease
+Disease29	Gene16	Amp	1.473	20.620	19	2262	OK	Disease
+Disease3	Gene16	Amp	1.411	24.104	19	2262	OK	Disease
+Disease30	Gene16	Amp	1.485	23.812	19	2262	OK	Disease
+Disease31	Gene16	Amp	1.485	21.042	19	2262	OK	Disease
+Disease32	Gene16	Amp	1.479	22.497	19	2262	OK	Disease
+Disease33	Gene16	Amp	1.481	21.006	19	2262	OK	Disease
+Disease34	Gene16	Amp	1.489	22.818	19	2262	OK	Disease
+Disease35	Gene16	Amp	1.494	20.847	19	2262	OK	Disease
+Disease36	Gene16	Amp	1.541	20.162	19	2262	OK	Disease
+Disease37	Gene16	Amp	1.476	20.963	19	2262	OK	Disease
+Disease38	Gene16	Amp	1.514	19.997	19	2262	OK	Disease
+Disease39	Gene16	Amp	1.504	22.551	19	2262	OK	Disease
+Disease4	Gene16	Amp	1.448	23.271	19	2262	OK	Disease
+Disease40	Gene16	Amp	1.493	22.867	19	2262	OK	Disease
+Disease41	Gene16	Amp	1.493	21.658	19	2262	OK	Disease
+Disease42	Gene16	Amp	1.459	23.732	19	2262	OK	Disease
+Disease43	Gene16	Amp	1.455	22.849	19	2262	OK	Disease
+Disease44	Gene16	Amp	1.472	24.810	19	2262	OK	Disease
+Disease5	Gene16	Amp	1.433	25.119	19	2262	OK	Disease
+Disease6	Gene16	Amp	1.440	22.194	19	2262	OK	Disease
+Disease7	Gene16	Amp	1.468	23.467	19	2262	OK	Disease
+Disease8	Gene16	Amp	1.453	23.643	19	2262	OK	Disease
+Disease9	Gene16	Amp	1.445	22.883	19	2262	OK	Disease
+Disease1	Gene17	Amp	1.308	26.272	19	2262	OK	Disease
+Disease10	Gene17	Amp	1.313	27.116	19	2262	OK	Disease
+Disease12	Gene17	Amp	1.318	27.622	19	2262	OK	Disease
+Disease13	Gene17	Amp	1.325	28.483	19	2262	OK	Disease
+Disease14	Gene17	Amp	1.294	27.626	19	2262	OK	Disease
+Disease15	Gene17	Amp	1.321	27.648	19	2262	OK	Disease
+Disease16	Gene17	Amp	1.317	27.876	19	2262	OK	Disease
+Disease17	Gene17	Amp	1.303	28.174	19	2262	OK	Disease
+Disease18	Gene17	Amp	1.338	26.514	19	2262	OK	Disease
+Disease19	Gene17	Amp	1.337	27.548	19	2262	OK	Disease
+Disease2	Gene17	Amp	1.291	27.450	19	2262	OK	Disease
+Disease22	Gene17	Amp	1.363	26.332	19	2262	OK	Disease
+Disease23	Gene17	Amp	1.348	28.455	19	2262	OK	Disease
+Disease24	Gene17	Amp	1.291	28.893	19	2262	OK	Disease
+Disease25	Gene17	Amp	1.336	29.132	19	2262	OK	Disease
+Disease26	Gene17	Amp	1.304	27.017	19	2262	OK	Disease
+Disease28	Gene17	Amp	1.319	26.116	19	2262	OK	Disease
+Disease29	Gene17	Amp	1.342	25.176	19	2262	OK	Disease
+Disease3	Gene17	Amp	1.319	29.103	19	2262	OK	Disease
+Disease30	Gene17	Amp	1.311	28.229	19	2262	OK	Disease
+Disease31	Gene17	Amp	1.335	25.281	19	2262	OK	Disease
+Disease32	Gene17	Amp	1.316	26.606	19	2262	OK	Disease
+Disease33	Gene17	Amp	1.341	25.055	19	2262	OK	Disease
+Disease34	Gene17	Amp	1.329	28.062	19	2262	OK	Disease
+Disease35	Gene17	Amp	1.331	24.936	19	2262	OK	Disease
+Disease36	Gene17	Amp	1.349	25.334	19	2262	OK	Disease
+Disease37	Gene17	Amp	1.348	26.187	19	2262	OK	Disease
+Disease38	Gene17	Amp	1.364	24.447	19	2262	OK	Disease
+Disease39	Gene17	Amp	1.368	27.124	19	2262	OK	Disease
+Disease4	Gene17	Amp	1.309	27.244	19	2262	OK	Disease
+Disease40	Gene17	Amp	1.343	27.943	19	2262	OK	Disease
+Disease41	Gene17	Amp	1.319	27.137	19	2262	OK	Disease
+Disease42	Gene17	Amp	1.329	28.823	19	2262	OK	Disease
+Disease43	Gene17	Amp	1.337	26.406	19	2262	OK	Disease
+Disease44	Gene17	Amp	1.337	29.328	19	2262	OK	Disease
+Disease5	Gene17	Amp	1.540	28.690	19	2262	OK	Disease
+Disease6	Gene17	Amp	1.313	26.855	19	2262	OK	Disease
+Disease7	Gene17	Amp	1.305	28.681	19	2262	OK	Disease
+Disease8	Gene17	Amp	1.330	26.989	19	2262	OK	Disease
+Disease9	Gene17	Amp	1.320	27.564	19	2262	OK	Disease
+Disease1	Gene18	Amp	1.382	28.165	19	2262	OK	Disease
+Disease10	Gene18	Amp	1.404	28.545	19	2262	OK	Disease
+Disease12	Gene18	Amp	1.420	29.613	19	2262	OK	Disease
+Disease13	Gene18	Amp	1.415	30.154	19	2262	OK	Disease
+Disease14	Gene18	Amp	1.389	26.575	19	2262	OK	Disease
+Disease15	Gene18	Amp	1.409	29.287	19	2262	OK	Disease
+Disease16	Gene18	Amp	1.438	28.905	19	2262	OK	Disease
+Disease17	Gene18	Amp	1.424	29.862	19	2262	OK	Disease
+Disease18	Gene18	Amp	1.436	27.967	19	2262	OK	Disease
+Disease19	Gene18	Amp	1.454	27.779	19	2262	OK	Disease
+Disease2	Gene18	Amp	1.338	30.083	19	2262	OK	Disease
+Disease22	Gene18	Amp	1.462	26.631	19	2262	OK	Disease
+Disease23	Gene18	Amp	1.436	27.834	19	2262	OK	Disease
+Disease24	Gene18	Amp	1.457	31.135	19	2262	OK	Disease
+Disease25	Gene18	Amp	1.466	28.991	19	2262	OK	Disease
+Disease26	Gene18	Amp	1.446	28.743	19	2262	OK	Disease
+Disease28	Gene18	Amp	1.431	27.410	19	2262	OK	Disease
+Disease29	Gene18	Amp	1.436	27.431	19	2262	OK	Disease
+Disease3	Gene18	Amp	1.406	29.432	19	2262	OK	Disease
+Disease30	Gene18	Amp	1.443	28.030	19	2262	OK	Disease
+Disease31	Gene18	Amp	1.452	25.592	19	2262	OK	Disease
+Disease32	Gene18	Amp	1.452	27.622	19	2262	OK	Disease
+Disease33	Gene18	Amp	1.475	28.036	19	2262	OK	Disease
+Disease34	Gene18	Amp	1.439	29.474	19	2262	OK	Disease
+Disease35	Gene18	Amp	1.466	26.887	19	2262	OK	Disease
+Disease36	Gene18	Amp	1.456	26.879	19	2262	OK	Disease
+Disease37	Gene18	Amp	1.446	28.048	19	2262	OK	Disease
+Disease38	Gene18	Amp	1.468	26.307	19	2262	OK	Disease
+Disease39	Gene18	Amp	1.469	28.610	19	2262	OK	Disease
+Disease4	Gene18	Amp	1.422	29.898	19	2262	OK	Disease
+Disease40	Gene18	Amp	1.470	29.338	19	2262	OK	Disease
+Disease41	Gene18	Amp	1.455	27.937	19	2262	OK	Disease
+Disease42	Gene18	Amp	1.423	29.378	19	2262	OK	Disease
+Disease43	Gene18	Amp	1.411	28.878	19	2262	OK	Disease
+Disease44	Gene18	Amp	1.431	30.424	19	2262	OK	Disease
+Disease5	Gene18	Amp	1.399	30.447	19	2262	OK	Disease
+Disease6	Gene18	Amp	1.423	27.769	19	2262	OK	Disease
+Disease7	Gene18	Amp	1.424	29.402	19	2262	OK	Disease
+Disease8	Gene18	Amp	1.420	29.386	19	2262	OK	Disease
+Disease9	Gene18	Amp	1.425	28.962	19	2262	OK	Disease
+Disease1	Gene19	Amp	1.500	28.263	19	2262	OK	Disease
+Disease10	Gene19	Amp	1.498	27.358	19	2262	OK	Disease
+Disease12	Gene19	Amp	1.480	28.867	19	2262	OK	Disease
+Disease13	Gene19	Amp	1.502	29.951	19	2262	OK	Disease
+Disease14	Gene19	Amp	1.454	29.459	19	2262	OK	Disease
+Disease15	Gene19	Amp	1.493	29.018	19	2262	OK	Disease
+Disease16	Gene19	Amp	1.488	28.959	19	2262	OK	Disease
+Disease17	Gene19	Amp	1.525	28.763	19	2262	OK	Disease
+Disease18	Gene19	Amp	1.522	27.735	19	2262	OK	Disease
+Disease19	Gene19	Amp	1.508	27.325	19	2262	OK	Disease
+Disease2	Gene19	Amp	1.472	27.947	19	2262	OK	Disease
+Disease22	Gene19	Amp	1.541	29.077	19	2262	OK	Disease
+Disease23	Gene19	Amp	1.519	30.415	19	2262	OK	Disease
+Disease24	Gene19	Amp	1.527	31.039	19	2262	OK	Disease
+Disease25	Gene19	Amp	1.534	29.690	19	2262	OK	Disease
+Disease26	Gene19	Amp	1.517	27.540	19	2262	OK	Disease
+Disease28	Gene19	Amp	1.488	28.254	19	2262	OK	Disease
+Disease29	Gene19	Amp	1.490	27.203	19	2262	OK	Disease
+Disease3	Gene19	Amp	1.493	29.266	19	2262	OK	Disease
+Disease30	Gene19	Amp	1.526	29.804	19	2262	OK	Disease
+Disease31	Gene19	Amp	1.530	27.999	19	2262	OK	Disease
+Disease32	Gene19	Amp	1.506	28.189	19	2262	OK	Disease
+Disease33	Gene19	Amp	1.525	26.520	19	2262	OK	Disease
+Disease34	Gene19	Amp	1.553	28.837	19	2262	OK	Disease
+Disease35	Gene19	Amp	1.520	27.584	19	2262	OK	Disease
+Disease36	Gene19	Amp	1.537	26.524	19	2262	OK	Disease
+Disease37	Gene19	Amp	1.511	26.558	19	2262	OK	Disease
+Disease38	Gene19	Amp	1.533	26.054	19	2262	OK	Disease
+Disease39	Gene19	Amp	1.514	28.112	19	2262	OK	Disease
+Disease4	Gene19	Amp	1.483	28.391	19	2262	OK	Disease
+Disease40	Gene19	Amp	1.531	29.138	19	2262	OK	Disease
+Disease41	Gene19	Amp	1.519	27.208	19	2262	OK	Disease
+Disease42	Gene19	Amp	1.507	29.554	19	2262	OK	Disease
+Disease43	Gene19	Amp	1.501	27.926	19	2262	OK	Disease
+Disease44	Gene19	Amp	1.545	29.693	19	2262	OK	Disease
+Disease5	Gene19	No Amp	0.000	Undetermined	19	487	Undetermined	Disease
+Disease6	Gene19	Amp	1.484	28.062	19	2262	OK	Disease
+Disease7	Gene19	Amp	1.486	29.479	19	2262	OK	Disease
+Disease8	Gene19	Amp	1.482	29.475	19	2262	OK	Disease
+Disease9	Gene19	Amp	1.485	28.246	19	2262	OK	Disease
+Disease1	Gene20	Amp	1.433	32.725	19	2262	OK	Disease
+Disease10	Gene20	Amp	1.542	32.886	19	2262	OK	Disease
+Disease12	Gene20	Amp	1.460	31.011	19	2262	OK	Disease
+Disease13	Gene20	Amp	1.390	35.868	19	2262	Undetermined	Disease
+Disease14	Gene20	Amp	1.441	32.032	19	2262	OK	Disease
+Disease15	Gene20	Amp	1.447	34.362	19	2262	OK	Disease
+Disease16	Gene20	Amp	1.423	35.241	19	2262	Undetermined	Disease
+Disease17	Gene20	Amp	1.376	35.972	19	2262	Undetermined	Disease
+Disease18	Gene20	Amp	1.484	30.864	19	2262	OK	Disease
+Disease19	Gene20	Amp	1.499	29.509	19	2262	OK	Disease
+Disease2	Gene20	Amp	1.466	34.636	19	2262	OK	Disease
+Disease22	Gene20	Amp	1.470	32.482	19	2262	OK	Disease
+Disease23	Gene20	Amp	1.463	31.895	19	2262	OK	Disease
+Disease24	Gene20	Amp	1.470	34.386	19	2262	OK	Disease
+Disease25	Gene20	Amp	1.493	32.888	19	2262	OK	Disease
+Disease26	Gene20	Amp	1.501	30.758	19	2262	OK	Disease
+Disease28	Gene20	Amp	1.470	30.010	19	2262	OK	Disease
+Disease29	Gene20	Amp	1.492	29.839	19	2262	OK	Disease
+Disease3	Gene20	Inconclusive	1.387	35.930	19	139	Undetermined	Disease
+Disease30	Gene20	Amp	1.511	31.987	19	2262	OK	Disease
+Disease31	Gene20	Amp	1.488	30.300	19	2262	OK	Disease
+Disease32	Gene20	Amp	1.508	31.329	19	2262	OK	Disease
+Disease33	Gene20	Amp	1.473	30.627	19	2262	OK	Disease
+Disease34	Gene20	Amp	1.508	32.508	19	2262	OK	Disease
+Disease35	Gene20	Amp	1.498	30.774	19	2262	OK	Disease
+Disease36	Gene20	Amp	1.481	28.720	19	2262	OK	Disease
+Disease37	Gene20	Amp	1.509	29.192	19	2262	OK	Disease
+Disease38	Gene20	Amp	1.526	28.878	19	2262	OK	Disease
+Disease39	Gene20	Amp	1.515	32.293	19	2262	OK	Disease
+Disease4	Gene20	Amp	1.416	34.729	19	2262	OK	Disease
+Disease40	Gene20	Amp	1.506	32.024	19	2262	OK	Disease
+Disease41	Gene20	Amp	1.578	30.535	19	2262	OK	Disease
+Disease42	Gene20	Amp	1.460	32.572	19	2262	OK	Disease
+Disease43	Gene20	Amp	1.471	32.749	19	2262	OK	Disease
+Disease44	Gene20	Amp	1.476	33.071	19	2262	OK	Disease
+Disease5	Gene20	Amp	1.482	33.508	19	2262	OK	Disease
+Disease6	Gene20	Amp	1.474	32.800	19	2262	OK	Disease
+Disease7	Gene20	Amp	1.460	34.536	19	2262	OK	Disease
+Disease8	Gene20	Amp	1.403	34.871	19	2262	OK	Disease
+Disease9	Gene20	Amp	1.458	33.375	19	2262	OK	Disease
+Control01	Gene1	Amp	1.403	30.402	22	2262	OK	Control
+Control02	Gene1	Amp	1.456	33.052	22	2262	OK	Control
+Control03	Gene1	Amp	1.425	32.096	22	2262	OK	Control
+Control04	Gene1	Amp	1.439	33.941	22	2262	OK	Control
+Control05	Gene1	Amp	1.349	35.507	22	2262	Undetermined	Control
+Control06	Gene1	Amp	1.443	34.053	22	2262	OK	Control
+Control07	Gene1	Amp	1.437	27.941	22	2262	OK	Control
+Control08	Gene1	Inconclusive	1.240	36.668	22	139	Undetermined	Control
+Control09	Gene1	Amp	1.430	33.073	22	2262	OK	Control
+Control11	Gene1	Amp	1.427	34.234	22	2262	OK	Control
+Control12	Gene1	Amp	1.426	34.475	22	2262	OK	Control
+Control13	Gene1	Amp	1.279	35.976	22	2262	Undetermined	Control
+Control14	Gene1	Amp	1.432	32.728	22	2262	OK	Control
+Control15	Gene1	Amp	1.429	32.340	22	2262	OK	Control
+Control16	Gene1	Amp	1.348	35.647	22	2262	Undetermined	Control
+Control17	Gene1	Amp	1.396	34.466	22	2262	OK	Control
+Control19	Gene1	Amp	1.428	33.723	22	2262	OK	Control
+Control20	Gene1	Amp	1.433	33.068	22	2262	OK	Control
+Control21	Gene1	Amp	1.437	34.038	22	2262	OK	Control
+Control22	Gene1	Amp	1.361	35.573	22	2262	Undetermined	Control
+Control23	Gene1	Amp	1.433	31.314	22	2262	OK	Control
+Control24	Gene1	Amp	1.436	33.079	22	2262	OK	Control
+Control25	Gene1	Inconclusive	1.371	34.836	22	139	Undetermined	Control
+Control26	Gene1	Amp	1.359	34.506	22	2262	OK	Control
+Control01	Gene2	No Amp	1.287	34.886	22	487	Undetermined	Control
+Control02	Gene2	No Amp	0.000	36.841	22	487	Undetermined	Control
+Control03	Gene2	No Amp	1.213	35.774	22	487	Undetermined	Control
+Control04	Gene2	No Amp	1.120	36.383	22	487	Undetermined	Control
+Control05	Gene2	No Amp	0.000	37.524	22	487	Undetermined	Control
+Control06	Gene2	No Amp	1.090	37.094	22	487	Undetermined	Control
+Control07	Gene2	No Amp	0.000	36.487	22	487	Undetermined	Control
+Control08	Gene2	No Amp	0.776	Undetermined	22	487	Undetermined	Control
+Control09	Gene2	No Amp	1.185	35.993	22	487	Undetermined	Control
+Control11	Gene2	No Amp	1.125	36.630	22	487	Undetermined	Control
+Control12	Gene2	No Amp	0.816	38.793	22	487	Undetermined	Control
+Control13	Gene2	No Amp	0.000	37.958	22	487	Undetermined	Control
+Control14	Gene2	No Amp	0.988	37.802	22	487	Undetermined	Control
+Control15	Gene2	No Amp	1.207	35.834	22	487	Undetermined	Control
+Control16	Gene2	No Amp	0.763	Undetermined	22	487	Undetermined	Control
+Control17	Gene2	No Amp	1.052	37.410	22	487	Undetermined	Control
+Control19	Gene2	No Amp	1.185	35.604	22	487	Undetermined	Control
+Control20	Gene2	No Amp	0.785	Undetermined	22	487	Undetermined	Control
+Control21	Gene2	No Amp	0.909	38.219	22	487	Undetermined	Control
+Control22	Gene2	No Amp	0.573	Undetermined	22	487	Undetermined	Control
+Control23	Gene2	No Amp	1.225	35.672	22	487	Undetermined	Control
+Control24	Gene2	No Amp	0.982	37.901	22	487	Undetermined	Control
+Control25	Gene2	No Amp	0.729	39.471	22	487	Undetermined	Control
+Control26	Gene2	No Amp	0.963	38.011	22	487	Undetermined	Control
+Control01	Gene3	Amp	1.388	29.179	22	2262	OK	Control
+Control02	Gene3	Amp	1.361	31.408	22	2262	OK	Control
+Control03	Gene3	Amp	1.364	28.203	22	2262	OK	Control
+Control04	Gene3	Amp	1.408	29.143	22	2262	OK	Control
+Control05	Gene3	Amp	1.359	33.657	22	2262	OK	Control
+Control06	Gene3	Amp	1.371	30.039	22	2262	OK	Control
+Control07	Gene3	Amp	1.393	30.028	22	2262	OK	Control
+Control08	Gene3	Amp	1.293	34.853	22	2262	OK	Control
+Control09	Gene3	Amp	1.394	31.095	22	2262	OK	Control
+Control11	Gene3	Amp	1.369	32.662	22	2262	OK	Control
+Control12	Gene3	Amp	1.370	30.194	22	2262	OK	Control
+Control13	Gene3	Amp	1.361	32.600	22	2262	OK	Control
+Control14	Gene3	Amp	1.379	30.601	22	2262	OK	Control
+Control15	Gene3	Amp	1.386	30.821	22	2262	OK	Control
+Control16	Gene3	Amp	1.387	33.432	22	2262	OK	Control
+Control17	Gene3	Amp	1.392	30.462	22	2262	OK	Control
+Control19	Gene3	Amp	1.388	32.756	22	2262	OK	Control
+Control20	Gene3	No Amp	0.000	38.850	22	487	Undetermined	Control
+Control21	Gene3	Amp	1.316	34.873	22	2262	OK	Control
+Control22	Gene3	Amp	1.313	34.886	22	2262	OK	Control
+Control23	Gene3	Amp	1.425	31.745	22	2262	OK	Control
+Control24	Gene3	No Amp	1.032	38.000	22	487	Undetermined	Control
+Control25	Gene3	Amp	1.305	34.786	22	2262	OK	Control
+Control26	Gene3	Amp	1.315	34.256	22	2262	OK	Control
+Control01	Gene4	Amp	1.400	21.513	22	2262	OK	Control
+Control02	Gene4	Amp	1.415	23.653	22	2262	OK	Control
+Control03	Gene4	Amp	1.428	20.499	22	2262	OK	Control
+Control04	Gene4	Amp	1.409	22.521	22	2262	OK	Control
+Control05	Gene4	Amp	1.429	24.123	22	2262	OK	Control
+Control06	Gene4	Amp	1.447	22.941	22	2262	OK	Control
+Control07	Gene4	Amp	1.460	21.166	22	2262	OK	Control
+Control08	Gene4	Amp	1.437	26.228	22	2262	OK	Control
+Control09	Gene4	Amp	1.423	23.147	22	2262	OK	Control
+Control11	Gene4	Amp	1.435	22.945	22	2262	OK	Control
+Control12	Gene4	Amp	1.436	23.637	22	2262	OK	Control
+Control13	Gene4	Amp	1.428	25.186	22	2262	OK	Control
+Control14	Gene4	Amp	1.430	22.786	22	2262	OK	Control
+Control15	Gene4	Amp	1.453	21.877	22	2262	OK	Control
+Control16	Gene4	Amp	1.437	25.435	22	2262	OK	Control
+Control17	Gene4	Amp	1.441	22.874	22	2262	OK	Control
+Control19	Gene4	Amp	1.438	24.268	22	2262	OK	Control
+Control20	Gene4	Amp	1.425	25.523	22	2262	OK	Control
+Control21	Gene4	Amp	1.440	23.935	22	2262	OK	Control
+Control22	Gene4	Amp	1.435	25.056	22	2262	OK	Control
+Control23	Gene4	Amp	1.462	20.966	22	2262	OK	Control
+Control24	Gene4	Amp	1.442	24.995	22	2262	OK	Control
+Control25	Gene4	Amp	1.435	24.597	22	2262	OK	Control
+Control26	Gene4	Amp	1.441	23.801	22	2262	OK	Control
+Control01	Gene5	Amp	1.403	32.118	22	2262	OK	Control
+Control02	Gene5	Amp	1.255	35.042	22	2262	Undetermined	Control
+Control03	Gene5	Amp	1.350	33.275	22	2262	OK	Control
+Control04	Gene5	Inconclusive	1.228	35.550	22	139	Undetermined	Control
+Control05	Gene5	No Amp	1.159	36.667	22	487	Undetermined	Control
+Control06	Gene5	Amp	1.353	34.600	22	2262	OK	Control
+Control07	Gene5	Amp	1.409	32.097	22	2262	OK	Control
+Control08	Gene5	No Amp	1.105	37.147	22	487	Undetermined	Control
+Control09	Gene5	No Amp	1.195	36.036	22	487	Undetermined	Control
+Control11	Gene5	No Amp	1.203	36.241	22	487	Undetermined	Control
+Control12	Gene5	Amp	1.301	34.645	22	2262	OK	Control
+Control13	Gene5	No Amp	1.140	36.808	22	487	Undetermined	Control
+Control14	Gene5	Amp	1.445	32.484	22	2262	OK	Control
+Control15	Gene5	Amp	1.349	34.558	22	2262	OK	Control
+Control16	Gene5	No Amp	1.139	36.844	22	487	Undetermined	Control
+Control17	Gene5	Amp	1.352	34.369	22	2262	OK	Control
+Control19	Gene5	Amp	1.433	31.799	22	2262	OK	Control
+Control20	Gene5	Inconclusive	0.990	38.097	22	139	Undetermined	Control
+Control21	Gene5	Amp	1.424	32.783	22	2262	OK	Control
+Control22	Gene5	No Amp	1.238	35.709	22	487	Undetermined	Control
+Control23	Gene5	Amp	1.459	31.588	22	2262	OK	Control
+Control24	Gene5	No Amp	1.241	35.664	22	487	Undetermined	Control
+Control25	Gene5	No Amp	1.020	37.935	22	487	Undetermined	Control
+Control26	Gene5	No Amp	1.083	37.361	22	487	Undetermined	Control
+Control01	Gene7	Amp	1.415	30.210	22	2262	OK	Control
+Control02	Gene7	Amp	1.480	31.761	22	2262	OK	Control
+Control03	Gene7	Amp	1.497	30.179	22	2262	OK	Control
+Control04	Gene7	Amp	1.429	32.356	22	2262	OK	Control
+Control05	Gene7	Amp	1.454	31.019	22	2262	OK	Control
+Control06	Gene7	Amp	1.470	32.365	22	2262	OK	Control
+Control07	Gene7	Amp	1.457	29.246	22	2262	OK	Control
+Control08	Gene7	Inconclusive	1.244	35.913	22	139	Undetermined	Control
+Control09	Gene7	Amp	1.449	30.209	22	2262	OK	Control
+Control11	Gene7	Amp	1.375	34.374	22	2262	OK	Control
+Control12	Gene7	No Amp	1.225	36.446	22	487	Undetermined	Control
+Control13	Gene7	Amp	1.374	34.338	22	2262	OK	Control
+Control14	Gene7	Amp	1.469	32.538	22	2262	OK	Control
+Control15	Gene7	Amp	1.461	31.137	22	2262	OK	Control
+Control16	Gene7	Inconclusive	1.222	36.135	22	139	Undetermined	Control
+Control17	Gene7	Amp	1.400	33.805	22	2262	OK	Control
+Control19	Gene7	Amp	1.430	31.707	22	2262	OK	Control
+Control20	Gene7	Amp	1.453	31.178	22	2262	OK	Control
+Control21	Gene7	Amp	1.471	31.580	22	2262	OK	Control
+Control22	Gene7	Amp	1.348	35.072	22	2262	Undetermined	Control
+Control23	Gene7	Amp	1.444	30.936	22	2262	OK	Control
+Control24	Gene7	Amp	1.488	31.538	22	2262	OK	Control
+Control25	Gene7	Amp	1.378	34.236	22	2262	OK	Control
+Control26	Gene7	Amp	1.451	31.987	22	2262	OK	Control
+Control01	Gene6	No Amp	0.000	Undetermined	22	487	Undetermined	Control
+Control01	Gene6	No Amp	0.000	Undetermined	22	487	Undetermined	Control
+Control02	Gene6	No Amp	0.000	Undetermined	22	487	Undetermined	Control
+Control02	Gene6	No Amp	0.000	Undetermined	22	487	Undetermined	Control
+Control03	Gene6	No Amp	0.000	Undetermined	22	487	Undetermined	Control
+Control03	Gene6	No Amp	0.000	Undetermined	22	487	Undetermined	Control
+Control04	Gene6	No Amp	0.000	Undetermined	22	487	Undetermined	Control
+Control04	Gene6	No Amp	0.000	Undetermined	22	487	Undetermined	Control
+Control05	Gene6	No Amp	0.000	Undetermined	22	487	Undetermined	Control
+Control05	Gene6	No Amp	0.000	Undetermined	22	487	Undetermined	Control
+Control06	Gene6	No Amp	0.000	Undetermined	22	487	Undetermined	Control
+Control06	Gene6	No Amp	0.000	Undetermined	22	487	Undetermined	Control
+Control07	Gene6	No Amp	0.000	Undetermined	22	487	Undetermined	Control
+Control07	Gene6	No Amp	0.000	Undetermined	22	487	Undetermined	Control
+Control08	Gene6	No Amp	0.000	Undetermined	22	487	Undetermined	Control
+Control08	Gene6	No Amp	0.000	Undetermined	22	487	Undetermined	Control
+Control09	Gene6	No Amp	0.000	Undetermined	22	487	Undetermined	Control
+Control09	Gene6	No Amp	0.000	Undetermined	22	487	Undetermined	Control
+Control11	Gene6	No Amp	0.000	Undetermined	22	487	Undetermined	Control
+Control11	Gene6	No Amp	0.000	Undetermined	22	487	Undetermined	Control
+Control12	Gene6	No Amp	0.000	Undetermined	22	487	Undetermined	Control
+Control12	Gene6	No Amp	0.000	Undetermined	22	487	Undetermined	Control
+Control13	Gene6	No Amp	0.000	Undetermined	22	487	Undetermined	Control
+Control13	Gene6	No Amp	0.000	Undetermined	22	487	Undetermined	Control
+Control14	Gene6	No Amp	0.000	Undetermined	22	487	Undetermined	Control
+Control14	Gene6	No Amp	0.000	Undetermined	22	487	Undetermined	Control
+Control15	Gene6	No Amp	0.000	Undetermined	22	487	Undetermined	Control
+Control15	Gene6	Inconclusive	0.000	Undetermined	22	139	Undetermined	Control
+Control16	Gene6	No Amp	0.000	Undetermined	22	487	Undetermined	Control
+Control16	Gene6	No Amp	0.000	Undetermined	22	487	Undetermined	Control
+Control17	Gene6	No Amp	0.000	Undetermined	22	487	Undetermined	Control
+Control17	Gene6	No Amp	0.000	Undetermined	22	487	Undetermined	Control
+Control19	Gene6	No Amp	0.000	Undetermined	22	487	Undetermined	Control
+Control19	Gene6	No Amp	0.000	Undetermined	22	487	Undetermined	Control
+Control20	Gene6	No Amp	0.000	Undetermined	22	487	Undetermined	Control
+Control20	Gene6	No Amp	0.992	38.000	22	487	Undetermined	Control
+Control21	Gene6	No Amp	0.000	Undetermined	22	487	Undetermined	Control
+Control21	Gene6	No Amp	0.000	Undetermined	22	487	Undetermined	Control
+Control22	Gene6	No Amp	0.000	Undetermined	22	487	Undetermined	Control
+Control22	Gene6	No Amp	0.000	Undetermined	22	487	Undetermined	Control
+Control23	Gene6	No Amp	0.000	Undetermined	22	487	Undetermined	Control
+Control23	Gene6	No Amp	0.000	Undetermined	22	487	Undetermined	Control
+Control24	Gene6	No Amp	0.000	Undetermined	22	487	Undetermined	Control
+Control24	Gene6	No Amp	0.000	Undetermined	22	487	Undetermined	Control
+Control25	Gene6	No Amp	0.000	Undetermined	22	487	Undetermined	Control
+Control25	Gene6	No Amp	0.000	Undetermined	22	487	Undetermined	Control
+Control26	Gene6	No Amp	0.000	Undetermined	22	487	Undetermined	Control
+Control26	Gene6	No Amp	0.000	Undetermined	22	487	Undetermined	Control
+Control01	Gene8	Amp	1.341	20.304	22	2262	OK	Control
+Control01	Gene8	Amp	1.365	20.575	22	2262	OK	Control
+Control02	Gene8	Amp	1.327	22.641	22	2262	OK	Control
+Control02	Gene8	Amp	1.404	20.454	22	2262	OK	Control
+Control03	Gene8	Amp	1.284	21.572	22	2262	OK	Control
+Control03	Gene8	Amp	1.415	22.193	22	2262	OK	Control
+Control04	Gene8	Amp	1.306	21.198	22	2262	OK	Control
+Control04	Gene8	Amp	1.389	19.606	22	2262	OK	Control
+Control05	Gene8	Amp	1.335	23.963	22	2262	OK	Control
+Control05	Gene8	Amp	1.365	22.653	22	2262	OK	Control
+Control06	Gene8	Amp	1.390	23.206	22	2262	OK	Control
+Control06	Gene8	Amp	1.400	22.109	22	2262	OK	Control
+Control07	Gene8	Amp	1.319	18.432	22	2262	OK	Control
+Control07	Gene8	Amp	1.361	22.500	22	2262	OK	Control
+Control08	Gene8	Amp	1.307	26.604	22	2262	OK	Control
+Control08	Gene8	Amp	1.382	26.289	22	2262	OK	Control
+Control09	Gene8	Amp	1.339	21.502	22	2262	OK	Control
+Control09	Gene8	Amp	1.360	21.358	22	2262	OK	Control
+Control11	Gene8	Amp	1.326	24.005	22	2262	OK	Control
+Control11	Gene8	Amp	1.388	28.576	22	2262	OK	Control
+Control12	Gene8	Amp	1.347	23.785	22	2262	OK	Control
+Control12	Gene8	Amp	1.376	22.437	22	2262	OK	Control
+Control13	Gene8	Amp	1.331	25.106	22	2262	OK	Control
+Control13	Gene8	Amp	1.373	24.794	22	2262	OK	Control
+Control14	Gene8	Amp	1.338	22.152	22	2262	OK	Control
+Control14	Gene8	Amp	1.398	22.540	22	2262	OK	Control
+Control15	Gene8	Amp	1.329	22.064	22	2262	OK	Control
+Control15	Gene8	Amp	1.396	22.683	22	2262	OK	Control
+Control16	Gene8	Amp	1.322	24.962	22	2262	OK	Control
+Control16	Gene8	Amp	1.370	25.876	22	2262	OK	Control
+Control17	Gene8	Amp	1.345	23.963	22	2262	OK	Control
+Control17	Gene8	Amp	1.390	22.583	22	2262	OK	Control
+Control19	Gene8	Amp	1.310	21.865	22	2262	OK	Control
+Control19	Gene8	Amp	1.351	22.883	22	2262	OK	Control
+Control20	Gene8	Amp	1.319	23.391	22	2262	OK	Control
+Control20	Gene8	Amp	1.368	23.348	22	2262	OK	Control
+Control21	Gene8	Amp	1.295	23.527	22	2262	OK	Control
+Control21	Gene8	Amp	1.393	23.057	22	2262	OK	Control
+Control22	Gene8	Amp	1.328	22.732	22	2262	OK	Control
+Control22	Gene8	Amp	1.380	23.331	22	2262	OK	Control
+Control23	Gene8	Amp	1.321	22.090	22	2262	OK	Control
+Control23	Gene8	Amp	1.365	22.863	22	2262	OK	Control
+Control24	Gene8	Amp	1.337	23.646	22	2262	OK	Control
+Control24	Gene8	Amp	1.364	22.792	22	2262	OK	Control
+Control25	Gene8	Amp	1.314	23.132	22	2262	OK	Control
+Control25	Gene8	Amp	1.327	22.819	22	2262	OK	Control
+Control26	Gene8	Amp	1.297	23.330	22	2262	OK	Control
+Control26	Gene8	Amp	1.363	21.815	22	2262	OK	Control
+Control01	Gene9	Amp	1.364	33.106	22	2262	OK	Control
+Control02	Gene9	No Amp	1.217	35.496	22	487	Undetermined	Control
+Control03	Gene9	Amp	1.314	34.242	22	2262	OK	Control
+Control04	Gene9	Inconclusive	1.245	34.659	22	139	Undetermined	Control
+Control05	Gene9	No Amp	1.018	37.307	22	487	Undetermined	Control
+Control06	Gene9	Amp	1.259	34.396	22	2262	OK	Control
+Control07	Gene9	Amp	1.353	33.810	22	2262	OK	Control
+Control08	Gene9	No Amp	0.425	Undetermined	22	487	Undetermined	Control
+Control09	Gene9	Inconclusive	1.218	35.109	22	139	Undetermined	Control
+Control11	Gene9	No Amp	1.057	37.184	22	487	Undetermined	Control
+Control12	Gene9	No Amp	0.000	37.913	22	487	Undetermined	Control
+Control13	Gene9	No Amp	0.581	Undetermined	22	487	Undetermined	Control
+Control14	Gene9	No Amp	1.121	36.439	22	487	Undetermined	Control
+Control15	Gene9	No Amp	1.174	35.960	22	487	Undetermined	Control
+Control16	Gene9	No Amp	0.931	38.036	22	487	Undetermined	Control
+Control17	Gene9	No Amp	1.181	35.752	22	487	Undetermined	Control
+Control19	Gene9	No Amp	1.057	36.868	22	487	Undetermined	Control
+Control20	Gene9	No Amp	0.847	38.560	22	487	Undetermined	Control
+Control21	Gene9	No Amp	1.066	36.922	22	487	Undetermined	Control
+Control22	Gene9	No Amp	1.054	36.950	22	487	Undetermined	Control
+Control23	Gene9	No Amp	1.087	36.587	22	487	Undetermined	Control
+Control24	Gene9	No Amp	0.776	Undetermined	22	487	Undetermined	Control
+Control25	Gene9	No Amp	0.659	39.666	22	487	Undetermined	Control
+Control26	Gene9	No Amp	1.134	36.291	22	487	Undetermined	Control
+Control01	Gene10	Amp	1.437	24.298	22	2262	OK	Control
+Control02	Gene10	Amp	1.418	26.532	22	2262	OK	Control
+Control03	Gene10	Amp	1.429	24.420	22	2262	OK	Control
+Control04	Gene10	Amp	1.413	24.345	22	2262	OK	Control
+Control05	Gene10	Amp	1.442	28.339	22	2262	OK	Control
+Control06	Gene10	Amp	1.435	25.369	22	2262	OK	Control
+Control07	Gene10	Amp	1.434	22.832	22	2262	OK	Control
+Control08	Gene10	Amp	1.431	30.892	22	2262	OK	Control
+Control09	Gene10	Amp	1.426	25.181	22	2262	OK	Control
+Control11	Gene10	Amp	1.434	28.046	22	2262	OK	Control
+Control12	Gene10	Amp	1.428	27.624	22	2262	OK	Control
+Control13	Gene10	Amp	1.408	28.976	22	2262	OK	Control
+Control14	Gene10	Amp	1.439	25.450	22	2262	OK	Control
+Control15	Gene10	Amp	1.429	27.237	22	2262	OK	Control
+Control16	Gene10	Amp	1.436	30.689	22	2262	OK	Control
+Control17	Gene10	Amp	1.421	26.403	22	2262	OK	Control
+Control19	Gene10	Amp	1.413	25.237	22	2262	OK	Control
+Control20	Gene10	Amp	1.432	28.537	22	2262	OK	Control
+Control21	Gene10	Amp	1.416	28.007	22	2262	OK	Control
+Control22	Gene10	Amp	1.423	26.988	22	2262	OK	Control
+Control23	Gene10	Amp	1.441	25.973	22	2262	OK	Control
+Control24	Gene10	Amp	1.426	30.753	22	2262	OK	Control
+Control25	Gene10	Amp	1.420	29.686	22	2262	OK	Control
+Control26	Gene10	Amp	1.408	26.266	22	2262	OK	Control
+Control01	Gene11	Amp	1.342	31.023	22	2262	OK	Control
+Control02	Gene11	Amp	1.225	34.949	22	2262	OK	Control
+Control03	Gene11	Amp	1.372	33.244	22	2262	OK	Control
+Control04	Gene11	Inconclusive	1.222	35.162	22	139	Undetermined	Control
+Control05	Gene11	Inconclusive	1.022	37.411	22	139	Undetermined	Control
+Control06	Gene11	No Amp	1.122	36.731	22	487	Undetermined	Control
+Control07	Gene11	Amp	1.409	32.206	22	2262	OK	Control
+Control08	Gene11	No Amp	1.096	36.856	22	487	Undetermined	Control
+Control09	Gene11	Inconclusive	1.176	35.811	22	139	Undetermined	Control
+Control11	Gene11	Inconclusive	1.205	35.379	22	139	Undetermined	Control
+Control12	Gene11	Amp	1.328	34.225	22	2262	OK	Control
+Control13	Gene11	No Amp	1.116	36.590	22	487	Undetermined	Control
+Control14	Gene11	Amp	1.313	33.705	22	2262	OK	Control
+Control15	Gene11	Amp	1.307	34.241	22	2262	OK	Control
+Control16	Gene11	Inconclusive	1.147	36.318	22	139	Undetermined	Control
+Control17	Gene11	Amp	1.306	34.324	22	2262	OK	Control
+Control19	Gene11	Amp	1.262	34.931	22	2262	OK	Control
+Control20	Gene11	No Amp	0.972	37.800	22	487	Undetermined	Control
+Control21	Gene11	No Amp	1.126	36.768	22	487	Undetermined	Control
+Control22	Gene11	No Amp	1.132	36.429	22	487	Undetermined	Control
+Control23	Gene11	Amp	1.301	34.214	22	2262	OK	Control
+Control24	Gene11	No Amp	1.078	37.129	22	487	Undetermined	Control
+Control25	Gene11	Inconclusive	0.924	38.280	22	139	Undetermined	Control
+Control26	Gene11	No Amp	1.062	37.217	22	487	Undetermined	Control
+Control01	Gene12	Amp	1.484	26.650	22	2262	OK	Control
+Control02	Gene12	Amp	1.454	28.126	22	2262	OK	Control
+Control03	Gene12	Amp	1.467	26.773	22	2262	OK	Control
+Control04	Gene12	Amp	1.465	27.184	22	2262	OK	Control
+Control05	Gene12	Amp	1.473	31.200	22	2262	OK	Control
+Control06	Gene12	Amp	1.474	30.033	22	2262	OK	Control
+Control07	Gene12	Amp	1.467	24.361	22	2262	OK	Control
+Control08	Gene12	Amp	1.490	32.381	22	2262	OK	Control
+Control09	Gene12	Amp	1.458	25.741	22	2262	OK	Control
+Control11	Gene12	Amp	1.436	33.216	22	2262	OK	Control
+Control12	Gene12	Amp	1.467	31.438	22	2262	OK	Control
+Control13	Gene12	Amp	1.477	32.976	22	2262	OK	Control
+Control14	Gene12	Amp	1.494	28.837	22	2262	OK	Control
+Control15	Gene12	Amp	1.467	29.286	22	2262	OK	Control
+Control16	Gene12	Amp	1.488	33.656	22	2262	OK	Control
+Control17	Gene12	Amp	1.489	28.817	22	2262	OK	Control
+Control19	Gene12	Amp	1.487	26.441	22	2262	OK	Control
+Control20	Gene12	Amp	1.464	31.217	22	2262	OK	Control
+Control21	Gene12	Amp	1.479	30.291	22	2262	OK	Control
+Control22	Gene12	Amp	1.474	29.846	22	2262	OK	Control
+Control23	Gene12	Amp	1.478	27.895	22	2262	OK	Control
+Control24	Gene12	Amp	1.474	31.549	22	2262	OK	Control
+Control25	Gene12	Amp	1.467	30.650	22	2262	OK	Control
+Control26	Gene12	Amp	1.462	31.305	22	2262	OK	Control
+Control01	Gene13	Amp	1.312	27.184	22	2262	OK	Control
+Control02	Gene13	Amp	1.335	30.141	22	2262	OK	Control
+Control03	Gene13	Amp	1.324	28.254	22	2262	OK	Control
+Control04	Gene13	Amp	1.320	29.610	22	2262	OK	Control
+Control05	Gene13	Amp	1.356	30.498	22	2262	OK	Control
+Control06	Gene13	Amp	1.357	30.609	22	2262	OK	Control
+Control07	Gene13	Amp	1.339	25.958	22	2262	OK	Control
+Control08	Gene13	Amp	1.331	33.224	22	2262	OK	Control
+Control09	Gene13	Amp	1.362	28.540	22	2262	OK	Control
+Control11	Gene13	Amp	1.286	29.098	22	2262	OK	Control
+Control12	Gene13	Amp	1.348	32.302	22	2262	OK	Control
+Control13	Gene13	Amp	1.336	33.340	22	2262	OK	Control
+Control14	Gene13	Amp	1.330	29.349	22	2262	OK	Control
+Control15	Gene13	Amp	1.342	29.588	22	2262	OK	Control
+Control16	Gene13	Amp	1.353	32.489	22	2262	OK	Control
+Control17	Gene13	Amp	1.344	31.802	22	2262	OK	Control
+Control19	Gene13	Amp	1.358	30.745	22	2262	OK	Control
+Control20	Gene13	Amp	1.342	28.445	22	2262	OK	Control
+Control21	Gene13	Amp	1.347	30.081	22	2262	OK	Control
+Control22	Gene13	Amp	1.327	31.564	22	2262	OK	Control
+Control23	Gene13	Amp	1.360	28.015	22	2262	OK	Control
+Control24	Gene13	Amp	1.335	30.521	22	2262	OK	Control
+Control25	Gene13	Amp	1.338	31.110	22	2262	OK	Control
+Control26	Gene13	Amp	1.317	30.384	22	2262	OK	Control
+Control01	Gene14	Amp	1.434	27.374	22	2262	OK	Control
+Control02	Gene14	Amp	1.455	28.869	22	2262	OK	Control
+Control03	Gene14	Amp	1.439	27.388	22	2262	OK	Control
+Control04	Gene14	Amp	1.447	29.513	22	2262	OK	Control
+Control05	Gene14	Amp	1.447	28.562	22	2262	OK	Control
+Control06	Gene14	Amp	1.448	27.914	22	2262	OK	Control
+Control07	Gene14	Amp	1.454	27.031	22	2262	OK	Control
+Control08	Gene14	Amp	1.443	31.643	22	2262	OK	Control
+Control09	Gene14	Amp	1.443	29.173	22	2262	OK	Control
+Control11	Gene14	Amp	1.412	28.404	22	2262	OK	Control
+Control12	Gene14	Amp	1.446	30.616	22	2262	OK	Control
+Control13	Gene14	Amp	1.434	29.684	22	2262	OK	Control
+Control14	Gene14	Amp	1.426	28.474	22	2262	OK	Control
+Control15	Gene14	Amp	1.420	27.870	22	2262	OK	Control
+Control16	Gene14	Amp	1.457	30.335	22	2262	OK	Control
+Control17	Gene14	Amp	1.453	29.660	22	2262	OK	Control
+Control19	Gene14	Amp	1.451	29.295	22	2262	OK	Control
+Control20	Gene14	Amp	1.448	28.808	22	2262	OK	Control
+Control21	Gene14	Amp	1.460	29.240	22	2262	OK	Control
+Control22	Gene14	Amp	1.451	30.587	22	2262	OK	Control
+Control23	Gene14	Amp	1.454	27.166	22	2262	OK	Control
+Control24	Gene14	Amp	1.460	29.261	22	2262	OK	Control
+Control25	Gene14	Amp	1.465	30.052	22	2262	OK	Control
+Control26	Gene14	Amp	1.462	28.956	22	2262	OK	Control
+Control01	Gene15	Amp	1.414	27.695	22	2262	OK	Control
+Control02	Gene15	Amp	1.462	29.128	22	2262	OK	Control
+Control03	Gene15	Amp	1.416	29.971	22	2262	OK	Control
+Control04	Gene15	Amp	1.419	28.356	22	2262	OK	Control
+Control05	Gene15	Amp	1.429	31.068	22	2262	OK	Control
+Control06	Gene15	Amp	1.448	30.542	22	2262	OK	Control
+Control07	Gene15	Amp	1.457	25.846	22	2262	OK	Control
+Control08	Gene15	Amp	1.435	33.485	22	2262	OK	Control
+Control09	Gene15	Amp	1.406	28.687	22	2262	OK	Control
+Control11	Gene15	Amp	1.437	31.074	22	2262	OK	Control
+Control12	Gene15	Amp	1.436	31.027	22	2262	OK	Control
+Control13	Gene15	Amp	1.430	32.600	22	2262	OK	Control
+Control14	Gene15	Amp	1.429	30.367	22	2262	OK	Control
+Control15	Gene15	Amp	1.436	30.280	22	2262	OK	Control
+Control16	Gene15	Amp	1.429	32.432	22	2262	OK	Control
+Control17	Gene15	Amp	1.449	31.831	22	2262	OK	Control
+Control19	Gene15	Amp	1.421	29.260	22	2262	OK	Control
+Control20	Gene15	Amp	1.440	31.896	22	2262	OK	Control
+Control21	Gene15	Amp	1.425	31.481	22	2262	OK	Control
+Control22	Gene15	Amp	1.436	29.176	22	2262	OK	Control
+Control23	Gene15	Amp	1.424	30.291	22	2262	OK	Control
+Control24	Gene15	Amp	1.449	30.033	22	2262	OK	Control
+Control25	Gene15	Amp	1.411	30.712	22	2262	OK	Control
+Control26	Gene15	Amp	1.432	31.174	22	2262	OK	Control
+Control01	Gene16	Amp	1.447	20.631	22	2262	OK	Control
+Control02	Gene16	Amp	1.434	21.196	22	2262	OK	Control
+Control03	Gene16	Amp	1.402	21.533	22	2262	OK	Control
+Control04	Gene16	Amp	1.451	21.585	22	2262	OK	Control
+Control05	Gene16	Amp	1.472	21.863	22	2262	OK	Control
+Control06	Gene16	Amp	1.467	21.502	22	2262	OK	Control
+Control07	Gene16	Amp	1.479	19.801	22	2262	OK	Control
+Control08	Gene16	Amp	1.453	25.132	22	2262	OK	Control
+Control09	Gene16	Amp	1.472	21.906	22	2262	OK	Control
+Control11	Gene16	Amp	1.448	23.547	22	2262	OK	Control
+Control12	Gene16	Amp	1.503	22.493	22	2262	OK	Control
+Control13	Gene16	Amp	1.459	24.812	22	2262	OK	Control
+Control14	Gene16	Amp	1.468	22.689	22	2262	OK	Control
+Control15	Gene16	Amp	1.458	21.840	22	2262	OK	Control
+Control16	Gene16	Amp	1.463	24.516	22	2262	OK	Control
+Control17	Gene16	Amp	1.468	24.108	22	2262	OK	Control
+Control19	Gene16	Amp	1.425	22.300	22	2262	OK	Control
+Control20	Gene16	Amp	1.445	23.302	22	2262	OK	Control
+Control21	Gene16	Amp	1.465	23.379	22	2262	OK	Control
+Control22	Gene16	Amp	1.454	22.972	22	2262	OK	Control
+Control23	Gene16	Amp	1.448	22.179	22	2262	OK	Control
+Control24	Gene16	Amp	1.470	22.644	22	2262	OK	Control
+Control25	Gene16	Amp	1.464	22.980	22	2262	OK	Control
+Control26	Gene16	Amp	1.457	22.844	22	2262	OK	Control
+Control01	Gene17	Amp	1.300	24.982	22	2262	OK	Control
+Control02	Gene17	Amp	1.323	26.433	22	2262	OK	Control
+Control03	Gene17	Amp	1.295	25.423	22	2262	OK	Control
+Control04	Gene17	Amp	1.305	25.747	22	2262	OK	Control
+Control05	Gene17	Amp	1.302	26.798	22	2262	OK	Control
+Control06	Gene17	Amp	1.318	25.843	22	2262	OK	Control
+Control07	Gene17	Amp	1.344	24.436	22	2262	OK	Control
+Control08	Gene17	Amp	1.314	30.133	22	2262	OK	Control
+Control09	Gene17	Amp	1.319	26.611	22	2262	OK	Control
+Control11	Gene17	Amp	1.316	28.031	22	2262	OK	Control
+Control12	Gene17	Amp	1.318	27.388	22	2262	OK	Control
+Control13	Gene17	Amp	1.320	28.904	22	2262	OK	Control
+Control14	Gene17	Amp	1.318	26.692	22	2262	OK	Control
+Control15	Gene17	Amp	1.337	26.357	22	2262	OK	Control
+Control16	Gene17	Amp	1.320	29.772	22	2262	OK	Control
+Control17	Gene17	Amp	1.324	27.724	22	2262	OK	Control
+Control19	Gene17	Amp	1.319	26.403	22	2262	OK	Control
+Control20	Gene17	Amp	1.308	29.281	22	2262	OK	Control
+Control21	Gene17	Amp	1.324	27.872	22	2262	OK	Control
+Control22	Gene17	Amp	1.332	27.208	22	2262	OK	Control
+Control23	Gene17	Amp	1.325	26.685	22	2262	OK	Control
+Control24	Gene17	Amp	1.326	29.111	22	2262	OK	Control
+Control25	Gene17	Amp	1.325	28.990	22	2262	OK	Control
+Control26	Gene17	Amp	1.340	28.401	22	2262	OK	Control
+Control01	Gene18	Amp	1.441	26.098	22	2262	OK	Control
+Control02	Gene18	Amp	1.428	28.016	22	2262	OK	Control
+Control03	Gene18	Amp	1.410	27.281	22	2262	OK	Control
+Control04	Gene18	Amp	1.422	27.259	22	2262	OK	Control
+Control05	Gene18	Amp	1.414	29.582	22	2262	OK	Control
+Control06	Gene18	Amp	1.442	28.328	22	2262	OK	Control
+Control07	Gene18	Amp	1.437	25.323	22	2262	OK	Control
+Control08	Gene18	Amp	1.441	31.399	22	2262	OK	Control
+Control09	Gene18	Amp	1.401	28.275	22	2262	OK	Control
+Control11	Gene18	Amp	1.416	30.237	22	2262	OK	Control
+Control12	Gene18	Amp	1.391	29.819	22	2262	OK	Control
+Control13	Gene18	Amp	1.427	30.251	22	2262	OK	Control
+Control14	Gene18	Amp	1.415	28.330	22	2262	OK	Control
+Control15	Gene18	Amp	1.427	28.220	22	2262	OK	Control
+Control16	Gene18	Amp	1.431	30.991	22	2262	OK	Control
+Control17	Gene18	Amp	1.424	29.303	22	2262	OK	Control
+Control19	Gene18	Amp	1.410	28.090	22	2262	OK	Control
+Control20	Gene18	Amp	1.409	30.491	22	2262	OK	Control
+Control21	Gene18	Amp	1.415	29.494	22	2262	OK	Control
+Control22	Gene18	Amp	1.435	28.941	22	2262	OK	Control
+Control23	Gene18	Amp	1.402	28.074	22	2262	OK	Control
+Control24	Gene18	Amp	1.450	29.055	22	2262	OK	Control
+Control25	Gene18	Amp	1.447	28.702	22	2262	OK	Control
+Control26	Gene18	Amp	1.393	29.012	22	2262	OK	Control
+Control01	Gene19	Amp	1.473	25.263	22	2262	OK	Control
+Control02	Gene19	Amp	1.453	26.226	22	2262	OK	Control
+Control03	Gene19	Amp	1.495	26.842	22	2262	OK	Control
+Control04	Gene19	Amp	1.463	25.276	22	2262	OK	Control
+Control05	Gene19	Amp	1.479	28.194	22	2262	OK	Control
+Control06	Gene19	Amp	1.475	27.432	22	2262	OK	Control
+Control07	Gene19	Amp	1.460	28.603	22	2262	OK	Control
+Control08	Gene19	Amp	1.463	29.908	22	2262	OK	Control
+Control09	Gene19	Amp	1.461	27.719	22	2262	OK	Control
+Control11	Gene19	Amp	1.487	31.246	22	2262	OK	Control
+Control12	Gene19	Amp	1.448	26.684	22	2262	OK	Control
+Control13	Gene19	Amp	1.485	28.085	22	2262	OK	Control
+Control14	Gene19	Amp	1.441	26.732	22	2262	OK	Control
+Control15	Gene19	Amp	1.417	26.428	22	2262	OK	Control
+Control16	Gene19	Amp	1.472	28.964	22	2262	OK	Control
+Control17	Gene19	Amp	1.493	24.930	22	2262	OK	Control
+Control19	Gene19	Amp	1.477	26.964	22	2262	OK	Control
+Control20	Gene19	Amp	1.504	27.953	22	2262	OK	Control
+Control21	Gene19	Amp	1.486	27.301	22	2262	OK	Control
+Control22	Gene19	Amp	1.469	28.143	22	2262	OK	Control
+Control23	Gene19	Amp	1.496	26.754	22	2262	OK	Control
+Control24	Gene19	Amp	1.499	27.682	22	2262	OK	Control
+Control25	Gene19	Amp	1.482	27.961	22	2262	OK	Control
+Control26	Gene19	Amp	1.488	26.911	22	2262	OK	Control
+Control01	Gene20	Amp	1.454	30.951	22	2262	OK	Control
+Control02	Gene20	Amp	1.483	33.002	22	2262	OK	Control
+Control03	Gene20	Amp	1.537	31.004	22	2262	OK	Control
+Control04	Gene20	Amp	1.489	32.984	22	2262	OK	Control
+Control05	Gene20	Amp	1.475	33.680	22	2262	OK	Control
+Control06	Gene20	Amp	1.495	33.795	22	2262	OK	Control
+Control07	Gene20	Amp	1.486	29.589	22	2262	OK	Control
+Control08	Gene20	No Amp	1.316	36.658	22	487	Undetermined	Control
+Control09	Gene20	Amp	1.469	32.776	22	2262	OK	Control
+Control11	Gene20	Amp	1.426	34.843	22	2262	OK	Control
+Control12	Gene20	Amp	1.432	34.817	22	2262	OK	Control
+Control13	Gene20	Amp	1.326	36.295	22	2262	Undetermined	Control
+Control14	Gene20	Amp	1.474	32.902	22	2262	OK	Control
+Control15	Gene20	Amp	1.466	32.858	22	2262	OK	Control
+Control16	Gene20	Amp	1.411	35.297	22	2262	Undetermined	Control
+Control17	Gene20	Amp	1.474	34.330	22	2262	OK	Control
+Control19	Gene20	Amp	1.405	34.795	22	2262	OK	Control
+Control20	Gene20	Amp	1.483	30.978	22	2262	OK	Control
+Control21	Gene20	Amp	1.476	33.086	22	2262	OK	Control
+Control22	Gene20	Inconclusive	1.412	35.261	22	139	Undetermined	Control
+Control23	Gene20	Amp	1.462	32.173	22	2262	OK	Control
+Control24	Gene20	Amp	1.479	32.533	22	2262	OK	Control
+Control25	Gene20	Amp	1.456	33.241	22	2262	OK	Control
+Control26	Gene20	Amp	1.471	33.386	22	2262	OK	Control

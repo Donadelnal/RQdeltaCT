@@ -1,0 +1,7 @@
+Sample	Group
+sample1	Condition1
+sample2	Condition1
+sample3	Condition1
+sample4	Condition2
+sample5	Condition2
+sample6	Condition2

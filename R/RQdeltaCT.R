@@ -1,7 +1,5 @@
 
 
-
-
 #' @title prepare_data
 #'
 #' @description
@@ -209,7 +207,7 @@ filter_Ct <- function(data, flag.Ct = "Undetermined", maxCt, flag = c(""),
 
 
 sel_ref <- function(data, candidates, line.width = 1,
-                    col,
+                    col, angle = 0,
                     axis.title.size = 12,
                     axis.text.size = 10,
                     x.axis.title = "",
@@ -238,6 +236,10 @@ sel_ref <- function(data, candidates, line.width = 1,
     theme(axis.title = element_text(size = axis.title.size, color = 'black')) +
     theme(legend.title = element_text(size = legend.title.size, colour="black")) +
     theme(legend.text = element_text(size = legend.text.size, colour="black"))
+  if (angle != 0){
+    box_results <- box_results +
+      guides(x =  guide_axis(angle = angle))
+  }
 
   print(ref_plot)
 
@@ -352,7 +354,7 @@ control_dCt_boxplot_target <- function(data, coef = 1.5, by.group = FALSE,
                                        col = c("#66c2a5", "#fc8d62"),
                                        axis.title.size = 12,
                                        axis.text.size = 12,
-                                       x.axis.title = "Sample", y.axis.title = "dCt",
+                                       x.axis.title = "Target", y.axis.title = "dCt",
                                        legend.title = "Group",
                                        legend.title.size = 12,
                                        legend.text.size = 12,
@@ -617,7 +619,7 @@ results_dCt_boxplot <- function(data, coef = 1.5, sel.Target = "all", by.group =
                                 dpi = 600, width = 15, height = 15,
                                 save.to.tiff = FALSE,
                                 name.tiff = "dCt_results_boxplot"){
-  
+
   data <- pivot_longer(data, !c(Sample, Group), names_to = "Target" , values_to = "dCt")
   if (sel.Target[1] == "all"){
     data <- data
@@ -652,7 +654,7 @@ results_dCt_boxplot <- function(data, coef = 1.5, sel.Target = "all", by.group =
       theme(legend.text = element_text(size = legend.text.size, colour="black")) +
       theme(legend.title = element_text(size = legend.title.size, colour="black")) +
       theme(panel.grid.major.x = element_blank())
-    
+
   }
   if (angle != 0){
     box_results <- box_results +
@@ -664,19 +666,19 @@ results_dCt_boxplot <- function(data, coef = 1.5, sel.Target = "all", by.group =
   }
   if (add.mean == TRUE){
     box_results <- box_results +
-      stat_summary(aes(group = Group), 
-                   fun = mean, 
-                   position = position_dodge(width = .75), 
-                   geom = "point", 
-                   shape = 15, 
-                   size = add.mean.size, 
+      stat_summary(aes(group = Group),
+                   fun = mean,
+                   position = position_dodge(width = .75),
+                   geom = "point",
+                   shape = 15,
+                   size = add.mean.size,
                    color = add.mean.color)
   }
   print(box_results)
   if (save.to.tiff == TRUE){
     ggsave(paste(name.tiff,".tiff", sep = ""), box_results, dpi = dpi, width = width, height = height, units = "cm", compression = "lzw")
   }
-}  
+}
 
 
 

@@ -530,8 +530,8 @@ filter_dCt <- function(data,
 
 
 
-
-results_dCt_boxplot <- function(data, coef = 1.5, sel.Target = "all", angle = 0, rotate = FALSE, add.mean = FALSE,
+results_dCt_boxplot <- function(data, coef = 1.5, sel.Target = "all", by.group = TRUE,
+                                angle = 0, rotate = FALSE, add.mean = FALSE,
                                 add.mean.size = 2,
                                 add.mean.color = "black",
                                 col = c("#66c2a5", "#fc8d62"),
@@ -547,13 +547,14 @@ results_dCt_boxplot <- function(data, coef = 1.5, sel.Target = "all", angle = 0,
                                 dpi = 600, width = 15, height = 15,
                                 save.to.tiff = FALSE,
                                 name.tiff = "dCt_results_boxplot"){
-
+  
   data <- pivot_longer(data, !c(Sample, Group), names_to = "Target" , values_to = "dCt")
   if (sel.Target[1] == "all"){
     data <- data
   } else {
     data <- filter(data, Target %in% sel.Target)
   }
+  if (by.group == TRUE){
   box_results <- ggplot(data, aes(x = Target, y = dCt, fill = Group)) +
     geom_boxplot(coef = coef) +
     #scale_x_discrete(limits = rev(unique(data$Sample))) +
@@ -568,6 +569,21 @@ results_dCt_boxplot <- function(data, coef = 1.5, sel.Target = "all", angle = 0,
     theme(legend.text = element_text(size = legend.text.size, colour="black")) +
     theme(legend.title = element_text(size = legend.title.size, colour="black")) +
     theme(panel.grid.major.x = element_blank())
+  } else {
+    box_results <- ggplot(data, aes(x = Target, y = dCt)) +
+      geom_boxplot(coef = coef, fill = col[1]) +
+      #scale_x_discrete(limits = rev(unique(data$Sample))) +
+      xlab(x.axis.title) + ylab(y.axis.title) +
+      labs(fill = legend.title, title = plot.title) +
+      theme_bw() +
+      theme(legend.position = legend.position) +
+      theme(axis.text = element_text(size = axis.text.size, colour = "black")) +
+      theme(axis.title = element_text(size = axis.title.size, colour="black")) +
+      theme(legend.text = element_text(size = legend.text.size, colour="black")) +
+      theme(legend.title = element_text(size = legend.title.size, colour="black")) +
+      theme(panel.grid.major.x = element_blank())
+    
+  }
   if (angle != 0){
     box_results <- box_results +
       guides(x =  guide_axis(angle = angle))
@@ -578,19 +594,22 @@ results_dCt_boxplot <- function(data, coef = 1.5, sel.Target = "all", angle = 0,
   }
   if (add.mean == TRUE){
     box_results <- box_results +
-      stat_summary(aes(group = Group),
-                   fun = mean,
-                   position = position_dodge(width = .75),
-                   geom = "point",
-                   shape = 15,
-                   size = add.mean.size,
+      stat_summary(aes(group = Group), 
+                   fun = mean, 
+                   position = position_dodge(width = .75), 
+                   geom = "point", 
+                   shape = 15, 
+                   size = add.mean.size, 
                    color = add.mean.color)
   }
   print(box_results)
   if (save.to.tiff == TRUE){
     ggsave(paste(name.tiff,".tiff", sep = ""), box_results, dpi = dpi, width = width, height = height, units = "cm", compression = "lzw")
   }
-}
+}  
+
+
+
 
 
 

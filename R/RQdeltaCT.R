@@ -353,7 +353,7 @@ control_dCt_cluster <- function(data, method.dist = "euclidean", method.clust = 
 
 
 
-control_dCt_pca <- function(data, point.size = 4, alpha = 0.7, label.size = 3,
+control_dCt_pca <- function(data, point.size = 4, alpha = 0.7, label.size = 3, hjust = 0, vjust = -1,
                             col = c("#66c2a5", "#fc8d62"),
                             axis.title.size = 12,
                             axis.text.size = 10,
@@ -386,7 +386,7 @@ control_dCt_pca <- function(data, point.size = 4, alpha = 0.7, label.size = 3,
     theme(axis.title = element_text(size = axis.title.size, colour="black")) +
     theme(legend.text = element_text(size = legend.text.size, colour="black")) +
     theme(legend.title = element_text(size = legend.title.size, colour="black")) +
-    geom_text(aes(label = Sample), hjust=0, vjust=-1, size = label.size)
+    geom_text(aes(label = Sample), hjust = hjust, vjust = vjust, size = label.size)
   print(control_pca)
   if (save.to.tiff == TRUE){
     ggsave(paste(name.tiff,".tiff", sep = ""), control_pca, dpi = dpi, width = width, height = height, units = "cm", compression = "lzw")

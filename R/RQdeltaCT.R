@@ -689,7 +689,7 @@ RQ_plot <- function(data, use.p = TRUE, mode, Target.sel = "all", p.threshold = 
     data$p.used <- data$MW.test.p
     }
   if (mode == "depends"){
-    data <- mutate(data, p.used = ifelse(test.for.comaprison == "t.student's.test", yes = t.test.p,  no = MW.test.p))
+    data <- mutate(data, p.used = ifelse(test.for.comparison == "t.student's.test", yes = t.test.p,  no = MW.test.p))
   }
   if (mode == "user"){
     colnames(user) <- c("Target","test")

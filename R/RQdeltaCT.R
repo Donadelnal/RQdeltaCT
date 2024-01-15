@@ -54,6 +54,23 @@ prepare_data <- function(Ct.file, design.file,  sep, dec){
 
 
 
+#' Title
+#'
+#' @param path
+#' @param sep
+#' @param dec
+#' @param skip
+#' @param col.Sample
+#' @param col.Target
+#' @param col.Ct
+#' @param col.Group
+#' @param add.col.Flag
+#' @param col.Flag
+#'
+#' @return
+#' @export
+#'
+#' @examples
 read_Ct <- function(path, sep, dec, skip = 0, col.Sample, col.Target, col.Ct, col.Group, add.col.Flag = FALSE, col.Flag){
   data <- read.csv(path,
     header = TRUE,
@@ -293,7 +310,7 @@ deltaCt <- function(data,
 
 
 
-control_dCt_boxplot <- function(data, coef = 1.5,
+control_dCt_boxplot_sample <- function(data, coef = 1.5,
                                col = c("#66c2a5", "#fc8d62"),
                                axis.title.size = 12,
                                axis.text.size = 12,
@@ -327,6 +344,59 @@ control_dCt_boxplot <- function(data, coef = 1.5,
     }
 }
 
+
+
+
+
+control_dCt_boxplot_target <- function(data, coef = 1.5, by.group = FALSE,
+                                       col = c("#66c2a5", "#fc8d62"),
+                                       axis.title.size = 12,
+                                       axis.text.size = 12,
+                                       x.axis.title = "Sample", y.axis.title = "dCt",
+                                       legend.title = "Group",
+                                       legend.title.size = 12,
+                                       legend.text.size = 12,
+                                       legend.position = "right",
+                                       plot.title = "",
+                                       dpi = 600, width = 15, height = 15,
+                                       save.to.tiff = FALSE,
+                                       name.tiff = "dCt_control_boxplot"){
+
+  data <- pivot_longer(data, !c(Sample, Group), names_to = "Target" , values_to = "dCt")
+  if (by.group == TRUE){
+    box_control <- ggplot(data, aes(x = Target, y = dCt, color = Group)) +
+      geom_boxplot(coef = coef) +
+      scale_x_discrete(limits = rev(unique(data$Target))) +
+      scale_color_manual(values = c(col)) +
+      coord_flip() +
+      xlab(x.axis.title) + ylab(y.axis.title) +
+      labs(color = legend.title, title = plot.title) +
+      theme_classic() +
+      theme(legend.position = legend.position) +
+      theme(axis.text = element_text(size = axis.text.size, colour = "black")) +
+      theme(axis.title = element_text(size = axis.title.size, colour="black")) +
+      theme(legend.title = element_text(size = legend.title.size, colour="black")) +
+      theme(legend.text = element_text(size = legend.text.size, colour="black"))
+  } else {
+    box_control <- ggplot(data, aes(x = Target, y = dCt)) +
+      geom_boxplot(coef = coef, fill = col[1]) +
+      scale_x_discrete(limits = rev(unique(data$Target))) +
+      coord_flip() +
+      xlab(x.axis.title) + ylab(y.axis.title) +
+      labs(title = plot.title) +
+      theme_classic() +
+      theme(legend.position = legend.position) +
+      theme(axis.text = element_text(size = axis.text.size, colour = "black")) +
+      theme(axis.title = element_text(size = axis.title.size, colour="black")) +
+      theme(legend.title = element_text(size = legend.title.size, colour="black")) +
+      theme(legend.text = element_text(size = legend.text.size, colour="black"))
+
+  }
+  print(box_control)
+  if (save.to.tiff == TRUE){
+    ggsave(paste(name.tiff,".tiff", sep = ""), box_control, dpi = dpi, width = width, height = height, units = "cm", compression = "lzw")
+  }
+}
 
 
 

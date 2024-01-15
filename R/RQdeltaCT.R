@@ -1,5 +1,3 @@
-library(RQdeltaCT)
-system.file("extdata", "data_Ct_long.txt", package = "RQdeltaCT")
 
 #' @title prepare_data
 #'

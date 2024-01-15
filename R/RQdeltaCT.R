@@ -209,7 +209,7 @@ sel_ref <- function(data, candidates, line.width = 1,
   ref <- data %>%
     group_by(Group, Target, Sample) %>%
     summarise(mean = base::mean(Ct, na.rm = TRUE)) %>%
-    dplyr::filter(data, Target %in% candidates)
+    dplyr::filter(Target %in% candidates)
   ref_plot <- ggplot(ref, aes(x = Sample, y = mean, color = Target, group = Target)) +
     geom_line(linewidth = line.width) +
     scale_color_manual(values = c(col)) +

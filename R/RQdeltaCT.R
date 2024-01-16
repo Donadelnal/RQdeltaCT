@@ -237,7 +237,7 @@ sel_ref <- function(data, candidates, line.width = 1,
     theme(legend.title = element_text(size = legend.title.size, colour="black")) +
     theme(legend.text = element_text(size = legend.text.size, colour="black"))
   if (angle != 0){
-    box_results <- box_results +
+    ref_plot <- ref_plot +
       guides(x =  guide_axis(angle = angle))
   }
 
@@ -892,7 +892,7 @@ log_reg <- function(data, remove.Inf.NA = FALSE,
   if (Target.sel[1] != "all"){
     data <- data[, colnames(data) %in% c("Group", "Sample", Target.sel)]
   }
-  data <- mutate(data, Group_num = ifelse(Group == group.ref, 0, 1))
+  data <- mutate(data, Group_num = ifelse(Group == group.study, 0, 1))
   n.targets <- ncol(data)-3
   list.models <- lapply(data[3:(n.targets+2)], function(x) glm(data$Group_num ~ x, data = data, family = binomial))
   list.CI <- lapply(names(list.models)[1:n.targets], function(x) or_glm(data = data,

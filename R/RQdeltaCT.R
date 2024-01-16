@@ -1,5 +1,5 @@
 
-#' @title prepare_data
+#' @title read_Ct_wide
 #'
 #' @description
 #' Imports Ct table in wide format, imports design file and merge both files to return long table ready for analysis.
@@ -26,7 +26,7 @@
 #' @importFrom utils read.csv
 #' @importFrom tidyr pivot_longer
 #'
-prepare_data <- function(Ct.file, design.file,  sep, dec){
+read_Ct_wide <- function(Ct.file, design.file,  sep, dec){
   data_wide <- read.csv(Ct.file,
                         header = TRUE,
                         sep = sep,
@@ -36,8 +36,9 @@ prepare_data <- function(Ct.file, design.file,  sep, dec){
                                header = TRUE,
                                sep = sep)
 
-  colnames(data_wide)[1] <- "Target"
-  data_slim <- pivot_longer(data_wide, -Target, names_to = "Sample", values_to = "Ct")
+  colnames(data_wide)[1] <- "Sample"
+  data_wide <- mutate(data_wide, across(everything(), as.character))
+  data_slim <- pivot_longer(data_wide, -Sample, names_to = "Target", values_to = "Ct")
   data_slim[ ,"Group"] <- NA
 
   for (x in 1:nrow(data_wide_design)) {
@@ -68,7 +69,7 @@ prepare_data <- function(Ct.file, design.file,  sep, dec){
 #' @export
 #'
 #' @examples
-read_Ct <- function(path, sep, dec, skip = 0, col.Sample, col.Target, col.Ct, col.Group, add.col.Flag = FALSE, col.Flag){
+read_Ct_long <- function(path, sep, dec, skip = 0, col.Sample, col.Target, col.Ct, col.Group, add.col.Flag = FALSE, col.Flag){
   data <- read.csv(path,
     header = TRUE,
     sep = sep, dec = dec, skip = skip)

@@ -3,6 +3,7 @@ Type: Package
 Title: Relative quantification od gene expression using deltaCt (ddCt) method and qPCR data.
 Version: 0.1.0
 Author: c(person("Daniel", "Zalewski", email = "daniel.piotr.zalewski@gmail.com"))
+Maintainer: Daniel Zalewski
 Description: This package allows to perform Relative quantification and comparative analysis of gene expression using deltaCt (ddCt) method for qPCR data obtained form TaqMan assays-driven experiments.
     Use four spaces when indenting paragraphs within the Description.
 License: GPL-3

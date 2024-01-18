@@ -162,24 +162,33 @@ control_Ct_barplot <- function(data, mode, flag.Ct = "Undetermined", maxCt = 35,
 
 
 samples_to_remove <- function(data, fraction = 0.5){
-  data <- as.data.frame(data)
-  n <- sum(data$Freq[c(1:2)])
-  data <- dplyr::filter(data, Var1 == "No" & Freq > n*fraction)
-  return(as.vector(data$Var2))
+  data2 <- data %>%
+    as.data.frame() %>%
+    pivot_wider(names_from = Var1, values_from = Freq) %>%
+    mutate(rem = ifelse(No >= ((No + Yes) * fraction), "remove", "leave"))
+  to.remove <- dplyr::filter(data2, rem == "remove")$Var2
+  return(as.vector(to.remove))
 }
 
 
 
 
 targets_to_remove <- function(data, fraction = 0.5, groups){
-  data <- as.data.frame(data)
-  data1 <- dplyr::filter(data, Var3 == groups[1])
-  data2 <- dplyr::filter(data, Var3 == groups[2])
-  n1 <- sum(data1$Freq[c(3:4)])
-  n2 <- sum(data2$Freq[c(3:4)])
-  data1F <- dplyr::filter(data1, Var1 == "No" & Freq > n1*fraction)
-  data2F <- dplyr::filter(data2, Var1 == "No" & Freq > n2*fraction)
-  return(unique(c(as.vector(data1F$Var2), as.vector(data2F$Var2))))
+  data1 <- data %>%
+    as.data.frame() %>%
+    filter(Var3 == groups[1]) %>%
+    pivot_wider(names_from = Var1, values_from = Freq) %>%
+    mutate(rem = ifelse(No >= ((No + Yes) * fraction), "remove", "leave"))
+  to.remove1 <- dplyr::filter(data1, rem == "remove")$Var2
+
+  data2 <- data %>%
+    as.data.frame() %>%
+    filter(Var3 == groups[2]) %>%
+    pivot_wider(names_from = Var1, values_from = Freq) %>%
+    mutate(rem = ifelse(No >= ((No + Yes) * fraction), "remove", "leave"))
+  to.remove2 <- dplyr::filter(data2, rem == "remove")$Var2
+
+  return(unique(c(as.vector(to.remove1), as.vector(to.remove2))))
 }
 
 
@@ -246,13 +255,26 @@ sel_ref <- function(data, candidates, line.width = 1,
   if (save.to.tiff == TRUE){
     ggsave(paste(name.tiff, ".tiff", sep = ""), ref_plot, dpi = dpi, width = width, height = height, units = "cm", compression = "lzw")
   }
-  ref_var <- group_by(ref, Target)
-  ref_var <- summarise(ref_var,
-                       min = min(mean),
-                       max = max(mean),
-                       sd = stats::sd(mean, na.rm = TRUE),
-                       var = stats::var(mean, na.rm = TRUE))
-  return(as.data.frame(ref_var))
+
+  ref_var <- ref %>%
+    group_by(Target) %>%
+    summarise(min = min(mean),
+              max = max(mean),
+              sd = stats::sd(mean, na.rm = TRUE),
+              var = stats::var(mean, na.rm = TRUE)) %>%
+    as.data.frame()
+  ref_vif <- data %>%
+    group_by(Group, Target, Sample) %>%
+    summarise(mean = base::mean(Ct, na.rm = TRUE)) %>%
+    ungroup()
+  ref_lm <- pivot_wider(ref_vif, names_from = Target, values_from = mean)
+  ref_lm$dum <- c(1:nrow(ref_lm))
+  model <- lm(dum ~ ., data = select(ref_lm, -Sample, -Group))
+  vif <- vif(model)
+  vif_sel <- vif[names(vif) %in% candidates]
+  ref_var$VIF <- vif_sel
+  ref_var$VIF.Target <- names(vif_sel)
+  return(ref_var)
 }
 
 
@@ -405,7 +427,7 @@ control_dCt_boxplot_target <- function(data, coef = 1.5, by.group = FALSE,
 
 
 
-control_dCt_cluster <- function(data, method.dist = "euclidean", method.clust = "complete",
+control_dCt_cluster_sample <- function(data, method.dist = "euclidean", method.clust = "complete",
                                 x.axis.title = "Samples", y.axis.title = "Height",
                                 plot.title = "",
                                 dpi = 600, width = 15, height = 15,
@@ -425,8 +447,31 @@ control_dCt_cluster <- function(data, method.dist = "euclidean", method.clust = 
 
 
 
-control_dCt_pca <- function(data, point.size = 4, alpha = 0.7, label.size = 3, hjust = 0, vjust = -1,
-                            col = c("#66c2a5", "#fc8d62"),
+control_dCt_cluster_target <- function (data, method.dist = "euclidean", method.clust = "single",
+                                        x.axis.title = "Samples", y.axis.title = "Height", plot.title = "",
+                                        dpi = 600, width = 15, height = 15, save.to.tiff = FALSE,
+                                        name.tiff = "dCt_control_clust_plot")
+{
+  data_t <- ungroup(data)
+  data_t <- t(select(data_t, -Group, -Sample))
+  colnames(data_t) <- data$Sample
+  cluster <- hclust(dist(as.data.frame(data_t), method = method.dist), method = method.clust)
+  plot(cluster, xlab = x.axis.title, ylab = y.axis.title, main = plot.title)
+  if (save.to.tiff == TRUE) {
+    tiff(paste(name.tiff, ".tiff", sep = ""), res = dpi,
+         width = width, height = height, units = "cm", compression = "lzw")
+    plot(cluster, xlab = x.axis.title, ylab = y.axis.title,
+         main = plot.title)
+    dev.off()
+  }
+}
+
+
+
+
+
+control_dCt_pca_sample <- function(data, point.size = 4, alpha = 0.7, label.size = 3, hjust = 0, vjust = -1,
+                            col = c("#66c2a5", "#fc8d62"), shape = point.shape,
                             axis.title.size = 12,
                             axis.text.size = 10,
                             legend.text.size = 12,
@@ -447,7 +492,7 @@ control_dCt_pca <- function(data, point.size = 4, alpha = 0.7, label.size = 3, h
   pca_comp$Sample <- data$Sample
   pca_comp$Group <- data$Group
   control_pca <- ggplot(pca_comp, aes(x = PC1, y = PC2, label = Sample, color = Group)) +
-    geom_point(size = point.size, alpha = alpha) +
+    geom_point(size = point.size, shape = point.shape, alpha = alpha) +
     scale_color_manual(values = c(col)) +
     labs(colour = legend.title, title = plot.title) +
     theme_bw() +
@@ -468,7 +513,49 @@ control_dCt_pca <- function(data, point.size = 4, alpha = 0.7, label.size = 3, h
 
 
 
-control_dCt_corr <- function(data, add.coef = "black",
+control_dCt_pca_target <- function(data, point.size = 4, alpha = 0.7, label.size = 3, hjust = 0, vjust = -1, shape = 19,
+                                   col = c("#66c2a5", "#fc8d62"), point.shape = 19,
+                                   axis.title.size = 12,
+                                   axis.text.size = 10,
+                                   legend.text.size = 12,
+                                   legend.title = "Group",
+                                   legend.title.size = 12,
+                                   legend.position = "right",
+                                   plot.title = "",
+                                   dpi = 600, width = 15, height = 15,
+                                   save.to.tiff = FALSE,
+                                   name.tiff = "dCt_control_pca_plot"){
+  data <- ungroup(data)
+  data <- as.data.frame(data)
+  data_t <- t(select(data, -Group, -Sample))
+  colnames(data_t) <- data$Sample
+  data_t <- na.omit(data_t)
+  pca <- prcomp(data_t)
+  var_pca1 <- summary(pca)$importance[2,][1]
+  var_pca2 <- summary(pca)$importance[2,][2]
+  pca_comp <- as.data.frame(pca$x)
+  pca_comp$Target <- rownames(pca_comp)
+  control_pca <- ggplot(pca_comp, aes(x = PC1, y = PC2, label = Target)) +
+    geom_point(size = point.size, shape = point.shape, alpha = alpha, col = col[1]) +
+    labs(title = plot.title) +
+    theme_bw() +
+    labs(x = paste("PC1: ", round(var_pca1*100,2), "% variance explained", sep = ""),
+         y = paste("PC2: ", round(var_pca2*100,2), "% variance explained", sep = "")) +
+    theme(legend.position = legend.position) +
+    theme(axis.text = element_text(size = axis.text.size, colour = "black")) +
+    theme(axis.title = element_text(size = axis.title.size, colour="black")) +
+    geom_text(aes(label = Target), hjust = hjust, vjust = vjust, size = label.size)
+  print(control_pca)
+  if (save.to.tiff == TRUE){
+    ggsave(paste(name.tiff,".tiff", sep = ""), control_pca, dpi = dpi, width = width, height = height, units = "cm", compression = "lzw")
+  }
+}
+
+
+
+
+
+control_dCt_corr_sample <- function(data, add.coef = "black",
                              method = "pearson",
                              order = "hclust",
                              hclust.method = "complete",
@@ -524,7 +611,74 @@ control_dCt_corr <- function(data, add.coef = "black",
     corr.data.sort <- arrange(corr.data, -abs(cor))
     write.table(corr.data.sort, paste(name.txt, ".txt", sep = ""))
   }
+  return(corr.data.sort)
 }
+
+
+
+
+
+control_dCt_corr_target <- function(data, add.coef = "black",
+                                    method = "pearson",
+                                    order = "hclust",
+                                    hclust.method = "complete",
+                                    size = 0.6,
+                                    save.to.tiff = FALSE,
+                                    dpi = 600, width = 15, height = 15,
+                                    name.tiff = "dCt_control_corr_plot",
+                                    save.to.txt = FALSE,
+                                    sort.txt = "cor",
+                                    name.txt = "dCt_control_corr_results",
+                                    p.adjust.method = "BH"){
+  data <- as.data.frame(data)
+  data_t <- t(select(data, -Group, -Sample))
+  colnames(data_t) <- data$Sample
+  res_cor <- rcorr(as.matrix(data_t), type = method)
+  if (order == "hclust"){
+    corrplot(res_cor$r, type = "upper", tl.cex = size, tl.col = "black", cl.cex = size,
+             order = order,
+             hclust.method = hclust.method,
+             addCoef.col = add.coef,
+             number.cex = size)
+    if (save.to.tiff == TRUE){
+      tiff(paste(name.tiff,".tiff", sep = ""), res = dpi, width = width, height = height, units = "cm", compression = "lzw")
+      corrplot(res_cor$r, type = "upper", tl.cex = size, tl.col = "black", cl.cex = size,
+               order = order,
+               hclust.method = hclust.method,
+               addCoef.col = "black",
+               number.cex = size)
+      dev.off()
+    }
+  } else {
+    corrplot(res_cor$r, type = "upper", tl.cex = size, tl.col = "black", cl.cex = size,
+             order = order,
+             addCoef.col = add.coef,
+             number.cex = size)
+    if (save.to.tiff == TRUE){
+      tiff(paste(name.tiff,".tiff", sep = ""), res = dpi, width = width, height = height, units = "cm", compression = "lzw")
+      corrplot(res_cor$r, type = "upper", tl.cex = size, tl.col = "black", cl.cex = size,
+               order = order,
+               addCoef.col = "black",
+               number.cex = size)
+      dev.off()
+    }
+  }
+  if (save.to.txt == TRUE){
+    corr <- upper.tri(res_cor$r)
+    corr.data <- data.frame(
+      row = rownames(res_cor$r)[row(res_cor$r)[corr]],
+      column = rownames(res_cor$r)[col(res_cor$r)[corr]],
+      cor  =(res_cor$r)[corr],
+      p = res_cor$P[corr]
+    )
+    corr.data$p.adj <- p.adjust(corr.data$p, method = p.adjust.method)
+    corr.data.sort <- arrange(corr.data, -abs(cor))
+    write.table(corr.data.sort, paste(name.txt, ".txt", sep = ""))
+  }
+  return(corr.data.sort)
+}
+
+
 
 
 
@@ -543,6 +697,10 @@ single_dCt_corr <- function(data, x, y, alpha = 0.7,
                             plot.title = "",
                             label.position.x = 1,
                             label.position.y = 1,
+                            small.p = FALSE,
+                            small.r = FALSE,
+                            p.digits = 3,
+                            rr.digits = 2,
                             label = c("eq", "R2", "p"),
                             dpi = 600, width = 15, height = 15,
                             save.to.tiff = FALSE,
@@ -551,9 +709,6 @@ single_dCt_corr <- function(data, x, y, alpha = 0.7,
     corr_control <- ggplot(data, aes(x = .data[[x]], y = .data[[y]], color = Group)) +
       geom_point() +
       geom_smooth(method='lm', se = FALSE, alpha = alpha) +
-      stat_poly_eq(use_label(c("eq", "R2", "p")),
-                   label.y = c(label.position.y),
-                   label.x = c(label.position.x)) +
       scale_color_manual(values = c(col)) +
       xlab(x) + ylab(y) +
       labs(color = legend.title, title = plot.title) +
@@ -563,6 +718,16 @@ single_dCt_corr <- function(data, x, y, alpha = 0.7,
       theme(axis.title = element_text(size = axis.title.size, colour="black")) +
       theme(legend.text = element_text(size = legend.text.size, colour="black")) +
       theme(legend.title = element_text(size = legend.title.size, colour="black"))
+    if (labels == TRUE){
+      corr_control <- corr_control +
+        stat_poly_eq(use_label(label),
+                     label.y = c(label.position.y),
+                     label.x = c(label.position.x),
+                     small.p = small.p,
+                     small.r = small.r,
+                     p.digits = p.digits,
+                     rr.digits = rr.digits)
+    }
   } else {
     corr_control <- ggplot(data, aes(x = .data[[x]], y = .data[[y]])) +
       geom_point() +
@@ -575,7 +740,65 @@ single_dCt_corr <- function(data, x, y, alpha = 0.7,
       theme_classic() +
       theme(axis.text = element_text(size = axis.text.size, colour = "black")) +
       theme(axis.title = element_text(size = axis.title.size, colour="black"))
+    if (labels == TRUE){
+      corr_control <- corr_control +
+        stat_poly_eq(use_label(label),
+                     label.y = c(label.position.y),
+                     label.x = c(label.position.x),
+                     small.p = small.p,
+                     small.r = small.r,
+                     p.digits = p.digits,
+                     rr.digits = rr.digits)
+      }
     }
+  print(corr_control)
+  if (save.to.tiff == TRUE){
+    ggsave(paste(name.tiff,".tiff", sep = ""), corr_control, dpi = dpi, width = width, height = height, units = "cm", compression = "lzw")
+  }
+}
+
+
+
+single_dCt_corr_target <- function(data, x, y, alpha = 0.7, labels = TRUE,
+                                   col = c("#66c2a5", "#fc8d62"),
+                                   axis.title.size = 12,
+                                   axis.text.size = 10,
+                                   legend.text.size = 12,
+                                   legend.title = "Group",
+                                   legend.title.size = 12,
+                                   legend.position = "right",
+                                   plot.title = "",
+                                   label.position.x = 1,
+                                   label.position.y = 1,
+                                   small.p = FALSE,
+                                   small.r = FALSE,
+                                   p.digits = 3,
+                                   rr.digits = 2,
+                                   label = c("eq", "R2", "p"),
+                                   dpi = 600, width = 15, height = 15,
+                                   save.to.tiff = FALSE,
+                                   name.tiff = "dCt_corr_single_plot"){
+  data <- as.data.frame(data)
+  data_t <- t(select(data, -Group, -Sample))
+  colnames(data_t) <- data$Sample
+  corr_control <- ggplot(as.data.frame(data_t), aes(x = .data[[x]], y = .data[[y]])) +
+    geom_point() +
+    geom_smooth(method='lm', se = FALSE, alpha = alpha) +
+    xlab(x) + ylab(y) +
+    labs(title = plot.title) +
+    theme_classic() +
+    theme(axis.text = element_text(size = axis.text.size, colour = "black")) +
+    theme(axis.title = element_text(size = axis.title.size, colour="black"))
+  if (labels == TRUE){
+    corr_control <- corr_control +
+      stat_poly_eq(use_label(label),
+                   label.y = c(label.position.y),
+                   label.x = c(label.position.x),
+                   small.p = small.p,
+                   small.r = small.r,
+                   p.digits = p.digits,
+                   rr.digits = rr.digits)
+  }
   print(corr_control)
   if (save.to.tiff == TRUE){
     ggsave(paste(name.tiff,".tiff", sep = ""), corr_control, dpi = dpi, width = width, height = height, units = "cm", compression = "lzw")
@@ -711,7 +934,6 @@ ddCt <- function(data,
     summarise(shap_wilka_p = shapiro.test(dCt)$p.value) %>%
     pivot_wider(names_from = Group, values_from = shap_wilka_p) %>%
     full_join(data_ddCt, by = c("Target")) %>%
-    mutate(test.for.comparison = ifelse(.data[[group.ref]] >= 0.05 & .data[[group.study]] >= 0.05, "t.student's.test", "Mann-Whitney.test")) %>%
     rename_with(~paste0(.x, "_norm_p", recycle0 = TRUE), all_of(c(group.study, group.ref)))
   data_ddCt_tests <- data_slim %>%
     group_by(Target) %>%
@@ -761,7 +983,8 @@ RQ_plot <- function(data, use.p = TRUE, mode, Target.sel = "all", p.threshold = 
     data$p.used <- data$MW.test.p
     }
   if (mode == "depends"){
-    data <- mutate(data, p.used = ifelse(test.for.comparison == "t.student's.test", yes = t.test.p,  no = MW.test.p))
+    vars <- colnames(select(data, ends_with("norm_p")))
+    data <- mutate(data, test.for.comparison = ifelse(.data[[vars[[1]]]] >= 0.05 & .data[[vars[[2]]]] >= 0.05, "t.student's.test", "Mann-Whitney.test"))
   }
   if (mode == "user"){
     colnames(user) <- c("Target","test")

@@ -36,9 +36,9 @@ read_Ct_wide <- function(Ct.file, design.file,  sep, dec){
                                header = TRUE,
                                sep = sep)
 
-  colnames(data_wide)[1] <- "Sample"
+  colnames(data_wide)[1] <- "Target"
   data_wide <- mutate(data_wide, across(everything(), as.character))
-  data_slim <- pivot_longer(data_wide, -Sample, names_to = "Target", values_to = "Ct")
+  data_slim <- pivot_longer(data_wide, -Target, names_to = "Sample", values_to = "Ct")
   data_slim[ ,"Group"] <- NA
 
   for (x in 1:nrow(data_wide_design)) {

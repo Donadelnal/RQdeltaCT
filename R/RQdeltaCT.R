@@ -988,10 +988,9 @@ RQ_plot <- function(data, use.p = TRUE, mode, Target.sel = "all", p.threshold = 
     data <- mutate(data, p.used = ifelse(test.for.comparison == "t.student's.test", t.test.p, MW.test.p))
   }
   if (mode == "user"){
-    colnames(user) <- c("Target","test")
+    colnames(user) <- c("Target","p.used")
     data <- full_join(data, user, by = c("Target"))
-    data <- mutate(data, p.used = ifelse(test == "t.student's.test", yes = t.test.p,  no = MW.test.p))
-  }
+    }
   data <- mutate(data, `Statistically significant?` = ifelse(p.used > p.threshold, yes = "No (p > 0.05)",  no = "Yes (p <= 0.05)"))
   data$`Statistically significant?` <- factor(data$`Statistically significant?`, levels = c("Yes (p <= 0.05)", "No (p > 0.05)"))
   RQ <- ggplot(data, aes(x = reorder(Target, -RQ), y = log10(RQ), fill = `Statistically significant?`)) +

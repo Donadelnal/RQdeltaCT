@@ -985,6 +985,7 @@ RQ_plot <- function(data, use.p = TRUE, mode, Target.sel = "all", p.threshold = 
   if (mode == "depends"){
     vars <- colnames(select(data, ends_with("norm_p")))
     data <- mutate(data, test.for.comparison = ifelse(.data[[vars[[1]]]] >= 0.05 & .data[[vars[[2]]]] >= 0.05, "t.student's.test", "Mann-Whitney.test"))
+    data <- mutate(data, p.used = ifelse(test.for.comparison == "t.student's.test", t.test.p, MW.test.p))
   }
   if (mode == "user"){
     colnames(user) <- c("Target","test")

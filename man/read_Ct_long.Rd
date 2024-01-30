@@ -2,24 +2,55 @@
 % Please edit documentation in R/RQdeltaCT.R
 \name{read_Ct_long}
 \alias{read_Ct_long}
-\title{Title}
+\title{read_Ct_long}
 \usage{
 read_Ct_long(
   path,
   sep,
   dec,
   skip = 0,
-  col.Sample,
-  col.Target,
-  col.Ct,
-  col.Group,
-  add.col.Flag = FALSE,
-  col.Flag
+  column.Sample,
+  column.Target,
+  column.Ct,
+  column.Group,
+  add.column.Flag = FALSE,
+  column.Flag
 )
 }
 \arguments{
-\item{col.Flag}{}
+\item{path}{path to a .txt file with long-type table of Ct values. This table should contain at least  4 columns, with
+sample names, target names, Ct values and group names (those columns will be imported by this function).
+Imported table could also contain a column with flag information, which could be optionally imported (see add.col.Flag and col.Flag parameters).}
+
+\item{sep}{character of a field separator in both imported files.}
+
+\item{dec}{character used for decimal points in Ct values.}
+
+\item{skip}{integer: number of lines of the data file to skip before beginning to read data.}
+
+\item{col.Sample}{integer: number of column with sample names.}
+
+\item{col.Target}{integer: number of column with target names.}
+
+\item{col.Ct}{integer: number of column with Ct values.}
+
+\item{col.Group}{integer: number of column with group names.}
+
+\item{add.col.Flag}{logical: if dataset contains a column with flag informatio which should be also imported, this parameters should be set to TRUE.}
+
+\item{col.Flag}{integer: number of column with flag information.
+This column should contain a character-type values (ex. "Undetermined" and "OK"), however, other types of values (ex. numeric), could be converted after importing dataset (see examples).}
+}
+\value{
+data.frame in long format ready to analysis.
 }
 \description{
-Title
+Imports long-type table with Ct values.
+}
+\examples{
+path <- system.file("extdata", "data_Ct_long.txt", package = "RQdeltaCT")
+data.Ct <- read_Ct_long(path = path, sep = "\t",dec = ".",skip = 0,
+                   add.col.Flag = TRUE, col.Sample = 1, col.Target = 2,
+                   col.Ct = 5, col.Group = 9, col.Flag = 4)
+
 }

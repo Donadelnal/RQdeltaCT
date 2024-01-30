@@ -4,31 +4,33 @@
 \alias{read_Ct_wide}
 \title{read_Ct_wide}
 \usage{
-read_Ct_wide(Ct.file, design.file, sep, dec)
+read_Ct_wide(path.Ct.file, path.design.file, sep, dec)
 }
 \arguments{
-\item{Ct.file}{path to wide-format table (must be in .txt format) containing target names in the first column and
-Ct values in remaining columns named with sample names.}
+\item{path.Ct.file}{path to wide-format table in .txt format containing Ct values, target names in the first column, and
+sample names in the first row. In other words, this table should contain targets by rows and samples by columns.}
 
-\item{design.file}{A .txt file with two columns: column named "Sample" with names of samples
+\item{path.design.file}{path to .txt file with two columns: column named "Sample" with names of samples
 and column named "Group" with names of groups assigned to samples. Names of samples in this file
-must correspond to the names of columns in file with Ct values.}
+should correspond to the names of columns in file with Ct values (Ct.file).}
 
-\item{sep}{A character of a field separator in both imported files.}
+\item{sep}{character of a field separator in both imported files.}
 
-\item{dec}{A character used for decimal points in Ct values.}
+\item{dec}{character used for decimal points in Ct values.}
 }
 \value{
-A table in long format ready to analysis.
+data.frame in long format ready to analysis.
 }
 \description{
-Imports Ct table in wide format, imports design file and merge both files to return long table ready for analysis.
-All parameters of this function have not default values and must be specified by user.
+Imports two tables: first is a wide-type table with Ct values and design file. Merges both files to return long table ready for analysis.
+All parameters of this function have not default values and schould be specified by user.
 }
 \examples{
-data_long <- prepare_data(Ct.file = "Ct_wide.txt",
-                          design.file = "design.txt",
-                          sep ="\t",
-                          dec = ".")
+path.Ct.file <- system.file("extdata", "data_Ct_wide.txt", package = "RQdeltaCT")
+path.design.file <- system.file("extdata", "data_design.txt", package = "RQdeltaCT")
+data.Ct <- read_Ct_wide(path.Ct.file = path.Ct.file,
+                   path.design.file = path.design.file,
+                   sep ="\t",
+                   dec = ".")
 
 }

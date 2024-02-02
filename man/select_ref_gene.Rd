@@ -19,6 +19,7 @@ select_ref_gene(
   legend.text.size = 12,
   legend.position = "top",
   plot.title = "",
+  plot.title.size = 14,
   dpi = 600,
   width = 15,
   height = 15,
@@ -28,7 +29,7 @@ select_ref_gene(
 }
 \arguments{
 \item{data}{object returned from read_Ct_long, read_Ct_wide or filter_Ct function, or data frame containing column named "Sample" with sample names, column named "Target" with target names,
-column named "Ct" with raw Ct values, column named "Group" with group names. Any other columns could exist, by will not be used by this function.}
+column named "Ct" with raw Ct values, column named "Group" with group names. Any other columns could exist, but will not be used by this function.}
 
 \item{candidates}{vector of names of targets - candidates for gene reference.}
 
@@ -56,6 +57,8 @@ column named "Ct" with raw Ct values, column named "Group" with group names. Any
 
 \item{plot.title}{character: title of plot.}
 
+\item{plot.title.size}{integer: font size of plot title.}
+
 \item{dpi}{integer: resolution of saved .tiff file.}
 
 \item{width}{numeric: width (in cm) of saved .tiff file.}
@@ -64,7 +67,7 @@ column named "Ct" with raw Ct values, column named "Group" with group names. Any
 
 \item{save.to.tiff}{logical: if TRUE, plot will be saved as .tiff file.}
 
-\item{name.tiff}{character: name of saved .tiff file.}
+\item{name.tiff}{character: name of saved .tiff file, without ".tiff" name of extension.}
 }
 \value{
 data.frame in long format ready to analysis.
@@ -73,7 +76,7 @@ data.frame in long format ready to analysis.
 Calculate line plot and statistics (minimum, maximum, standard deviation, variance and colinearity coefficient VIF) that could be helpful to select the best reference gene for normalization of CT values.
 }
 \examples{
-ref <- sel_ref(data.CtF,
+ref <- select_ref_gene(data.CtF,
                candidates = c("Gene4", "Gene8","Gene10","Gene16","Gene17", "Gene18"),
                col = c("#66c2a5", "#fc8d62","#6A6599", "#D62728", "#1F77B4", "black"),
                line.width = 1,

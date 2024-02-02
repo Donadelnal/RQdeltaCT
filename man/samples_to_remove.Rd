@@ -7,9 +7,9 @@
 samples_to_remove(data, fraction = 0.5)
 }
 \arguments{
-\item{data}{object returned from control_Ct_barplot_sample function.}
+\item{data}{object returned from [control_Ct_barplot_sample()] function.}
 
-\item{fraction}{numeric from 0 to 1: a threshold fraction, samples with the higher fraction of Ct values labeled as unreliable will be returned. Default to 0.5.}
+\item{fraction}{numeric: a threshold fraction (ranged from 0 to 1), samples with the higher fraction of Ct values labeled as unreliable will be returned. Default to 0.5.}
 }
 \value{
 vector with names of samples.

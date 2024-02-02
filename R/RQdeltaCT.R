@@ -2,19 +2,22 @@
 #' @title read_Ct_wide
 #'
 #' @description
-#' Imports two tables: first is a wide-type table with Ct values and design file. Merges both files to return long table ready for analysis.
-#' All parameters of this function have not default values and schould be specified by user.
+#' Enables to import Ct dataset in a wide-format table with sample names given in columns.
 #'
+#' @details
+#' This function needs two tables to import: a wide-format table with Ct values and design file (see parameters `path.Ct.file` and `path.design.file` for further details regarding tables structure).
+#' Subsequently merges both files to return long-format table ready for analysis.
+#' All parameters must be specified, there is no default values.
 #'
 #' @param path.Ct.file path to wide-format table in .txt format containing Ct values, target names in the first column, and
 #' sample names in the first row. In other words, this table should contain targets by rows and samples by columns.
 #' @param path.design.file path to .txt file with two columns: column named "Sample" with names of samples
 #' and column named "Group" with names of groups assigned to samples. Names of samples in this file
-#' should correspond to the names of columns in file with Ct values (Ct.file).
+#' should correspond to the names of columns in file with Ct values.
 #' @param sep character of a field separator in both imported files.
 #' @param dec character used for decimal points in Ct values.
 #'
-#' @return data.frame in long format ready to analysis.
+#' @return Data.frame in long format ready to analysis.
 #' @export
 #'
 #' @examples
@@ -27,11 +30,14 @@
 #'
 #' @importFrom utils read.csv
 #' @importFrom tidyr pivot_longer
-#' @importFrom dplyr mutate
 #' @importFrom base which
 #' @import tidyverse
 #'
-read_Ct_wide <- function(path.Ct.file, path.design.file,  sep, dec){
+read_Ct_wide <- function(path.Ct.file,
+                         path.design.file,
+                         sep,
+                         dec){
+
   data_wide <- read.csv(Ct.file,
                         header = TRUE,
                         sep = sep,
@@ -60,24 +66,25 @@ read_Ct_wide <- function(path.Ct.file, path.design.file,  sep, dec){
 #' @title read_Ct_long
 #'
 #' @description
-#' Imports long-type table with Ct values.
+#' Imports long-format table with Ct values.
 #'
 #' @param path path to a .txt file with long-type table of Ct values. This table should contain at least  4 columns, with
 #' sample names, target names, Ct values and group names (those columns will be imported by this function).
-#' Imported table could also contain a column with flag information, which could be optionally imported (see add.col.Flag and col.Flag parameters).
+#' Imported table could also contain a column with flag information, which could be optionally imported (see `add.col.Flag` and `col.Flag` parameters).
 #'
-#' @param sep character of a field separator in both imported files.
+#' @param sep character of a field separator in imported file.
 #' @param dec character used for decimal points in Ct values.
-#' @param skip integer: number of lines of the data file to skip before beginning to read data.
+#' @param skip integer: number of lines of the data file to skip before beginning to read data. Default to 0.
 #' @param col.Sample integer: number of column with sample names.
 #' @param col.Target integer: number of column with target names.
 #' @param col.Ct integer: number of column with Ct values.
 #' @param col.Group integer: number of column with group names.
-#' @param add.col.Flag logical: if dataset contains a column with flag informatio which should be also imported, this parameters should be set to TRUE.
-#' @param col.Flag integer: number of column with flag information.
-#' This column should contain a character-type values (ex. "Undetermined" and "OK"), however, other types of values (ex. numeric), could be converted after importing dataset (see examples).
+#' @param add.col.Flag logical: if dataset contains a column with flag information which should be also imported, this parameters should be set to TRUE. Default to FALSE.
+#' @param col.Flag integer: number of column with flag information. Should be specified if `add.col.Flag` = TRUE.
+#' This column should contain a character-type values (ex. "Undetermined" and "OK"), however,
+#' other types of values are allowed (ex. numeric), but must be converted to character or factor after importing dataset (see examples).
 #'
-#' @return data.frame in long format ready to analysis.
+#' @return Data.frame in long format ready to analysis.
 #' @export
 #'
 #' @examples
@@ -86,9 +93,21 @@ read_Ct_wide <- function(path.Ct.file, path.design.file,  sep, dec){
 #'                    add.col.Flag = TRUE, col.Sample = 1, col.Target = 2,
 #'                    col.Ct = 5, col.Group = 9, col.Flag = 4)
 #'
+#'
+#'
 #' @importFrom utils read.csv
 #'
-read_Ct_long <- function(path, sep, dec, skip = 0, column.Sample, column.Target, column.Ct, column.Group, add.column.Flag = FALSE, column.Flag){
+read_Ct_long <- function(path,
+                         sep,
+                         dec,
+                         skip = 0,
+                         column.Sample,
+                         column.Target,
+                         column.Ct,
+                         column.Group,
+                         add.column.Flag = FALSE,
+                         column.Flag){
+
   data <- read.csv(path,
                    header = TRUE,
                    sep = sep,
@@ -115,58 +134,66 @@ read_Ct_long <- function(path, sep, dec, skip = 0, column.Sample, column.Target,
 #'
 #' @description
 #' Sample-wide control of raw Ct values by illustrating numbers of Ct values labeled as reliable or not by using reliability criteria (see function parameters).
+#'
+#' @details
 #' This function does not perform data filtering, but only numbers Ct values labeled as reliable or not and presents them graphically.
-#' This function Could be useful to identify samples with low number of reliable Ct values.
+#' Results could be useful to identify samples with low number of reliable Ct values.
 #'
-#' @param data object returned from read_Ct_long or read_Ct_wide function, or data frame containing column named "Sample" with sample names, column named "Target" with target names,
-#' column named "Ct" with raw Ct values, column named "Group" with group names. Optionally, data frame could contain column named "Flag" with flag information (ex. "Undetermined" and "OK"),
-#' which will be used for relibility assessment.
-#' This parameter has no default value (must be provided).
-#' @param flag.Ct character of a flag used for undetermined Ct values, default to "Undetermined".
-#' @param maxCt numeric, a maximum of Ct value allowed.
-#' @param flag character of a flag used in Flag column for values which are unreliable, default to "Undetermined".
+#' @param data object returned from [read_Ct_long()] or [read_Ct_wide()] function,
+#' or data frame containing column named "Sample" with sample names, column named "Target" with target names,
+#' column named "Ct" with raw Ct values, and column named "Group" with group names.
+#' Optionally, data frame could contain column named "Flag" with flag information (ex. "Undetermined" and "OK"), which will be used for reliability assessment.
+#' @param flag.Ct character of a flag used for undetermined Ct values. Default to "Undetermined".
+#' @param maxCt numeric, a maximum of Ct value allowed. Default to 35.
+#' @param flag character of a flag used in Flag column for values which are unreliable. Default to "Undetermined".
 #' @param colors character vector length of two, containing colors for Ct values which were labeled as reliable (first element of vector) or not (second element of vector).
-#' @param axis.title.size integer: font size of axis titles.
-#' @param axis.text.size integer: font size of axis text.
-#' @param x.axis.title character: title of x axis.
-#' @param y.axis.title character: title of y axis.
-#' @param legend.title character: title of legend.
-#' @param plot.title character: title of plot.
-#' @param plot.title.size integer: font size of plot title.
-#' @param legend.title.size integer: font size of legend title.
-#' @param legend.text.size integer: font size of legend text.
-#' @param legend.position position of the legend, one of "top", "right", "bottom", "left".
-#' @param save.to.tiff logical: if plot should be saved as .tiff file, set to TRUE.
-#' @param dpi integer: resolution of saved .tiff file.
-#' @param width numeric: width (in cm) of saved .tiff file.
-#' @param height integer: height (in cm) of saved .tiff file.
-#' @param name.tiff character: name of saved .tiff file.
+#' @param axis.title.size integer: font size of axis titles. Default to 12.
+#' @param axis.text.size integer: font size of axis text. Default to 10.
+#' @param x.axis.title character: title of x axis. Default to "".
+#' @param y.axis.title character: title of y axis. Default to "Number".
+#' @param legend.title character: title of legend. Default to "Reliable Ct value?".
+#' @param plot.title character: title of plot. Default to "".
+#' @param plot.title.size integer: font size of plot title. Default to 14.
+#' @param legend.title.size integer: font size of legend title.  Default to 12.
+#' @param legend.text.size integer: font size of legend text. Default to 12.
+#' @param legend.position position of the legend, one of "top" (default), "right", "bottom", "left", or "none" (no legend).
+#' See description for `legend.position` in [ggplot2::theme()] function.
+#' @param save.to.tiff logical: if TRUE, plot will be saved as .tiff file.  Default to FALSE.
+#' @param dpi integer: resolution of saved .tiff file. Default to 600.
+#' @param width numeric: width (in cm) of saved .tiff file. Default to 15.
+#' @param height integer: height (in cm) of saved .tiff file. Default to 15.
+#' @param name.tiff character: name of saved .tiff file, without ".tiff" name of extension. Default to "Ct_control_barplot_for_samples".
 #'
-#' @return data.frame in long format ready to analysis.
+#' @return List containing plot and table with numbers of reliable and not reliable Ct values in samples.
+#' Additional information about returned table is also printed, it could help user to properly interpret returned table.
+#' Plot will be displayed on graphic device.
 #' @export
 #'
 #' @examples
 #' sample.Ct.control <- control_Ct_barplot_sample(data.Ct)
 #'
-#' @importFrom base as.numeric as.data.frame cat print table paste sum colnames
+#' @importFrom base as.numeric as.data.frame cat print table paste sum colnames list
 #' @importFrom dplyr mutate arrange filter
 #' @import ggplot2
 #' @import tidyverse
 #'
-control_Ct_barplot_sample <- function(data, flag.Ct = "Undetermined", maxCt = 35, flag = "Undetermined",
-                           colors = c("#66c2a5", "#fc8d62"),
-                           x.axis.title = "",
-                           y.axis.title = "Number",
-                           axis.title.size = 12,
-                           axis.text.size = 10,
-                           plot.title = "",
-						   plot.title.size = 14,
-                           legend.title = "Reliable?",
-                           legend.title.size = 12,
-                           legend.text.size = 12,
-                           legend.position = "top",
-                           save.to.tiff = FALSE, dpi = 600, width = 15, height = 15,
-                           name.tiff = "Ct_control_barplot_for_samples"){
+control_Ct_barplot_sample <- function(data,
+                                      flag.Ct = "Undetermined",
+                                      maxCt = 35,
+                                      flag = "Undetermined",
+                                      colors = c("#66c2a5", "#fc8d62"),
+                                      x.axis.title = "",
+                                      y.axis.title = "Number",
+                                      axis.title.size = 12,
+                                      axis.text.size = 10,
+                                      plot.title = "",
+						                          plot.title.size = 14,
+                                      legend.title = "Reliable Ct value?",
+                                      legend.title.size = 12,
+                                      legend.text.size = 12,
+                                      legend.position = "top",
+                                      save.to.tiff = FALSE, dpi = 600, width = 15, height = 15,
+                                      name.tiff = "Ct_control_barplot_for_samples"){
 
   data$Ct[data$Ct == flag.Ct] <- 100
   data$Ct <- as.numeric(data$Ct)
@@ -180,7 +207,8 @@ control_Ct_barplot_sample <- function(data, flag.Ct = "Undetermined", maxCt = 35
 
   bar <- as.data.frame(table(data$Reliable, data$Sample))
   order <- arrange(filter(bar, Var1 == "Yes"), Freq)$Var2
-  cat("Returned object contains number of targets retained (Yes) or not retained (No) in samples after reliability assessment.")
+  cat("Returned table contains number of targets retained (Yes) or not retained (No) in samples after reliability assessment.")
+
   barplot.samples <- ggplot(bar, aes(x = reorder(Var2, desc(Freq)), y = Freq, fill = Var1)) +
     geom_bar(stat = "identity") +
     coord_flip() +
@@ -203,7 +231,9 @@ control_Ct_barplot_sample <- function(data, flag.Ct = "Undetermined", maxCt = 35
       ggsave(paste(name.tiff, ".tiff", sep = ""), barplot.samples, dpi = dpi, width = width, height = height, units = "cm", compression = "lzw")
     } else {}
 
-    return(table(data$Reliable, data$Sample))
+  tab <- table(data$Reliable, data$Sample)
+
+  return(list(barplot.samples, tab))
 }
 
 
@@ -213,34 +243,40 @@ control_Ct_barplot_sample <- function(data, flag.Ct = "Undetermined", maxCt = 35
 #'
 #' @description
 #' Target-wide control of raw Ct values across groups by illustrating numbers of Ct values labeled as reliable or not by using reliability criteria (see function parameters).
+#'
+#' @details
 #' This function does not perform data filtering, but only numbers Ct values labeled as reliable or not and presents them graphically.
-#' This function Could be useful to identify targets with low number of reliable Ct values.
+#' Could be useful to identify targets with low number of reliable Ct values.
 #'
-#' @param data object returned from read_Ct_long or read_Ct_wide function, or data frame containing column named "Sample" with sample names, column named "Target" with target names,
-#' column named "Ct" with raw Ct values, column named "Group" with group names. Optionally, data frame could contain column named "Flag" with flag information (ex. "Undetermined" and "OK"),
+#' @param data object returned from [read_Ct_long()] or [read_Ct_wide()] function,
+#' or data frame containing column named "Sample" with sample names, column named "Target" with target names,
+#' column named "Ct" with raw Ct values, column named "Group" with group names.
+#' Optionally, data frame could contain column named "Flag" with flag information (ex. "Undetermined" and "OK"),
 #' which will be used for reliability assessment.
-#' This parameter has no default value (must be provided).
-#' @param flag.Ct character of a flag used for undetermined Ct values, default to "Undetermined".
-#' @param maxCt numeric, a maximum of Ct value allowed.
-#' @param flag character of a flag used in Flag column for values which are unreliable, default to "Undetermined".
+#' @param flag.Ct character of a flag used for undetermined Ct values. Default to "Undetermined".
+#' @param maxCt numeric, a maximum of Ct value allowed. Default to 35.
+#' @param flag character of a flag used in Flag column for values which are unreliable. Default to "Undetermined".
 #' @param colors character vector length of two, containing colors for Ct values which were labeled as reliable (first element of vector) or not (second element of vector).
-#' @param axis.title.size integer: font size of axis titles.
-#' @param axis.text.size integer: font size of axis text.
-#' @param x.axis.title character: title of x axis.
-#' @param y.axis.title character: title of y axis.
-#' @param legend.title character: title of legend.
-#' @param plot.title character: title of plot.
-#' @param plot.title.size integer: font size of plot title.
-#' @param legend.title.size integer: font size of legend title.
-#' @param legend.text.size integer: font size of legend text.
-#' @param legend.position position of the legend, one of "top", "right", "bottom", "left".
-#' @param save.to.tiff logical: if TRUE, plot will be saved as .tiff file.
-#' @param dpi integer: resolution of saved .tiff file.
-#' @param width numeric: width (in cm) of saved .tiff file.
-#' @param height integer: height (in cm) of saved .tiff file.
-#' @param name.tiff character: name of saved .tiff file.
+#' @param axis.title.size integer: font size of axis titles. Default to 12.
+#' @param axis.text.size integer: font size of axis text. Default to 10.
+#' @param x.axis.title character: title of x axis. Default to "".
+#' @param y.axis.title character: title of y axis. Default to "Number".
+#' @param legend.title character: title of legend. Default to "Reliable Ct value?".
+#' @param plot.title character: title of plot. Default to "".
+#' @param plot.title.size integer: font size of plot title. Default to 14.
+#' @param legend.title.size integer: font size of legend title.  Default to 12.
+#' @param legend.text.size integer: font size of legend text. Default to 12.
+#' @param legend.position position of the legend, one of "top" (default), "right", "bottom", "left", or "none" (no legend).
+#' See description for `legend.position` in [ggplot2::theme()] function.
+#' @param save.to.tiff logical: if TRUE, plot will be saved as .tiff file.  Default to FALSE.
+#' @param dpi integer: resolution of saved .tiff file. Default to 600.
+#' @param width numeric: width (in cm) of saved .tiff file. Default to 15.
+#' @param height integer: height (in cm) of saved .tiff file. Default to 15.
+#' @param name.tiff character: name of saved .tiff file, without ".tiff" name of extension.  Default to "Ct_control_barplot_for_targets".
 #'
-#' @return data.frame in long format ready to analysis.
+#' @return List containing plot and table with numbers of reliable and not reliable Ct values in targets.
+#' Additional information about returned table is also printed, it could help user to properly interpret returned table.
+#' Plot will be displayed on graphic device.
 #' @export
 #'
 #' @examples
@@ -251,21 +287,24 @@ control_Ct_barplot_sample <- function(data, flag.Ct = "Undetermined", maxCt = 35
 #' @import ggplot2
 #' @import tidyverse
 #'
-control_Ct_barplot_target <- function(data, flag.Ct = "Undetermined", maxCt = 35, flag = "Undetermined",
-                               colors = c("#66c2a5", "#fc8d62"),
-                               x.axis.title = "",
-                               y.axis.title = "Number",
-                               axis.title.size = 12,
-                               axis.text.size = 10,
-                               legend.title = "Reliable?",
-                               legend.title.size = 12,
-                               legend.text.size = 12,
-                               legend.position = "top",
-                               plot.title = "",
-						              	   plot.title.size = 14,
-                               save.to.tiff = FALSE,
-                               dpi = 600, width = 15, height = 15,
-                               name.tiff = "Ct_control_barplot_for_targets"){
+control_Ct_barplot_target <- function(data,
+                                      flag.Ct = "Undetermined",
+                                      maxCt = 35,
+                                      flag = "Undetermined",
+                                      colors = c("#66c2a5", "#fc8d62"),
+                                      x.axis.title = "",
+                                      y.axis.title = "Number",
+                                      axis.title.size = 12,
+                                      axis.text.size = 10,
+                                      legend.title = "Reliable Ct value?",
+                                      legend.title.size = 12,
+                                      legend.text.size = 12,
+                                      legend.position = "top",
+                                      plot.title = "",
+						              	          plot.title.size = 14,
+                                      save.to.tiff = FALSE,
+                                      dpi = 600, width = 15, height = 15,
+                                      name.tiff = "Ct_control_barplot_for_targets"){
 
   data$Ct[data$Ct == flag.Ct] <- 100
   data$Ct <- as.numeric(data$Ct)
@@ -278,7 +317,8 @@ control_Ct_barplot_target <- function(data, flag.Ct = "Undetermined", maxCt = 35
 
     bar <- as.data.frame(table(data$Reliable, data$Target, data$Group))
     order <- arrange(filter(bar, Var1 == "Yes"), Freq)$Var2
-    cat("Returned object contains number of samples retained (Yes) or not retained (No) for each target after filtering.")
+    cat("Returned table contains number of samples retained (Yes) or not retained (No) for each target after filtering.")
+
     barplot.targets <- ggplot(bar, aes(x = reorder(Var2, desc(Freq)), y = Freq, fill = Var1)) +
       geom_bar(stat = "identity") +
       coord_flip() +
@@ -299,7 +339,10 @@ control_Ct_barplot_target <- function(data, flag.Ct = "Undetermined", maxCt = 35
     if (save.to.tiff == TRUE){
       ggsave(paste(name.tiff, ".tiff", sep = ""), barplot.targets, dpi = dpi, width = width, height = height, units = "cm", compression = "lzw")
     }
-    return(table(data$Reliable, data$Target, data$Group))
+
+    tab <- table(data$Reliable, data$Target, data$Group)
+
+    return(list(barplot.targets, tab))
 
 }
 
@@ -313,9 +356,9 @@ control_Ct_barplot_target <- function(data, flag.Ct = "Undetermined", maxCt = 35
 #' Could be useful for identification of samples with specified fraction of unreliable Ct values.
 #' Samples with high amount of unreliable data could be considered to remove from the dataset.
 #'
-#' @param data object returned from control_Ct_barplot_sample function.
-#' @param fraction numeric from 0 to 1: a threshold fraction, samples with the higher fraction of Ct values labeled as unreliable will be returned. Default to 0.5.
-#' @return vector with names of samples.
+#' @param data object returned from [control_Ct_barplot_sample()] function.
+#' @param fraction numeric: a threshold fraction (ranged from 0 to 1), samples with the higher fraction of Ct values labeled as unreliable will be returned. Default to 0.5.
+#' @return Vector with names of samples.
 #' @export
 #'
 #' @examples
@@ -347,11 +390,11 @@ samples_to_remove <- function(data, fraction = 0.5){
 #' Could be useful for identification of targets with specified fraction of unreliable Ct values.
 #' Targets with high amount of unreliable data could be considered to remove from the dataset.
 #'
-#' @param data object returned from control_Ct_barplot_target function.
-#' @param fraction numeric from 0 to 1: a threshold fraction, targets with the higher fraction of Ct values labeled as unreliable in at least one of the compared groups will be returned. Default to 0.5.
+#' @param data object returned from [control_Ct_barplot_target()] function.
+#' @param fraction numeric: a threshold fraction (ranged from 0 to 1), targets with the higher fraction of Ct values labeled as unreliable in at least one of the compared groups will be returned. Default to 0.5.
 #' @param groups character vector length of two, containing names of compared groups.
 #'
-#' @return vector with names of targets.
+#' @return Vector with names of targets.
 #' @export
 #'
 #' @examples
@@ -389,20 +432,22 @@ targets_to_remove <- function(data, fraction = 0.5, groups){
 #' @title filter_Ct
 #'
 #' @description
-#' Filters Ct dataset according to the used filtering criteria.
+#' Filters Ct data according to the used filtering criteria (see parameters).
 #'
-#' @param data object returned from read_Ct_long or read_Ct_wide function, or data frame containing column named "Sample" with sample names, column named "Target" with target names,
-#' column named "Ct" with raw Ct values, column named "Group" with group names. Optionally, data frame could contain column named "Flag" with flag information (ex. "Undetermined" and "OK"),
+#' @param data object returned from [read_Ct_long()] or [read_Ct_wide()] function,
+#' or data frame containing column named "Sample" with sample names, column named "Target" with target names,
+#' column named "Ct" with raw Ct values, column named "Group" with group names.
+#' Optionally, data frame could contain column named "Flag" with flag information (ex. "Undetermined" and "OK"),
 #' which will be used for filtering.
 #'
 #' @param flag.Ct character of a flag used for undetermined Ct values, default to "Undetermined".
 #' @param maxCt numeric, a maximum of Ct value allowed.
-#' @param flag character of a flag used in Flag column for values which should be filtered out, default to "Undetermined".
-#' @param remove.Target vector with names of targets which should be removed from dataset
-#' @param remove.Sample vector with names of samples which should be removed from dataset
-#' @param remove.Group vector with names of groups which should be removed from dataset
+#' @param flag character: flag used in Flag column for values which should be filtered out, default to "Undetermined".
+#' @param remove.Target character: vector with names of targets which should be removed from data
+#' @param remove.Sample character: vector with names of samples which should be removed from data
+#' @param remove.Group character: vector with names of groups which should be removed from data
 #'
-#' @return data.frame with filtered data.
+#' @return Data.frame with filtered data.
 #' @export
 #'
 #' @examples
@@ -414,7 +459,7 @@ targets_to_remove <- function(data, fraction = 0.5, groups){
 #'                       remove.Target = c("Gene2","Gene6"),
 #'                       remove.Sample = c("Control8","control16"))
 #'
-#'  data.CtF <- filter_Ct(data.Ct,
+#' data.CtF <- filter_Ct(data.Ct,
 #'                        flag.Ct = "Undetermined",
 #'                        maxCt = 35,
 #'                        flag = "Undetermined",
@@ -425,7 +470,9 @@ targets_to_remove <- function(data, fraction = 0.5, groups){
 #' @importFrom dplyr filter
 #' @import tidyverse
 #'
-filter_Ct <- function(data, flag.Ct = "Undetermined", maxCt = 35,
+filter_Ct <- function(data,
+                      flag.Ct = "Undetermined",
+                      maxCt = 35,
                       flag = c("Undetermined"),
                       remove.Target = c(""),
                       remove.Sample = c(""),
@@ -453,21 +500,22 @@ filter_Ct <- function(data, flag.Ct = "Undetermined", maxCt = 35,
 #' @title exp_Ct
 #'
 #' @description
-#' Collapses technical replicates (if present in data) by means, counts and imputes missing data by means within groups (if so indicated),
+#' This function collapses technical replicates (if present in data) by means, counts and imputes missing data by means within groups (if so indicated),
 #' and finally exponentiates Ct values by using formula 2^(-Ct).
 #'
-#' @param data data object returned from read_Ct_long, read_Ct_wide or filter_Ct function, or data frame containing column named "Sample" with sample names, column named "Target" with target names,
+#' @param data data object returned from [read_Ct_long()], [read_Ct_wide()] or [filter_Ct()] function,
+#' or data frame containing column named "Sample" with sample names, column named "Target" with target names,
 #' column named "Ct" with raw Ct values, column named "Group" with group names. Any other columns could exist, but will not be used by this function.
-#' @param imput.by.mean.within.groups logical: if TRUE, missing values will be imputed by means within groups.
-#' @param save.to.txt logical: if TRUE, returned dataset will be saved to .txt file.
-#' @param name.txt character: name of saved .txt file.
+#' @param imput.by.mean.within.groups logical: if TRUE, missing values will be imputed by means within groups. Default to TRUE.
+#' @param save.to.txt logical: if TRUE, returned data will be saved to .txt file. Default to FALSE.
+#' @param name.txt character: name of saved .txt file, without ".txt" name of extension. Default to "data.exp.Ct".
 #'
-#' @return data.frame with transformed Ct values and printed information about number and percentage of missing values.
+#' @return Data.frame with exponentiated Ct values and printed information about number and percentage of missing values.
 #' @export
 #'
 #' @examples
-#' data.Ct.exp.imput <- exp_Ct(data.CtF,
-#'                             imput.by.mean.within.groups = TRUE)
+#' data.Ct.exp <- exp_Ct(data.CtF,
+#'                       imput.by.mean.within.groups = TRUE)
 #'
 #' @importFrom base as.data.frame as.vector sum is.na ncol nrow paste cat
 #' @importFrom utils write.table
@@ -475,7 +523,7 @@ filter_Ct <- function(data, flag.Ct = "Undetermined", maxCt = 35,
 #' @import tidyverse
 #'
 exp_Ct <- function(data,
-                  imput.by.mean.within.groups = FALSE,
+                  imput.by.mean.within.groups = TRUE,
                   save.to.txt = FALSE,
                   name.txt = "data.exp.Ct"){
   data <- data %>%
@@ -529,26 +577,28 @@ exp_Ct <- function(data,
 #'
 #' @description
 #' Performs relative quantification of gene expression using 2^(-Ct) method.
-#' This function calculates:
-#' 1. Means (in columns with "_mean" pattern) and standard deviations (in columns with "_sd" pattern) of exponentiated Ct values of analyzed targets across compared groups.
-#' 2. Normality tests (Shapiro_Wilk test) of exponentiated Ct values of analyzed targets across compared groups and returned p values in columns with "_norm_p" pattern.
-#' 3. Fold Change (in "FCh" column) values together with log10 Fold change values (in "log10FCh" column).
-#'    Fold change values were calculated for each target by dividing  mean of exponentiated Ct values in study group by mean of exponentiated Ct values in reference group.
-#' 4. Statistical testing of differences in exponentiated Ct values between study group and reference group.
-#'    Student's t test and Mann-Whitney U test were used and resulted statistics (in column with "_test_stat" pattern) and p values (in column with "_test_p" pattern) are returned.
 #'
-#' @param data data object returned from exp_Ct function.
+#' @details
+#' This function calculates:
+#'  * Means (return in columns with "_mean" pattern) and standard deviations (return in columns with "_sd" pattern) of exponentiated Ct values of analyzed targets across compared groups.
+#'  * Normality tests (Shapiro_Wilk test) of exponentiated Ct values of analyzed targets across compared groups and returned p values in columns with "_norm_p" pattern.
+#'  * Fold Change values (return in "FCh" column) together with log10 Fold change values (return in "log10FCh" column).
+#'    Fold change values were calculated for each target by dividing  mean of exponentiated Ct values in study group by mean of exponentiated Ct values in reference group.
+#'  * Statistical testing of differences in exponentiated Ct values between study group and reference group.
+#'    Student's t test and Mann-Whitney U test are implemented and resulted statistics (in column with "_test_stat" pattern) and p values (in column with "_test_p" pattern) are returned.
+#'
+#' @param data data object returned from [exp_Ct()] function.
 #' @param group.study character: name of study group (group of interest).
 #' @param group.ref character: name of reference group.
-#' @param do.tests logical: if TRUE, statistical significance of differences in exponentiated Ct values between compared groups will be calculated using Student's t test and Mann-Whitney U test.
-#' @param save.to.txt logical: if TRUE, returned dataset with results will be saved to .txt file.
-#' @param name.txt character: name of saved .txt file.
+#' @param do.tests logical: if TRUE, statistical significance of differences in exponentiated Ct values between compared groups will be calculated using Student's t test and Mann-Whitney U test. Default to TRUE.
+#' @param save.to.txt logical: if TRUE, returned table with results will be saved to .txt file. Default to FALSE.
+#' @param name.txt character: name of saved .txt file, without ".txt" name of extension. Default to "RQ_expCt_results".
 #
-#' @return data.frame with transformed Ct values and printed information about number and percentage of missing values.
+#' @return Data.frame with transformed Ct values and printed information about number and percentage of missing values.
 #' @export
 #'
 #' @examples
-#' RQ.exp.Ct.results <- RQ_exp_Ct(data.Ct.exp.imput,
+#' RQ.Ct.exp <- RQ_exp_Ct(data.Ct.exp,
 #'                                group.study = "Disease",
 #'                                group.ref = "Control",
 #'                                do.tests = TRUE)
@@ -565,7 +615,7 @@ RQ_exp_Ct <- function(data,
                      group.ref,
                      do.tests = TRUE,
                      save.to.txt = FALSE,
-                     name.txt = "ddCt_RQ_results"){
+                     name.txt = "RQ_expCt_results"){
 
   data_slim <- data %>%
     filter(Group == group.study | Group == group.ref) %>%
@@ -606,6 +656,7 @@ RQ_exp_Ct <- function(data,
     data_FCh_norm_tests <- full_join(data_FCh_norm, data_FCh_tests, by = c("Target"))
     data_FCh_results <- full_join(data_FCh_norm_tests, data_FCh_sd, by = c("Target"))
     data_FCh_results <- select(data_FCh_results, Target, ends_with("_mean"), ends_with("_sd"), everything())
+
     return(data_FCh_results)
 
   } else {
@@ -613,6 +664,7 @@ RQ_exp_Ct <- function(data,
     data_FCh_results <- full_join(data_FCh, data_FCh_sd, by = c("Target"))
     data_FCh_results <- rename_with(data_FCh_results, ~paste0(.x, "_mean", recycle0 = TRUE), all_of(c(group.study, group.ref)))
     data_FCh_results <- select(data_FCh_results, Target, ends_with("_mean"), ends_with("_sd"), everything())
+
     return(data_FCh_results)
   }
   if (save.to.txt == TRUE){
@@ -626,36 +678,43 @@ RQ_exp_Ct <- function(data,
 #' @title select_ref_gene
 #'
 #' @description
-#' Calculate line plot and statistics (minimum, maximum, standard deviation, variance and colinearity coefficient VIF) that could be helpful to select the best reference gene for normalization of CT values.
+#' This function draw line plot and calculate statistics (minimum, maximum, standard deviation,
+#' variance and colinearity coefficient VIF) that could be helpful to select the best
+#' reference gene for normalization of Ct values.
 #'
-#' @param data object returned from read_Ct_long, read_Ct_wide or filter_Ct function, or data frame containing column named "Sample" with sample names, column named "Target" with target names,
-#' column named "Ct" with raw Ct values, column named "Group" with group names. Any other columns could exist, but will not be used by this function.
+#' @param data object returned from `read_Ct_long()`, `read_Ct_wide()` or `filter_Ct()` functions,
+#' or data frame containing column named "Sample" with sample names, column named "Target" with target names,
+#' column named "Ct" with raw Ct values, column named "Group" with group names.
+#'     Any other columns could exist, but will not be used by this function.
 #'
-#' @param candidates vector of names of targets - candidates for gene reference.
-#' @param colors vector of colors for targets, number of colors should be equal to number of candidate genes (elements in candidates vector).
-#' @param line.width numeric: width of lines drawn in the plot.
-#' @param angle integer: value of angle in which names of genes should be displayed.
-#' @param x.axis.title character: title of x axis.
-#' @param y.axis.title character: title of y axis.
-#' @param axis.title.size integer: font size of axis titles.
-#' @param axis.text.size integer: font size of axis text.
-#' @param legend.title character: title of legend.
-#' @param legend.title.size integer: font size of legend title.
-#' @param legend.text.size integer: font size of legend text.
-#' @param legend.position position of the legend, one of the following: "top", "right", "bottom", "left".
-#' @param plot.title character: title of plot.
-#' @param plot.title.size integer: font size of plot title.
-#' @param save.to.tiff logical: if TRUE, plot will be saved as .tiff file.
-#' @param dpi integer: resolution of saved .tiff file.
-#' @param width numeric: width (in cm) of saved .tiff file.
-#' @param height integer: height (in cm) of saved .tiff file.
-#' @param name.tiff character: name of saved .tiff file.
+#' @param candidates character: vector of names of targets - candidates for gene reference.
+#' @param colors character: vector of colors for targets, number of elements should be equal to number of candidate genes (elements in `candidates` vector).
+#' @param line.width numeric: width of lines drawn in the plot. Default to 1.
+#' @param angle integer: value of angle in which names of genes should be displayed. Default to 0.
+#' @param x.axis.title character: title of x axis. Default to "".
+#' @param y.axis.title character: title of y axis.  Default to "Ct".
+#' @param axis.title.size integer: font size of axis titles. Default to 12.
+#' @param axis.text.size integer: font size of axis text. Default to 10.
+#' @param legend.title character: title of legend. Default to "".
+#' @param legend.title.size integer: font size of legend title. Default to 12.
+#' @param legend.text.size integer: font size of legend text. Default to 12.
+#' @param legend.position position of the legend, one of "top" (default), "right", "bottom", "left", or "none" (no legend).
+#' See description for `legend.position` in [ggplot2::theme()] function.
+#' @param plot.title character: title of plot. Default to "".
+#' @param plot.title.size integer: font size of plot title. Default to 14.
+#' @param save.to.tiff logical: if TRUE, plot will be saved as .tiff file. Default to FALSE.
+#' @param dpi integer: resolution of saved .tiff file. Default to 600.
+#' @param width numeric: width (in cm) of saved .tiff file. Default to 15.
+#' @param height integer: height (in cm) of saved .tiff file. Default to 15.
+#' @param name.tiff character: name of saved .tiff file, without ".tiff" name of extension. Default to "Ct_reference_gene_selection".
 #'
-#' @return data.frame in long format ready to analysis.
+#' @return List containing plot object and table with calculated statistics.
+#'     Additional information about returned table is also printed, it could help user to properly interpret returned table.
+#'     Created plot is displayed on graphic device.
 #' @export
 #'
 #' @examples
-#' ref <- sel_ref(data.CtF,
+#' ref <- select_ref_gene(data.CtF,
 #'                candidates = c("Gene4", "Gene8","Gene10","Gene16","Gene17", "Gene18"),
 #'                col = c("#66c2a5", "#fc8d62","#6A6599", "#D62728", "#1F77B4", "black"),
 #'                line.width = 1,
@@ -668,27 +727,28 @@ RQ_exp_Ct <- function(data,
 #' @import ggplot2
 #' @import tidyverse
 #'
-select_ref_gene <- function(data, candidates,
-                    colors,
-                    line.width = 1,
-                    angle = 0,
-                    x.axis.title = "",
-                    y.axis.title = "Ct",
-                    axis.title.size = 12,
-                    axis.text.size = 10,
-                    legend.title = "",
-                    legend.title.size = 12,
-                    legend.text.size = 12,
-                    legend.position = "top",
-                    plot.title = "",
-				          	plot.title.size = 14,
-                    dpi = 600, width = 15, height = 15,
-                    save.to.tiff = FALSE,
-                    name.tiff = "Ct_reference_selection"){
+select_ref_gene <- function(data,
+                            candidates,
+                            colors,
+                            line.width = 1,
+                            angle = 0,
+                            x.axis.title = "",
+                            y.axis.title = "Ct",
+                            axis.title.size = 12,
+                            axis.text.size = 10,
+                            legend.title = "",
+                            legend.title.size = 12,
+                            legend.text.size = 12,
+                            legend.position = "top",
+                            plot.title = "",
+				          	        plot.title.size = 14,
+				          	        save.to.tiff = FALSE,
+                            dpi = 600, width = 15, height = 15,
+                            name.tiff = "Ct_reference_gene_selection"){
 
   ref <- data %>%
     group_by(Group, Target, Sample) %>%
-    summarise(mean = mean(Ct, na.rm = TRUE)) %>%
+    summarise(mean = mean(Ct, na.rm = TRUE, .group = "keep")) %>%
     filter(Target %in% candidates)
 
   ref_plot <- ggplot(ref, aes(x = Sample, y = mean, color = Target, group = Target)) +
@@ -721,12 +781,12 @@ select_ref_gene <- function(data, candidates,
     summarise(min = min(mean),
               max = max(mean),
               sd = sd(mean, na.rm = TRUE),
-              var = var(mean, na.rm = TRUE)) %>%
+              var = var(mean, na.rm = TRUE), .group = "keep") %>%
     as.data.frame()
 
   ref_vif <- data %>%
     group_by(Group, Target, Sample) %>%
-    summarise(mean = base::mean(Ct, na.rm = TRUE)) %>%
+    summarise(mean = base::mean(Ct, na.rm = TRUE), .group = "keep") %>%
     ungroup()
 
   ref_lm <- pivot_wider(ref_vif, names_from = Target, values_from = mean)
@@ -738,7 +798,7 @@ select_ref_gene <- function(data, candidates,
   ref_var$VIF <- vif_sel
   ref_var$VIF.Target <- names(vif_sel)
 
-  return(ref_var)
+  return(list(ref_plot, ref_var))
 }
 
 
@@ -748,23 +808,26 @@ select_ref_gene <- function(data, candidates,
 #' @title delta_Ct
 #'
 #' @description
-#' Collapses technical replicates (if present in data) by means, counts and imputes missing data by means within groups (if so indicated),
+#' This function collapses technical replicates (if present in data) by means,
+#' counts and imputes missing data by means within groups (if so indicated),
 #' and finally calculates delta Ct (dCt) values by subtracting Ct values of reference gene from Ct values of other genes.
 #'
-#' @param data data object returned from read_Ct_long, read_Ct_wide or filter_Ct function, or data frame containing column named "Sample" with sample names, column named "Target" with target names,
-#' column named "Ct" with raw Ct values, column named "Group" with group names. Any other columns could exist, but will not be used by this function.
-#' @param imput.by.mean.within.groups logical: if TRUE, missing values will be imputed by means within groups.
+#' @param data data object returned from `read_Ct_long()`, `read_Ct_wide()` or `filter_Ct()` function,
+#' or data frame containing column named "Sample" with sample names, column named "Target" with target names,
+#' column named "Ct" with raw Ct values, column named "Group" with group names.
+#'     Any other columns could exist, but will not be used by this function.
+#' @param imput.by.mean.within.groups logical: if TRUE, missing values will be imputed by means within groups. Default to TRUE.
 #' @param ref character: name of reference gene.
-#' @param save.to.txt logical: if TRUE, returned dataset will be saved to .txt file.
-#' @param name.txt character: name of saved .txt file.
+#' @param save.to.txt logical: if TRUE, returned dataset will be saved to .txt file. Default to FALSE.
+#' @param name.txt character: name of saved .txt file, without ".txt" name of extension. Default to "data_dCt".
 #'
-#' @return data.frame with dCt values and printed information about number and percentage of missing values.
+#' @return Data.frame with dCt values and printed information about number and percentage of missing values.
 #' @export
 #'
 #' @examples
-#' data.dCt.imput <- deltaCt(data.CtF,
-#'                             imput.by.mean.within.groups = TRUE,
-#'                             ref = "Gene1")
+#' data.dCt <- delta_Ct(data.CtF,
+#'                      imput.by.mean.within.groups = TRUE,
+#'                      ref = "Gene1")
 #'
 #' @importFrom base as.data.frame as.vector sum is.na ncol nrow paste cat
 #' @importFrom utils write.table
@@ -772,7 +835,7 @@ select_ref_gene <- function(data, candidates,
 #' @import tidyverse
 #'
 delta_Ct <- function(data,
-                    imput.by.mean.within.groups = FALSE,
+                    imput.by.mean.within.groups = TRUE,
                     ref,
 					          save.to.txt = FALSE,
                     name.txt = "data_dCt"){
@@ -827,34 +890,33 @@ delta_Ct <- function(data,
 #' @description
 #' Boxplot illustrating distribution of data in each sample. Could be useful to identify outlier samples.
 #'
-#' @param data object returned from delta_Ct, exp_Ct or exp_delta_Ct function.
-#' @param coef numeric: how many times of interquartile range should be used to indicate the most extend data point for whiskers.
-#' @param colors character vector length of two, containing colors for compared groups.
-#' @param x.axis.title character: title of x axis.
-#' @param y.axis.title character: title of y axis.
-#' @param axis.title.size integer: font size of axis titles.
-#' @param axis.text.size integer: font size of axis text.
-#' @param legend.title character: title of legend.
-#' @param legend.title.size integer: font size of legend title.
-#' @param legend.text.size integer: font size of legend text.
-#' @param legend.position position of the legend, one of the following: "top", "right", "bottom", "left".
-#' @param plot.title character: title of plot.
-#' @param plot.title.size integer: font size of plot title.
-#' @param save.to.tiff logical: if TRUE, plot will be saved as .tiff file.
-#' @param dpi integer: resolution of saved .tiff file.
-#' @param width numeric: width (in cm) of saved .tiff file.
-#' @param height integer: height (in cm) of saved .tiff file.
-#' @param name.tiff character: name of saved .tiff file.
+#' @param data object returned from `delta_Ct()`, `exp_Ct()` or `exp_delta_Ct()` function.
+#' @param coef numeric: how many times of interquartile range should be used to indicate the most extend data point for whiskers. Default to 1.5.
+#' @param colors character vector length of two, containing colors for compared groups. Default to c("#66c2a5", "#fc8d62").
+#' @param x.axis.title character: title of x axis. Default to "Sample".
+#' @param y.axis.title character: title of y axis. Default to "value".
+#' @param axis.title.size integer: font size of axis titles. Default to 12.
+#' @param axis.text.size integer: font size of axis text. Default to 12.
+#' @param legend.title character: title of legend. Default to "Group".
+#' @param legend.title.size integer: font size of legend title. Default to 12.
+#' @param legend.text.size integer: font size of legend text. Default to 12.
+#' @param legend.position position of the legend, one of "top", "right" (default), "bottom", "left", or "none" (no legend).
+#' See description for `legend.position` in [ggplot2::theme()] function.
+#' @param plot.title character: title of plot. Default to "".
+#' @param plot.title.size integer: font size of plot title. Default to 14.
+#' @param save.to.tiff logical: if TRUE, plot will be saved as .tiff file. Default to FALSE.
+#' @param dpi integer: resolution of saved .tiff file. Default to 600.
+#' @param width numeric: width (in cm) of saved .tiff file. Default to 15.
+#' @param height integer: height (in cm) of saved .tiff file. Default to 15.
+#' @param name.tiff character: name of saved .tiff file, without ".tiff" name of extension. Default to "control_boxplot_samples".
 #'
-#' @return data.frame in long format ready to analysis.
+#' @return Object with boxplot illustrating distribution of data in each sample. Created plot is also displayed on graphic device.
 #' @export
 #'
 #' @examples
-#' ref <- sel_ref(data.CtF,
-#'                candidates = c("Gene4", "Gene8","Gene10","Gene16","Gene17", "Gene18"),
-#'                col = c("#66c2a5", "#fc8d62","#6A6599", "#D62728", "#1F77B4", "black"),
-#'                line.width = 1,
-#'                angle = 35)
+#' control_boxplot_sample(data.Ct.exp)
+#' control_boxplot_sample(data.dCt)
+#' control_boxplot_sample(data.dCt.exp)
 #'
 #' @importFrom base print
 #' @import ggplot2
@@ -897,7 +959,8 @@ control_boxplot_sample <- function(data, coef = 1.5,
 
 	if (save.to.tiff == TRUE){
       ggsave(paste(name.tiff,".tiff", sep = ""), box_control_sample, dpi = dpi, width = width, height = height, units = "cm", compression = "lzw")
-    }
+	}
+    return(box_control_sample)
 }
 
 
@@ -906,37 +969,37 @@ control_boxplot_sample <- function(data, coef = 1.5,
 #' @title control_boxplot_target
 #'
 #' @description
-#' Boxplot illustrating distribution of data in each target. Could be useful to compare expression of analyzed targets.
+#' This function creates boxplot illustrating distribution of data in each target. Could be useful to compare expression of analyzed targets.
 #'
-#' @param data object returned from delta_Ct, exp_Ct or exp_delta_Ct function.
+#' @param data object returned from `delta_Ct()`, `exp_Ct()` or `exp_delta_Ct()` function.
 #' @param by.group logical: if TRUE, distributions will be drawn by compared groups of samples.
 #' @param coef numeric: how many times of interquartile range should be used to indicate the most extend data point for whiskers.
 #' @param colors character vector length of one (when by.group = FALSE) or two (when by.group = TRUE), containing colors for groups.
-#' @param x.axis.title character: title of x axis.
-#' @param y.axis.title character: title of y axis.
-#' @param axis.title.size integer: font size of axis titles.
-#' @param axis.text.size integer: font size of axis text.
-#' @param legend.title character: title of legend.
-#' @param legend.title.size integer: font size of legend title.
-#' @param legend.text.size integer: font size of legend text.
-#' @param legend.position position of the legend, one of the following: "top", "right", "bottom", "left".
-#' @param plot.title character: title of plot.
-#' @param plot.title.size integer: font size of plot title.
-#' @param save.to.tiff logical: if TRUE, plot will be saved as .tiff file.
-#' @param dpi integer: resolution of saved .tiff file.
-#' @param width numeric: width (in cm) of saved .tiff file.
-#' @param height integer: height (in cm) of saved .tiff file.
-#' @param name.tiff character: name of saved .tiff file.
+#' @param coef numeric: how many times of interquartile range should be used to indicate the most extend data point for whiskers. Default to 1.5.
+#' @param x.axis.title character: title of x axis. Default to "Target".
+#' @param y.axis.title character: title of y axis. Default to "value".
+#' @param axis.title.size integer: font size of axis titles. Default to 12.
+#' @param axis.text.size integer: font size of axis text. Default to 12.
+#' @param legend.title character: title of legend. Default to "Group".
+#' @param legend.title.size integer: font size of legend title. Default to 12.
+#' @param legend.text.size integer: font size of legend text. Default to 12.
+#' @param legend.position position of the legend, one of "top", "right" (default), "bottom", "left", or "none" (no legend).
+#' See description for `legend.position` in [ggplot2::theme()] function.
+#' @param plot.title character: title of plot. Default to "".
+#' @param plot.title.size integer: font size of plot title. Default to 14.
+#' @param save.to.tiff logical: if TRUE, plot will be saved as .tiff file. Default to FALSE.
+#' @param dpi integer: resolution of saved .tiff file. Default to 600.
+#' @param width numeric: width (in cm) of saved .tiff file. Default to 15.
+#' @param height integer: height (in cm) of saved .tiff file. Default to 15.
+#' @param name.tiff character: name of saved .tiff file, without ".tiff" name of extension. Default to "control_boxplot_targets".
 #'
-#' @return data.frame in long format ready to analysis.
+#' @return Object with boxplot illustrating distribution of data for each target. Created plot will be also displayed on graphic device.
 #' @export
 #'
 #' @examples
-#' ref <- sel_ref(data.CtF,
-#'                candidates = c("Gene4", "Gene8","Gene10","Gene16","Gene17", "Gene18"),
-#'                col = c("#66c2a5", "#fc8d62","#6A6599", "#D62728", "#1F77B4", "black"),
-#'                line.width = 1,
-#'                angle = 35)
+#' control_boxplot_target(data.Ct.exp)
+#' control_boxplot_target(data.dCt)
+#' control_boxplot_target(data.dCt.exp)
 #'
 #' @importFrom base print
 #' @import ggplot2
@@ -947,7 +1010,8 @@ control_boxplot_target <- function(data, coef = 1.5,
                                    colors = c("#66c2a5", "#fc8d62"),
                                    axis.title.size = 12,
                                    axis.text.size = 12,
-                                   x.axis.title = "Target", y.axis.title = "value",
+                                   x.axis.title = "Target",
+                                   y.axis.title = "value",
                                    legend.title = "Group",
                                    legend.title.size = 12,
                                    legend.text.size = 12,
@@ -966,7 +1030,8 @@ control_boxplot_target <- function(data, coef = 1.5,
       scale_x_discrete(limits = rev(unique(data$Target))) +
       scale_color_manual(values = c(colors)) +
       coord_flip() +
-      xlab(x.axis.title) + ylab(y.axis.title) +
+      xlab(x.axis.title) +
+      ylab(y.axis.title) +
       labs(color = legend.title, title = plot.title) +
       theme_classic() +
       theme(legend.position = legend.position) +
@@ -982,7 +1047,8 @@ control_boxplot_target <- function(data, coef = 1.5,
       geom_boxplot(coef = coef, fill = colors[1]) +
       scale_x_discrete(limits = rev(unique(data$Target))) +
       coord_flip() +
-      xlab(x.axis.title) + ylab(y.axis.title) +
+      xlab(x.axis.title) +
+      ylab(y.axis.title) +
       labs(title = plot.title) +
       theme_classic() +
       theme(legend.position = legend.position) +
@@ -998,6 +1064,7 @@ control_boxplot_target <- function(data, coef = 1.5,
   if (save.to.tiff == TRUE){
     ggsave(paste(name.tiff,".tiff", sep = ""), box_control_targets, dpi = dpi, width = width, height = height, units = "cm", compression = "lzw")
   }
+  return(box_control_targets)
 }
 
 
@@ -1009,35 +1076,34 @@ control_boxplot_target <- function(data, coef = 1.5,
 #' @description
 #' Performs hierarchical clustering of samples based on the data. Could be useful to identify outlier samples.
 #'
-#' @param data object returned from delta_Ct, exp_Ct or exp_delta_Ct function.
-#' @param method.dist character: name of used method for calculation of distances, should be one of "euclidean", "maximum", "manhattan", "canberra", "binary" or "minkowski".
-#' @param method.clust character: name of used method for agglomeration, should be one of "ward.D", "ward.D2", "single", "complete", "average", "mcquitty", "median" or "centroid".
-#' @param x.axis.title character: title of x axis.
-#' @param y.axis.title character: title of y axis.
-#' @param plot.title character: title of plot.
-#' @param save.to.tiff logical: if TRUE, plot will be saved as .tiff file.
-#' @param dpi integer: resolution of saved .tiff file.
-#' @param width numeric: width (in cm) of saved .tiff file.
-#' @param height integer: height (in cm) of saved .tiff file.
-#' @param name.tiff character: name of saved .tiff file.
+#' @param data object returned from `delta_Ct()`, `exp_Ct()` or `exp_delta_Ct()` function.
+#' @param method.dist character: name of method used for calculation of distances, derived from `stats::dist()` function, should be one of "euclidean" (default) , "maximum", "manhattan", "canberra", "binary" or "minkowski".
+#' @param method.clust character: name of used method for agglomeration, derived from `stats::hclust()` function, should be one of "ward.D", "ward.D2", "single", "complete", "average" (default), "mcquitty", "median" or "centroid".
+#' @param x.axis.title character: title of x axis. Default to "Samples".
+#' @param y.axis.title character: title of y axis. Default to "Height".
+#' @param plot.title character: title of plot. Default to "".
+#' @param save.to.tiff logical: if TRUE, plot will be saved as .tiff file. Default to FALSE.
+#' @param dpi integer: resolution of saved .tiff file. Default to 600.
+#' @param width numeric: width (in cm) of saved .tiff file. Default to 15.
+#' @param height integer: height (in cm) of saved .tiff file. Default to 15.
+#' @param name.tiff character: name of saved .tiff file, without ".tiff" name of extension. Default to "control_clust_samples".
 #'
-#' @return plot with hierarchical clustering
+#' @return Plot with hierarchical clustering of samples, displayed on graphic device.
 #' @export
 #'
 #' @examples
-#' control_cluster_sample(data.CtF,
-#'                candidates = c("Gene4", "Gene8","Gene10","Gene16","Gene17", "Gene18"),
-#'                col = c("#66c2a5", "#fc8d62","#6A6599", "#D62728", "#1F77B4", "black"),
-#'                line.width = 1,
-#'                angle = 35)
+#' control_cluster_sample(data.dCt, method.dist = "euclidean", method.clust = "complete")
+#' control_cluster_sample(data.dCt.exp, method.dist = "canberra", method.clust = "average")
+#' control_cluster_sample(data.Ct.exp, method.dist = "manhattan", method.clust = "single")
 #'
-#' @importFrom base print
-#' @import ggplot2
+#' @importFrom stats hclust dist
+#' @importFrom base plot
+#' @importFrom dplyr select
 #' @import tidyverse
 #'
 control_cluster_sample <- function(data,
                                    method.dist = "euclidean",
-                                   method.clust = "complete",
+                                   method.clust = "average",
                                    x.axis.title = "Samples",
                                    y.axis.title = "Height",
                                    plot.title = "",
@@ -1045,7 +1111,7 @@ control_cluster_sample <- function(data,
                                    dpi = 600, width = 15, height = 15,
                                    name.tiff = "control_clust_samples"){
 
-  cluster <- hclust(dist(data, method = method.dist), method = method.clust)
+  cluster <- hclust(dist(select(data, -Group, -Sample), method = method.dist), method = method.clust)
   cluster$labels <- data$Sample
   plot(cluster, xlab = x.axis.title, ylab = y.axis.title, main = plot.title)
 
@@ -1059,17 +1125,52 @@ control_cluster_sample <- function(data,
 
 
 
-
-control_dCt_cluster_target <- function (data, method.dist = "euclidean", method.clust = "single",
-                                        x.axis.title = "Samples", y.axis.title = "Height", plot.title = "",
-                                        dpi = 600, width = 15, height = 15, save.to.tiff = FALSE,
-                                        name.tiff = "dCt_control_clust_plot")
+#' @title control_cluster_target
+#'
+#' @description
+#' Performs hierarchical clustering of targets based on the data. Could be useful to gain insight into similarity in expression of analyzed targets.
+#'
+#' @param data object returned from `delta_Ct()`, `exp_Ct()` or `exp_delta_Ct()` function.
+#' @param method.dist character: name of method used for calculation of distances, derived from `stats::dist()` function, should be one of "euclidean" (default) , "maximum", "manhattan", "canberra", "binary" or "minkowski".
+#' @param method.clust character: name of used method for agglomeration, derived from `stats::hclust()` function, should be one of "ward.D", "ward.D2", "single", "complete", "average" (default), "mcquitty", "median" or "centroid".
+#' @param x.axis.title character: title of x axis. Default to "Targets".
+#' @param y.axis.title character: title of y axis. Default to "Height".
+#' @param plot.title character: title of plot. Default to "".
+#' @param save.to.tiff logical: if TRUE, plot will be saved as .tiff file. Default to FALSE.
+#' @param dpi integer: resolution of saved .tiff file. Default to 600.
+#' @param width numeric: width (in cm) of saved .tiff file. Default to 15.
+#' @param height integer: height (in cm) of saved .tiff file. Default to 15.
+#' @param name.tiff character: name of saved .tiff file, without ".tiff" name of extension. Default to "control_clust_targets".
+#'
+#' @return Plot with hierarchical clustering of targets, displayed on graphic device.
+#' @export
+#'
+#' @examples
+#' control_cluster_target(data.dCt, method.dist = "euclidean", method.clust = "complete")
+#' control_cluster_target(data.dCt.exp, method.dist = "canberra", method.clust = "average")
+#' control_cluster_target(data.Ct.exp, method.dist = "manhattan", method.clust = "single")
+#'
+#' @importFrom stats hclust dist
+#' @importFrom base plot t colnames
+#' @importFrom dplyr select
+#' @import tidyverse
+#'
+control_cluster_target <- function (data,
+                                    method.dist = "euclidean",
+                                    method.clust = "average",
+                                    x.axis.title = "Targets",
+                                    y.axis.title = "Height",
+                                    plot.title = "",
+                                    save.to.tiff = FALSE,
+                                    dpi = 600, width = 15, height = 15,
+                                    name.tiff = "control_clust_targets")
 {
   data_t <- ungroup(data)
   data_t <- t(select(data_t, -Group, -Sample))
   colnames(data_t) <- data$Sample
   cluster <- hclust(dist(as.data.frame(data_t), method = method.dist), method = method.clust)
   plot(cluster, xlab = x.axis.title, ylab = y.axis.title, main = plot.title)
+
   if (save.to.tiff == TRUE) {
     tiff(paste(name.tiff, ".tiff", sep = ""), res = dpi,
          width = width, height = height, units = "cm", compression = "lzw")
@@ -1082,19 +1183,68 @@ control_dCt_cluster_target <- function (data, method.dist = "euclidean", method.
 
 
 
+#' @title control_pca_sample
+#'
+#' @description
+#' Performs principal component analysis (PCA) for samples and generate plot illustrating spatial arrangement of samples using two first components. Could be useful to identify outlier samples.
+#'     IMPORTANT: PCA analysis can not deal with missing values, thus all samples with at least one missing value are removed from data before analysis. It is recommended to run this function on data after imputation of missing values.
+#'
+#' @param data object returned from `delta_Ct()`, `exp_Ct()` or `exp_delta_Ct()` function.
+#' @param point.size numeric: size of points. Default to 4.
+#' @param point.shape integer: shape of points. Default to 19.
+#' @param alpha numeric: transparency of points, a value between 0 and 1. Default to 0.7.
+#' @param label.size numeric: size of points labels (names of samples). Default to 3.
+#' @param hjust numeric: horizontal position of points labels. Default to 0.
+#' @param vjust numeric: vertical position of points labels.  Default to -1.
+#' @param colors character vector length of two, containing colors for compared groups.
+#' @param axis.title.size integer: font size of axis titles. Default to 12.
+#' @param axis.text.size integer: font size of axis text. Default to 10.
+#' @param legend.title character: title of legend. Default to "Group".
+#' @param legend.title.size integer: font size of legend title. Default to 12.
+#' @param legend.text.size integer: font size of legend text. Default to 12.
+#' @param legend.position position of the legend, one of "top", "right" (default), "bottom", "left", or "none" (no legend).
+#' See description for `legend.position` parameter in [ggplot2::theme()] function.
+#' @param plot.title character: title of plot. Default to "".
+#' @param plot.title.size integer: font size of plot title. Default to 14.
+#' @param save.to.tiff logical: if TRUE, plot will be saved as .tiff file. Default to FALSE.
+#' @param dpi integer: resolution of saved .tiff file. Default to 600.
+#' @param width numeric: width (in cm) of saved .tiff file. Default to 15.
+#' @param height integer: height (in cm) of saved .tiff file. Default to 15.
+#' @param name.tiff character: name of saved .tiff file, without ".tiff" name of extension. Default to "control_pca_samples".
+#'
+#' @return Object with plot illustrating spatial arrangement of samples according to coordinates of two first components obtained from principal component analysis (PCA). The plot will be also displayed in graphic device.
+#' @export
+#'
+#' @examples
+#' control_pca_sample(data.Ct.exp)
+#' control_pca_sample(data.dCt)
+#' control_pca_sample(data.dCt.exp)
+#'
+#' @importFrom base print as.data.frame rownames summary paste round
+#' @importFrom stats na.omit prcomp
+#' @import ggplot2
+#' @import tidyverse
+#'
+control_pca_sample <- function(data,
+                               point.size = 4,
+                               point.shape = 19,
+                               alpha = 0.7,
+                               colors = c("#66c2a5", "#fc8d62"),
+                               label.size = 3,
+                               hjust = 0,
+                               vjust = -1,
+                               axis.title.size = 12,
+                               axis.text.size = 10,
+                               legend.text.size = 12,
+                               legend.title = "Group",
+                               legend.title.size = 12,
+                               legend.position = "right",
+                               plot.title = "",
+                               plot.title.size = 14,
+                               save.to.tiff = FALSE,
+                               dpi = 600, width = 15, height = 15,
+                               name.tiff = "control_pca_samples"){
 
-control_dCt_pca_sample <- function(data, point.size = 4, alpha = 0.7, label.size = 3, hjust = 0, vjust = -1,
-                            col = c("#66c2a5", "#fc8d62"), point.shape = 19,
-                            axis.title.size = 12,
-                            axis.text.size = 10,
-                            legend.text.size = 12,
-                            legend.title = "Group",
-                            legend.title.size = 12,
-                            legend.position = "right",
-                            plot.title = "",
-                            dpi = 600, width = 15, height = 15,
-                            save.to.tiff = FALSE,
-                            name.tiff = "dCt_control_pca_plot"){
   data <- as.data.frame(data)
   rownames(data) <- data$Sample
   data <- na.omit(data)
@@ -1104,9 +1254,10 @@ control_dCt_pca_sample <- function(data, point.size = 4, alpha = 0.7, label.size
   pca_comp <- as.data.frame(pca$x)
   pca_comp$Sample <- data$Sample
   pca_comp$Group <- data$Group
+
   control_pca <- ggplot(pca_comp, aes(x = PC1, y = PC2, label = Sample, color = Group)) +
     geom_point(size = point.size, shape = point.shape, alpha = alpha) +
-    scale_color_manual(values = c(col)) +
+    scale_color_manual(values = c(colors)) +
     labs(colour = legend.title, title = plot.title) +
     theme_bw() +
     labs(x = paste("PC1: ", round(var_pca1*100,2), "% variance explained", sep = ""),
@@ -1116,28 +1267,76 @@ control_dCt_pca_sample <- function(data, point.size = 4, alpha = 0.7, label.size
     theme(axis.title = element_text(size = axis.title.size, colour="black")) +
     theme(legend.text = element_text(size = legend.text.size, colour="black")) +
     theme(legend.title = element_text(size = legend.title.size, colour="black")) +
+    theme(plot.title = element_text(size = plot.title.size)) +
     geom_text(aes(label = Sample), hjust = hjust, vjust = vjust, size = label.size)
+
   print(control_pca)
+
   if (save.to.tiff == TRUE){
     ggsave(paste(name.tiff,".tiff", sep = ""), control_pca, dpi = dpi, width = width, height = height, units = "cm", compression = "lzw")
   }
+  return(control_pca)
 }
 
 
 
+#' @title control_pca_target
+#'
+#' @description
+#' Performs principal component analysis (PCA) for targets and generate plot illustrating spatial arrangement of targets using 2 components. Could be useful to gain insight into similarity in expression of analyzed targets.
+#' IMPORTANT: PCA analysis can not deal with missing values, thus all targets with at least one missing value are removed from data before analysis. It is recommended to run this function on data after imputation of missing values.
+#'
+#' @param data object returned from `delta_Ct()`, `exp_Ct()` or `exp_delta_Ct()` function.
+#' @param point.size numeric: size of points. Default to 4.
+#' @param point.shape integer: shape of points. Default to 19.
+#' @param alpha numeric: transparency of points, a value between 0 and 1. Default to 0.7.
+#' @param label.size numeric: size of points labels (names of samples). Default to 3.
+#' @param hjust numeric: horizontal position of points labels. Default to 0.
+#' @param vjust numeric: vertical position of points labels.  Default to -1.
+#' @param color character: color used for points.
+#' @param axis.title.size integer: font size of axis titles. Default to 12.
+#' @param axis.text.size integer: font size of axis text. Default to 10.
+#' @param legend.title character: title of legend. Default to "Group".
+#' @param legend.title.size integer: font size of legend title. Default to 12.
+#' @param legend.text.size integer: font size of legend text. Default to 12.
+#' @param legend.position position of the legend, one of "top", "right" (default), "bottom", "left", or "none" (no legend).
+#' See description for `legend.position` parameter in [ggplot2::theme()] function.
+#' @param plot.title character: title of plot. Default to "".
+#' @param plot.title.size integer: font size of plot title. Default to 14.
+#' @param save.to.tiff logical: if TRUE, plot will be saved as .tiff file. Default to FALSE.
+#' @param dpi integer: resolution of saved .tiff file. Default to 600.
+#' @param width numeric: width (in cm) of saved .tiff file. Default to 15.
+#' @param height integer: height (in cm) of saved .tiff file. Default to 15.
+#' @param name.tiff character: name of saved .tiff file, without ".tiff" name of extension. Default to "control_pca_targets".
+#'
+#' @return Object with plot illustrating spatial arrangement of targets according to coordinates of 2 components obtained from principal component analysis (PCA). The plot will be also displayed in graphic device.
+#' @export
+#'
+#' @examples
+#' control_pca_target(data.Ct.exp)
+#' control_pca_target(data.dCt)
+#' control_pca_target(data.dCt.exp)
+#'
+#' @importFrom base print as.data.frame rownames summary paste round t colnames
+#' @importFrom stats na.omit prcomp
+#' @import ggplot2
+#' @import tidyverse
+#'
+control_pca_target <- function(data, point.size = 4, point.shape = 19, alpha = 0.7,
+                               label.size = 3, hjust = 0, vjust = -1,
+                               color = "black",
+                               axis.title.size = 12,
+                               axis.text.size = 10,
+                               legend.text.size = 12,
+                               legend.title = "Group",
+                               legend.title.size = 12,
+                               legend.position = "right",
+                               plot.title = "",
+                               plot.title.size = 14,
+                               save.to.tiff = FALSE,
+                               dpi = 600, width = 15, height = 15,
+                              name.tiff = "control_pca_targets"){
 
-control_dCt_pca_target <- function(data, point.size = 4, alpha = 0.7, label.size = 3, hjust = 0, vjust = -1, shape = 19,
-                                   col = c("#66c2a5", "#fc8d62"), point.shape = 19,
-                                   axis.title.size = 12,
-                                   axis.text.size = 10,
-                                   legend.text.size = 12,
-                                   legend.title = "Group",
-                                   legend.title.size = 12,
-                                   legend.position = "right",
-                                   plot.title = "",
-                                   dpi = 600, width = 15, height = 15,
-                                   save.to.tiff = FALSE,
-                                   name.tiff = "dCt_control_pca_plot"){
   data <- ungroup(data)
   data <- as.data.frame(data)
   data_t <- t(select(data, -Group, -Sample))
@@ -1148,8 +1347,9 @@ control_dCt_pca_target <- function(data, point.size = 4, alpha = 0.7, label.size
   var_pca2 <- summary(pca)$importance[2,][2]
   pca_comp <- as.data.frame(pca$x)
   pca_comp$Target <- rownames(pca_comp)
+
   control_pca <- ggplot(pca_comp, aes(x = PC1, y = PC2, label = Target)) +
-    geom_point(size = point.size, shape = point.shape, alpha = alpha, col = col[1]) +
+    geom_point(size = point.size, shape = point.shape, alpha = alpha, col = color) +
     labs(title = plot.title) +
     theme_bw() +
     labs(x = paste("PC1: ", round(var_pca1*100,2), "% variance explained", sep = ""),
@@ -1157,61 +1357,114 @@ control_dCt_pca_target <- function(data, point.size = 4, alpha = 0.7, label.size
     theme(legend.position = legend.position) +
     theme(axis.text = element_text(size = axis.text.size, colour = "black")) +
     theme(axis.title = element_text(size = axis.title.size, colour="black")) +
+    theme(plot.title = element_text(size = plot.title.size)) +
     geom_text(aes(label = Target), hjust = hjust, vjust = vjust, size = label.size)
+
   print(control_pca)
+
   if (save.to.tiff == TRUE){
     ggsave(paste(name.tiff,".tiff", sep = ""), control_pca, dpi = dpi, width = width, height = height, units = "cm", compression = "lzw")
   }
+  return(control_pca)
 }
 
 
 
 
+#' @title control_corr_target
+#'
+#' @description
+#' Performs correlation analysis of targets based on the data. Could be useful to gain insight into relationships between analyzed targets.
+#'
+#' @param data object returned from `delta_Ct()`, `exp_Ct()` or `exp_delta_Ct()` function.
+#' @param add.coef if coefficients should be add to the plot, specify color of coefficients (default to "black"), otherwise set to NULL.
+#' @param method character: type of correlations to compute, specify "pearson" (default) for Pearson's correlation coefficients
+#' or "spearman" for Spearman's rank correlation coefficients.
+#' @param order character: method used for ordering the correlation matrix (see documentation for [corrplot::corrplot()] function),
+#' one of the "original" (original order), "AOE" (angular order of the eigenvectors),
+#' "FPC" (first principal component order), "hclust" (hierarchical clustering order, default), or "alphabet" (alphabetical order).
+#' @param hclust.method character: name of used method for hclust agglomeration, should be one of "ward", ward.D", "ward.D2", "single", "complete", "average" (default), "mcquitty", "median" or "centroid".
+#' @param size numeric: size of variable names and numbers in legend. Default to 0.6.
+#' @param coef.size numeric: size of correlation coefficients. Default to 0.6.
+#' @param p.adjust.method character: p value correction method for multiple testing, one of "holm", "hochberg", "hommel", "bonferroni", "BH", "BY","fdr", or "none". See documentation for [stats::p.adjust()] function for details.
+#' @param save.to.tiff logical: if TRUE, plot will be saved as .tiff file. Default to FALSE.
+#' @param dpi integer: resolution of saved .tiff file. Default to 600.
+#' @param width numeric: width (in cm) of saved .tiff file. Default to 15.
+#' @param height integer: height (in cm) of saved .tiff file. Default to 15.
+#' @param name.tiff character: name of saved .tiff file, without ".tiff" name of extension. Default to "control_corr_targets".
+#' @param save.to.txt logical: if TRUE, correlation results (sorted by descending absolute values of correlation coefficients) will be saved to .txt file. Default to FALSE.
+#' @param name.txt character: name of saved .txt file, without ".txt" name of extension.. Default to "control_corr_targets".
+#'
+#' @return Plot illustrating correlation matrix (displayed in graphic device) and data.frame with computed correlation coefficients and p values.
+#' @export
+#'
+#' @examples
+#' control_cluster_target(data.dCt, method.dist = "euclidean", method.clust = "complete")
+#' control_cluster_target(data.dCt.exp, method.dist = "canberra", method.clust = "average")
+#' control_cluster_target(data.Ct.exp, method.dist = "manhattan", method.clust = "single")
+#'
+#' @importFrom base as.data.frame paste upper.tri rownames
+#' @importFrom stats p.adjust
+#' @importFrom utils write.table
+#' @importFrom Hmisc rcorr
+#' @import corrplot
+#' @import tidyverse
+#'
+control_corr_target <- function(data,
+                                method = "pearson",
+                                add.coef = "black",
+                                order = "hclust",
+                                hclust.method = "average",
+                                size = 0.6,
+                                coef.size = 0.6,
+                                p.adjust.method = "BH",
+                                save.to.tiff = FALSE,
+                                dpi = 600, width = 15, height = 15,
+                                name.tiff = "control_corr_targets",
+                                save.to.txt = FALSE,
+                                name.txt = "control_corr_targets"){
 
-control_dCt_corr_target <- function(data, add.coef = "black",
-                             method = "pearson",
-                             order = "hclust",
-                             hclust.method = "complete",
-                             size = 0.6,
-                             save.to.tiff = FALSE,
-                             dpi = 600, width = 15, height = 15,
-                             name.tiff = "dCt_control_corr_plot",
-                             save.to.txt = FALSE,
-                             sort.txt = "cor",
-                             name.txt = "dCt_control_corr_results",
-                             p.adjust.method = "BH"){
   data <- as.data.frame(data)
   data <- select(data, -Group, -Sample)
   res_cor <- rcorr(as.matrix(data), type = method)
+
   if (order == "hclust"){
-    corrplot(res_cor$r, type = "upper", tl.cex = size, tl.col = "black", cl.cex = size,
-             order = order,
-             hclust.method = hclust.method,
+    corrplot(res_cor$r,
+             type = "upper",
              addCoef.col = add.coef,
-             number.cex = size)
+             tl.cex = size,
+             cl.cex = size,
+             tl.col = "black",
+             number.cex = coef.size,
+             order = order,
+             hclust.method = hclust.method)
+
     if (save.to.tiff == TRUE){
       tiff(paste(name.tiff,".tiff", sep = ""), res = dpi, width = width, height = height, units = "cm", compression = "lzw")
       corrplot(res_cor$r, type = "upper", tl.cex = size, tl.col = "black", cl.cex = size,
                order = order,
                hclust.method = hclust.method,
-               addCoef.col = "black",
-               number.cex = size)
+               addCoef.col = add.coef,
+               number.cex = coef.size)
       dev.off()
     }
   } else {
+
     corrplot(res_cor$r, type = "upper", tl.cex = size, tl.col = "black", cl.cex = size,
              order = order,
              addCoef.col = add.coef,
-             number.cex = size)
+             number.cex = coef.size)
+
     if (save.to.tiff == TRUE){
       tiff(paste(name.tiff,".tiff", sep = ""), res = dpi, width = width, height = height, units = "cm", compression = "lzw")
       corrplot(res_cor$r, type = "upper", tl.cex = size, tl.col = "black", cl.cex = size,
                order = order,
                addCoef.col = "black",
-               number.cex = size)
+               number.cex = coef.size)
       dev.off()
     }
   }
+
   if (save.to.txt == TRUE){
     corr <- upper.tri(res_cor$r)
     corr.data <- data.frame(
@@ -1231,51 +1484,101 @@ control_dCt_corr_target <- function(data, add.coef = "black",
 
 
 
-control_dCt_corr_sample <- function(data, add.coef = "black",
-                                    method = "pearson",
-                                    order = "hclust",
-                                    hclust.method = "complete",
-                                    size = 0.6,
-                                    save.to.tiff = FALSE,
-                                    dpi = 600, width = 15, height = 15,
-                                    name.tiff = "dCt_control_corr_plot",
-                                    save.to.txt = FALSE,
-                                    sort.txt = "cor",
-                                    name.txt = "dCt_control_corr_results",
-                                    p.adjust.method = "BH"){
+#' @title control_corr_sample
+#'
+#' @description
+#' Performs correlation analysis of samples based on the data. Could be useful to gain insight into relationships between analyzed samples.
+#'
+#' @param data object returned from `delta_Ct()`, `exp_Ct()` or `exp_delta_Ct()` function.
+#' @param add.coef if coefficients should be add to the plot, specify color of coefficients (default to "black"), otherwise set to NULL.
+#' @param method character: type of correlations to compute, specify "pearson" (default) for Pearson's correlation coefficients
+#' or "spearman" for Spearman's rank correlation coefficients.
+#' @param order character: method used for ordering the correlation matrix (see documentation for [corrplot::corrplot()] function),
+#' one of the "original" (original order), "AOE" (angular order of the eigenvectors),
+#' "FPC" (first principal component order), "hclust" (hierarchical clustering order, default), or "alphabet" (alphabetical order).
+#' @param hclust.method character: name of used method for hclust agglomeration, should be one of "ward", ward.D", "ward.D2", "single", "complete", "average" (default), "mcquitty", "median" or "centroid".
+#' @param size numeric: size of variable names and numbers in legend. Default to 0.6.
+#' @param coef.size numeric: size of correlation coefficients. Default to 0.6.
+#' @param p.adjust.method character: p value correction method for multiple testing, one of "holm", "hochberg", "hommel", "bonferroni", "BH", "BY","fdr", or "none". See documentation for [stats::p.adjust()] function for details.
+#' @param save.to.tiff logical: if TRUE, plot will be saved as .tiff file. Default to FALSE.
+#' @param dpi integer: resolution of saved .tiff file. Default to 600.
+#' @param width numeric: width (in cm) of saved .tiff file. Default to 15.
+#' @param height integer: height (in cm) of saved .tiff file. Default to 15.
+#' @param name.tiff character: name of saved .tiff file, without ".tiff" name of extension. Default to "control_corr_samples".
+#' @param save.to.txt logical: if TRUE, correlation results (sorted by descending absolute values of correlation coefficients) will be saved to .txt file. Default to FALSE.
+#' @param name.txt character: name of saved .txt file, without ".txt" name of extension.. Default to "control_corr_samples".
+#'
+#' @return Plot illustrating correlation matrix (displayed in graphic device) and data.frame with computed correlation coefficients and p values.
+#' @export
+#'
+#' @examples
+#' control_cluster_sample(data.dCt, method.dist = "euclidean", method.clust = "complete")
+#' control_cluster_sample(data.dCt.exp, method.dist = "canberra", method.clust = "average")
+#' control_cluster_sample(data.Ct.exp, method.dist = "manhattan", method.clust = "single")
+#'
+#' @importFrom base as.data.frame paste upper.tri rownames
+#' @importFrom stats p.adjust
+#' @importFrom utils write.table
+#' @importFrom Hmisc rcorr
+#' @import corrplot
+#' @import tidyverse
+#'
+control_corr_sample <- function(data,
+                                method = "pearson",
+                                add.coef = "black",
+                                order = "hclust",
+                                hclust.method = "average",
+                                size = 0.6,
+                                coef.size = 0.6,
+                                p.adjust.method = "BH",
+                                save.to.tiff = FALSE,
+                                dpi = 600, width = 15, height = 15,
+                                name.tiff = "control_corr_samples",
+                                save.to.txt = FALSE,
+                                name.txt = "control_corr_samples"){
+
   data <- as.data.frame(data)
   data_t <- t(select(data, -Group, -Sample))
   colnames(data_t) <- data$Sample
   res_cor <- rcorr(as.matrix(data_t), type = method)
+
   if (order == "hclust"){
-    corrplot(res_cor$r, type = "upper", tl.cex = size, tl.col = "black", cl.cex = size,
-             order = order,
-             hclust.method = hclust.method,
+    corrplot(res_cor$r,
+             type = "upper",
              addCoef.col = add.coef,
-             number.cex = size)
+             tl.cex = size,
+             cl.cex = size,
+             tl.col = "black",
+             number.cex = coef.size,
+             order = order,
+             hclust.method = hclust.method)
+
     if (save.to.tiff == TRUE){
       tiff(paste(name.tiff,".tiff", sep = ""), res = dpi, width = width, height = height, units = "cm", compression = "lzw")
       corrplot(res_cor$r, type = "upper", tl.cex = size, tl.col = "black", cl.cex = size,
                order = order,
                hclust.method = hclust.method,
-               addCoef.col = "black",
-               number.cex = size)
+               addCoef.col = add.coef,
+               number.cex = coef.size)
       dev.off()
     }
   } else {
+
     corrplot(res_cor$r, type = "upper", tl.cex = size, tl.col = "black", cl.cex = size,
              order = order,
              addCoef.col = add.coef,
-             number.cex = size)
+             number.cex = coef.size)
+
     if (save.to.tiff == TRUE){
       tiff(paste(name.tiff,".tiff", sep = ""), res = dpi, width = width, height = height, units = "cm", compression = "lzw")
       corrplot(res_cor$r, type = "upper", tl.cex = size, tl.col = "black", cl.cex = size,
                order = order,
                addCoef.col = "black",
-               number.cex = size)
+               number.cex = coef.size)
       dev.off()
     }
   }
+
   if (save.to.txt == TRUE){
     corr <- upper.tri(res_cor$r)
     corr.data <- data.frame(
@@ -1297,42 +1600,93 @@ control_dCt_corr_sample <- function(data, add.coef = "black",
 
 
 
-
-single_dCt_corr <- function(data, x, y, alpha = 0.7,
-                            by.group = FALSE,
-                            col = c("#66c2a5", "#fc8d62"),
+#' @title single_pair_sample
+#'
+#' @description
+#' Generate scatter plot with linear regression line for two specified samples. Could be useful to assess linear relationship between these samples.
+#'
+#' @param data object returned from [delta_Ct()], [exp_Ct()] or [exp_delta_Ct()] function.
+#' @param x,y characters: names of samples to use.
+#' @param by.group logical: if TRUE (default), relationships will be shown separately for compared groups.
+#' @param point.size numeric: size of points. Default to 4.
+#' @param point.shape integer: shape of points. Default to 19.
+#' @param point.alpha numeric: transparency of points, a value between 0 and 1. Default to 0.7.
+#' @param colors character: color for points (if `by.group` = FALSE) or vector of two colors used to distinguish groups (if `by.group` = TRUE).
+#' @param line.alpha numeric: transparency of regression line, a value between 0 and 1. Default to 0.7.
+#' @param axis.title.size integer: font size of axis titles. Default to 12.
+#' @param axis.text.size integer: font size of axis text. Default to 10.
+#' @param legend.title character: title of legend. Default to "Group".
+#' @param legend.title.size integer: font size of legend title. Default to 12.
+#' @param legend.text.size integer: font size of legend text. Default to 12.
+#' @param legend.position position of the legend, one of "top", "right" (default), "bottom", "left", or "none" (no legend).
+#' See description for `legend.position` parameter in [ggplot2::theme()] function.
+#' @param plot.title character: title of plot. Default to "".
+#' @param plot.title.size integer: font size of plot title. Default to 14.
+#' @param labels logical: if TRUE (default), a regression statistics will be added to the plot using [ggpimsc::stat_poly_eq()] function.
+#' @param label character: which regression statistics should be drawn, use names specified by [ggpimsc::stat_poly_eq()] function. Default to c("eq", "R2", "p") for regression equation, coefficient of determination and p value, respectively.
+#' @param label.position.x,label.position.y  numeric: coordinates for position of regression statistics. If `by.group` = TRUE, two values could be provided for each of these parameters (for different regression lines). See description of `label.x` and `label.y` parameters from [ggpimsc::stat_poly_eq()] function.
+#' @param small.p,small.r logical, if TRUE, p in p value label and r in coefficient of determination label, will be lowercase. Default to FALSE.
+#' @param rr.digits,p.digits integer: number of digits after the decimal point in coefficient of determination and p value in labels. Default to 2 for `rr.digits` and 3 for `p.digits`.
+#' @param save.to.tiff logical: if TRUE, plot will be saved as .tiff file. Default to FALSE.
+#' @param dpi integer: resolution of saved .tiff file. Default to 600.
+#' @param width numeric: width (in cm) of saved .tiff file. Default to 15.
+#' @param height integer: height (in cm) of saved .tiff file. Default to 15.
+#' @param name.tiff character: name of saved .tiff file, without ".tiff" name of extension. Default to "samples_single_plot".
+#'
+#' @return Object with plot illustrating spatial arrangement of samples according to coordinates of 2 components obtained from principal component analysis (PCA). Created plot will be also displayed on graphic device.
+#' @export
+#'
+#' @examples
+#' control_pca_sample(data.Ct.exp)
+#' control_pca_sample(data.dCt)
+#' control_pca_sample(data.dCt.exp)
+#'
+#' @importFrom base print paste
+#' @import ggplot2
+#' @import ggpmisc
+#'
+single_pair_sample <- function(data, x, y, by.group = TRUE,
+                            point.size = 4, point.shape = 19, point.alpha = 0.7,
+                            colors = c("#66c2a5", "#fc8d62"),
+                            line.alpha = 0.7,
                             axis.title.size = 12,
                             axis.text.size = 10,
-                            legend.text.size = 12,
                             legend.title = "Group",
                             legend.title.size = 12,
+                            legend.text.size = 12,
                             legend.position = "right",
                             plot.title = "",
-                            label.position.x = 1,
-                            label.position.y = 1,
+                            plot.title.size = 14,
+                            labels = TRUE,
+                            label = c("eq", "R2", "p"),
+                            label.position.x = c(1,1),
+                            label.position.y = c(1,0.95),
                             small.p = FALSE,
                             small.r = FALSE,
                             p.digits = 3,
                             rr.digits = 2,
-                            label = c("eq", "R2", "p"),
-                            dpi = 600, width = 15, height = 15,
                             save.to.tiff = FALSE,
-                            name.tiff = "dCt_corr_single_plot"){
+                            dpi = 600, width = 15, height = 15,
+                            name.tiff = "samples_single_plot"){
+
   if (by.group == TRUE){
-    corr_control <- ggplot(data, aes(x = .data[[x]], y = .data[[y]], color = Group)) +
-      geom_point() +
-      geom_smooth(method='lm', se = FALSE, alpha = alpha) +
-      scale_color_manual(values = c(col)) +
-      xlab(x) + ylab(y) +
+    single_pair <- ggplot(data, aes(x = .data[[x]], y = .data[[y]], color = Group)) +
+      geom_point(size = point.size, shape = point.shape, alpha = point.alpha) +
+      geom_smooth(method='lm', se = FALSE, alpha = line.alpha) +
+      scale_color_manual(values = c(colors)) +
+      xlab(x) +
+      ylab(y) +
       labs(color = legend.title, title = plot.title) +
       theme_classic() +
       theme(legend.position = legend.position) +
       theme(axis.text = element_text(size = axis.text.size, colour = "black")) +
       theme(axis.title = element_text(size = axis.title.size, colour="black")) +
       theme(legend.text = element_text(size = legend.text.size, colour="black")) +
-      theme(legend.title = element_text(size = legend.title.size, colour="black"))
+      theme(legend.title = element_text(size = legend.title.size, colour="black")) +
+      theme(plot.title = element_text(size = plot.title.size))
+
     if (labels == TRUE){
-      corr_control <- corr_control +
+      single_pair <- corr_control +
         stat_poly_eq(use_label(label),
                      label.y = c(label.position.y),
                      label.x = c(label.position.x),
@@ -1342,9 +1696,10 @@ single_dCt_corr <- function(data, x, y, alpha = 0.7,
                      rr.digits = rr.digits)
     }
   } else {
-    corr_control <- ggplot(data, aes(x = .data[[x]], y = .data[[y]])) +
-      geom_point() +
-      geom_smooth(method='lm', se = FALSE, alpha = alpha) +
+
+    single_pair <- ggplot(data, aes(x = .data[[x]], y = .data[[y]])) +
+      geom_point(size = point.size, shape = point.shape, alpha = point.alpha, col = colors[1]) +
+      geom_smooth(method='lm', se = FALSE, alpha = line.alpha) +
       stat_poly_eq(use_label(label),
                    label.y = c(label.position.y),
                    label.x = c(label.position.x)) +
@@ -1352,9 +1707,11 @@ single_dCt_corr <- function(data, x, y, alpha = 0.7,
       labs(title = plot.title) +
       theme_classic() +
       theme(axis.text = element_text(size = axis.text.size, colour = "black")) +
-      theme(axis.title = element_text(size = axis.title.size, colour="black"))
+      theme(axis.title = element_text(size = axis.title.size, colour="black")) +
+      theme(plot.title = element_text(size = plot.title.size))
+
     if (labels == TRUE){
-      corr_control <- corr_control +
+      single_pair <- single_pair +
         stat_poly_eq(use_label(label),
                      label.y = c(label.position.y),
                      label.x = c(label.position.x),
@@ -1364,46 +1721,95 @@ single_dCt_corr <- function(data, x, y, alpha = 0.7,
                      rr.digits = rr.digits)
       }
     }
-  print(corr_control)
+
+  print(single_pair)
+
   if (save.to.tiff == TRUE){
-    ggsave(paste(name.tiff,".tiff", sep = ""), corr_control, dpi = dpi, width = width, height = height, units = "cm", compression = "lzw")
+    ggsave(paste(name.tiff,".tiff", sep = ""), single_pair, dpi = dpi, width = width, height = height, units = "cm", compression = "lzw")
   }
+  return(single_pair)
 }
 
 
 
-single_dCt_corr_target <- function(data, x, y, alpha = 0.7, labels = TRUE,
-                                   col = c("#66c2a5", "#fc8d62"),
+
+#' @title single_pair_target
+#'
+#' @description
+#' Generate scatter plot with linear regression line for two specified targets Could be useful to assess linear relationship between these targets.
+#'
+#' @param data object returned from [delta_Ct()], [exp_Ct()] or [exp_delta_Ct()] function.
+#' @param x,y characters: names of targets to use.
+#' @param point.size numeric: size of points.
+#' @param point.shape integer: shape of points.
+#' @param point.alpha numeric: transparency of points, a value between 0 and 1.
+#' @param color character: color used for points.
+#' @param line.alpha numeric: transparency of regression line, a value between 0 and 1.
+#' @param axis.title.size integer: font size of axis titles.
+#' @param axis.text.size integer: font size of axis text.
+#' @param plot.title character: title of plot.
+#' @param plot.title.size integer: font size of plot title.
+#' @param labels logical: if TRUE, a regression statistics will be added to the plot using [ggpimsc::stat_poly_eq()] function.
+#' @param label character: which regression statistics should be drawn, use names specified by [ggpimsc::stat_poly_eq()] function. Default to c("eq", "R2", "p") for regression equation, coefficient of determination and p value, respectively.
+#' @param label.position.x,label.position.y  numeric: coordinates for position of regression statistics. If `by.group` = TRUE, two values could be provided for each of these parameters (for different regression lines). See description of `label.x` and `label.y` parameters from [ggpimsc::stat_poly_eq()] function.
+#' @param small.p,small.r logical, if TRUE, p in p value label and r in coefficient of determination label, will be lowercase.
+#' @param rr.digits,p.digits integer: number of digits after the decimal point in coefficient of determination and p value in labels.
+#' @param save.to.tiff logical: if TRUE, plot will be saved as .tiff file.
+#' @param dpi integer: resolution of saved .tiff file.
+#' @param width numeric: width (in cm) of saved .tiff file.
+#' @param height integer: height (in cm) of saved .tiff file.
+#' @param name.tiff character: name of saved .tiff file, without ".tiff" name of extension.
+#'
+#' @return Plot illustrating spatial arrangement of samples according to coordinates of 2 components obtained from principal component analysis (PCA).
+#' @export
+#'
+#' @examples
+#' control_pca_target(data.Ct.exp)
+#' control_pca_target(data.dCt)
+#' control_pca_target(data.dCt.exp)
+#'
+#' @importFrom base print paste t colnames
+#' @importFrom dplyr select
+#' @import ggplot2
+#' @import ggpmisc
+#'
+single_pair_target <- function(data, x, y,
+                                   point.size = 4, point.shape = 19, point.alpha = 0.7,
+                                   color = "black",
+                                   line.alpha = 0.7,
                                    axis.title.size = 12,
                                    axis.text.size = 10,
-                                   legend.text.size = 12,
-                                   legend.title = "Group",
-                                   legend.title.size = 12,
-                                   legend.position = "right",
                                    plot.title = "",
+                                   plot.title.size = 14,
+                                   labels = TRUE,
+                                   label = c("eq", "R2", "p"),
                                    label.position.x = 1,
                                    label.position.y = 1,
                                    small.p = FALSE,
                                    small.r = FALSE,
                                    p.digits = 3,
                                    rr.digits = 2,
-                                   label = c("eq", "R2", "p"),
-                                   dpi = 600, width = 15, height = 15,
                                    save.to.tiff = FALSE,
-                                   name.tiff = "dCt_corr_single_plot"){
+                                   dpi = 600, width = 15, height = 15,
+                                   name.tiff = "target_single_plot"){
+
   data <- as.data.frame(data)
   data_t <- t(select(data, -Group, -Sample))
   colnames(data_t) <- data$Sample
-  corr_control <- ggplot(as.data.frame(data_t), aes(x = .data[[x]], y = .data[[y]])) +
-    geom_point() +
+
+  single_pair_t <- ggplot(as.data.frame(data_t), aes(x = .data[[x]], y = .data[[y]])) +
+    geom_point(size = point.size, shape = point.shape, alpha = point.alpha, color = color) +
     geom_smooth(method='lm', se = FALSE, alpha = alpha) +
-    xlab(x) + ylab(y) +
+    xlab(x) +
+    ylab(y) +
     labs(title = plot.title) +
     theme_classic() +
     theme(axis.text = element_text(size = axis.text.size, colour = "black")) +
-    theme(axis.title = element_text(size = axis.title.size, colour="black"))
+    theme(axis.title = element_text(size = axis.title.size, colour="black")) +
+    theme(plot.title = element_text(size = plot.title.size))
+
   if (labels == TRUE){
-    corr_control <- corr_control +
+    single_pair_t <- single_pair_t +
       stat_poly_eq(use_label(label),
                    label.y = c(label.position.y),
                    label.x = c(label.position.x),
@@ -1412,9 +1818,11 @@ single_dCt_corr_target <- function(data, x, y, alpha = 0.7, labels = TRUE,
                    p.digits = p.digits,
                    rr.digits = rr.digits)
   }
-  print(corr_control)
+
+  print(single_pair_t)
+
   if (save.to.tiff == TRUE){
-    ggsave(paste(name.tiff,".tiff", sep = ""), corr_control, dpi = dpi, width = width, height = height, units = "cm", compression = "lzw")
+    ggsave(paste(name.tiff,".tiff", sep = ""), single_pair_t, dpi = dpi, width = width, height = height, units = "cm", compression = "lzw")
   }
 }
 
@@ -1422,15 +1830,39 @@ single_dCt_corr_target <- function(data, x, y, alpha = 0.7, labels = TRUE,
 
 
 
+#' @title filter_transformed_Ct
+#'
+#' @description
+#' Filters transformed Ct data (2^(-Ct), delta Ct, and 2^(-dCt) data) according to the used filtering criteria (see parameters).
+#'
+#' @param data object returned from [delta_Ct()], [exp_Ct()] or [exp_delta_Ct()] functions.
+#' @param remove.Target character: vector with names of targets which should be removed from data.
+#' @param remove.Sample character: vector with names of samples which should be removed from data.
+#' @param remove.Group character: vector with names of groups which should be removed from data.
+#'
+#' @return Data.frame with filtered data.
+#' @export
+#'
+#' @examples
+#' <- filter_transformed_Ct(data,
+#'                       remove.Target = c(""),
+#'                       remove.Sample = c(""),
+#'                       remove.Group = c(""))
+#'
+#' @importFrom dplyr filter select
+#' @import tidyverse
+#'
+filter_transformed_Ct <- function(data,
+                                  remove.Target = c(""),
+                                  remove.Sample = c(""),
+                                  remove.Group = c("")){
 
-filter_dCt <- function(data,
-                       remove.Target = c(""),
-                       remove.Sample = c(""),
-                       remove.Group = c("")){
-  data <- dplyr::filter(data,
-                        !Sample %in% remove.Sample,
-                        !Group %in% remove.Group)
+  data <- filter(data,
+                 !Sample %in% remove.Sample,
+                 !Group %in% remove.Group)
+
   data <- select(data, -any_of(remove.Target))
+
   return(data)
 }
 
@@ -1438,10 +1870,30 @@ filter_dCt <- function(data,
 
 
 
-
+#' @title exp_delta_Ct
+#'
+#' @description
+#' This function exponentiates delta Ct (dCt) values by using formula 2^(-dCt).
+#'
+#' @param data data object returned from [delta_Ct()] function.
+#' @param save.to.txt logical: if TRUE, returned data will be saved to .txt file. Default to FALSE.
+#' @param name.txt character: name of saved .txt file, without ".txt" name of extension. Default to "data.exp.dCt".
+#'
+#' @return Data.frame with exponentiated dCt values.
+#' @export
+#'
+#' @examples
+#' data.Ct.exp <- exp_Ct(data.CtF,
+#'                       imput.by.mean.within.groups = TRUE)
+#'
+#' @importFrom base as.data.frame paste
+#' @importFrom utils write.table
+#' @importFrom dplyr mutate_at
+#' @import tidyverse
+#'
 exp_dCt <- function(data,
                     save.to.txt = FALSE,
-                    name.txt = "expdCt"){
+                    name.txt = "data.exp.dCt"){
 
   calcRQ <- function(x){
     x <- 2^-x
@@ -1457,39 +1909,100 @@ exp_dCt <- function(data,
 }
 
 
+#' @title results_boxplot
+#'
+#' @description
+#' This function creates boxplot illustrating distribution of data in selected targets.
+#'     It is similar to [control_boxplot_target()] function; however, some new options are added,
+#'     including target selection, faceting, and adding mean labels to boxes.
+#'     This, this function could be useful to present results for finally selected targets.
+#'
+#' @param data object returned from `delta_Ct()`, `exp_Ct()` or `exp_delta_Ct()` function.
+#' @param coef numeric: how many times of interquartile range should be used to indicate the most extend data point for whiskers. Default to 1.5.
+#' @param sel.Target character vector with names of targets to include, or "all" (default) to use all names of targets.
+#' @param by.group logical: if TRUE (default), distributions will be drawn by compared groups of samples.
+#' @param faceting logical: if TRUE (default), plot will be drawn with facets with free scales using [ggplot2::facet_wrap()] function (see its documentation for more details).
+#' @param facet.row,facet.col integer: number of rows and column to arrange facets.
+#' @param angle integer: value of angle in which names of genes should be displayed. Default to 0.
+#' @param rotate logical: if TRUE, boxplots will be arranged horizontally. Deafault to FALSE.
+#' @param add.mean logical: if TRUE, means will be added to boxes as squares. Default to TRUE.
+#' @param add.mean.size numeric: size of squares indicating means. Default to 2.
+#' @param add.mean.color character: color of squares indicating means. Default to "black".
+#' @param colors character vector length of one (when by.group = FALSE) or two (when by.group = TRUE), containing colors for groups.
+#' @param x.axis.title character: title of x axis. Default to "Target".
+#' @param y.axis.title character: title of y axis. Default to "value".
+#' @param axis.title.size integer: font size of axis titles. Default to 12.
+#' @param axis.text.size integer: font size of axis text. Default to 10.
+#' @param legend.title character: title of legend. Default to "Group".
+#' @param legend.title.size integer: font size of legend title. Default to 12.
+#' @param legend.text.size integer: font size of legend text. Default to 12.
+#' @param legend.position position of the legend, one of "top" (default), "right", "bottom", "left", or "none" (no legend).
+#' See description for `legend.position` in [ggplot2::theme()] function.
+#' @param plot.title character: title of plot. Default to "".
+#' @param plot.title.size integer: font size of plot title. Default to 14.
+#' @param save.to.tiff logical: if TRUE, plot will be saved as .tiff file. Default to FALSE.
+#' @param dpi integer: resolution of saved .tiff file. Default to 600.
+#' @param width numeric: width (in cm) of saved .tiff file. Default to 15.
+#' @param height integer: height (in cm) of saved .tiff file. Default to 15.
+#' @param name.tiff character: name of saved .tiff file, without ".tiff" name of extension. Default to "results_boxplot".
+#'
+#' @return Object with boxplot illustrating distribution of data for selected targets. Created plot will be also displayed on graphic device.
+#' @export
+#'
+#' @examples
+#' control_boxplot_target(data.Ct.exp)
+#' control_boxplot_target(data.dCt)
+#' control_boxplot_target(data.dCt.exp)
+#'
+#' @importFrom base print paste
+#' @importFrom dplyr filter
+#' @import ggplot2
+#' @import tidyverse
+#'
+results_boxplot <- function(data,
+                            coef = 1.5,
+                            sel.Target = "all",
+                            by.group = TRUE,
+                            faceting = TRUE,
+                            facet.row,
+                            facet.col,
+                            angle = 0,
+                            rotate = FALSE,
+                            add.mean = TRUE,
+                            add.mean.size = 2,
+                            add.mean.color = "black",
+                            colors = c("#66c2a5", "#fc8d62"),
+                            x.axis.title = "Sample",
+                            y.axis.title = "value",
+                            axis.title.size = 12,
+                            axis.text.size = 10,
+                            legend.text.size = 12,
+                            legend.title = "Group",
+                            legend.title.size = 12,
+                            legend.position = "top",
+                            plot.title = "",
+                            plot.title.size = 14,
+                            save.to.tiff = FALSE,
+                            dpi = 600, width = 15, height = 15,
+                            name.tiff = "results_boxplot"){
 
-results_dCt_boxplot <- function(data, coef = 1.5, sel.Target = "all", by.group = TRUE,
-                                faceting = TRUE, facet.row = 4, facet.col = 4,
-                                angle = 0, rotate = FALSE, add.mean = FALSE,
-                                add.mean.size = 2,
-                                add.mean.color = "black",
-                                col = c("#66c2a5", "#fc8d62"),
-                                axis.title.size = 12,
-                                axis.text.size = 10,
-                                legend.text.size = 12,
-                                x.axis.title = "Sample",
-                                y.axis.title = "dCt",
-                                legend.title = "Group",
-                                legend.title.size = 12,
-                                legend.position = "right",
-                                plot.title = "",
-                                dpi = 600, width = 15, height = 15,
-                                save.to.tiff = FALSE,
-                                name.tiff = "dCt_results_boxplot"){
+  data <- pivot_longer(data, !c(Sample, Group), names_to = "Target" , values_to = "value")
 
-  data <- pivot_longer(data, !c(Sample, Group), names_to = "Target" , values_to = "dCt")
   if (sel.Target[1] == "all"){
     data <- data
+
   } else {
+
     data <- filter(data, Target %in% sel.Target)
   }
+
   if (by.group == TRUE){
-    box_results <- ggplot(data, aes(x = Target, y = dCt, fill = Group)) +
+
+    box_results <- ggplot(data, aes(x = Target, y = value, fill = Group)) +
       geom_boxplot(coef = coef) +
-      #scale_x_discrete(limits = rev(unique(data$Sample))) +
-      scale_fill_manual(values = c(col)) +
-      #coord_flip() +
-      xlab(x.axis.title) + ylab(y.axis.title) +
+      scale_fill_manual(values = c(colors)) +
+      xlab(x.axis.title) +
+      ylab(y.axis.title) +
       labs(fill = legend.title, title = plot.title) +
       theme_bw() +
       theme(legend.position = legend.position) +
@@ -1498,6 +2011,7 @@ results_dCt_boxplot <- function(data, coef = 1.5, sel.Target = "all", by.group =
       theme(legend.text = element_text(size = legend.text.size, colour="black")) +
       theme(legend.title = element_text(size = legend.title.size, colour="black")) +
       theme(panel.grid.major.x = element_blank())
+
     if (faceting == TRUE) {
       box_results <- box_results +
         theme(axis.text.x = element_blank(), axis.ticks.x = element_blank()) +
@@ -1505,9 +2019,9 @@ results_dCt_boxplot <- function(data, coef = 1.5, sel.Target = "all", by.group =
     }
 
   } else {
-    box_results <- ggplot(data, aes(x = Target, y = dCt)) +
+
+    box_results <- ggplot(data, aes(x = Target, y = value)) +
       geom_boxplot(coef = coef, fill = col[1]) +
-      #scale_x_discrete(limits = rev(unique(data$Sample))) +
       xlab(x.axis.title) + ylab(y.axis.title) +
       labs(fill = legend.title, title = plot.title) +
       theme_bw() +
@@ -1517,6 +2031,7 @@ results_dCt_boxplot <- function(data, coef = 1.5, sel.Target = "all", by.group =
       theme(legend.text = element_text(size = legend.text.size, colour="black")) +
       theme(legend.title = element_text(size = legend.title.size, colour="black")) +
       theme(panel.grid.major.x = element_blank())
+
     if (faceting == TRUE) {
       box_results <- box_results +
         theme(axis.text.x = element_blank(), axis.ticks.x = element_blank()) +
@@ -1524,14 +2039,17 @@ results_dCt_boxplot <- function(data, coef = 1.5, sel.Target = "all", by.group =
     }
 
   }
+
   if (angle != 0){
     box_results <- box_results +
       guides(x =  guide_axis(angle = angle))
   }
+
   if (rotate == TRUE){
     box_results <- box_results +
       coord_flip()
   }
+
   if (add.mean == TRUE & by.group == TRUE){
     box_results <- box_results +
       stat_summary(aes(group = Group),
@@ -1551,11 +2069,18 @@ results_dCt_boxplot <- function(data, coef = 1.5, sel.Target = "all", by.group =
                    size = add.mean.size,
                    color = add.mean.color)
   }
+
   print(box_results)
+
   if (save.to.tiff == TRUE){
     ggsave(paste(name.tiff,".tiff", sep = ""), box_results, dpi = dpi, width = width, height = height, units = "cm", compression = "lzw")
   }
+  return(box_results)
 }
+
+
+
+
 
 
 

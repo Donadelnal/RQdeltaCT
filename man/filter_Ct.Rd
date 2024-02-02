@@ -15,27 +15,29 @@ filter_Ct(
 )
 }
 \arguments{
-\item{data}{object returned from read_Ct_long or read_Ct_wide function, or data frame containing column named "Sample" with sample names, column named "Target" with target names,
-column named "Ct" with raw Ct values, column named "Group" with group names. Optionally, data frame could contain column named "Flag" with flag information (ex. "Undetermined" and "OK"),
+\item{data}{object returned from [read_Ct_long()] or [read_Ct_wide()] function,
+or data frame containing column named "Sample" with sample names, column named "Target" with target names,
+column named "Ct" with raw Ct values, column named "Group" with group names.
+Optionally, data frame could contain column named "Flag" with flag information (ex. "Undetermined" and "OK"),
 which will be used for filtering.}
 
 \item{flag.Ct}{character of a flag used for undetermined Ct values, default to "Undetermined".}
 
 \item{maxCt}{numeric, a maximum of Ct value allowed.}
 
-\item{flag}{character of a flag used in Flag column for values which should be filtered out, default to "Undetermined".}
+\item{flag}{character: flag used in Flag column for values which should be filtered out, default to "Undetermined".}
 
-\item{remove.Target}{vector with names of targets which should be removed from dataset}
+\item{remove.Target}{character: vector with names of targets which should be removed from data}
 
-\item{remove.Sample}{vector with names of samples which should be removed from dataset}
+\item{remove.Sample}{character: vector with names of samples which should be removed from data}
 
-\item{remove.Group}{vector with names of groups which should be removed from dataset}
+\item{remove.Group}{character: vector with names of groups which should be removed from data}
 }
 \value{
 data.frame with filtered data.
 }
 \description{
-Filters Ct dataset according to the used filtering criteria.
+Filters Ct data according to the used filtering criteria (see parameters).
 }
 \examples{
 
@@ -46,7 +48,7 @@ data.CtF <- filter_Ct(data.Ct,
                       remove.Target = c("Gene2","Gene6"),
                       remove.Sample = c("Control8","control16"))
 
- data.CtF <- filter_Ct(data.Ct,
+data.CtF <- filter_Ct(data.Ct,
                        flag.Ct = "Undetermined",
                        maxCt = 35,
                        flag = "Undetermined",

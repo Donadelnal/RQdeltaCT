@@ -12,7 +12,7 @@ sample names in the first row. In other words, this table should contain targets
 
 \item{path.design.file}{path to .txt file with two columns: column named "Sample" with names of samples
 and column named "Group" with names of groups assigned to samples. Names of samples in this file
-should correspond to the names of columns in file with Ct values (Ct.file).}
+should correspond to the names of columns in file with Ct values.}
 
 \item{sep}{character of a field separator in both imported files.}
 
@@ -22,8 +22,12 @@ should correspond to the names of columns in file with Ct values (Ct.file).}
 data.frame in long format ready to analysis.
 }
 \description{
-Imports two tables: first is a wide-type table with Ct values and design file. Merges both files to return long table ready for analysis.
-All parameters of this function have not default values and schould be specified by user.
+Enables to import Ct dataset in a wide-format table with sample names given in columns.
+}
+\details{
+This function needs two tables to import: a wide-format table with Ct values and design file (see parameters `path.Ct.file` and `path.design.file` for further details regarding tables structure).
+Subsequently merges both files to return long-format table ready for analysis.
+All parameters must be specified, there is no default values.
 }
 \examples{
 path.Ct.file <- system.file("extdata", "data_Ct_wide.txt", package = "RQdeltaCT")

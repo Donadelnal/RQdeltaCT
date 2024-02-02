@@ -10,37 +10,39 @@ RQ_exp_Ct(
   group.ref,
   do.tests = TRUE,
   save.to.txt = FALSE,
-  name.txt = "ddCt_RQ_results"
+  name.txt = "RQ_expCt_results"
 )
 }
 \arguments{
-\item{data}{data object returned from exp_Ct function.}
+\item{data}{data object returned from [exp_Ct()] function.}
 
 \item{group.study}{character: name of study group (group of interest).}
 
 \item{group.ref}{character: name of reference group.}
 
-\item{do.tests}{logical: if TRUE, statistical significance of differences in exponentiated Ct values between compared groups will be calculated using Student's t test and Mann-Whitney U test.}
+\item{do.tests}{logical: if TRUE, statistical significance of differences in exponentiated Ct values between compared groups will be calculated using Student's t test and Mann-Whitney U test. Default to TRUE.}
 
-\item{save.to.txt}{logical: if TRUE, returned dataset with results will be saved to .txt file.}
+\item{save.to.txt}{logical: if TRUE, returned table with results will be saved to .txt file. Default to FALSE.}
 
-\item{name.txt}{character: name of saved .txt file.}
+\item{name.txt}{character: name of saved .txt file, without ".txt" name of extension. Default to "RQ_expCt_results".}
 }
 \value{
 data.frame with transformed Ct values and printed information about number and percentage of missing values.
 }
 \description{
 Performs relative quantification of gene expression using 2^(-Ct) method.
+}
+\details{
 This function calculates:
-1. Means (in columns with "_mean" pattern) and standard deviations (in columns with "_sd" pattern) of exponentiated Ct values of analyzed targets across compared groups.
-2. Normality tests (Shapiro_Wilk test) of exponentiated Ct values of analyzed targets across compared groups and returned p values in columns with "_norm_p" pattern.
-3. Fold Change (in "FCh" column) values together with log10 Fold change values (in "log10FCh" column).
+ * Means (return in columns with "_mean" pattern) and standard deviations (return in columns with "_sd" pattern) of exponentiated Ct values of analyzed targets across compared groups.
+ * Normality tests (Shapiro_Wilk test) of exponentiated Ct values of analyzed targets across compared groups and returned p values in columns with "_norm_p" pattern.
+ * Fold Change values (return in "FCh" column) together with log10 Fold change values (return in "log10FCh" column).
    Fold change values were calculated for each target by dividing  mean of exponentiated Ct values in study group by mean of exponentiated Ct values in reference group.
-4. Statistical testing of differences in exponentiated Ct values between study group and reference group.
-   Student's t test and Mann-Whitney U test were used and resulted statistics (in column with "_test_stat" pattern) and p values (in column with "_test_p" pattern) are returned.
+ * Statistical testing of differences in exponentiated Ct values between study group and reference group.
+   Student's t test and Mann-Whitney U test are implemented and resulted statistics (in column with "_test_stat" pattern) and p values (in column with "_test_p" pattern) are returned.
 }
 \examples{
-RQ.exp.Ct.results <- RQ_exp_Ct(data.Ct.exp.imput,
+RQ.Ct.exp <- RQ_exp_Ct(data.Ct.exp,
                                group.study = "Disease",
                                group.ref = "Control",
                                do.tests = TRUE)

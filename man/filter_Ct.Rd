@@ -34,7 +34,7 @@ which will be used for filtering.}
 \item{remove.Group}{character: vector with names of groups which should be removed from data}
 }
 \value{
-data.frame with filtered data.
+Data.frame with filtered data.
 }
 \description{
 Filters Ct data according to the used filtering criteria (see parameters).

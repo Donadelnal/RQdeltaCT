@@ -7,7 +7,7 @@
 control_cluster_sample(
   data,
   method.dist = "euclidean",
-  method.clust = "complete",
+  method.clust = "average",
   x.axis.title = "Samples",
   y.axis.title = "Height",
   plot.title = "",
@@ -19,30 +19,30 @@ control_cluster_sample(
 )
 }
 \arguments{
-\item{data}{object returned from delta_Ct, exp_Ct or exp_delta_Ct function.}
+\item{data}{object returned from `delta_Ct()`, `exp_Ct()` or `exp_delta_Ct()` function.}
 
-\item{method.dist}{character: name of used method for calculation of distances, should be one of "euclidean", "maximum", "manhattan", "canberra", "binary" or "minkowski".}
+\item{method.dist}{character: name of method used for calculation of distances, derived from `stats::dist()` function, should be one of "euclidean" (default) , "maximum", "manhattan", "canberra", "binary" or "minkowski".}
 
-\item{method.clust}{character: name of used method for agglomeration, should be one of "ward.D", "ward.D2", "single", "complete", "average", "mcquitty", "median" or "centroid".}
+\item{method.clust}{character: name of used method for agglomeration, derived from `stats::hclust()` function, should be one of "ward.D", "ward.D2", "single", "complete", "average" (default), "mcquitty", "median" or "centroid".}
 
-\item{x.axis.title}{character: title of x axis.}
+\item{x.axis.title}{character: title of x axis. Default to "Samples".}
 
-\item{y.axis.title}{character: title of y axis.}
+\item{y.axis.title}{character: title of y axis. Default to "Height".}
 
-\item{plot.title}{character: title of plot.}
+\item{plot.title}{character: title of plot. Default to "".}
 
-\item{save.to.tiff}{logical: if TRUE, plot will be saved as .tiff file.}
+\item{save.to.tiff}{logical: if TRUE, plot will be saved as .tiff file. Default to FALSE.}
 
-\item{dpi}{integer: resolution of saved .tiff file.}
+\item{dpi}{integer: resolution of saved .tiff file. Default to 600.}
 
-\item{width}{numeric: width (in cm) of saved .tiff file.}
+\item{width}{numeric: width (in cm) of saved .tiff file. Default to 15.}
 
-\item{height}{integer: height (in cm) of saved .tiff file.}
+\item{height}{integer: height (in cm) of saved .tiff file. Default to 15.}
 
-\item{name.tiff}{character: name of saved .tiff file, without ".tiff" name of extension.}
+\item{name.tiff}{character: name of saved .tiff file, without ".tiff" name of extension. Default to "control_clust_samples".}
 }
 \value{
-plot with hierarchical clustering of samples
+Plot with hierarchical clustering of samples, displayed on graphic device.
 }
 \description{
 Performs hierarchical clustering of samples based on the data. Could be useful to identify outlier samples.

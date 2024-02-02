@@ -6,29 +6,32 @@
 \usage{
 delta_Ct(
   data,
-  imput.by.mean.within.groups = FALSE,
+  imput.by.mean.within.groups = TRUE,
   ref,
   save.to.txt = FALSE,
   name.txt = "data_dCt"
 )
 }
 \arguments{
-\item{data}{data object returned from read_Ct_long, read_Ct_wide or filter_Ct function, or data frame containing column named "Sample" with sample names, column named "Target" with target names,
-column named "Ct" with raw Ct values, column named "Group" with group names. Any other columns could exist, but will not be used by this function.}
+\item{data}{data object returned from `read_Ct_long()`, `read_Ct_wide()` or `filter_Ct()` function,
+or data frame containing column named "Sample" with sample names, column named "Target" with target names,
+column named "Ct" with raw Ct values, column named "Group" with group names.
+    Any other columns could exist, but will not be used by this function.}
 
-\item{imput.by.mean.within.groups}{logical: if TRUE, missing values will be imputed by means within groups.}
+\item{imput.by.mean.within.groups}{logical: if TRUE, missing values will be imputed by means within groups. Default to TRUE.}
 
 \item{ref}{character: name of reference gene.}
 
-\item{save.to.txt}{logical: if TRUE, returned dataset will be saved to .txt file.}
+\item{save.to.txt}{logical: if TRUE, returned dataset will be saved to .txt file. Default to FALSE.}
 
-\item{name.txt}{character: name of saved .txt file, without ".txt" name of extension.}
+\item{name.txt}{character: name of saved .txt file, without ".txt" name of extension. Default to "data_dCt".}
 }
 \value{
-data.frame with dCt values and printed information about number and percentage of missing values.
+Data.frame with dCt values and printed information about number and percentage of missing values.
 }
 \description{
-Collapses technical replicates (if present in data) by means, counts and imputes missing data by means within groups (if so indicated),
+This function collapses technical replicates (if present in data) by means,
+counts and imputes missing data by means within groups (if so indicated),
 and finally calculates delta Ct (dCt) values by subtracting Ct values of reference gene from Ct values of other genes.
 }
 \examples{

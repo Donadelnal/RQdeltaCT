@@ -43,7 +43,7 @@ single_pair_target(
 
 \item{point.alpha}{numeric: transparency of points, a value between 0 and 1.}
 
-\item{color}{character: color for points.}
+\item{color}{character: color used for points.}
 
 \item{line.alpha}{numeric: transparency of regression line, a value between 0 and 1.}
 

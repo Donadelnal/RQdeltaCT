@@ -23,7 +23,7 @@ column named "Ct" with raw Ct values, column named "Group" with group names. Any
 \item{name.txt}{character: name of saved .txt file, without ".txt" name of extension. Default to "data.exp.Ct".}
 }
 \value{
-data.frame with exponentiated Ct values and printed information about number and percentage of missing values.
+Data.frame with exponentiated Ct values and printed information about number and percentage of missing values.
 }
 \description{
 This function collapses technical replicates (if present in data) by means, counts and imputes missing data by means within groups (if so indicated),

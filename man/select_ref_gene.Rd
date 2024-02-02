@@ -20,60 +20,67 @@ select_ref_gene(
   legend.position = "top",
   plot.title = "",
   plot.title.size = 14,
+  save.to.tiff = FALSE,
   dpi = 600,
   width = 15,
   height = 15,
-  save.to.tiff = FALSE,
-  name.tiff = "Ct_reference_selection"
+  name.tiff = "Ct_reference_gene_selection"
 )
 }
 \arguments{
-\item{data}{object returned from read_Ct_long, read_Ct_wide or filter_Ct function, or data frame containing column named "Sample" with sample names, column named "Target" with target names,
-column named "Ct" with raw Ct values, column named "Group" with group names. Any other columns could exist, but will not be used by this function.}
+\item{data}{object returned from `read_Ct_long()`, `read_Ct_wide()` or `filter_Ct()` functions,
+or data frame containing column named "Sample" with sample names, column named "Target" with target names,
+column named "Ct" with raw Ct values, column named "Group" with group names.
+    Any other columns could exist, but will not be used by this function.}
 
-\item{candidates}{vector of names of targets - candidates for gene reference.}
+\item{candidates}{character: vector of names of targets - candidates for gene reference.}
 
-\item{colors}{vector of colors for targets, number of colors should be equal to number of candidate genes (elements in candidates vector).}
+\item{colors}{character: vector of colors for targets, number of elements should be equal to number of candidate genes (elements in `candidates` vector).}
 
-\item{line.width}{numeric: width of lines drawn in the plot.}
+\item{line.width}{numeric: width of lines drawn in the plot. Default to 1.}
 
-\item{angle}{integer: value of angle in which names of genes should be displayed.}
+\item{angle}{integer: value of angle in which names of genes should be displayed. Default to 0.}
 
-\item{x.axis.title}{character: title of x axis.}
+\item{x.axis.title}{character: title of x axis. Default to "".}
 
-\item{y.axis.title}{character: title of y axis.}
+\item{y.axis.title}{character: title of y axis.  Default to "Ct".}
 
-\item{axis.title.size}{integer: font size of axis titles.}
+\item{axis.title.size}{integer: font size of axis titles. Default to 12.}
 
-\item{axis.text.size}{integer: font size of axis text.}
+\item{axis.text.size}{integer: font size of axis text. Default to 10.}
 
-\item{legend.title}{character: title of legend.}
+\item{legend.title}{character: title of legend. Default to "".}
 
-\item{legend.title.size}{integer: font size of legend title.}
+\item{legend.title.size}{integer: font size of legend title. Default to 12.}
 
-\item{legend.text.size}{integer: font size of legend text.}
+\item{legend.text.size}{integer: font size of legend text. Default to 12.}
 
-\item{legend.position}{position of the legend, one of the following: "top", "right", "bottom", "left".}
+\item{legend.position}{position of the legend, one of "top" (default), "right", "bottom", "left", or "none" (no legend).
+See description for `legend.position` in [ggplot2::theme()] function.}
 
-\item{plot.title}{character: title of plot.}
+\item{plot.title}{character: title of plot. Default to "".}
 
-\item{plot.title.size}{integer: font size of plot title.}
+\item{plot.title.size}{integer: font size of plot title. Default to 14.}
 
-\item{dpi}{integer: resolution of saved .tiff file.}
+\item{save.to.tiff}{logical: if TRUE, plot will be saved as .tiff file. Default to FALSE.}
 
-\item{width}{numeric: width (in cm) of saved .tiff file.}
+\item{dpi}{integer: resolution of saved .tiff file. Default to 600.}
 
-\item{height}{integer: height (in cm) of saved .tiff file.}
+\item{width}{numeric: width (in cm) of saved .tiff file. Default to 15.}
 
-\item{save.to.tiff}{logical: if TRUE, plot will be saved as .tiff file.}
+\item{height}{integer: height (in cm) of saved .tiff file. Default to 15.}
 
-\item{name.tiff}{character: name of saved .tiff file, without ".tiff" name of extension.}
+\item{name.tiff}{character: name of saved .tiff file, without ".tiff" name of extension. Default to "Ct_reference_gene_selection".}
 }
 \value{
-data.frame in long format ready to analysis.
+List containing plot object and table with calculated statistics.
+    Additional information about returned table is also printed, it could help user to properly interpret returned table.
+    Created plot is displayed on graphic device.
 }
 \description{
-Calculate line plot and statistics (minimum, maximum, standard deviation, variance and colinearity coefficient VIF) that could be helpful to select the best reference gene for normalization of CT values.
+This function draw line plot and calculate statistics (minimum, maximum, standard deviation,
+variance and colinearity coefficient VIF) that could be helpful to select the best
+reference gene for normalization of Ct values.
 }
 \examples{
 ref <- select_ref_gene(data.CtF,

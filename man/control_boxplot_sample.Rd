@@ -26,44 +26,45 @@ control_boxplot_sample(
 )
 }
 \arguments{
-\item{data}{object returned from delta_Ct, exp_Ct or exp_delta_Ct function.}
+\item{data}{object returned from `delta_Ct()`, `exp_Ct()` or `exp_delta_Ct()` function.}
 
-\item{coef}{numeric: how many times of interquartile range should be used to indicate the most extend data point for whiskers.}
+\item{coef}{numeric: how many times of interquartile range should be used to indicate the most extend data point for whiskers. Default to 1.5.}
 
-\item{colors}{character vector length of two, containing colors for compared groups.}
+\item{colors}{character vector length of two, containing colors for compared groups. Default to c("#66c2a5", "#fc8d62").}
 
-\item{x.axis.title}{character: title of x axis.}
+\item{x.axis.title}{character: title of x axis. Default to "Sample".}
 
-\item{y.axis.title}{character: title of y axis.}
+\item{y.axis.title}{character: title of y axis. Default to "value".}
 
-\item{axis.title.size}{integer: font size of axis titles.}
+\item{axis.title.size}{integer: font size of axis titles. Default to 12.}
 
-\item{axis.text.size}{integer: font size of axis text.}
+\item{axis.text.size}{integer: font size of axis text. Default to 12.}
 
-\item{legend.title}{character: title of legend.}
+\item{legend.title}{character: title of legend. Default to "Group".}
 
-\item{legend.title.size}{integer: font size of legend title.}
+\item{legend.title.size}{integer: font size of legend title. Default to 12.}
 
-\item{legend.text.size}{integer: font size of legend text.}
+\item{legend.text.size}{integer: font size of legend text. Default to 12.}
 
-\item{legend.position}{position of the legend, one of the following: "top", "right", "bottom", "left".}
+\item{legend.position}{position of the legend, one of "top", "right" (default), "bottom", "left", or "none" (no legend).
+See description for `legend.position` in [ggplot2::theme()] function.}
 
-\item{plot.title}{character: title of plot.}
+\item{plot.title}{character: title of plot. Default to "".}
 
-\item{plot.title.size}{integer: font size of plot title.}
+\item{plot.title.size}{integer: font size of plot title. Default to 14.}
 
-\item{save.to.tiff}{logical: if TRUE, plot will be saved as .tiff file.}
+\item{save.to.tiff}{logical: if TRUE, plot will be saved as .tiff file. Default to FALSE.}
 
-\item{dpi}{integer: resolution of saved .tiff file.}
+\item{dpi}{integer: resolution of saved .tiff file. Default to 600.}
 
-\item{width}{numeric: width (in cm) of saved .tiff file.}
+\item{width}{numeric: width (in cm) of saved .tiff file. Default to 15.}
 
-\item{height}{integer: height (in cm) of saved .tiff file.}
+\item{height}{integer: height (in cm) of saved .tiff file. Default to 15.}
 
-\item{name.tiff}{character: name of saved .tiff file, without ".tiff" name of extension.}
+\item{name.tiff}{character: name of saved .tiff file, without ".tiff" name of extension. Default to "control_boxplot_samples".}
 }
 \value{
-Boxplot illustrating distribution of data in each sample.
+Object with boxplot illustrating distribution of data in each sample. Created plot is also displayed on graphic device.
 }
 \description{
 Boxplot illustrating distribution of data in each sample. Could be useful to identify outlier samples.

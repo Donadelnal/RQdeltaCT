@@ -74,7 +74,7 @@ See description for `legend.position` in [ggplot2::theme()] function.}
 \item{name.tiff}{character: name of saved .tiff file, without ".tiff" name of extension.  Default to "Ct_control_barplot_for_targets".}
 }
 \value{
-list with plot and table containing numbers of reliable and not reliable Ct values in targets.
+List containing plot and table with numbers of reliable and not reliable Ct values in targets.
 Additional information about returned table is also printed, it could help user to properly interpret returned table.
 Plot will be displayed on graphic device.
 }

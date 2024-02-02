@@ -12,7 +12,7 @@ samples_to_remove(data, fraction = 0.5)
 \item{fraction}{numeric: a threshold fraction (ranged from 0 to 1), samples with the higher fraction of Ct values labeled as unreliable will be returned. Default to 0.5.}
 }
 \value{
-vector with names of samples.
+Vector with names of samples.
 }
 \description{
 Indicates samples with the amount of unreliable Ct values higher than specified fraction.

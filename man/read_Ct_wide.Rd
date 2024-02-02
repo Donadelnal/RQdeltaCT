@@ -19,7 +19,7 @@ should correspond to the names of columns in file with Ct values.}
 \item{dec}{character used for decimal points in Ct values.}
 }
 \value{
-data.frame in long format ready to analysis.
+Data.frame in long format ready to analysis.
 }
 \description{
 Enables to import Ct dataset in a wide-format table with sample names given in columns.

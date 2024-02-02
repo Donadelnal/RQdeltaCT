@@ -43,7 +43,7 @@ This column should contain a character-type values (ex. "Undetermined" and "OK")
 other types of values are allowed (ex. numeric), but must be converted to character or factor after importing dataset (see examples).}
 }
 \value{
-data.frame in long format ready to analysis.
+Data.frame in long format ready to analysis.
 }
 \description{
 Imports long-format table with Ct values.

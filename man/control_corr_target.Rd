@@ -9,52 +9,55 @@ control_corr_target(
   method = "pearson",
   add.coef = "black",
   order = "hclust",
-  hclust.method = "complete",
+  hclust.method = "average",
   size = 0.6,
   coef.size = 0.6,
+  p.adjust.method = "BH",
   save.to.tiff = FALSE,
   dpi = 600,
   width = 15,
   height = 15,
   name.tiff = "control_corr_targets",
   save.to.txt = FALSE,
-  name.txt = "control_corr_targets",
-  p.adjust.method = "BH"
+  name.txt = "control_corr_targets"
 )
 }
 \arguments{
-\item{data}{object returned from delta_Ct, exp_Ct or exp_delta_Ct function.}
+\item{data}{object returned from `delta_Ct()`, `exp_Ct()` or `exp_delta_Ct()` function.}
 
-\item{method}{character: type of correlations to compute, specify "pearson" for Pearson's correlation coefficients or "spearman" for Spearman's rank correlation coefficients.}
+\item{method}{character: type of correlations to compute, specify "pearson" (default) for Pearson's correlation coefficients
+or "spearman" for Spearman's rank correlation coefficients.}
 
-\item{add.coef}{if coefficients should be add to the plot, specify color of coefficients, otherwise set to NULL.}
+\item{add.coef}{if coefficients should be add to the plot, specify color of coefficients (default to "black"), otherwise set to NULL.}
 
-\item{order}{character: method used for ordering the correlation matrix, one of the "original" (original order), "AOE" (angular order of the eigenvectors), "FPC" (first principal component order), "hclust" (hierarchical clustering order), or "alphabet" (alphabetical order).}
+\item{order}{character: method used for ordering the correlation matrix (see documentation for [corrplot::corrplot()] function),
+one of the "original" (original order), "AOE" (angular order of the eigenvectors),
+"FPC" (first principal component order), "hclust" (hierarchical clustering order, default), or "alphabet" (alphabetical order).}
 
-\item{hclust.method}{character: name of used method for hclust agglomeration, should be one of "ward", ward.D", "ward.D2", "single", "complete", "average", "mcquitty", "median" or "centroid".}
+\item{hclust.method}{character: name of used method for hclust agglomeration, should be one of "ward", ward.D", "ward.D2", "single", "complete", "average" (default), "mcquitty", "median" or "centroid".}
 
-\item{size}{numeric: size of variable names and numbers in legend.}
+\item{size}{numeric: size of variable names and numbers in legend. Default to 0.6.}
 
-\item{coef.size}{numeric: size of correlation coefficients.}
+\item{coef.size}{numeric: size of correlation coefficients. Default to 0.6.}
 
-\item{save.to.tiff}{logical: if TRUE, plot will be saved as .tiff file.}
+\item{p.adjust.method}{character: p value correction method for multiple testing, one of "holm", "hochberg", "hommel", "bonferroni", "BH", "BY","fdr", or "none". See documentation for [stats::p.adjust()] function for details.}
 
-\item{dpi}{integer: resolution of saved .tiff file.}
+\item{save.to.tiff}{logical: if TRUE, plot will be saved as .tiff file. Default to FALSE.}
 
-\item{width}{numeric: width (in cm) of saved .tiff file.}
+\item{dpi}{integer: resolution of saved .tiff file. Default to 600.}
 
-\item{height}{integer: height (in cm) of saved .tiff file.}
+\item{width}{numeric: width (in cm) of saved .tiff file. Default to 15.}
 
-\item{name.tiff}{character: name of saved .tiff file, without ".tiff" name of extension.}
+\item{height}{integer: height (in cm) of saved .tiff file. Default to 15.}
 
-\item{save.to.txt}{logical: if TRUE, correlation results (sorted by descending absolute values of correlation coefficients) will be saved to .txt file.}
+\item{name.tiff}{character: name of saved .tiff file, without ".tiff" name of extension. Default to "control_corr_targets".}
 
-\item{name.txt}{character: name of saved .txt file.}
+\item{save.to.txt}{logical: if TRUE, correlation results (sorted by descending absolute values of correlation coefficients) will be saved to .txt file. Default to FALSE.}
 
-\item{p.adjust.method}{character: p value correction method for multiple testing, one of "holm", "hochberg", "hommel", "bonferroni", "BH", "BY","fdr", or "none".}
+\item{name.txt}{character: name of saved .txt file, without ".txt" name of extension.. Default to "control_corr_targets".}
 }
 \value{
-plot illustrating correlation matrix and data.frame with computed correlation coefficients and p values.
+Plot illustrating correlation matrix (displayed in graphic device) and data.frame with computed correlation coefficients and p values.
 }
 \description{
 Performs correlation analysis of targets based on the data. Could be useful to gain insight into relationships between analyzed targets.

@@ -27,7 +27,7 @@ RQ_exp_Ct(
 \item{name.txt}{character: name of saved .txt file, without ".txt" name of extension. Default to "RQ_expCt_results".}
 }
 \value{
-data.frame with transformed Ct values and printed information about number and percentage of missing values.
+Data.frame with transformed Ct values and printed information about number and percentage of missing values.
 }
 \description{
 Performs relative quantification of gene expression using 2^(-Ct) method.

@@ -29,54 +29,55 @@ control_pca_sample(
 )
 }
 \arguments{
-\item{data}{object returned from delta_Ct, exp_Ct or exp_delta_Ct function.}
+\item{data}{object returned from `delta_Ct()`, `exp_Ct()` or `exp_delta_Ct()` function.}
 
-\item{point.size}{numeric: size of points.}
+\item{point.size}{numeric: size of points. Default to 4.}
 
-\item{point.shape}{integer: shape of points.}
+\item{point.shape}{integer: shape of points. Default to 19.}
 
-\item{alpha}{numeric: transparency of points, a value between 0 and 1.}
+\item{alpha}{numeric: transparency of points, a value between 0 and 1. Default to 0.7.}
 
 \item{colors}{character vector length of two, containing colors for compared groups.}
 
-\item{label.size}{numeric: size of points labels.}
+\item{label.size}{numeric: size of points labels (names of samples). Default to 3.}
 
-\item{hjust}{numeric: horizontal position of points labels,}
+\item{hjust}{numeric: horizontal position of points labels. Default to 0.}
 
-\item{vjust}{numeric: vertical position of points labels,}
+\item{vjust}{numeric: vertical position of points labels.  Default to -1.}
 
-\item{axis.title.size}{integer: font size of axis titles.}
+\item{axis.title.size}{integer: font size of axis titles. Default to 12.}
 
-\item{axis.text.size}{integer: font size of axis text.}
+\item{axis.text.size}{integer: font size of axis text. Default to 10.}
 
-\item{legend.text.size}{integer: font size of legend text.}
+\item{legend.text.size}{integer: font size of legend text. Default to 12.}
 
-\item{legend.title}{character: title of legend.}
+\item{legend.title}{character: title of legend. Default to "Group".}
 
-\item{legend.title.size}{integer: font size of legend title.}
+\item{legend.title.size}{integer: font size of legend title. Default to 12.}
 
-\item{legend.position}{position of the legend, one of the following: "top", "right", "bottom", "left".}
+\item{legend.position}{position of the legend, one of "top", "right" (default), "bottom", "left", or "none" (no legend).
+See description for `legend.position` parameter in [ggplot2::theme()] function.}
 
-\item{plot.title}{character: title of plot.}
+\item{plot.title}{character: title of plot. Default to "".}
 
-\item{plot.title.size}{integer: font size of plot title.}
+\item{plot.title.size}{integer: font size of plot title. Default to 14.}
 
-\item{save.to.tiff}{logical: if TRUE, plot will be saved as .tiff file.}
+\item{save.to.tiff}{logical: if TRUE, plot will be saved as .tiff file. Default to FALSE.}
 
-\item{dpi}{integer: resolution of saved .tiff file.}
+\item{dpi}{integer: resolution of saved .tiff file. Default to 600.}
 
-\item{width}{numeric: width (in cm) of saved .tiff file.}
+\item{width}{numeric: width (in cm) of saved .tiff file. Default to 15.}
 
-\item{height}{integer: height (in cm) of saved .tiff file.}
+\item{height}{integer: height (in cm) of saved .tiff file. Default to 15.}
 
-\item{name.tiff}{character: name of saved .tiff file, without ".tiff" name of extension.}
+\item{name.tiff}{character: name of saved .tiff file, without ".tiff" name of extension. Default to "control_pca_samples".}
 }
 \value{
-Plot illustrating spatial arrangement of samples according to coordinates of 2 components obtained from principal component analysis (PCA).
+Object with plot illustrating spatial arrangement of samples according to coordinates of two first components obtained from principal component analysis (PCA). The plot will be also displayed in graphic device.
 }
 \description{
-Performs principal component analysis (PCA) for samples and generate plot illustrating spatial arrangement of samples using 2 components. Could be useful to identify outlier samples.
-IMPORTANT: PCA analysis can not deal with missing values, thus all samples with at least one missing value are removed from data before analysis. It is recommended to run this function on data after imputation of missing values.
+Performs principal component analysis (PCA) for samples and generate plot illustrating spatial arrangement of samples using two first components. Could be useful to identify outlier samples.
+    IMPORTANT: PCA analysis can not deal with missing values, thus all samples with at least one missing value are removed from data before analysis. It is recommended to run this function on data after imputation of missing values.
 }
 \examples{
 control_pca_sample(data.Ct.exp)

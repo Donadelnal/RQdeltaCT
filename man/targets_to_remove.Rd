@@ -14,7 +14,7 @@ targets_to_remove(data, fraction = 0.5, groups)
 \item{groups}{character vector length of two, containing names of compared groups.}
 }
 \value{
-vector with names of targets.
+Vector with names of targets.
 }
 \description{
 Indicates targets with the amount of unreliable Ct values higher than specified fraction in at least one of the compared groups.

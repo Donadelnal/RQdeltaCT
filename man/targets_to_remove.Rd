@@ -7,7 +7,7 @@
 targets_to_remove(data, fraction = 0.5, groups)
 }
 \arguments{
-\item{data}{object returned from [control_Ct_barplot_target()] function.}
+\item{data}{object returned from control_Ct_barplot_target() function.}
 
 \item{fraction}{numeric: a threshold fraction (ranged from 0 to 1), targets with the higher fraction of Ct values labeled as unreliable in at least one of the compared groups will be returned. Default to 0.5.}
 
@@ -19,9 +19,13 @@ Vector with names of targets.
 \description{
 Indicates targets with the amount of unreliable Ct values higher than specified fraction in at least one of the compared groups.
 Could be useful for identification of targets with specified fraction of unreliable Ct values.
-Targets with high amount of unreliable data could be considered to remove from the dataset.
+Targets with high amount of unreliable data could be considered to remove from the data.
 }
 \examples{
-targets.to.remove <- targets_to_remove(sample.Ct.control, 0.5, groups = c("Disease", "Control"))
+library(tidyverse)
+data(data.Ct)
+target.Ct.control <- control_Ct_barplot_target(data.Ct)
+targets.to.remove <- targets_to_remove(target.Ct.control[[2]], fraction = 0.5, groups = c("Disease", "Control"))
+targets.to.remove
 
 }

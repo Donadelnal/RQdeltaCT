@@ -14,7 +14,7 @@ RQ_exp_Ct(
 )
 }
 \arguments{
-\item{data}{data object returned from [exp_Ct()] function.}
+\item{data}{data object returned from exp_Ct() or exp_delta_Ct() function.}
 
 \item{group.study}{character: name of study group (group of interest).}
 
@@ -30,21 +30,26 @@ RQ_exp_Ct(
 Data.frame with transformed Ct values and printed information about number and percentage of missing values.
 }
 \description{
-Performs relative quantification of gene expression using 2^(-Ct) method.
+Performs relative quantification of gene expression using 2^(-Ct) and 2^(-dCt) methods.
 }
 \details{
 This function calculates:
- * Means (return in columns with "_mean" pattern) and standard deviations (return in columns with "_sd" pattern) of exponentiated Ct values of analyzed targets across compared groups.
- * Normality tests (Shapiro_Wilk test) of exponentiated Ct values of analyzed targets across compared groups and returned p values in columns with "_norm_p" pattern.
- * Fold Change values (return in "FCh" column) together with log10 Fold change values (return in "log10FCh" column).
-   Fold change values were calculated for each target by dividing  mean of exponentiated Ct values in study group by mean of exponentiated Ct values in reference group.
- * Statistical testing of differences in exponentiated Ct values between study group and reference group.
-   Student's t test and Mann-Whitney U test are implemented and resulted statistics (in column with "_test_stat" pattern) and p values (in column with "_test_p" pattern) are returned.
+* Means (returned in columns with "_mean" pattern) and standard deviations (returned in columns with "_sd" pattern) of exponentiated Ct or dCt values of analyzed targets across compared groups.
+* Normality tests (Shapiro_Wilk test) of exponentiated Ct or dCt values of analyzed targets across compared groups and returned p values in columns with "_norm_p" pattern.
+* Fold Change values (return in "FCh" column) together with log10 Fold change values (return in "log10FCh" column).
+  Fold change values were calculated for each target by dividing  mean of exponentiated Ct od dCt values in study group by mean of exponentiated Ct or dCt values in reference group.
+* Statistical testing of differences in exponentiated Ct or dCt values between study group and reference group.
+  Student's t test and Mann-Whitney U test are implemented and resulted statistics (in column with "_test_stat" pattern) and p values (in column with "_test_p" pattern) are returned.
 }
 \examples{
-RQ.Ct.exp <- RQ_exp_Ct(data.Ct.exp,
-                               group.study = "Disease",
-                               group.ref = "Control",
-                               do.tests = TRUE)
+library(tidyverse)
+library(coin)
+data(data.Ct)
+data.CtF <- filter_Ct(data.Ct,
+                      remove.Target = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+                      remove.Sample = c("Control08","Control16","Control22"))
+data.Ct.exp <- exp_Ct(data.CtF, imput.by.mean.within.groups = TRUE)
+RQ.Ct.exp <- RQ_exp_Ct(data.Ct.exp, group.study = "Disease", group.ref = "Control", do.tests = TRUE)
+head(RQ.Ct.exp)
 
 }

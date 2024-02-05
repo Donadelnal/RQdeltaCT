@@ -28,7 +28,7 @@ select_ref_gene(
 )
 }
 \arguments{
-\item{data}{object returned from `read_Ct_long()`, `read_Ct_wide()` or `filter_Ct()` functions,
+\item{data}{object returned from read_Ct_long(), read_Ct_wide() or filter_Ct() functions,
 or data frame containing column named "Sample" with sample names, column named "Target" with target names,
 column named "Ct" with raw Ct values, column named "Group" with group names.
     Any other columns could exist, but will not be used by this function.}
@@ -56,7 +56,7 @@ column named "Ct" with raw Ct values, column named "Group" with group names.
 \item{legend.text.size}{integer: font size of legend text. Default to 12.}
 
 \item{legend.position}{position of the legend, one of "top" (default), "right", "bottom", "left", or "none" (no legend).
-See description for `legend.position` in [ggplot2::theme()] function.}
+See description for legend.position in ggplot2::theme() function.}
 
 \item{plot.title}{character: title of plot. Default to "".}
 
@@ -83,10 +83,15 @@ variance and colinearity coefficient VIF) that could be helpful to select the be
 reference gene for normalization of Ct values.
 }
 \examples{
-ref <- select_ref_gene(data.CtF,
-               candidates = c("Gene4", "Gene8","Gene10","Gene16","Gene17", "Gene18"),
-               col = c("#66c2a5", "#fc8d62","#6A6599", "#D62728", "#1F77B4", "black"),
-               line.width = 1,
-               angle = 35)
+library(car)
+library(tidyverse)
+data(data.Ct)
+data.CtF <- filter_Ct(data.Ct,
+                      remove.Target = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+                      remove.Sample = c("Control08","Control16","Control22"))
+ref <-  select_ref_gene(data.CtF,
+                        candidates = c("Gene4", "Gene8","Gene10","Gene16","Gene17", "Gene18"),
+                        col = c("#66c2a5", "#fc8d62","#6A6599", "#D62728", "#1F77B4", "black"))
+ref[[2]]
 
 }

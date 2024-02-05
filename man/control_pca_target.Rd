@@ -79,9 +79,3 @@ Object with plot illustrating spatial arrangement of targets according to coordi
 Performs principal component analysis (PCA) for targets and generate plot illustrating spatial arrangement of targets using 2 components. Could be useful to gain insight into similarity in expression of analyzed targets.
 IMPORTANT: PCA analysis can not deal with missing values, thus all targets with at least one missing value are removed from data before analysis. It is recommended to run this function on data after imputation of missing values.
 }
-\examples{
-control_pca_target(data.Ct.exp)
-control_pca_target(data.dCt)
-control_pca_target(data.dCt.exp)
-
-}

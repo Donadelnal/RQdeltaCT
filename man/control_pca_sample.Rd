@@ -29,7 +29,7 @@ control_pca_sample(
 )
 }
 \arguments{
-\item{data}{object returned from `delta_Ct()`, `exp_Ct()` or `exp_delta_Ct()` function.}
+\item{data}{object returned from delta_Ct(), exp_Ct() or exp_delta_Ct() function.}
 
 \item{point.size}{numeric: size of points. Default to 4.}
 
@@ -56,7 +56,7 @@ control_pca_sample(
 \item{legend.title.size}{integer: font size of legend title. Default to 12.}
 
 \item{legend.position}{position of the legend, one of "top", "right" (default), "bottom", "left", or "none" (no legend).
-See description for `legend.position` parameter in [ggplot2::theme()] function.}
+See description for legend.position parameter in ggplot2::theme() function.}
 
 \item{plot.title}{character: title of plot. Default to "".}
 
@@ -80,8 +80,12 @@ Performs principal component analysis (PCA) for samples and generate plot illust
     IMPORTANT: PCA analysis can not deal with missing values, thus all samples with at least one missing value are removed from data before analysis. It is recommended to run this function on data after imputation of missing values.
 }
 \examples{
-control_pca_sample(data.Ct.exp)
-control_pca_sample(data.dCt)
-control_pca_sample(data.dCt.exp)
+library(tidyverse)
+data(data.Ct)
+data.CtF <- filter_Ct(data.Ct,
+                      remove.Target = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+                      remove.Sample = c("Control08","Control16","Control22"))
+data.CtF.prepared <- Ct_for_control(data.CtF)
+control_pca_sample(data.CtF.prepared)
 
 }

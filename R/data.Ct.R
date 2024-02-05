@@ -9,4 +9,4 @@
 #'   \item{\code{Flag}}{character COLUMN_DESCRIPTION}
 #'}
 #' @source \url{Dataset is available in a package directory}
-"Ct"
+"data.Ct"

@@ -8,24 +8,19 @@ single_pair_sample(
   data,
   x,
   y,
-  by.group = TRUE,
   point.size = 4,
   point.shape = 19,
   point.alpha = 0.7,
-  colors = c("#66c2a5", "#fc8d62"),
+  color = "black",
   line.alpha = 0.7,
   axis.title.size = 12,
   axis.text.size = 10,
-  legend.title = "Group",
-  legend.title.size = 12,
-  legend.text.size = 12,
-  legend.position = "right",
   plot.title = "",
   plot.title.size = 14,
   labels = TRUE,
   label = c("eq", "R2", "p"),
-  label.position.x = c(1, 1),
-  label.position.y = c(1, 0.95),
+  label.position.x = 1,
+  label.position.y = 1,
   small.p = FALSE,
   small.r = FALSE,
   p.digits = 3,
@@ -38,68 +33,64 @@ single_pair_sample(
 )
 }
 \arguments{
-\item{data}{object returned from [delta_Ct()], [exp_Ct()] or [exp_delta_Ct()] function.}
+\item{data}{object returned from delta_Ct(), exp_Ct() or exp_delta_Ct() function.}
 
-\item{x, y}{characters: names of samples to use.}
+\item{x, y}{characters: names of targets to use.}
 
-\item{by.group}{logical: if TRUE (default), relationships will be shown separately for compared groups.}
+\item{point.size}{numeric: size of points.}
 
-\item{point.size}{numeric: size of points. Default to 4.}
+\item{point.shape}{integer: shape of points.}
 
-\item{point.shape}{integer: shape of points. Default to 19.}
+\item{point.alpha}{numeric: transparency of points, a value between 0 and 1.}
 
-\item{point.alpha}{numeric: transparency of points, a value between 0 and 1. Default to 0.7.}
+\item{color}{character: color used for points.}
 
-\item{colors}{character: color for points (if `by.group` = FALSE) or vector of two colors used to distinguish groups (if `by.group` = TRUE).}
+\item{line.alpha}{numeric: transparency of regression line, a value between 0 and 1.}
 
-\item{line.alpha}{numeric: transparency of regression line, a value between 0 and 1. Default to 0.7.}
+\item{axis.title.size}{integer: font size of axis titles.}
 
-\item{axis.title.size}{integer: font size of axis titles. Default to 12.}
+\item{axis.text.size}{integer: font size of axis text.}
 
-\item{axis.text.size}{integer: font size of axis text. Default to 10.}
+\item{plot.title}{character: title of plot.}
 
-\item{legend.title}{character: title of legend. Default to "Group".}
+\item{plot.title.size}{integer: font size of plot title.}
 
-\item{legend.title.size}{integer: font size of legend title. Default to 12.}
+\item{labels}{logical: if TRUE, a regression statistics will be added to the plot using ggpimsc::stat_poly_eq() function.}
 
-\item{legend.text.size}{integer: font size of legend text. Default to 12.}
+\item{label}{character: which regression statistics should be drawn, use names specified by ggpimsc::stat_poly_eq() function. Default to c("eq", "R2", "p") for regression equation, coefficient of determination and p value, respectively.}
 
-\item{legend.position}{position of the legend, one of "top", "right" (default), "bottom", "left", or "none" (no legend).
-See description for `legend.position` parameter in [ggplot2::theme()] function.}
+\item{label.position.x, label.position.y}{numeric: coordinates for position of regression statistics. If by.group = TRUE, two values could be provided for each of these parameters (for different regression lines). See description of label.x and label.y parameters from ggpimsc::stat_poly_eq() function.}
 
-\item{plot.title}{character: title of plot. Default to "".}
+\item{small.p, small.r}{logical, if TRUE, p in p value label and r in coefficient of determination label, will be lowercase.}
 
-\item{plot.title.size}{integer: font size of plot title. Default to 14.}
+\item{rr.digits, p.digits}{integer: number of digits after the decimal point in coefficient of determination and p value in labels.}
 
-\item{labels}{logical: if TRUE (default), a regression statistics will be added to the plot using [ggpimsc::stat_poly_eq()] function.}
+\item{save.to.tiff}{logical: if TRUE, plot will be saved as .tiff file.}
 
-\item{label}{character: which regression statistics should be drawn, use names specified by [ggpimsc::stat_poly_eq()] function. Default to c("eq", "R2", "p") for regression equation, coefficient of determination and p value, respectively.}
+\item{dpi}{integer: resolution of saved .tiff file.}
 
-\item{label.position.x, label.position.y}{numeric: coordinates for position of regression statistics. If `by.group` = TRUE, two values could be provided for each of these parameters (for different regression lines). See description of `label.x` and `label.y` parameters from [ggpimsc::stat_poly_eq()] function.}
+\item{width}{numeric: width (in cm) of saved .tiff file.}
 
-\item{small.p, small.r}{logical, if TRUE, p in p value label and r in coefficient of determination label, will be lowercase. Default to FALSE.}
+\item{height}{integer: height (in cm) of saved .tiff file.}
 
-\item{rr.digits, p.digits}{integer: number of digits after the decimal point in coefficient of determination and p value in labels. Default to 2 for `rr.digits` and 3 for `p.digits`.}
-
-\item{save.to.tiff}{logical: if TRUE, plot will be saved as .tiff file. Default to FALSE.}
-
-\item{dpi}{integer: resolution of saved .tiff file. Default to 600.}
-
-\item{width}{numeric: width (in cm) of saved .tiff file. Default to 15.}
-
-\item{height}{integer: height (in cm) of saved .tiff file. Default to 15.}
-
-\item{name.tiff}{character: name of saved .tiff file, without ".tiff" name of extension. Default to "samples_single_plot".}
+\item{name.tiff}{character: name of saved .tiff file, without ".tiff" name of extension.}
 }
 \value{
-Object with plot illustrating spatial arrangement of samples according to coordinates of 2 components obtained from principal component analysis (PCA). Created plot will be also displayed on graphic device.
+Plot illustrating spatial arrangement of samples according to coordinates of 2 components obtained from principal component analysis (PCA).
 }
 \description{
-Generate scatter plot with linear regression line for two specified samples. Could be useful to assess linear relationship between these samples.
+Generate scatter plot with linear regression line for two specified samples Could be useful to assess linear relationship between these samples.
 }
 \examples{
-control_pca_sample(data.Ct.exp)
-control_pca_sample(data.dCt)
-control_pca_sample(data.dCt.exp)
+library(tidyverse)
+library(ggpmisc)
+data(data.Ct)
+data.CtF <- filter_Ct(data.Ct,
+                      remove.Target = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+                      remove.Sample = c("Control08","Control16","Control22"))
+data.dCt <- delta_Ct(data.CtF,
+                     imput.by.mean.within.groups = TRUE,
+                     ref = "Gene8")
+single_pair_sample(data.dCt, "Disease6", "Control17")
 
 }

@@ -7,9 +7,10 @@
 samples_to_remove(data, fraction = 0.5)
 }
 \arguments{
-\item{data}{object returned from [control_Ct_barplot_sample()] function.}
+\item{data}{object returned from control_Ct_barplot_sample() function.}
 
-\item{fraction}{numeric: a threshold fraction (ranged from 0 to 1), samples with the higher fraction of Ct values labeled as unreliable will be returned. Default to 0.5.}
+\item{fraction}{numeric: a threshold fraction (ranged from 0 to 1),
+samples with the higher fraction of Ct values labeled as unreliable will be returned. Default to 0.5.}
 }
 \value{
 Vector with names of samples.
@@ -20,6 +21,10 @@ Could be useful for identification of samples with specified fraction of unrelia
 Samples with high amount of unreliable data could be considered to remove from the dataset.
 }
 \examples{
-samples.to.remove <- samples_to_remove(sample.Ct.control, 0.5)
+library(tidyverse)
+data(data.Ct)
+sample.Ct.control <- control_Ct_barplot_sample(data.Ct)
+samples.to.remove <- samples_to_remove(sample.Ct.control[[2]], 0.4)
+samples.to.remove
 
 }

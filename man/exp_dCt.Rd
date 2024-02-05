@@ -7,7 +7,7 @@
 exp_dCt(data, save.to.txt = FALSE, name.txt = "data.exp.dCt")
 }
 \arguments{
-\item{data}{data object returned from [delta_Ct()] function.}
+\item{data}{data object returned from delta_Ct() function.}
 
 \item{save.to.txt}{logical: if TRUE, returned data will be saved to .txt file. Default to FALSE.}
 
@@ -20,7 +20,15 @@ Data.frame with exponentiated dCt values.
 This function exponentiates delta Ct (dCt) values by using formula 2^(-dCt).
 }
 \examples{
-data.Ct.exp <- exp_Ct(data.CtF,
-                      imput.by.mean.within.groups = TRUE)
+library(tidyverse)
+data(data.Ct)
+data.CtF <- filter_Ct(data.Ct,
+                      remove.Target = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+                      remove.Sample = c("Control08","Control16","Control22"))
+data.dCt <- delta_Ct(data.CtF,
+                     imput.by.mean.within.groups = TRUE,
+                     ref = "Gene8")
+data.dCt.exp <- exp_delta_Ct(data.dCt)
+head(data.dCt.exp)
 
 }

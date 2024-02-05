@@ -27,7 +27,7 @@ control_boxplot_target(
 )
 }
 \arguments{
-\item{data}{object returned from `delta_Ct()`, `exp_Ct()` or `exp_delta_Ct()` function.}
+\item{data}{object returned from delta_Ct(), exp_Ct() or exp_delta_Ct() function.}
 
 \item{coef}{numeric: how many times of interquartile range should be used to indicate the most extend data point for whiskers. Default to 1.5.}
 
@@ -50,7 +50,7 @@ control_boxplot_target(
 \item{legend.text.size}{integer: font size of legend text. Default to 12.}
 
 \item{legend.position}{position of the legend, one of "top", "right" (default), "bottom", "left", or "none" (no legend).
-See description for `legend.position` in [ggplot2::theme()] function.}
+See description for legend.position in ggplot2::theme() function.}
 
 \item{plot.title}{character: title of plot. Default to "".}
 
@@ -73,8 +73,14 @@ Object with boxplot illustrating distribution of data for each target. Created p
 This function creates boxplot illustrating distribution of data in each target. Could be useful to compare expression of analyzed targets.
 }
 \examples{
-control_boxplot_target(data.Ct.exp)
-control_boxplot_target(data.dCt)
-control_boxplot_target(data.dCt.exp)
+library(tidyverse)
+data(data.Ct)
+data.CtF <- filter_Ct(data.Ct,
+                      remove.Target = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+                      remove.Sample = c("Control08","Control16","Control22"))
+data.dCt <- delta_Ct(data.CtF,
+                     imput.by.mean.within.groups = TRUE,
+                     ref = "Gene8")
+control.boxplot.target <- control_boxplot_target(data.dCt)
 
 }

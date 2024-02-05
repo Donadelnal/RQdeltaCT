@@ -13,7 +13,7 @@ delta_Ct(
 )
 }
 \arguments{
-\item{data}{data object returned from `read_Ct_long()`, `read_Ct_wide()` or `filter_Ct()` function,
+\item{data}{data object returned from read_Ct_long(), read_Ct_wide() or filter_Ct() function,
 or data frame containing column named "Sample" with sample names, column named "Target" with target names,
 column named "Ct" with raw Ct values, column named "Group" with group names.
     Any other columns could exist, but will not be used by this function.}
@@ -22,7 +22,7 @@ column named "Ct" with raw Ct values, column named "Group" with group names.
 
 \item{ref}{character: name of reference gene.}
 
-\item{save.to.txt}{logical: if TRUE, returned dataset will be saved to .txt file. Default to FALSE.}
+\item{save.to.txt}{logical: if TRUE, returned data will be saved to .txt file. Default to FALSE.}
 
 \item{name.txt}{character: name of saved .txt file, without ".txt" name of extension. Default to "data_dCt".}
 }
@@ -35,8 +35,14 @@ counts and imputes missing data by means within groups (if so indicated),
 and finally calculates delta Ct (dCt) values by subtracting Ct values of reference gene from Ct values of other genes.
 }
 \examples{
+library(tidyverse)
+data(data.Ct)
+data.CtF <- filter_Ct(data.Ct,
+                      remove.Target = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+                      remove.Sample = c("Control08","Control16","Control22"))
 data.dCt <- delta_Ct(data.CtF,
                      imput.by.mean.within.groups = TRUE,
-                     ref = "Gene1")
+                     ref = "Gene8")
+head(data.dCt)
 
 }

@@ -20,7 +20,7 @@ read_Ct_long(
 \arguments{
 \item{path}{path to a .txt file with long-type table of Ct values. This table should contain at least  4 columns, with
 sample names, target names, Ct values and group names (those columns will be imported by this function).
-Imported table could also contain a column with flag information, which could be optionally imported (see `add.col.Flag` and `col.Flag` parameters).}
+Imported table could also contain a column with flag information, which could be optionally imported (see add.col.Flag and col.Flag parameters).}
 
 \item{sep}{character of a field separator in imported file.}
 
@@ -36,11 +36,11 @@ Imported table could also contain a column with flag information, which could be
 
 \item{col.Group}{integer: number of column with group names.}
 
-\item{add.col.Flag}{logical: if dataset contains a column with flag information which should be also imported, this parameters should be set to TRUE. Default to FALSE.}
+\item{add.col.Flag}{logical: if data contains a column with flag information which should be also imported, this parameters should be set to TRUE. Default to FALSE.}
 
-\item{col.Flag}{integer: number of column with flag information. Should be specified if `add.col.Flag` = TRUE.
+\item{col.Flag}{integer: number of column with flag information. Should be specified if add.col.Flag = TRUE.
 This column should contain a character-type values (ex. "Undetermined" and "OK"), however,
-other types of values are allowed (ex. numeric), but must be converted to character or factor after importing dataset (see examples).}
+other types of values are allowed (ex. numeric), but must be converted to character or factor after importing data (see examples).}
 }
 \value{
 Data.frame in long format ready to analysis.
@@ -50,10 +50,14 @@ Imports long-format table with Ct values.
 }
 \examples{
 path <- system.file("extdata", "data_Ct_long.txt", package = "RQdeltaCT")
+
+library(tidyverse)
 data.Ct <- read_Ct_long(path = path, sep = "\t",dec = ".",skip = 0,
-                   add.col.Flag = TRUE, col.Sample = 1, col.Target = 2,
-                   col.Ct = 5, col.Group = 9, col.Flag = 4)
+                        add.column.Flag = TRUE, column.Sample = 1, column.Target = 2,
+                        column.Ct = 5, column.Group = 9, column.Flag = 4)
+str(data.Ct)
 
-
+data.Ct <- mutate(Ct, Flag = ifelse(Flag < 1, "Undetermined", "OK"))
+str(data.Ct)
 
 }

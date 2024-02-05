@@ -32,9 +32,12 @@ All parameters must be specified, there is no default values.
 \examples{
 path.Ct.file <- system.file("extdata", "data_Ct_wide.txt", package = "RQdeltaCT")
 path.design.file <- system.file("extdata", "data_design.txt", package = "RQdeltaCT")
+
+library(tidyverse)
 data.Ct <- read_Ct_wide(path.Ct.file = path.Ct.file,
                    path.design.file = path.design.file,
                    sep ="\t",
                    dec = ".")
+str(data.Ct)
 
 }

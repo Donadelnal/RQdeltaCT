@@ -28,7 +28,7 @@ control_Ct_barplot_target(
 )
 }
 \arguments{
-\item{data}{object returned from [read_Ct_long()] or [read_Ct_wide()] function,
+\item{data}{object returned from read_Ct_long() or read_Ct_wide() function,
 or data frame containing column named "Sample" with sample names, column named "Target" with target names,
 column named "Ct" with raw Ct values, column named "Group" with group names.
 Optionally, data frame could contain column named "Flag" with flag information (ex. "Undetermined" and "OK"),
@@ -57,7 +57,7 @@ which will be used for reliability assessment.}
 \item{legend.text.size}{integer: font size of legend text. Default to 12.}
 
 \item{legend.position}{position of the legend, one of "top" (default), "right", "bottom", "left", or "none" (no legend).
-See description for `legend.position` in [ggplot2::theme()] function.}
+See description for legend.position parameter in ggplot2::theme() function.}
 
 \item{plot.title}{character: title of plot. Default to "".}
 
@@ -86,6 +86,9 @@ This function does not perform data filtering, but only numbers Ct values labele
 Could be useful to identify targets with low number of reliable Ct values.
 }
 \examples{
+library(tidyverse)
+data(data.Ct)
 target.Ct.control <- control_Ct_barplot_target(data.Ct)
+target.Ct.control[[2]]
 
 }

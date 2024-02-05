@@ -15,7 +15,7 @@ filter_Ct(
 )
 }
 \arguments{
-\item{data}{object returned from [read_Ct_long()] or [read_Ct_wide()] function,
+\item{data}{object returned from read_Ct_long() or read_Ct_wide() function,
 or data frame containing column named "Sample" with sample names, column named "Target" with target names,
 column named "Ct" with raw Ct values, column named "Group" with group names.
 Optionally, data frame could contain column named "Flag" with flag information (ex. "Undetermined" and "OK"),
@@ -40,19 +40,13 @@ Data.frame with filtered data.
 Filters Ct data according to the used filtering criteria (see parameters).
 }
 \examples{
-
+library(tidyverse)
+data(data.Ct)
 data.CtF <- filter_Ct(data.Ct,
-                      flag.Ct = "Undetermined",
-                      maxCt = 35,
-                      flag = "Undetermined",
-                      remove.Target = c("Gene2","Gene6"),
-                      remove.Sample = c("Control8","control16"))
+                      remove.Target = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+                      remove.Sample = c("Control08","Control16","Control22"))
 
-data.CtF <- filter_Ct(data.Ct,
-                       flag.Ct = "Undetermined",
-                       maxCt = 35,
-                       flag = "Undetermined",
-                       remove.Target = targets.to.remove,
-                       remove.Sample = samples.to.remove)
+dim(data.Ct)
+dim(data.CtF)
 
 }

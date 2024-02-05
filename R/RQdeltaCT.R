@@ -23,10 +23,13 @@
 #' @examples
 #' path.Ct.file <- system.file("extdata", "data_Ct_wide.txt", package = "RQdeltaCT")
 #' path.design.file <- system.file("extdata", "data_design.txt", package = "RQdeltaCT")
+#'
+#' library(tidyverse)
 #' data.Ct <- read_Ct_wide(path.Ct.file = path.Ct.file,
 #'                    path.design.file = path.design.file,
 #'                    sep ="\t",
 #'                    dec = ".")
+#' str(data.Ct)
 #'
 #' @importFrom utils read.csv
 #' @importFrom tidyr pivot_longer
@@ -38,12 +41,12 @@ read_Ct_wide <- function(path.Ct.file,
                          sep,
                          dec){
 
-  data_wide <- read.csv(Ct.file,
+  data_wide <- read.csv(path.Ct.file,
                         header = TRUE,
                         sep = sep,
                         dec = dec)
 
-  data_wide_design <- read.csv(design.file,
+  data_wide_design <- read.csv(path.design.file,
                                header = TRUE,
                                sep = sep)
 
@@ -70,7 +73,7 @@ read_Ct_wide <- function(path.Ct.file,
 #'
 #' @param path path to a .txt file with long-type table of Ct values. This table should contain at least  4 columns, with
 #' sample names, target names, Ct values and group names (those columns will be imported by this function).
-#' Imported table could also contain a column with flag information, which could be optionally imported (see `add.col.Flag` and `col.Flag` parameters).
+#' Imported table could also contain a column with flag information, which could be optionally imported (see add.col.Flag and col.Flag parameters).
 #'
 #' @param sep character of a field separator in imported file.
 #' @param dec character used for decimal points in Ct values.
@@ -79,23 +82,28 @@ read_Ct_wide <- function(path.Ct.file,
 #' @param col.Target integer: number of column with target names.
 #' @param col.Ct integer: number of column with Ct values.
 #' @param col.Group integer: number of column with group names.
-#' @param add.col.Flag logical: if dataset contains a column with flag information which should be also imported, this parameters should be set to TRUE. Default to FALSE.
-#' @param col.Flag integer: number of column with flag information. Should be specified if `add.col.Flag` = TRUE.
+#' @param add.col.Flag logical: if data contains a column with flag information which should be also imported, this parameters should be set to TRUE. Default to FALSE.
+#' @param col.Flag integer: number of column with flag information. Should be specified if add.col.Flag = TRUE.
 #' This column should contain a character-type values (ex. "Undetermined" and "OK"), however,
-#' other types of values are allowed (ex. numeric), but must be converted to character or factor after importing dataset (see examples).
+#' other types of values are allowed (ex. numeric), but must be converted to character or factor after importing data (see examples).
 #'
 #' @return Data.frame in long format ready to analysis.
 #' @export
 #'
 #' @examples
 #' path <- system.file("extdata", "data_Ct_long.txt", package = "RQdeltaCT")
+#'
+#' library(tidyverse)
 #' data.Ct <- read_Ct_long(path = path, sep = "\t",dec = ".",skip = 0,
-#'                    add.col.Flag = TRUE, col.Sample = 1, col.Target = 2,
-#'                    col.Ct = 5, col.Group = 9, col.Flag = 4)
+#'                         add.column.Flag = TRUE, column.Sample = 1, column.Target = 2,
+#'                         column.Ct = 5, column.Group = 9, column.Flag = 4)
+#' str(data.Ct)
 #'
-#'
+#' data.Ct <- mutate(Ct, Flag = ifelse(Flag < 1, "Undetermined", "OK"))
+#' str(data.Ct)
 #'
 #' @importFrom utils read.csv
+#' @importFrom base colnames
 #'
 read_Ct_long <- function(path,
                          sep,
@@ -139,7 +147,7 @@ read_Ct_long <- function(path,
 #' This function does not perform data filtering, but only numbers Ct values labeled as reliable or not and presents them graphically.
 #' Results could be useful to identify samples with low number of reliable Ct values.
 #'
-#' @param data object returned from [read_Ct_long()] or [read_Ct_wide()] function,
+#' @param data object returned from read_Ct_long() or read_Ct_wide() function,
 #' or data frame containing column named "Sample" with sample names, column named "Target" with target names,
 #' column named "Ct" with raw Ct values, and column named "Group" with group names.
 #' Optionally, data frame could contain column named "Flag" with flag information (ex. "Undetermined" and "OK"), which will be used for reliability assessment.
@@ -157,7 +165,7 @@ read_Ct_long <- function(path,
 #' @param legend.title.size integer: font size of legend title.  Default to 12.
 #' @param legend.text.size integer: font size of legend text. Default to 12.
 #' @param legend.position position of the legend, one of "top" (default), "right", "bottom", "left", or "none" (no legend).
-#' See description for `legend.position` in [ggplot2::theme()] function.
+#' See description for legend.position parameter in ggplot2::theme() function.
 #' @param save.to.tiff logical: if TRUE, plot will be saved as .tiff file.  Default to FALSE.
 #' @param dpi integer: resolution of saved .tiff file. Default to 600.
 #' @param width numeric: width (in cm) of saved .tiff file. Default to 15.
@@ -170,7 +178,10 @@ read_Ct_long <- function(path,
 #' @export
 #'
 #' @examples
+#' library(tidyverse)
+#' data(data.Ct)
 #' sample.Ct.control <- control_Ct_barplot_sample(data.Ct)
+#' sample.Ct.control[[2]]
 #'
 #' @importFrom base as.numeric as.data.frame cat print table paste sum colnames list
 #' @importFrom dplyr mutate arrange filter
@@ -248,7 +259,7 @@ control_Ct_barplot_sample <- function(data,
 #' This function does not perform data filtering, but only numbers Ct values labeled as reliable or not and presents them graphically.
 #' Could be useful to identify targets with low number of reliable Ct values.
 #'
-#' @param data object returned from [read_Ct_long()] or [read_Ct_wide()] function,
+#' @param data object returned from read_Ct_long() or read_Ct_wide() function,
 #' or data frame containing column named "Sample" with sample names, column named "Target" with target names,
 #' column named "Ct" with raw Ct values, column named "Group" with group names.
 #' Optionally, data frame could contain column named "Flag" with flag information (ex. "Undetermined" and "OK"),
@@ -267,7 +278,7 @@ control_Ct_barplot_sample <- function(data,
 #' @param legend.title.size integer: font size of legend title.  Default to 12.
 #' @param legend.text.size integer: font size of legend text. Default to 12.
 #' @param legend.position position of the legend, one of "top" (default), "right", "bottom", "left", or "none" (no legend).
-#' See description for `legend.position` in [ggplot2::theme()] function.
+#' See description for legend.position parameter in ggplot2::theme() function.
 #' @param save.to.tiff logical: if TRUE, plot will be saved as .tiff file.  Default to FALSE.
 #' @param dpi integer: resolution of saved .tiff file. Default to 600.
 #' @param width numeric: width (in cm) of saved .tiff file. Default to 15.
@@ -280,7 +291,10 @@ control_Ct_barplot_sample <- function(data,
 #' @export
 #'
 #' @examples
+#' library(tidyverse)
+#' data(data.Ct)
 #' target.Ct.control <- control_Ct_barplot_target(data.Ct)
+#' target.Ct.control[[2]]
 #'
 #' @importFrom base as.numeric as.data.frame cat print table paste sum colnames
 #' @importFrom dplyr mutate arrange filter
@@ -356,13 +370,18 @@ control_Ct_barplot_target <- function(data,
 #' Could be useful for identification of samples with specified fraction of unreliable Ct values.
 #' Samples with high amount of unreliable data could be considered to remove from the dataset.
 #'
-#' @param data object returned from [control_Ct_barplot_sample()] function.
-#' @param fraction numeric: a threshold fraction (ranged from 0 to 1), samples with the higher fraction of Ct values labeled as unreliable will be returned. Default to 0.5.
+#' @param data object returned from control_Ct_barplot_sample() function.
+#' @param fraction numeric: a threshold fraction (ranged from 0 to 1),
+#' samples with the higher fraction of Ct values labeled as unreliable will be returned. Default to 0.5.
 #' @return Vector with names of samples.
 #' @export
 #'
 #' @examples
-#' samples.to.remove <- samples_to_remove(sample.Ct.control, 0.5)
+#' library(tidyverse)
+#' data(data.Ct)
+#' sample.Ct.control <- control_Ct_barplot_sample(data.Ct)
+#' samples.to.remove <- samples_to_remove(sample.Ct.control[[2]], 0.4)
+#' samples.to.remove
 #'
 #' @importFrom base as.data.frame as.vector
 #' @importFrom tidyr pivot_wider
@@ -388,9 +407,9 @@ samples_to_remove <- function(data, fraction = 0.5){
 #' @description
 #' Indicates targets with the amount of unreliable Ct values higher than specified fraction in at least one of the compared groups.
 #' Could be useful for identification of targets with specified fraction of unreliable Ct values.
-#' Targets with high amount of unreliable data could be considered to remove from the dataset.
+#' Targets with high amount of unreliable data could be considered to remove from the data.
 #'
-#' @param data object returned from [control_Ct_barplot_target()] function.
+#' @param data object returned from control_Ct_barplot_target() function.
 #' @param fraction numeric: a threshold fraction (ranged from 0 to 1), targets with the higher fraction of Ct values labeled as unreliable in at least one of the compared groups will be returned. Default to 0.5.
 #' @param groups character vector length of two, containing names of compared groups.
 #'
@@ -398,7 +417,11 @@ samples_to_remove <- function(data, fraction = 0.5){
 #' @export
 #'
 #' @examples
-#' targets.to.remove <- targets_to_remove(sample.Ct.control, 0.5, groups = c("Disease", "Control"))
+#' library(tidyverse)
+#' data(data.Ct)
+#' target.Ct.control <- control_Ct_barplot_target(data.Ct)
+#' targets.to.remove <- targets_to_remove(target.Ct.control[[2]], fraction = 0.5, groups = c("Disease", "Control"))
+#' targets.to.remove
 #'
 #' @importFrom base as.data.frame as.vector unique
 #' @importFrom tidyr pivot_wider
@@ -434,7 +457,7 @@ targets_to_remove <- function(data, fraction = 0.5, groups){
 #' @description
 #' Filters Ct data according to the used filtering criteria (see parameters).
 #'
-#' @param data object returned from [read_Ct_long()] or [read_Ct_wide()] function,
+#' @param data object returned from read_Ct_long() or read_Ct_wide() function,
 #' or data frame containing column named "Sample" with sample names, column named "Target" with target names,
 #' column named "Ct" with raw Ct values, column named "Group" with group names.
 #' Optionally, data frame could contain column named "Flag" with flag information (ex. "Undetermined" and "OK"),
@@ -451,20 +474,14 @@ targets_to_remove <- function(data, fraction = 0.5, groups){
 #' @export
 #'
 #' @examples
-#'
+#' library(tidyverse)
+#' data(data.Ct)
 #' data.CtF <- filter_Ct(data.Ct,
-#'                       flag.Ct = "Undetermined",
-#'                       maxCt = 35,
-#'                       flag = "Undetermined",
-#'                       remove.Target = c("Gene2","Gene6"),
-#'                       remove.Sample = c("Control8","control16"))
+#'                       remove.Target = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+#'                       remove.Sample = c("Control08","Control16","Control22"))
 #'
-#' data.CtF <- filter_Ct(data.Ct,
-#'                        flag.Ct = "Undetermined",
-#'                        maxCt = 35,
-#'                        flag = "Undetermined",
-#'                        remove.Target = targets.to.remove,
-#'                        remove.Sample = samples.to.remove)
+#' dim(data.Ct)
+#' dim(data.CtF)
 #'
 #' @importFrom base as.numeric sum colnames
 #' @importFrom dplyr filter
@@ -497,15 +514,89 @@ filter_Ct <- function(data,
 
 
 
+#' @title Ct_for_control
+#'
+#' @description
+#' This function collapses technical replicates (if present in data) by means counts and imputes missing data by means within groups (if so indicated).
+#' These actions also prepare Ct data for control functions.
+#'
+#' @param data data object returned from read_Ct_long(), read_Ct_wide() or filter_Ct() function,
+#' or data frame containing column named "Sample" with sample names, column named "Target" with target names,
+#' column named "Ct" with raw Ct values (must be numeric), column named "Group" with group names. Any other columns could exist, but will not be used by this function.
+#' @param imput.by.mean.within.groups logical: if TRUE, missing values will be imputed by means within groups. Default to TRUE.
+#' @param save.to.txt logical: if TRUE, returned data will be saved to .txt file. Default to FALSE.
+#' @param name.txt character: name of saved .txt file, without ".txt" name of extension. Default to "data.exp.Ct".
+#'
+#' @return Data.frame with prepared data and printed information about number and percentage of missing values.
+#' @export
+#'
+#' @examples
+#' library(tidyverse)
+#' data(data.Ct)
+#' data.CtF <- filter_Ct(data.Ct,
+#'                       remove.Target = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+#'                       remove.Sample = c("Control08","Control16","Control22"))
+#'data.CtF.prepared <- Ct_for_control(data.CtF)
+#'head(data.CtF.prepared)
+#'
+#' @importFrom base mean
+#' @importFrom dplyr select summarise
+#' @import tidyverse
+#'
+Ct_for_control <- function(data,
+                   imput.by.mean.within.groups = TRUE,
+                   save.to.txt = FALSE,
+                   name.txt = "data.exp.Ct"){
+  data <- data %>%
+    group_by(Group, Target, Sample) %>%
+    summarise(mean = mean(Ct, na.rm = TRUE), .groups = "keep") %>%
+    as.data.frame()
+
+  data_wide <- data %>%
+    select(Group, Sample, Target, mean) %>%
+    pivot_wider(names_from = Target, values_from = mean)
+
+  nas <- sum(is.na(data_wide))
+  percentage <- sum(is.na(data_wide))/((ncol(data_wide)-2)*nrow(data_wide))
+
+  if (imput.by.mean.within.groups == TRUE){
+    data_wide_imp <- data_wide %>%
+      group_by(Group) %>%
+      mutate(across(where(is.numeric), ~ replace(., is.na(.), mean(., na.rm = TRUE))))
+
+    cat("Data contained", nas, "missing values that constitute", round(percentage*100, 5), "percent of the total data.\n Missing values were imputed using means within compared groups.\n")
+
+    if (save.to.txt == TRUE){
+      write.table(as.data.frame(data_wide_imp), paste(name.txt,".txt", sep = ""))
+    }
+    return(data_wide_imp)
+
+  } else {
+
+    cat("Data contains", nas, "missing values that constitute", round(percentage*100, 5), "percent of the total data.")
+
+    if (save.to.txt == TRUE){
+      write.table(as.data.frame(data_wide), paste(name.txt,".txt", sep = ""))
+    }
+    return(data_wide)
+  }
+}
+
+
+
+
+
+
+
 #' @title exp_Ct
 #'
 #' @description
 #' This function collapses technical replicates (if present in data) by means, counts and imputes missing data by means within groups (if so indicated),
 #' and finally exponentiates Ct values by using formula 2^(-Ct).
 #'
-#' @param data data object returned from [read_Ct_long()], [read_Ct_wide()] or [filter_Ct()] function,
+#' @param data data object returned from read_Ct_long(), read_Ct_wide() or filter_Ct() function,
 #' or data frame containing column named "Sample" with sample names, column named "Target" with target names,
-#' column named "Ct" with raw Ct values, column named "Group" with group names. Any other columns could exist, but will not be used by this function.
+#' column named "Ct" with raw Ct values (must be numeric), column named "Group" with group names. Any other columns could exist, but will not be used by this function.
 #' @param imput.by.mean.within.groups logical: if TRUE, missing values will be imputed by means within groups. Default to TRUE.
 #' @param save.to.txt logical: if TRUE, returned data will be saved to .txt file. Default to FALSE.
 #' @param name.txt character: name of saved .txt file, without ".txt" name of extension. Default to "data.exp.Ct".
@@ -514,8 +605,13 @@ filter_Ct <- function(data,
 #' @export
 #'
 #' @examples
-#' data.Ct.exp <- exp_Ct(data.CtF,
-#'                       imput.by.mean.within.groups = TRUE)
+#' library(tidyverse)
+#' data(data.Ct)
+#' data.CtF <- filter_Ct(data.Ct,
+#'                       remove.Target = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+#'                       remove.Sample = c("Control08","Control16","Control22"))
+#' data.Ct.exp <- exp_Ct(data.CtF, imput.by.mean.within.groups = TRUE)
+#' head(data.Ct.exp)
 #'
 #' @importFrom base as.data.frame as.vector sum is.na ncol nrow paste cat
 #' @importFrom utils write.table
@@ -576,18 +672,18 @@ exp_Ct <- function(data,
 #' @title RQ_exp_Ct
 #'
 #' @description
-#' Performs relative quantification of gene expression using 2^(-Ct) method.
+#' Performs relative quantification of gene expression using 2^(-Ct) and 2^(-dCt) methods.
 #'
 #' @details
 #' This function calculates:
-#'  * Means (return in columns with "_mean" pattern) and standard deviations (return in columns with "_sd" pattern) of exponentiated Ct values of analyzed targets across compared groups.
-#'  * Normality tests (Shapiro_Wilk test) of exponentiated Ct values of analyzed targets across compared groups and returned p values in columns with "_norm_p" pattern.
-#'  * Fold Change values (return in "FCh" column) together with log10 Fold change values (return in "log10FCh" column).
-#'    Fold change values were calculated for each target by dividing  mean of exponentiated Ct values in study group by mean of exponentiated Ct values in reference group.
-#'  * Statistical testing of differences in exponentiated Ct values between study group and reference group.
-#'    Student's t test and Mann-Whitney U test are implemented and resulted statistics (in column with "_test_stat" pattern) and p values (in column with "_test_p" pattern) are returned.
+#' * Means (returned in columns with "_mean" pattern) and standard deviations (returned in columns with "_sd" pattern) of exponentiated Ct or dCt values of analyzed targets across compared groups.
+#' * Normality tests (Shapiro_Wilk test) of exponentiated Ct or dCt values of analyzed targets across compared groups and returned p values in columns with "_norm_p" pattern.
+#' * Fold Change values (return in "FCh" column) together with log10 Fold change values (return in "log10FCh" column).
+#'   Fold change values were calculated for each target by dividing  mean of exponentiated Ct od dCt values in study group by mean of exponentiated Ct or dCt values in reference group.
+#' * Statistical testing of differences in exponentiated Ct or dCt values between study group and reference group.
+#'   Student's t test and Mann-Whitney U test are implemented and resulted statistics (in column with "_test_stat" pattern) and p values (in column with "_test_p" pattern) are returned.
 #'
-#' @param data data object returned from [exp_Ct()] function.
+#' @param data data object returned from exp_Ct() or exp_delta_Ct() function.
 #' @param group.study character: name of study group (group of interest).
 #' @param group.ref character: name of reference group.
 #' @param do.tests logical: if TRUE, statistical significance of differences in exponentiated Ct values between compared groups will be calculated using Student's t test and Mann-Whitney U test. Default to TRUE.
@@ -598,10 +694,15 @@ exp_Ct <- function(data,
 #' @export
 #'
 #' @examples
-#' RQ.Ct.exp <- RQ_exp_Ct(data.Ct.exp,
-#'                                group.study = "Disease",
-#'                                group.ref = "Control",
-#'                                do.tests = TRUE)
+#' library(tidyverse)
+#' library(coin)
+#' data(data.Ct)
+#' data.CtF <- filter_Ct(data.Ct,
+#'                       remove.Target = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+#'                       remove.Sample = c("Control08","Control16","Control22"))
+#' data.Ct.exp <- exp_Ct(data.CtF, imput.by.mean.within.groups = TRUE)
+#' RQ.Ct.exp <- RQ_exp_Ct(data.Ct.exp, group.study = "Disease", group.ref = "Control", do.tests = TRUE)
+#' head(RQ.Ct.exp)
 #'
 #' @importFrom base as.data.frame as.factor mean
 #' @importFrom stats sd shapiro.test t.test
@@ -619,13 +720,13 @@ RQ_exp_Ct <- function(data,
 
   data_slim <- data %>%
     filter(Group == group.study | Group == group.ref) %>%
-    pivot_longer(cols = -c(Group, Sample), names_to = "Target", values_to = "expCt")
+    pivot_longer(cols = -c(Group, Sample), names_to = "Target", values_to = "value")
 
   data_slim$Group <- as.factor(data_slim$Group)
 
   data_FCh <- data_slim %>%
     group_by(Group, Target) %>%
-    summarise(expCt = mean(expCt, na.rm = TRUE), .groups = "keep") %>%
+    summarise(value = mean(value, na.rm = TRUE), .groups = "keep") %>%
     pivot_wider(names_from = Group, values_from = expCt) %>%
     mutate(FCh = .data[[group.study]]/.data[[group.ref]]) %>%
     mutate(log10FCh = log10(FCh)) %>%
@@ -633,15 +734,15 @@ RQ_exp_Ct <- function(data,
 
   data_FCh_sd <- data_slim %>%
     group_by(Group, Target) %>%
-    summarise(expCt_sd = sd(expCt, na.rm = TRUE), .groups = "keep") %>%
-    pivot_wider(names_from = Group, values_from = expCt_sd) %>%
+    summarise(value_sd = sd(value, na.rm = TRUE), .groups = "keep") %>%
+    pivot_wider(names_from = Group, values_from = value_sd) %>%
     rename_with(~paste0(.x, "_sd", recycle0 = TRUE), all_of(c(group.study, group.ref)))
 
   if (do.tests == TRUE){
 
     data_FCh_norm <- data_slim %>%
       group_by(Group, Target) %>%
-      summarise(shap_wilka_p = shapiro.test(expCt)$p.value, .groups = "keep") %>%
+      summarise(shap_wilka_p = shapiro.test(value)$p.value, .groups = "keep") %>%
       pivot_wider(names_from = Group, values_from = shap_wilka_p) %>%
       rename_with(~paste0(.x, "_norm_p", recycle0 = TRUE), all_of(c(group.study, group.ref))) %>%
       full_join(data_FCh, by = c("Target")) %>%
@@ -649,10 +750,10 @@ RQ_exp_Ct <- function(data,
 
     data_FCh_tests <- data_slim %>%
       group_by(Target) %>%
-      summarise(t_test_p = t.test(expCt ~ Group, alternative = "two.sided")$p.value,
-                t_test_stat = t.test(expCt ~ Group, alternative = "two.sided")$statistic,
-                MW_test_p = pvalue(wilcox_test(expCt ~ Group)),
-                MW_test_stat = statistic(wilcox_test(expCt ~ Group)), .groups = "keep")
+      summarise(t_test_p = t.test(value ~ Group, alternative = "two.sided")$p.value,
+                t_test_stat = t.test(value ~ Group, alternative = "two.sided")$statistic,
+                MW_test_p = pvalue(wilcox_test(value ~ Group)),
+                MW_test_stat = statistic(wilcox_test(value ~ Group)), .groups = "keep")
     data_FCh_norm_tests <- full_join(data_FCh_norm, data_FCh_tests, by = c("Target"))
     data_FCh_results <- full_join(data_FCh_norm_tests, data_FCh_sd, by = c("Target"))
     data_FCh_results <- select(data_FCh_results, Target, ends_with("_mean"), ends_with("_sd"), everything())
@@ -682,7 +783,7 @@ RQ_exp_Ct <- function(data,
 #' variance and colinearity coefficient VIF) that could be helpful to select the best
 #' reference gene for normalization of Ct values.
 #'
-#' @param data object returned from `read_Ct_long()`, `read_Ct_wide()` or `filter_Ct()` functions,
+#' @param data object returned from read_Ct_long(), read_Ct_wide() or filter_Ct() functions,
 #' or data frame containing column named "Sample" with sample names, column named "Target" with target names,
 #' column named "Ct" with raw Ct values, column named "Group" with group names.
 #'     Any other columns could exist, but will not be used by this function.
@@ -699,7 +800,7 @@ RQ_exp_Ct <- function(data,
 #' @param legend.title.size integer: font size of legend title. Default to 12.
 #' @param legend.text.size integer: font size of legend text. Default to 12.
 #' @param legend.position position of the legend, one of "top" (default), "right", "bottom", "left", or "none" (no legend).
-#' See description for `legend.position` in [ggplot2::theme()] function.
+#' See description for legend.position in ggplot2::theme() function.
 #' @param plot.title character: title of plot. Default to "".
 #' @param plot.title.size integer: font size of plot title. Default to 14.
 #' @param save.to.tiff logical: if TRUE, plot will be saved as .tiff file. Default to FALSE.
@@ -714,11 +815,16 @@ RQ_exp_Ct <- function(data,
 #' @export
 #'
 #' @examples
-#' ref <- select_ref_gene(data.CtF,
-#'                candidates = c("Gene4", "Gene8","Gene10","Gene16","Gene17", "Gene18"),
-#'                col = c("#66c2a5", "#fc8d62","#6A6599", "#D62728", "#1F77B4", "black"),
-#'                line.width = 1,
-#'                angle = 35)
+#' library(car)
+#' library(tidyverse)
+#' data(data.Ct)
+#' data.CtF <- filter_Ct(data.Ct,
+#'                       remove.Target = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+#'                       remove.Sample = c("Control08","Control16","Control22"))
+#' ref <-  select_ref_gene(data.CtF,
+#'                         candidates = c("Gene4", "Gene8","Gene10","Gene16","Gene17", "Gene18"),
+#'                         col = c("#66c2a5", "#fc8d62","#6A6599", "#D62728", "#1F77B4", "black"))
+#' ref[[2]]
 #'
 #' @importFrom base mean print min max as.data.frame
 #' @importFrom stats sd var
@@ -748,7 +854,7 @@ select_ref_gene <- function(data,
 
   ref <- data %>%
     group_by(Group, Target, Sample) %>%
-    summarise(mean = mean(Ct, na.rm = TRUE, .group = "keep")) %>%
+    summarise(mean = mean(Ct, na.rm = TRUE),  .groups = "keep") %>%
     filter(Target %in% candidates)
 
   ref_plot <- ggplot(ref, aes(x = Sample, y = mean, color = Target, group = Target)) +
@@ -781,12 +887,12 @@ select_ref_gene <- function(data,
     summarise(min = min(mean),
               max = max(mean),
               sd = sd(mean, na.rm = TRUE),
-              var = var(mean, na.rm = TRUE), .group = "keep") %>%
+              var = var(mean, na.rm = TRUE), .groups = "keep") %>%
     as.data.frame()
 
   ref_vif <- data %>%
     group_by(Group, Target, Sample) %>%
-    summarise(mean = base::mean(Ct, na.rm = TRUE), .group = "keep") %>%
+    summarise(mean = mean(Ct, na.rm = TRUE), .groups = "keep") %>%
     ungroup()
 
   ref_lm <- pivot_wider(ref_vif, names_from = Target, values_from = mean)
@@ -812,22 +918,28 @@ select_ref_gene <- function(data,
 #' counts and imputes missing data by means within groups (if so indicated),
 #' and finally calculates delta Ct (dCt) values by subtracting Ct values of reference gene from Ct values of other genes.
 #'
-#' @param data data object returned from `read_Ct_long()`, `read_Ct_wide()` or `filter_Ct()` function,
+#' @param data data object returned from read_Ct_long(), read_Ct_wide() or filter_Ct() function,
 #' or data frame containing column named "Sample" with sample names, column named "Target" with target names,
 #' column named "Ct" with raw Ct values, column named "Group" with group names.
 #'     Any other columns could exist, but will not be used by this function.
 #' @param imput.by.mean.within.groups logical: if TRUE, missing values will be imputed by means within groups. Default to TRUE.
 #' @param ref character: name of reference gene.
-#' @param save.to.txt logical: if TRUE, returned dataset will be saved to .txt file. Default to FALSE.
+#' @param save.to.txt logical: if TRUE, returned data will be saved to .txt file. Default to FALSE.
 #' @param name.txt character: name of saved .txt file, without ".txt" name of extension. Default to "data_dCt".
 #'
 #' @return Data.frame with dCt values and printed information about number and percentage of missing values.
 #' @export
 #'
 #' @examples
+#' library(tidyverse)
+#' data(data.Ct)
+#' data.CtF <- filter_Ct(data.Ct,
+#'                       remove.Target = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+#'                       remove.Sample = c("Control08","Control16","Control22"))
 #' data.dCt <- delta_Ct(data.CtF,
 #'                      imput.by.mean.within.groups = TRUE,
-#'                      ref = "Gene1")
+#'                      ref = "Gene8")
+#' head(data.dCt)
 #'
 #' @importFrom base as.data.frame as.vector sum is.na ncol nrow paste cat
 #' @importFrom utils write.table
@@ -890,7 +1002,7 @@ delta_Ct <- function(data,
 #' @description
 #' Boxplot illustrating distribution of data in each sample. Could be useful to identify outlier samples.
 #'
-#' @param data object returned from `delta_Ct()`, `exp_Ct()` or `exp_delta_Ct()` function.
+#' @param data object returned from delta_Ct(), exp_Ct() or exp_delta_Ct() function.
 #' @param coef numeric: how many times of interquartile range should be used to indicate the most extend data point for whiskers. Default to 1.5.
 #' @param colors character vector length of two, containing colors for compared groups. Default to c("#66c2a5", "#fc8d62").
 #' @param x.axis.title character: title of x axis. Default to "Sample".
@@ -901,7 +1013,7 @@ delta_Ct <- function(data,
 #' @param legend.title.size integer: font size of legend title. Default to 12.
 #' @param legend.text.size integer: font size of legend text. Default to 12.
 #' @param legend.position position of the legend, one of "top", "right" (default), "bottom", "left", or "none" (no legend).
-#' See description for `legend.position` in [ggplot2::theme()] function.
+#' See description for legend.position in ggplot2::theme() function.
 #' @param plot.title character: title of plot. Default to "".
 #' @param plot.title.size integer: font size of plot title. Default to 14.
 #' @param save.to.tiff logical: if TRUE, plot will be saved as .tiff file. Default to FALSE.
@@ -914,9 +1026,15 @@ delta_Ct <- function(data,
 #' @export
 #'
 #' @examples
-#' control_boxplot_sample(data.Ct.exp)
-#' control_boxplot_sample(data.dCt)
-#' control_boxplot_sample(data.dCt.exp)
+#' library(tidyverse)
+#' data(data.Ct)
+#' data.CtF <- filter_Ct(data.Ct,
+#'                       remove.Target = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+#'                       remove.Sample = c("Control08","Control16","Control22"))
+#' data.dCt <- delta_Ct(data.CtF,
+#'                      imput.by.mean.within.groups = TRUE,
+#'                      ref = "Gene8")
+#' control.boxplot.sample <- control_boxplot_sample(data.dCt)
 #'
 #' @importFrom base print
 #' @import ggplot2
@@ -971,7 +1089,7 @@ control_boxplot_sample <- function(data, coef = 1.5,
 #' @description
 #' This function creates boxplot illustrating distribution of data in each target. Could be useful to compare expression of analyzed targets.
 #'
-#' @param data object returned from `delta_Ct()`, `exp_Ct()` or `exp_delta_Ct()` function.
+#' @param data object returned from delta_Ct(), exp_Ct() or exp_delta_Ct() function.
 #' @param by.group logical: if TRUE, distributions will be drawn by compared groups of samples.
 #' @param coef numeric: how many times of interquartile range should be used to indicate the most extend data point for whiskers.
 #' @param colors character vector length of one (when by.group = FALSE) or two (when by.group = TRUE), containing colors for groups.
@@ -984,7 +1102,7 @@ control_boxplot_sample <- function(data, coef = 1.5,
 #' @param legend.title.size integer: font size of legend title. Default to 12.
 #' @param legend.text.size integer: font size of legend text. Default to 12.
 #' @param legend.position position of the legend, one of "top", "right" (default), "bottom", "left", or "none" (no legend).
-#' See description for `legend.position` in [ggplot2::theme()] function.
+#' See description for legend.position in ggplot2::theme() function.
 #' @param plot.title character: title of plot. Default to "".
 #' @param plot.title.size integer: font size of plot title. Default to 14.
 #' @param save.to.tiff logical: if TRUE, plot will be saved as .tiff file. Default to FALSE.
@@ -997,9 +1115,15 @@ control_boxplot_sample <- function(data, coef = 1.5,
 #' @export
 #'
 #' @examples
-#' control_boxplot_target(data.Ct.exp)
-#' control_boxplot_target(data.dCt)
-#' control_boxplot_target(data.dCt.exp)
+#' library(tidyverse)
+#' data(data.Ct)
+#' data.CtF <- filter_Ct(data.Ct,
+#'                       remove.Target = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+#'                       remove.Sample = c("Control08","Control16","Control22"))
+#' data.dCt <- delta_Ct(data.CtF,
+#'                      imput.by.mean.within.groups = TRUE,
+#'                      ref = "Gene8")
+#' control.boxplot.target <- control_boxplot_target(data.dCt)
 #'
 #' @importFrom base print
 #' @import ggplot2
@@ -1076,9 +1200,9 @@ control_boxplot_target <- function(data, coef = 1.5,
 #' @description
 #' Performs hierarchical clustering of samples based on the data. Could be useful to identify outlier samples.
 #'
-#' @param data object returned from `delta_Ct()`, `exp_Ct()` or `exp_delta_Ct()` function.
-#' @param method.dist character: name of method used for calculation of distances, derived from `stats::dist()` function, should be one of "euclidean" (default) , "maximum", "manhattan", "canberra", "binary" or "minkowski".
-#' @param method.clust character: name of used method for agglomeration, derived from `stats::hclust()` function, should be one of "ward.D", "ward.D2", "single", "complete", "average" (default), "mcquitty", "median" or "centroid".
+#' @param data object returned from delta_Ct(), exp_Ct() or exp_delta_Ct() function.
+#' @param method.dist character: name of method used for calculation of distances, derived from stats::dist() function, should be one of "euclidean" (default) , "maximum", "manhattan", "canberra", "binary" or "minkowski".
+#' @param method.clust character: name of used method for agglomeration, derived from stats::hclust() function, should be one of "ward.D", "ward.D2", "single", "complete", "average" (default), "mcquitty", "median" or "centroid".
 #' @param x.axis.title character: title of x axis. Default to "Samples".
 #' @param y.axis.title character: title of y axis. Default to "Height".
 #' @param plot.title character: title of plot. Default to "".
@@ -1092,9 +1216,15 @@ control_boxplot_target <- function(data, coef = 1.5,
 #' @export
 #'
 #' @examples
-#' control_cluster_sample(data.dCt, method.dist = "euclidean", method.clust = "complete")
-#' control_cluster_sample(data.dCt.exp, method.dist = "canberra", method.clust = "average")
-#' control_cluster_sample(data.Ct.exp, method.dist = "manhattan", method.clust = "single")
+#' library(tidyverse)
+#' data(data.Ct)
+#' data.CtF <- filter_Ct(data.Ct,
+#'                       remove.Target = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+#'                       remove.Sample = c("Control08","Control16","Control22"))
+#' data.dCt <- delta_Ct(data.CtF,
+#'                      imput.by.mean.within.groups = TRUE,
+#'                      ref = "Gene8")
+#' control_cluster_sample(data.dCt)
 #'
 #' @importFrom stats hclust dist
 #' @importFrom base plot
@@ -1110,7 +1240,7 @@ control_cluster_sample <- function(data,
                                    save.to.tiff = FALSE,
                                    dpi = 600, width = 15, height = 15,
                                    name.tiff = "control_clust_samples"){
-
+  data <- ungroup(data)
   cluster <- hclust(dist(select(data, -Group, -Sample), method = method.dist), method = method.clust)
   cluster$labels <- data$Sample
   plot(cluster, xlab = x.axis.title, ylab = y.axis.title, main = plot.title)
@@ -1130,9 +1260,9 @@ control_cluster_sample <- function(data,
 #' @description
 #' Performs hierarchical clustering of targets based on the data. Could be useful to gain insight into similarity in expression of analyzed targets.
 #'
-#' @param data object returned from `delta_Ct()`, `exp_Ct()` or `exp_delta_Ct()` function.
-#' @param method.dist character: name of method used for calculation of distances, derived from `stats::dist()` function, should be one of "euclidean" (default) , "maximum", "manhattan", "canberra", "binary" or "minkowski".
-#' @param method.clust character: name of used method for agglomeration, derived from `stats::hclust()` function, should be one of "ward.D", "ward.D2", "single", "complete", "average" (default), "mcquitty", "median" or "centroid".
+#' @param data object returned from delta_Ct(), exp_Ct() or exp_delta_Ct() function.
+#' @param method.dist character: name of method used for calculation of distances, derived from stats::dist() function, should be one of "euclidean" (default) , "maximum", "manhattan", "canberra", "binary" or "minkowski".
+#' @param method.clust character: name of used method for agglomeration, derived from stats::hclust() function, should be one of "ward.D", "ward.D2", "single", "complete", "average" (default), "mcquitty", "median" or "centroid".
 #' @param x.axis.title character: title of x axis. Default to "Targets".
 #' @param y.axis.title character: title of y axis. Default to "Height".
 #' @param plot.title character: title of plot. Default to "".
@@ -1146,9 +1276,15 @@ control_cluster_sample <- function(data,
 #' @export
 #'
 #' @examples
-#' control_cluster_target(data.dCt, method.dist = "euclidean", method.clust = "complete")
-#' control_cluster_target(data.dCt.exp, method.dist = "canberra", method.clust = "average")
-#' control_cluster_target(data.Ct.exp, method.dist = "manhattan", method.clust = "single")
+#' library(tidyverse)
+#' data(data.Ct)
+#' data.CtF <- filter_Ct(data.Ct,
+#'                       remove.Target = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+#'                       remove.Sample = c("Control08","Control16","Control22"))
+#' data.dCt <- delta_Ct(data.CtF,
+#'                      imput.by.mean.within.groups = TRUE,
+#'                      ref = "Gene8")
+#' control_cluster_target(data.dCt)
 #'
 #' @importFrom stats hclust dist
 #' @importFrom base plot t colnames
@@ -1189,7 +1325,7 @@ control_cluster_target <- function (data,
 #' Performs principal component analysis (PCA) for samples and generate plot illustrating spatial arrangement of samples using two first components. Could be useful to identify outlier samples.
 #'     IMPORTANT: PCA analysis can not deal with missing values, thus all samples with at least one missing value are removed from data before analysis. It is recommended to run this function on data after imputation of missing values.
 #'
-#' @param data object returned from `delta_Ct()`, `exp_Ct()` or `exp_delta_Ct()` function.
+#' @param data object returned from delta_Ct(), exp_Ct() or exp_delta_Ct() function.
 #' @param point.size numeric: size of points. Default to 4.
 #' @param point.shape integer: shape of points. Default to 19.
 #' @param alpha numeric: transparency of points, a value between 0 and 1. Default to 0.7.
@@ -1203,7 +1339,7 @@ control_cluster_target <- function (data,
 #' @param legend.title.size integer: font size of legend title. Default to 12.
 #' @param legend.text.size integer: font size of legend text. Default to 12.
 #' @param legend.position position of the legend, one of "top", "right" (default), "bottom", "left", or "none" (no legend).
-#' See description for `legend.position` parameter in [ggplot2::theme()] function.
+#' See description for legend.position parameter in ggplot2::theme() function.
 #' @param plot.title character: title of plot. Default to "".
 #' @param plot.title.size integer: font size of plot title. Default to 14.
 #' @param save.to.tiff logical: if TRUE, plot will be saved as .tiff file. Default to FALSE.
@@ -1216,9 +1352,13 @@ control_cluster_target <- function (data,
 #' @export
 #'
 #' @examples
-#' control_pca_sample(data.Ct.exp)
-#' control_pca_sample(data.dCt)
-#' control_pca_sample(data.dCt.exp)
+#' library(tidyverse)
+#' data(data.Ct)
+#' data.CtF <- filter_Ct(data.Ct,
+#'                       remove.Target = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+#'                       remove.Sample = c("Control08","Control16","Control22"))
+#' data.CtF.prepared <- Ct_for_control(data.CtF)
+#' control_pca_sample(data.CtF.prepared)
 #'
 #' @importFrom base print as.data.frame rownames summary paste round
 #' @importFrom stats na.omit prcomp
@@ -1313,9 +1453,13 @@ control_pca_sample <- function(data,
 #' @export
 #'
 #' @examples
-#' control_pca_target(data.Ct.exp)
-#' control_pca_target(data.dCt)
-#' control_pca_target(data.dCt.exp)
+#' library(tidyverse)
+#' data(data.Ct)
+#' data.CtF <- filter_Ct(data.Ct,
+#'                       remove.Target = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+#'                       remove.Sample = c("Control08","Control16","Control22"))
+#' data.CtF.prepared <- Ct_for_control(data.CtF)
+#' control_pca_target(data.CtF.prepared)
 #'
 #' @importFrom base print as.data.frame rownames summary paste round t colnames
 #' @importFrom stats na.omit prcomp
@@ -1371,22 +1515,23 @@ control_pca_target <- function(data, point.size = 4, point.shape = 19, alpha = 0
 
 
 
+
 #' @title control_corr_target
 #'
 #' @description
 #' Performs correlation analysis of targets based on the data. Could be useful to gain insight into relationships between analyzed targets.
 #'
-#' @param data object returned from `delta_Ct()`, `exp_Ct()` or `exp_delta_Ct()` function.
+#' @param data object returned from delta_Ct(), exp_Ct() or exp_delta_Ct() function.
 #' @param add.coef if coefficients should be add to the plot, specify color of coefficients (default to "black"), otherwise set to NULL.
 #' @param method character: type of correlations to compute, specify "pearson" (default) for Pearson's correlation coefficients
 #' or "spearman" for Spearman's rank correlation coefficients.
-#' @param order character: method used for ordering the correlation matrix (see documentation for [corrplot::corrplot()] function),
+#' @param order character: method used for ordering the correlation matrix (see documentation for corrplot::corrplot() function),
 #' one of the "original" (original order), "AOE" (angular order of the eigenvectors),
 #' "FPC" (first principal component order), "hclust" (hierarchical clustering order, default), or "alphabet" (alphabetical order).
 #' @param hclust.method character: name of used method for hclust agglomeration, should be one of "ward", ward.D", "ward.D2", "single", "complete", "average" (default), "mcquitty", "median" or "centroid".
 #' @param size numeric: size of variable names and numbers in legend. Default to 0.6.
 #' @param coef.size numeric: size of correlation coefficients. Default to 0.6.
-#' @param p.adjust.method character: p value correction method for multiple testing, one of "holm", "hochberg", "hommel", "bonferroni", "BH", "BY","fdr", or "none". See documentation for [stats::p.adjust()] function for details.
+#' @param p.adjust.method character: p value correction method for multiple testing, one of "holm", "hochberg", "hommel", "bonferroni", "BH", "BY","fdr", or "none". See documentation for stats::p.adjust() function for details.
 #' @param save.to.tiff logical: if TRUE, plot will be saved as .tiff file. Default to FALSE.
 #' @param dpi integer: resolution of saved .tiff file. Default to 600.
 #' @param width numeric: width (in cm) of saved .tiff file. Default to 15.
@@ -1399,9 +1544,18 @@ control_pca_target <- function(data, point.size = 4, point.shape = 19, alpha = 0
 #' @export
 #'
 #' @examples
-#' control_cluster_target(data.dCt, method.dist = "euclidean", method.clust = "complete")
-#' control_cluster_target(data.dCt.exp, method.dist = "canberra", method.clust = "average")
-#' control_cluster_target(data.Ct.exp, method.dist = "manhattan", method.clust = "single")
+#' library(tidyverse)
+#' library(Hmisc)
+#' library(corrplot)
+#' data(data.Ct)
+#' data.CtF <- filter_Ct(data.Ct,
+#'                       remove.Target = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+#'                       remove.Sample = c("Control08","Control16","Control22"))
+#' data.dCt <- delta_Ct(data.CtF,
+#'                      imput.by.mean.within.groups = TRUE,
+#'                      ref = "Gene8")
+#' corr.targets <- control_corr_target(data.dCt)
+#' head(corr.targets)
 #'
 #' @importFrom base as.data.frame paste upper.tri rownames
 #' @importFrom stats p.adjust
@@ -1464,8 +1618,6 @@ control_corr_target <- function(data,
       dev.off()
     }
   }
-
-  if (save.to.txt == TRUE){
     corr <- upper.tri(res_cor$r)
     corr.data <- data.frame(
       row = rownames(res_cor$r)[row(res_cor$r)[corr]],
@@ -1475,6 +1627,9 @@ control_corr_target <- function(data,
     )
     corr.data$p.adj <- p.adjust(corr.data$p, method = p.adjust.method)
     corr.data.sort <- arrange(corr.data, -abs(cor))
+
+     if (save.to.txt == TRUE){
+
     write.table(corr.data.sort, paste(name.txt, ".txt", sep = ""))
   }
   return(corr.data.sort)
@@ -1489,17 +1644,17 @@ control_corr_target <- function(data,
 #' @description
 #' Performs correlation analysis of samples based on the data. Could be useful to gain insight into relationships between analyzed samples.
 #'
-#' @param data object returned from `delta_Ct()`, `exp_Ct()` or `exp_delta_Ct()` function.
+#' @param data object returned from delta_Ct(), exp_Ct() or exp_delta_Ct() function.
 #' @param add.coef if coefficients should be add to the plot, specify color of coefficients (default to "black"), otherwise set to NULL.
 #' @param method character: type of correlations to compute, specify "pearson" (default) for Pearson's correlation coefficients
 #' or "spearman" for Spearman's rank correlation coefficients.
-#' @param order character: method used for ordering the correlation matrix (see documentation for [corrplot::corrplot()] function),
+#' @param order character: method used for ordering the correlation matrix (see documentation for corrplot::corrplot() function),
 #' one of the "original" (original order), "AOE" (angular order of the eigenvectors),
 #' "FPC" (first principal component order), "hclust" (hierarchical clustering order, default), or "alphabet" (alphabetical order).
 #' @param hclust.method character: name of used method for hclust agglomeration, should be one of "ward", ward.D", "ward.D2", "single", "complete", "average" (default), "mcquitty", "median" or "centroid".
 #' @param size numeric: size of variable names and numbers in legend. Default to 0.6.
 #' @param coef.size numeric: size of correlation coefficients. Default to 0.6.
-#' @param p.adjust.method character: p value correction method for multiple testing, one of "holm", "hochberg", "hommel", "bonferroni", "BH", "BY","fdr", or "none". See documentation for [stats::p.adjust()] function for details.
+#' @param p.adjust.method character: p value correction method for multiple testing, one of "holm", "hochberg", "hommel", "bonferroni", "BH", "BY","fdr", or "none". See documentation for stats::p.adjust() function for details.
 #' @param save.to.tiff logical: if TRUE, plot will be saved as .tiff file. Default to FALSE.
 #' @param dpi integer: resolution of saved .tiff file. Default to 600.
 #' @param width numeric: width (in cm) of saved .tiff file. Default to 15.
@@ -1512,9 +1667,18 @@ control_corr_target <- function(data,
 #' @export
 #'
 #' @examples
-#' control_cluster_sample(data.dCt, method.dist = "euclidean", method.clust = "complete")
-#' control_cluster_sample(data.dCt.exp, method.dist = "canberra", method.clust = "average")
-#' control_cluster_sample(data.Ct.exp, method.dist = "manhattan", method.clust = "single")
+#' library(tidyverse)
+#' library(Hmisc)
+#' library(corrplot)
+#' data(data.Ct)
+#' data.CtF <- filter_Ct(data.Ct,
+#'                       remove.Target = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+#'                       remove.Sample = c("Control08","Control16","Control22"))
+#' data.dCt <- delta_Ct(data.CtF,
+#'                      imput.by.mean.within.groups = TRUE,
+#'                      ref = "Gene8")
+#' corr.samples <- control_corr_sample(data.dCt)
+#' head(corr.samples)
 #'
 #' @importFrom base as.data.frame paste upper.tri rownames
 #' @importFrom stats p.adjust
@@ -1579,7 +1743,6 @@ control_corr_sample <- function(data,
     }
   }
 
-  if (save.to.txt == TRUE){
     corr <- upper.tri(res_cor$r)
     corr.data <- data.frame(
       row = rownames(res_cor$r)[row(res_cor$r)[corr]],
@@ -1589,8 +1752,11 @@ control_corr_sample <- function(data,
     )
     corr.data$p.adj <- p.adjust(corr.data$p, method = p.adjust.method)
     corr.data.sort <- arrange(corr.data, -abs(cor))
+
+    if (save.to.txt == TRUE){
     write.table(corr.data.sort, paste(name.txt, ".txt", sep = ""))
-  }
+    }
+
   return(corr.data.sort)
 }
 
@@ -1600,18 +1766,18 @@ control_corr_sample <- function(data,
 
 
 
-#' @title single_pair_sample
+#' @title single_pair_target
 #'
 #' @description
-#' Generate scatter plot with linear regression line for two specified samples. Could be useful to assess linear relationship between these samples.
+#' Generate scatter plot with linear regression line for two specified targets. Could be useful to assess linear relationship between these targets.
 #'
-#' @param data object returned from [delta_Ct()], [exp_Ct()] or [exp_delta_Ct()] function.
-#' @param x,y characters: names of samples to use.
+#' @param data object returned from delta_Ct(), exp_Ct() or exp_delta_Ct() function.
+#' @param x,y characters: names of targets to use.
 #' @param by.group logical: if TRUE (default), relationships will be shown separately for compared groups.
 #' @param point.size numeric: size of points. Default to 4.
 #' @param point.shape integer: shape of points. Default to 19.
 #' @param point.alpha numeric: transparency of points, a value between 0 and 1. Default to 0.7.
-#' @param colors character: color for points (if `by.group` = FALSE) or vector of two colors used to distinguish groups (if `by.group` = TRUE).
+#' @param colors character: color for points (if by.group = FALSE) or vector of two colors for points, used to distinguish groups (if by.group = TRUE).
 #' @param line.alpha numeric: transparency of regression line, a value between 0 and 1. Default to 0.7.
 #' @param axis.title.size integer: font size of axis titles. Default to 12.
 #' @param axis.text.size integer: font size of axis text. Default to 10.
@@ -1619,14 +1785,14 @@ control_corr_sample <- function(data,
 #' @param legend.title.size integer: font size of legend title. Default to 12.
 #' @param legend.text.size integer: font size of legend text. Default to 12.
 #' @param legend.position position of the legend, one of "top", "right" (default), "bottom", "left", or "none" (no legend).
-#' See description for `legend.position` parameter in [ggplot2::theme()] function.
+#' See description for `legend.position` parameter in ggplot2::theme() function.
 #' @param plot.title character: title of plot. Default to "".
 #' @param plot.title.size integer: font size of plot title. Default to 14.
-#' @param labels logical: if TRUE (default), a regression statistics will be added to the plot using [ggpimsc::stat_poly_eq()] function.
-#' @param label character: which regression statistics should be drawn, use names specified by [ggpimsc::stat_poly_eq()] function. Default to c("eq", "R2", "p") for regression equation, coefficient of determination and p value, respectively.
-#' @param label.position.x,label.position.y  numeric: coordinates for position of regression statistics. If `by.group` = TRUE, two values could be provided for each of these parameters (for different regression lines). See description of `label.x` and `label.y` parameters from [ggpimsc::stat_poly_eq()] function.
+#' @param labels logical: if TRUE (default), a regression statistics will be added to the plot using ggpimsc::stat_poly_eq() function.
+#' @param label character: which regression statistics should be drawn, use names specified by ggpimsc::stat_poly_eq() function. Default to c("eq", "R2", "p") for regression equation, coefficient of determination and p value, respectively.
+#' @param label.position.x,label.position.y  numeric: coordinates for position of regression statistics. If by.group = TRUE, two values could be provided for each of these parameters (for different regression lines). See description of label.x and label.y parameters from ggpimsc::stat_poly_eq() function.
 #' @param small.p,small.r logical, if TRUE, p in p value label and r in coefficient of determination label, will be lowercase. Default to FALSE.
-#' @param rr.digits,p.digits integer: number of digits after the decimal point in coefficient of determination and p value in labels. Default to 2 for `rr.digits` and 3 for `p.digits`.
+#' @param rr.digits,p.digits integer: number of digits after the decimal point in coefficient of determination and p value in labels. Default to 2 for rr.digits and 3 for p.digits.
 #' @param save.to.tiff logical: if TRUE, plot will be saved as .tiff file. Default to FALSE.
 #' @param dpi integer: resolution of saved .tiff file. Default to 600.
 #' @param width numeric: width (in cm) of saved .tiff file. Default to 15.
@@ -1637,15 +1803,22 @@ control_corr_sample <- function(data,
 #' @export
 #'
 #' @examples
-#' control_pca_sample(data.Ct.exp)
-#' control_pca_sample(data.dCt)
-#' control_pca_sample(data.dCt.exp)
+#' library(tidyverse)
+#' library(ggpmisc)
+#' data(data.Ct)
+#' data.CtF <- filter_Ct(data.Ct,
+#'                       remove.Target = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+#'                       remove.Sample = c("Control08","Control16","Control22"))
+#' data.dCt <- delta_Ct(data.CtF,
+#'                      imput.by.mean.within.groups = TRUE,
+#'                      ref = "Gene8")
+#' single_pair_target(data.dCt, "Gene16, "Gene17)
 #'
 #' @importFrom base print paste
 #' @import ggplot2
 #' @import ggpmisc
 #'
-single_pair_sample <- function(data, x, y, by.group = TRUE,
+single_pair_target <- function(data, x, y, by.group = TRUE,
                             point.size = 4, point.shape = 19, point.alpha = 0.7,
                             colors = c("#66c2a5", "#fc8d62"),
                             line.alpha = 0.7,
@@ -1667,7 +1840,7 @@ single_pair_sample <- function(data, x, y, by.group = TRUE,
                             rr.digits = 2,
                             save.to.tiff = FALSE,
                             dpi = 600, width = 15, height = 15,
-                            name.tiff = "samples_single_plot"){
+                            name.tiff = "targetss_single_plot"){
 
   if (by.group == TRUE){
     single_pair <- ggplot(data, aes(x = .data[[x]], y = .data[[y]], color = Group)) +
@@ -1733,12 +1906,12 @@ single_pair_sample <- function(data, x, y, by.group = TRUE,
 
 
 
-#' @title single_pair_target
+#' @title single_pair_sample
 #'
 #' @description
-#' Generate scatter plot with linear regression line for two specified targets Could be useful to assess linear relationship between these targets.
+#' Generate scatter plot with linear regression line for two specified samples Could be useful to assess linear relationship between these samples.
 #'
-#' @param data object returned from [delta_Ct()], [exp_Ct()] or [exp_delta_Ct()] function.
+#' @param data object returned from delta_Ct(), exp_Ct() or exp_delta_Ct() function.
 #' @param x,y characters: names of targets to use.
 #' @param point.size numeric: size of points.
 #' @param point.shape integer: shape of points.
@@ -1749,9 +1922,9 @@ single_pair_sample <- function(data, x, y, by.group = TRUE,
 #' @param axis.text.size integer: font size of axis text.
 #' @param plot.title character: title of plot.
 #' @param plot.title.size integer: font size of plot title.
-#' @param labels logical: if TRUE, a regression statistics will be added to the plot using [ggpimsc::stat_poly_eq()] function.
-#' @param label character: which regression statistics should be drawn, use names specified by [ggpimsc::stat_poly_eq()] function. Default to c("eq", "R2", "p") for regression equation, coefficient of determination and p value, respectively.
-#' @param label.position.x,label.position.y  numeric: coordinates for position of regression statistics. If `by.group` = TRUE, two values could be provided for each of these parameters (for different regression lines). See description of `label.x` and `label.y` parameters from [ggpimsc::stat_poly_eq()] function.
+#' @param labels logical: if TRUE, a regression statistics will be added to the plot using ggpimsc::stat_poly_eq() function.
+#' @param label character: which regression statistics should be drawn, use names specified by ggpimsc::stat_poly_eq() function. Default to c("eq", "R2", "p") for regression equation, coefficient of determination and p value, respectively.
+#' @param label.position.x,label.position.y  numeric: coordinates for position of regression statistics. If by.group = TRUE, two values could be provided for each of these parameters (for different regression lines). See description of label.x and label.y parameters from ggpimsc::stat_poly_eq() function.
 #' @param small.p,small.r logical, if TRUE, p in p value label and r in coefficient of determination label, will be lowercase.
 #' @param rr.digits,p.digits integer: number of digits after the decimal point in coefficient of determination and p value in labels.
 #' @param save.to.tiff logical: if TRUE, plot will be saved as .tiff file.
@@ -1764,16 +1937,23 @@ single_pair_sample <- function(data, x, y, by.group = TRUE,
 #' @export
 #'
 #' @examples
-#' control_pca_target(data.Ct.exp)
-#' control_pca_target(data.dCt)
-#' control_pca_target(data.dCt.exp)
+#' library(tidyverse)
+#' library(ggpmisc)
+#' data(data.Ct)
+#' data.CtF <- filter_Ct(data.Ct,
+#'                       remove.Target = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+#'                       remove.Sample = c("Control08","Control16","Control22"))
+#' data.dCt <- delta_Ct(data.CtF,
+#'                      imput.by.mean.within.groups = TRUE,
+#'                      ref = "Gene8")
+#' single_pair_sample(data.dCt, "Disease6", "Control17")
 #'
 #' @importFrom base print paste t colnames
 #' @importFrom dplyr select
 #' @import ggplot2
 #' @import ggpmisc
 #'
-single_pair_target <- function(data, x, y,
+single_pair_sample <- function(data, x, y,
                                    point.size = 4, point.shape = 19, point.alpha = 0.7,
                                    color = "black",
                                    line.alpha = 0.7,
@@ -1791,7 +1971,7 @@ single_pair_target <- function(data, x, y,
                                    rr.digits = 2,
                                    save.to.tiff = FALSE,
                                    dpi = 600, width = 15, height = 15,
-                                   name.tiff = "target_single_plot"){
+                                   name.tiff = "samples_single_plot"){
 
   data <- as.data.frame(data)
   data_t <- t(select(data, -Group, -Sample))
@@ -1824,6 +2004,7 @@ single_pair_target <- function(data, x, y,
   if (save.to.tiff == TRUE){
     ggsave(paste(name.tiff,".tiff", sep = ""), single_pair_t, dpi = dpi, width = width, height = height, units = "cm", compression = "lzw")
   }
+  return(single_pair_t)
 }
 
 
@@ -1835,7 +2016,7 @@ single_pair_target <- function(data, x, y,
 #' @description
 #' Filters transformed Ct data (2^(-Ct), delta Ct, and 2^(-dCt) data) according to the used filtering criteria (see parameters).
 #'
-#' @param data object returned from [delta_Ct()], [exp_Ct()] or [exp_delta_Ct()] functions.
+#' @param data object returned from delta_Ct(), exp_Ct() or exp_delta_Ct() functions.
 #' @param remove.Target character: vector with names of targets which should be removed from data.
 #' @param remove.Sample character: vector with names of samples which should be removed from data.
 #' @param remove.Group character: vector with names of groups which should be removed from data.
@@ -1844,10 +2025,20 @@ single_pair_target <- function(data, x, y,
 #' @export
 #'
 #' @examples
-#' <- filter_transformed_Ct(data,
-#'                       remove.Target = c(""),
-#'                       remove.Sample = c(""),
-#'                       remove.Group = c(""))
+#' library(tidyverse)
+#' data(data.Ct)
+#' data.CtF <- filter_Ct(data.Ct,
+#'                       remove.Target = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+#'                       remove.Sample = c("Control08","Control16","Control22"))
+#' data.dCt <- delta_Ct(data.CtF,
+#'                      imput.by.mean.within.groups = TRUE,
+#'                      ref = "Gene8")
+#' data.dCt.exp <- exp_delta_Ct(data.dCt)
+#' data.dCt.expF <- filter_transformed_Ct(data.dCt.exp, remove.Sample = c("Control11"))0
+#'
+#' dim(data.dCt.exp)
+#' dim(data.dCt.expF)
+#'
 #'
 #' @importFrom dplyr filter select
 #' @import tidyverse
@@ -1875,7 +2066,7 @@ filter_transformed_Ct <- function(data,
 #' @description
 #' This function exponentiates delta Ct (dCt) values by using formula 2^(-dCt).
 #'
-#' @param data data object returned from [delta_Ct()] function.
+#' @param data data object returned from delta_Ct() function.
 #' @param save.to.txt logical: if TRUE, returned data will be saved to .txt file. Default to FALSE.
 #' @param name.txt character: name of saved .txt file, without ".txt" name of extension. Default to "data.exp.dCt".
 #'
@@ -1883,8 +2074,16 @@ filter_transformed_Ct <- function(data,
 #' @export
 #'
 #' @examples
-#' data.Ct.exp <- exp_Ct(data.CtF,
-#'                       imput.by.mean.within.groups = TRUE)
+#' library(tidyverse)
+#' data(data.Ct)
+#' data.CtF <- filter_Ct(data.Ct,
+#'                       remove.Target = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+#'                       remove.Sample = c("Control08","Control16","Control22"))
+#' data.dCt <- delta_Ct(data.CtF,
+#'                      imput.by.mean.within.groups = TRUE,
+#'                      ref = "Gene8")
+#' data.dCt.exp <- exp_delta_Ct(data.dCt)
+#' head(data.dCt.exp)
 #'
 #' @importFrom base as.data.frame paste
 #' @importFrom utils write.table
@@ -1909,19 +2108,21 @@ exp_dCt <- function(data,
 }
 
 
+
+
 #' @title results_boxplot
 #'
 #' @description
 #' This function creates boxplot illustrating distribution of data in selected targets.
-#'     It is similar to [control_boxplot_target()] function; however, some new options are added,
+#'     It is similar to control_boxplot_target() function; however, some new options are added,
 #'     including target selection, faceting, and adding mean labels to boxes.
 #'     This, this function could be useful to present results for finally selected targets.
 #'
-#' @param data object returned from `delta_Ct()`, `exp_Ct()` or `exp_delta_Ct()` function.
+#' @param data object returned from delta_Ct(), exp_Ct() or exp_delta_Ct() function.
 #' @param coef numeric: how many times of interquartile range should be used to indicate the most extend data point for whiskers. Default to 1.5.
 #' @param sel.Target character vector with names of targets to include, or "all" (default) to use all names of targets.
 #' @param by.group logical: if TRUE (default), distributions will be drawn by compared groups of samples.
-#' @param faceting logical: if TRUE (default), plot will be drawn with facets with free scales using [ggplot2::facet_wrap()] function (see its documentation for more details).
+#' @param faceting logical: if TRUE (default), plot will be drawn with facets with free scales using ggplot2::facet_wrap() function (see its documentation for more details).
 #' @param facet.row,facet.col integer: number of rows and column to arrange facets.
 #' @param angle integer: value of angle in which names of genes should be displayed. Default to 0.
 #' @param rotate logical: if TRUE, boxplots will be arranged horizontally. Deafault to FALSE.
@@ -1937,7 +2138,7 @@ exp_dCt <- function(data,
 #' @param legend.title.size integer: font size of legend title. Default to 12.
 #' @param legend.text.size integer: font size of legend text. Default to 12.
 #' @param legend.position position of the legend, one of "top" (default), "right", "bottom", "left", or "none" (no legend).
-#' See description for `legend.position` in [ggplot2::theme()] function.
+#' See description for legend.position in ggplot2::theme() function.
 #' @param plot.title character: title of plot. Default to "".
 #' @param plot.title.size integer: font size of plot title. Default to 14.
 #' @param save.to.tiff logical: if TRUE, plot will be saved as .tiff file. Default to FALSE.
@@ -1950,9 +2151,20 @@ exp_dCt <- function(data,
 #' @export
 #'
 #' @examples
-#' control_boxplot_target(data.Ct.exp)
-#' control_boxplot_target(data.dCt)
-#' control_boxplot_target(data.dCt.exp)
+#' library(tidyverse)
+#' data(data.Ct)
+#' data.CtF <- filter_Ct(data.Ct,
+#'                       remove.Target = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+#'                       remove.Sample = c("Control08","Control16","Control22"))
+#' data.dCt <- delta_Ct(data.CtF,
+#'                      imput.by.mean.within.groups = TRUE,
+#'                      ref = "Gene8")
+#' data.dCt.exp <- exp_delta_Ct(data.dCt)
+#' data.dCt.expF <- filter_transformed_Ct(data.dCt.exp, remove.Sample = c("Control11"))
+#' results_boxplott(data.dCt,
+#'                  sel.Target = c("Gene1","Gene12","Gene16","Gene19","Gene20")
+#'                  facet.row = 3,
+#'                  facet.col = 5)
 #'
 #' @importFrom base print paste
 #' @importFrom dplyr filter
@@ -2021,7 +2233,7 @@ results_boxplot <- function(data,
   } else {
 
     box_results <- ggplot(data, aes(x = Target, y = value)) +
-      geom_boxplot(coef = coef, fill = col[1]) +
+      geom_boxplot(coef = coef, fill = colors[1]) +
       xlab(x.axis.title) + ylab(y.axis.title) +
       labs(fill = legend.title, title = plot.title) +
       theme_bw() +
@@ -2082,14 +2294,52 @@ results_boxplot <- function(data,
 
 
 
-
-
-
-
-
-
-
-RQ_ddCt <- function(data,
+#' @title RQ_exp_ddCt
+#'
+#' @description
+#' Performs relative quantification of gene expression using 2^(-ddCt) method.
+#'
+#' @details
+#' This function calculates:
+#' * Means (return in columns with "_mean" pattern) and standard deviations (return in columns with "_sd" pattern) of delta Ct values of analyzed targets across compared groups.
+#' * Normality tests (Shapiro_Wilk test) of delta Ct values of analyzed targets across compared groups and returned p values in columns with "_norm_p" pattern.
+#' * Differences in mean delta Ct values of targets between compared groups, obtaining delta delta Ct values (in returned "ddCt" column).
+#' * RQ values (return in "RQ" column) together with log10 RQ values (return in "log10RQ" column).
+#'   RQ values are calculated for each target by exponentiating ddCt values using 2^-ddCt formula.
+#' * Statistical testing of delta delta Ct values (differences between study group and reference group).
+#'   Student's t test and Mann-Whitney U test are implemented and resulted statistics (in column with "_test_stat" pattern) and p values (in column with "_test_p" pattern) are returned.
+#'
+#' @param data data object returned from delta_Ct() function.
+#' @param group.study character: name of study group (group of interest).
+#' @param group.ref character: name of reference group.
+#' @param do.tests logical: if TRUE, statistical significance of delta delta Ct values between compared groups will be calculated using Student's t test and Mann-Whitney U test. Default to TRUE.
+#' @param save.to.txt logical: if TRUE, returned table with results will be saved to .txt file. Default to FALSE.
+#' @param name.txt character: name of saved .txt file, without ".txt" name of extension. Default to "RQ_expCt_results".
+#
+#' @return Data.frame with relative quantification results.
+#' @export
+#'
+#' @examples
+#' library(tidyverse)
+#' library(coin)
+#' data(data.Ct)
+#' data.CtF <- filter_Ct(data.Ct,
+#'                       remove.Target = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+#'                       remove.Sample = c("Control08","Control16","Control22"))
+#' data.dCt <- delta_Ct(data.CtF,
+#'                      imput.by.mean.within.groups = TRUE,
+#'                      ref = "Gene8")
+#' RQ.ddCt.exp <- RQ_exp_ddCt(data, "Disease", "Control")
+#' head(RQ.ddCt.exp)
+#'
+#' @importFrom base as.data.frame as.factor mean
+#' @importFrom stats sd shapiro.test t.test
+#' @importFrom coin wilcox_test pvalue statistic
+#' @importFrom utils write.table
+#' @importFrom dplyr filter select rename_with full_join
+#' @import tidyverse
+#'
+RQ_exp_ddCt <- function(data,
                     group.study,
                     group.ref,
                     do.tests = TRUE,
@@ -2099,7 +2349,9 @@ RQ_ddCt <- function(data,
   data_slim <- data %>%
     filter(Group == group.study | Group == group.ref) %>%
     pivot_longer(cols = -c(Group, Sample), names_to = "Target", values_to = "dCt")
+
   data_slim$Group <- as.factor(data_slim$Group)
+
   data_ddCt <- data_slim %>%
     group_by(Group, Target) %>%
     summarise(ddCt = mean(dCt, na.rm = TRUE), .groups = "keep") %>%
@@ -2107,22 +2359,29 @@ RQ_ddCt <- function(data,
     mutate(ddCt = .data[[group.study]] - .data[[group.ref]]) %>%
     mutate(RQ = 2^-ddCt) %>%
     rename_with(~paste0(.x, "_mean", recycle0 = TRUE), all_of(c(group.study, group.ref)))
+
   if (do.tests == TRUE){
+
     data_ddCt_norm <- data_slim %>%
       group_by(Group, Target) %>%
       summarise(shap_wilka_p = shapiro.test(dCt)$p.value, .groups = "keep") %>%
       pivot_wider(names_from = Group, values_from = shap_wilka_p) %>%
       full_join(data_ddCt, by = c("Target")) %>%
       rename_with(~paste0(.x, "_norm_p", recycle0 = TRUE), all_of(c(group.study, group.ref)))
+
     data_ddCt_tests <- data_slim %>%
       group_by(Target) %>%
       summarise(t.test.p = t.test(dCt ~ Group, alternative = "two.sided")$p.value,
                 t.test.stat = t.test(dCt ~ Group, alternative = "two.sided")$statistic,
                 MW.test.p = pvalue(wilcox_test(dCt ~ Group)),
                 MW.test.stat = statistic(wilcox_test(dCt ~ Group)), .groups = "keep")
+
     data_ddCt_norm_tests <- full_join(data_ddCt_norm, data_ddCt_tests, by = c("Target"))
+
     return(data_ddCt_norm_tests)
-  } else{
+
+    } else{
+
     return(data_ddCt)
   }
   if (save.to.txt == TRUE){
@@ -2134,25 +2393,102 @@ RQ_ddCt <- function(data,
 
 
 
-RQ_plot_expCt_or_expdCt <- function(data, use.p = TRUE, mode, Target.sel = "all", p.threshold = 0.05,
-                                    col.width = 0.8,
-                                    angle = 0, rotate = FALSE,
-                                    col = c("#66c2a5", "#fc8d62"),
-                                    axis.title.size = 12,
-                                    axis.text.size = 10,
-                                    legend.text.size = 12,
-                                    x.axis.title = "Target",
-                                    y.axis.title = "log10(Fold change)",
-                                    legend.title = "Statistically significant?",
-                                    legend.title.size = 12,
-                                    legend.position = "top",
-                                    plot.title = "",
-                                    dpi = 600, width = 15, height = 15,
-                                    save.to.tiff = FALSE,
-                                    name.tiff = "ddCt_RQ_plot"){
+
+#' @title RQ_plot
+#'
+#' @description
+#' This function creates barplot illustrating fold change (when 2^-Ct or 2^-dCt methods are used) or RQ (when 2^-ddCt method is used) values.
+#' with indicating of statistical significance.
+#'
+#' @param data object returned from RQ_exp_ddCt() or RQ_exp_Ct() functions.
+#' @param use.p logical: if TRUE, bars of statistically significant genes will be distinguished by colors.
+#' @param mode character: which p value should be used? One of the "t" (p values from Student's t test),
+#' "mw" (p values from Mann-Whitney U test), "depends" (if data in both compared groups were considered as derived from normal distribution (p value from Shapiro_Wilk test > 0.05) - p
+#' values from Student's t test will be used for significance assessment, otherwise p values from Mann-Whitney U test will be used for significance assessment).
+#' There is one more option, if user intend to use another p values, ex. obtained from other statistical test,
+#' a mode parameter could be set to "user". In this situation, before run RQ_plot function, user should to prepare
+#' data.frame object names "user"with two columns, one named "Target" with Target names and second with p values. The order of columns must be kept as described.
+#' @param p.threshold numeric: threshold of p values for statistical significance.
+#' @param use.log10FCh logical: if TRUE, the criterion of fold change will be also used for significance assessment of genes.
+#' @param log10FCh.threshold numeric: threshold of log10 fold change values used for significance assessment of genes.
+#' @param sel.Target character vector with names of targets to include, or "all" (default) to use all names of targets.
+#' @param bar.width numeric: width of bars..
+#' @param angle integer: value of angle in which names of genes should be displayed. Default to 0.
+#' @param rotate logical: if TRUE, bars will be arranged horizontally. Deafault to FALSE.
+#' @param colors character vector length of one (when use.p = FALSE) or two (when use.p = TRUE), containing colors for significant and no significant genes.
+#' @param x.axis.title character: title of x axis. Default to "Target".
+#' @param y.axis.title character: title of y axis. Default to "value".
+#' @param axis.title.size integer: font size of axis titles. Default to 12.
+#' @param axis.text.size integer: font size of axis text. Default to 10.
+#' @param legend.title character: title of legend. Default to "Group".
+#' @param legend.title.size integer: font size of legend title. Default to 12.
+#' @param legend.text.size integer: font size of legend text. Default to 12.
+#' @param legend.position position of the legend, one of "top" (default), "right", "bottom", "left", or "none" (no legend).
+#' See description for legend.position in ggplot2::theme() function.
+#' @param plot.title character: title of plot. Default to "".
+#' @param plot.title.size integer: font size of plot title. Default to 14.
+#' @param save.to.tiff logical: if TRUE, plot will be saved as .tiff file. Default to FALSE.
+#' @param dpi integer: resolution of saved .tiff file. Default to 600.
+#' @param width numeric: width (in cm) of saved .tiff file. Default to 15.
+#' @param height integer: height (in cm) of saved .tiff file. Default to 15.
+#' @param name.tiff character: name of saved .tiff file, without ".tiff" name of extension. Default to "results_boxplot".
+#'
+#' @return List containing object with barplot and dataframe with results. Created plot will be also displayed on graphic device.
+#' @export
+#'
+#' @examples
+#' library(tidyverse)
+#' data(data.Ct)
+#' data.CtF <- filter_Ct(data.Ct,
+#'                       remove.Target = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+#'                       remove.Sample = c("Control08","Control16","Control22"))
+#' data.dCt <- delta_Ct(data.CtF,
+#'                      imput.by.mean.within.groups = TRUE,
+#'                      ref = "Gene8")
+#' data.dCt.exp <- exp_delta_Ct(data.dCt)
+#' data.dCt.expF <- filter_transformed_Ct(data.dCt.exp, remove.Sample = c("Control11"))
+#' RQ.ddCt.exp <- RQ_exp_ddCt(data, "Disease", "Control")
+#' RQ.plot <- RQ_plot(RQ.ddCt.exp, mode = "depends", Target.sel = c("Gene1","Gene12","Gene16","Gene19","Gene20"))
+#' head(RQ.plot[[2]])
+#'
+#' @importFrom base print paste colnames factor
+#' @importFrom dplyr filter
+#' @importFrom stats reorder
+#' @import ggplot2
+#' @import tidyverse
+#'
+RQ_plot <- function(data,
+                    use.p = TRUE,
+                    mode,
+                    p.threshold = 0.05,
+                    use.log10FCh = FALSE,
+                    log10FCh.threshold = 0,
+                    Target.sel = "all",
+                    bar.width = 0.8,
+                    angle = 0,
+                    rotate = FALSE,
+                    colors = c("#66c2a5", "#fc8d62"),
+                    x.axis.title = "Target",
+                    y.axis.title = "log10(Fold change)",
+                    axis.title.size = 12,
+                    axis.text.size = 10,
+                    legend.text.size = 12,
+                    legend.title = "Selected as significant?",
+                    legend.title.size = 12,
+                    legend.position = "top",
+                    plot.title = "",
+                    dpi = 600, width = 15, height = 15,
+                    save.to.tiff = FALSE,
+                    name.tiff = "RQ_plot"){
+
   if (Target.sel[1] != "all"){
     data <- filter(data, Target %in% Target.sel)
   }
+
+  if(sum(colnames(data) %in% "RQ") > 0){
+    data <- rename(data, FCh = RQ)
+  }
+
   if (use.p == TRUE){
     if (mode == "t"){
       data$p.used <- data$t.test.p
@@ -2169,12 +2505,22 @@ RQ_plot_expCt_or_expdCt <- function(data, use.p = TRUE, mode, Target.sel = "all"
       colnames(user) <- c("Target","p.used")
       data <- full_join(data, user, by = c("Target"))
     }
-    data <- mutate(data, `Statistically significant?` = ifelse(p.used > p.threshold, yes = "No (p > 0.05)",  no = "Yes (p <= 0.05)"))
-    data$`Statistically significant?` <- factor(data$`Statistically significant?`, levels = c("Yes (p <= 0.05)", "No (p > 0.05)"))
-    RQ <- ggplot(data, aes(x = reorder(Target, -FCh), y = log10(FCh), fill = `Statistically significant?`)) +
-      geom_col(width = col.width) +
-      scale_fill_manual(values = c(col)) +
-      xlab(x.axis.title) + ylab(y.axis.title) +
+    if (use.log10FCh == TRUE){
+      data <- mutate(data, `Selected as significant?` = ifelse(p.used > p.threshold, yes = "No",
+                                                                 no = ifelse(abs(log10(FCh)) <  log10FCh.threshold, "No", "Yes")))
+      data$`Selected as significant?` <- factor(data$`Selected as significant?`, levels = c("Yes", "No"))
+
+          } else {
+
+    data <- mutate(data, `Selected as significant?` = ifelse(p.used > p.threshold, yes = "No (p > 0.05)",  no = "Yes (p <= 0.05)"))
+    data$`Selected as significant?` <- factor(data$`Selected as significant?`, levels = c("Yes (p <= 0.05)", "No (p > 0.05)"))
+          }
+
+    RQ <- ggplot(data, aes(x = reorder(Target, -FCh), y = log10(FCh), fill = `Selected as significant?`)) +
+      geom_col(width = bar.width) +
+      scale_fill_manual(values = c(colors)) +
+      xlab(x.axis.title) +
+      ylab(y.axis.title) +
       labs(fill = legend.title, title = plot.title) +
       theme_bw() +
       theme(legend.position = legend.position) +
@@ -2184,9 +2530,11 @@ RQ_plot_expCt_or_expdCt <- function(data, use.p = TRUE, mode, Target.sel = "all"
       theme(legend.title = element_text(size = legend.title.size, colour="black")) +
       theme(panel.grid.major.x = element_blank()) +
       geom_hline(yintercept = 0, linewidth = 0.4)
-  } else {
-    RQ <- ggplot(data, aes(x = reorder(Target, -FCh), y = log10(FCh))) +
-      geom_col(width = col.width, fill = col[1]) +
+
+    } else {
+
+      RQ <- ggplot(data, aes(x = reorder(Target, -FCh), y = log10(FCh))) +
+      geom_col(width = bar.width, fill = colors[1]) +
       xlab(x.axis.title) + ylab(y.axis.title) +
       labs(title = plot.title) +
       theme_bw() +
@@ -2202,15 +2550,19 @@ RQ_plot_expCt_or_expdCt <- function(data, use.p = TRUE, mode, Target.sel = "all"
     RQ <- RQ +
       guides(x =  guide_axis(angle = angle))
   }
+
   if (rotate == TRUE){
     RQ <- RQ +
       coord_flip()
   }
+
   print(RQ)
+
   if (save.to.tiff == TRUE){
     ggsave(paste(name.tiff,".tiff", sep = ""), RQ, dpi = dpi, width = width, height = height, units = "cm", compression = "lzw")
   }
-  return(data)
+
+  return(list(RQ, data))
 }
 
 
@@ -2219,85 +2571,6 @@ RQ_plot_expCt_or_expdCt <- function(data, use.p = TRUE, mode, Target.sel = "all"
 
 
 
-
-RQ_plot <- function(data, use.p = TRUE, mode, Target.sel = "all", p.threshold = 0.05,
-                    col.width = 0.8,
-                    angle = 0, rotate = FALSE,
-                    col = c("#66c2a5", "#fc8d62"),
-                    axis.title.size = 12,
-                    axis.text.size = 10,
-                    legend.text.size = 12,
-                    x.axis.title = "Target",
-                    y.axis.title = "log10(RQ)",
-                    legend.title = "Statistically significant?",
-                    legend.title.size = 12,
-                    legend.position = "top",
-                    plot.title = "",
-                    dpi = 600, width = 15, height = 15,
-                    save.to.tiff = FALSE,
-                    name.tiff = "ddCt_RQ_plot"){
-  if (Target.sel[1] != "all"){
-    data <- filter(data, Target %in% Target.sel)
-  }
-  if (use.p == TRUE){
-  if (mode == "t"){
-    data$p.used <- data$t.test.p
-    }
-  if (mode == "mw"){
-    data$p.used <- data$MW.test.p
-    }
-  if (mode == "depends"){
-    vars <- colnames(select(data, ends_with("norm_p")))
-    data <- mutate(data, test.for.comparison = ifelse(.data[[vars[[1]]]] >= 0.05 & .data[[vars[[2]]]] >= 0.05, "t.student's.test", "Mann-Whitney.test"))
-    data <- mutate(data, p.used = ifelse(test.for.comparison == "t.student's.test", t.test.p, MW.test.p))
-  }
-  if (mode == "user"){
-    colnames(user) <- c("Target","p.used")
-    data <- full_join(data, user, by = c("Target"))
-    }
-  data <- mutate(data, `Statistically significant?` = ifelse(p.used > p.threshold, yes = "No (p > 0.05)",  no = "Yes (p <= 0.05)"))
-  data$`Statistically significant?` <- factor(data$`Statistically significant?`, levels = c("Yes (p <= 0.05)", "No (p > 0.05)"))
-  RQ <- ggplot(data, aes(x = reorder(Target, -RQ), y = log10(RQ), fill = `Statistically significant?`)) +
-    geom_col(width = col.width) +
-    scale_fill_manual(values = c(col)) +
-    xlab(x.axis.title) + ylab(y.axis.title) +
-    labs(fill = legend.title, title = plot.title) +
-    theme_bw() +
-    theme(legend.position = legend.position) +
-    theme(axis.text = element_text(size = axis.text.size, colour = "black")) +
-    theme(axis.title = element_text(size = axis.title.size, colour="black")) +
-    theme(legend.text = element_text(size = legend.text.size, colour="black")) +
-    theme(legend.title = element_text(size = legend.title.size, colour="black")) +
-    theme(panel.grid.major.x = element_blank()) +
-    geom_hline(yintercept = 0, linewidth = 0.4)
-  } else {
-    RQ <- ggplot(data, aes(x = reorder(Target, -RQ), y = log10(RQ))) +
-      geom_col(width = col.width, fill = col[1]) +
-      xlab(x.axis.title) + ylab(y.axis.title) +
-      labs(title = plot.title) +
-      theme_bw() +
-      theme(legend.position = legend.position) +
-      theme(axis.text = element_text(size = axis.text.size, colour = "black")) +
-      theme(axis.title = element_text(size = axis.title.size, colour="black")) +
-      theme(legend.text = element_text(size = legend.text.size, colour="black")) +
-      theme(legend.title = element_text(size = legend.title.size, colour="black")) +
-      theme(panel.grid.major.x = element_blank())
-  }
-
-  if (angle != 0){
-    RQ <- RQ +
-      guides(x =  guide_axis(angle = angle))
-  }
-  if (rotate == TRUE){
-    RQ <- RQ +
-      coord_flip()
-  }
-  print(RQ)
-  if (save.to.tiff == TRUE){
-    ggsave(paste(name.tiff,".tiff", sep = ""), RQ, dpi = dpi, width = width, height = height, units = "cm", compression = "lzw")
-  }
-  return(data)
-}
 
 
 

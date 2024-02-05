@@ -19,11 +19,11 @@ control_cluster_target(
 )
 }
 \arguments{
-\item{data}{object returned from `delta_Ct()`, `exp_Ct()` or `exp_delta_Ct()` function.}
+\item{data}{object returned from delta_Ct(), exp_Ct() or exp_delta_Ct() function.}
 
-\item{method.dist}{character: name of method used for calculation of distances, derived from `stats::dist()` function, should be one of "euclidean" (default) , "maximum", "manhattan", "canberra", "binary" or "minkowski".}
+\item{method.dist}{character: name of method used for calculation of distances, derived from stats::dist() function, should be one of "euclidean" (default) , "maximum", "manhattan", "canberra", "binary" or "minkowski".}
 
-\item{method.clust}{character: name of used method for agglomeration, derived from `stats::hclust()` function, should be one of "ward.D", "ward.D2", "single", "complete", "average" (default), "mcquitty", "median" or "centroid".}
+\item{method.clust}{character: name of used method for agglomeration, derived from stats::hclust() function, should be one of "ward.D", "ward.D2", "single", "complete", "average" (default), "mcquitty", "median" or "centroid".}
 
 \item{x.axis.title}{character: title of x axis. Default to "Targets".}
 
@@ -48,8 +48,14 @@ Plot with hierarchical clustering of targets, displayed on graphic device.
 Performs hierarchical clustering of targets based on the data. Could be useful to gain insight into similarity in expression of analyzed targets.
 }
 \examples{
-control_cluster_target(data.dCt, method.dist = "euclidean", method.clust = "complete")
-control_cluster_target(data.dCt.exp, method.dist = "canberra", method.clust = "average")
-control_cluster_target(data.Ct.exp, method.dist = "manhattan", method.clust = "single")
+library(tidyverse)
+data(data.Ct)
+data.CtF <- filter_Ct(data.Ct,
+                      remove.Target = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+                      remove.Sample = c("Control08","Control16","Control22"))
+data.dCt <- delta_Ct(data.CtF,
+                     imput.by.mean.within.groups = TRUE,
+                     ref = "Gene8")
+control_cluster_target(data.dCt)
 
 }

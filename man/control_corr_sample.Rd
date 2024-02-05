@@ -23,14 +23,14 @@ control_corr_sample(
 )
 }
 \arguments{
-\item{data}{object returned from `delta_Ct()`, `exp_Ct()` or `exp_delta_Ct()` function.}
+\item{data}{object returned from delta_Ct(), exp_Ct() or exp_delta_Ct() function.}
 
 \item{method}{character: type of correlations to compute, specify "pearson" (default) for Pearson's correlation coefficients
 or "spearman" for Spearman's rank correlation coefficients.}
 
 \item{add.coef}{if coefficients should be add to the plot, specify color of coefficients (default to "black"), otherwise set to NULL.}
 
-\item{order}{character: method used for ordering the correlation matrix (see documentation for [corrplot::corrplot()] function),
+\item{order}{character: method used for ordering the correlation matrix (see documentation for corrplot::corrplot() function),
 one of the "original" (original order), "AOE" (angular order of the eigenvectors),
 "FPC" (first principal component order), "hclust" (hierarchical clustering order, default), or "alphabet" (alphabetical order).}
 
@@ -40,7 +40,7 @@ one of the "original" (original order), "AOE" (angular order of the eigenvectors
 
 \item{coef.size}{numeric: size of correlation coefficients. Default to 0.6.}
 
-\item{p.adjust.method}{character: p value correction method for multiple testing, one of "holm", "hochberg", "hommel", "bonferroni", "BH", "BY","fdr", or "none". See documentation for [stats::p.adjust()] function for details.}
+\item{p.adjust.method}{character: p value correction method for multiple testing, one of "holm", "hochberg", "hommel", "bonferroni", "BH", "BY","fdr", or "none". See documentation for stats::p.adjust() function for details.}
 
 \item{save.to.tiff}{logical: if TRUE, plot will be saved as .tiff file. Default to FALSE.}
 
@@ -63,8 +63,17 @@ Plot illustrating correlation matrix (displayed in graphic device) and data.fram
 Performs correlation analysis of samples based on the data. Could be useful to gain insight into relationships between analyzed samples.
 }
 \examples{
-control_cluster_sample(data.dCt, method.dist = "euclidean", method.clust = "complete")
-control_cluster_sample(data.dCt.exp, method.dist = "canberra", method.clust = "average")
-control_cluster_sample(data.Ct.exp, method.dist = "manhattan", method.clust = "single")
+library(tidyverse)
+library(Hmisc)
+library(corrplot)
+data(data.Ct)
+data.CtF <- filter_Ct(data.Ct,
+                      remove.Target = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+                      remove.Sample = c("Control08","Control16","Control22"))
+data.dCt <- delta_Ct(data.CtF,
+                     imput.by.mean.within.groups = TRUE,
+                     ref = "Gene8")
+corr.samples <- control_corr_sample(data.dCt)
+head(corr.samples)
 
 }

@@ -12,7 +12,7 @@ filter_transformed_Ct(
 )
 }
 \arguments{
-\item{data}{object returned from [delta_Ct()], [exp_Ct()] or [exp_delta_Ct()] functions.}
+\item{data}{object returned from delta_Ct(), exp_Ct() or exp_delta_Ct() functions.}
 
 \item{remove.Target}{character: vector with names of targets which should be removed from data.}
 
@@ -27,9 +27,19 @@ Data.frame with filtered data.
 Filters transformed Ct data (2^(-Ct), delta Ct, and 2^(-dCt) data) according to the used filtering criteria (see parameters).
 }
 \examples{
-<- filter_transformed_Ct(data,
-                      remove.Target = c(""),
-                      remove.Sample = c(""),
-                      remove.Group = c(""))
+library(tidyverse)
+data(data.Ct)
+data.CtF <- filter_Ct(data.Ct,
+                      remove.Target = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+                      remove.Sample = c("Control08","Control16","Control22"))
+data.dCt <- delta_Ct(data.CtF,
+                     imput.by.mean.within.groups = TRUE,
+                     ref = "Gene8")
+data.dCt.exp <- exp_delta_Ct(data.dCt)
+data.dCt.expF <- filter_transformed_Ct(data.dCt.exp, remove.Sample = c("Control11"))0
+
+dim(data.dCt.exp)
+dim(data.dCt.expF)
+
 
 }

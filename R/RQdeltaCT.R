@@ -5,7 +5,7 @@
 #' Enables to import Ct dataset in a wide-format table with sample names given in columns.
 #'
 #' @details
-#' This function needs two tables to import: a wide-format table with Ct values and design file (see parameters `path.Ct.file` and `path.design.file` for further details regarding tables structure).
+#' This function needs two files to import: a wide-format table with Ct values and design file (see parameters path.Ct.file and path.design.file for further details regarding tables structure).
 #' Subsequently merges both files to return long-format table ready for analysis.
 #' All parameters must be specified, there is no default values.
 #'
@@ -624,7 +624,7 @@ exp_Ct <- function(data,
                   name.txt = "data.exp.Ct"){
   data <- data %>%
     group_by(Group, Target, Sample) %>%
-    summarise(mean = base::mean(Ct, na.rm = TRUE), .groups = "keep") %>%
+    summarise(mean = mean(Ct, na.rm = TRUE), .groups = "keep") %>%
     as.data.frame()
 
   calcRQ <- function(x){
@@ -727,7 +727,7 @@ RQ_exp_Ct <- function(data,
   data_FCh <- data_slim %>%
     group_by(Group, Target) %>%
     summarise(value = mean(value, na.rm = TRUE), .groups = "keep") %>%
-    pivot_wider(names_from = Group, values_from = expCt) %>%
+    pivot_wider(names_from = Group, values_from = value) %>%
     mutate(FCh = .data[[group.study]]/.data[[group.ref]]) %>%
     mutate(log10FCh = log10(FCh)) %>%
     as.data.frame()
@@ -783,12 +783,10 @@ RQ_exp_Ct <- function(data,
 #' variance and colinearity coefficient VIF) that could be helpful to select the best
 #' reference gene for normalization of Ct values.
 #'
-#' @param data object returned from read_Ct_long(), read_Ct_wide() or filter_Ct() functions,
-#' or data frame containing column named "Sample" with sample names, column named "Target" with target names,
-#' column named "Ct" with raw Ct values, column named "Group" with group names.
-#'     Any other columns could exist, but will not be used by this function.
+#' @param data object returned from Ct_for_control() functions,
 #'
 #' @param candidates character: vector of names of targets - candidates for gene reference.
+#' @param groups character vector length of two with names of compared groups
 #' @param colors character: vector of colors for targets, number of elements should be equal to number of candidate genes (elements in `candidates` vector).
 #' @param line.width numeric: width of lines drawn in the plot. Default to 1.
 #' @param angle integer: value of angle in which names of genes should be displayed. Default to 0.
@@ -821,9 +819,10 @@ RQ_exp_Ct <- function(data,
 #' data.CtF <- filter_Ct(data.Ct,
 #'                       remove.Target = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
 #'                       remove.Sample = c("Control08","Control16","Control22"))
-#' ref <-  select_ref_gene(data.CtF,
-#'                         candidates = c("Gene4", "Gene8","Gene10","Gene16","Gene17", "Gene18"),
-#'                         col = c("#66c2a5", "#fc8d62","#6A6599", "#D62728", "#1F77B4", "black"))
+#' data.CtF.prepared <- Ct_for_control(data.CtF, imput.by.mean.within.groups = TRUE)
+#' ref <- select_ref_gene(data.CtF.prepared, groups = c("Disease","Control"),
+#'                          candidates = c("Gene4", "Gene8","Gene10","Gene16","Gene17", "Gene18"),
+#'                          col = c("#66c2a5", "#fc8d62","#6A6599", "#D62728", "#1F77B4", "black"))
 #' ref[[2]]
 #'
 #' @importFrom base mean print min max as.data.frame
@@ -834,6 +833,7 @@ RQ_exp_Ct <- function(data,
 #' @import tidyverse
 #'
 select_ref_gene <- function(data,
+                            groups,
                             candidates,
                             colors,
                             line.width = 1,
@@ -853,11 +853,11 @@ select_ref_gene <- function(data,
                             name.tiff = "Ct_reference_gene_selection"){
 
   ref <- data %>%
-    group_by(Group, Target, Sample) %>%
-    summarise(mean = mean(Ct, na.rm = TRUE),  .groups = "keep") %>%
-    filter(Target %in% candidates)
+      filter(Group == groups[1] | Group == groups[2]) %>%
+      pivot_longer(cols = -c(Group, Sample), names_to = "Target", values_to = "Ct") %>%
+      filter(Target %in% candidates)
 
-  ref_plot <- ggplot(ref, aes(x = Sample, y = mean, color = Target, group = Target)) +
+  ref_plot <- ggplot(ref, aes(x = Sample, y = Ct, color = Target, group = Target)) +
     geom_line(linewidth = line.width) +
     scale_color_manual(values = c(colors)) +
     theme_bw() +
@@ -884,28 +884,38 @@ select_ref_gene <- function(data,
 
   ref_var <- ref %>%
     group_by(Target) %>%
-    summarise(min = min(mean),
-              max = max(mean),
-              sd = sd(mean, na.rm = TRUE),
-              var = var(mean, na.rm = TRUE), .groups = "keep") %>%
+    summarise(min = min(Ct),
+              max = max(Ct),
+              sd = sd(Ct, na.rm = TRUE),
+              var = var(Ct, na.rm = TRUE), .groups = "keep") %>%
     as.data.frame()
 
-  ref_vif <- data %>%
-    group_by(Group, Target, Sample) %>%
-    summarise(mean = mean(Ct, na.rm = TRUE), .groups = "keep") %>%
+  ref_lm <- data %>%
+    filter(Group %in% groups[1]) %>%
     ungroup()
-
-  ref_lm <- pivot_wider(ref_vif, names_from = Target, values_from = mean)
 
   ref_lm$dum <- c(1:nrow(ref_lm))
   model <- lm(dum ~ ., data = select(ref_lm, -Sample, -Group))
   vif <- vif(model)
   vif_sel <- vif[names(vif) %in% candidates]
   ref_var$VIF <- vif_sel
-  ref_var$VIF.Target <- names(vif_sel)
+  colnames(ref_var)[colnames(ref_var) == "VIF"] = paste(groups[1], "_VIF", sep = "")
+
+  ref_lm2 <- data %>%
+    filter(Group %in% groups[2]) %>%
+    ungroup()
+
+  ref_lm2$dum <- c(1:nrow(ref_lm2))
+  model2 <- lm(dum ~ ., data = select(ref_lm2, -Sample, -Group))
+  vif2 <- vif(model2)
+  vif_sel2 <- vif2[names(vif2) %in% candidates]
+  ref_var$VIF2 <- vif_sel2
+  colnames(ref_var)[colnames(ref_var) == "VIF2"] = paste(groups[2], "_VIF", sep = "")
 
   return(list(ref_plot, ref_var))
 }
+
+
 
 
 
@@ -1426,7 +1436,7 @@ control_pca_sample <- function(data,
 #' Performs principal component analysis (PCA) for targets and generate plot illustrating spatial arrangement of targets using 2 components. Could be useful to gain insight into similarity in expression of analyzed targets.
 #' IMPORTANT: PCA analysis can not deal with missing values, thus all targets with at least one missing value are removed from data before analysis. It is recommended to run this function on data after imputation of missing values.
 #'
-#' @param data object returned from `delta_Ct()`, `exp_Ct()` or `exp_delta_Ct()` function.
+#' @param data object returned from delta_Ct(), exp_Ct() or exp_delta_Ct()` function.
 #' @param point.size numeric: size of points. Default to 4.
 #' @param point.shape integer: shape of points. Default to 19.
 #' @param alpha numeric: transparency of points, a value between 0 and 1. Default to 0.7.
@@ -1440,7 +1450,7 @@ control_pca_sample <- function(data,
 #' @param legend.title.size integer: font size of legend title. Default to 12.
 #' @param legend.text.size integer: font size of legend text. Default to 12.
 #' @param legend.position position of the legend, one of "top", "right" (default), "bottom", "left", or "none" (no legend).
-#' See description for `legend.position` parameter in [ggplot2::theme()] function.
+#' See description for legend.position parameter in ggplot2::theme() function.
 #' @param plot.title character: title of plot. Default to "".
 #' @param plot.title.size integer: font size of plot title. Default to 14.
 #' @param save.to.tiff logical: if TRUE, plot will be saved as .tiff file. Default to FALSE.
@@ -1778,7 +1788,6 @@ control_corr_sample <- function(data,
 #' @param point.shape integer: shape of points. Default to 19.
 #' @param point.alpha numeric: transparency of points, a value between 0 and 1. Default to 0.7.
 #' @param colors character: color for points (if by.group = FALSE) or vector of two colors for points, used to distinguish groups (if by.group = TRUE).
-#' @param line.alpha numeric: transparency of regression line, a value between 0 and 1. Default to 0.7.
 #' @param axis.title.size integer: font size of axis titles. Default to 12.
 #' @param axis.text.size integer: font size of axis text. Default to 10.
 #' @param legend.title character: title of legend. Default to "Group".
@@ -1812,7 +1821,7 @@ control_corr_sample <- function(data,
 #' data.dCt <- delta_Ct(data.CtF,
 #'                      imput.by.mean.within.groups = TRUE,
 #'                      ref = "Gene8")
-#' single_pair_target(data.dCt, "Gene16, "Gene17)
+#' single_pair_target(data.dCt, "Gene16", "Gene17")
 #'
 #' @importFrom base print paste
 #' @import ggplot2
@@ -1821,7 +1830,6 @@ control_corr_sample <- function(data,
 single_pair_target <- function(data, x, y, by.group = TRUE,
                             point.size = 4, point.shape = 19, point.alpha = 0.7,
                             colors = c("#66c2a5", "#fc8d62"),
-                            line.alpha = 0.7,
                             axis.title.size = 12,
                             axis.text.size = 10,
                             legend.title = "Group",
@@ -1840,12 +1848,12 @@ single_pair_target <- function(data, x, y, by.group = TRUE,
                             rr.digits = 2,
                             save.to.tiff = FALSE,
                             dpi = 600, width = 15, height = 15,
-                            name.tiff = "targetss_single_plot"){
+                            name.tiff = "targets_single_pair_plot"){
 
   if (by.group == TRUE){
     single_pair <- ggplot(data, aes(x = .data[[x]], y = .data[[y]], color = Group)) +
       geom_point(size = point.size, shape = point.shape, alpha = point.alpha) +
-      geom_smooth(method='lm', se = FALSE, alpha = line.alpha) +
+      geom_smooth(method='lm', se = FALSE) +
       scale_color_manual(values = c(colors)) +
       xlab(x) +
       ylab(y) +
@@ -1859,7 +1867,7 @@ single_pair_target <- function(data, x, y, by.group = TRUE,
       theme(plot.title = element_text(size = plot.title.size))
 
     if (labels == TRUE){
-      single_pair <- corr_control +
+      single_pair <- single_pair +
         stat_poly_eq(use_label(label),
                      label.y = c(label.position.y),
                      label.x = c(label.position.x),
@@ -1872,7 +1880,7 @@ single_pair_target <- function(data, x, y, by.group = TRUE,
 
     single_pair <- ggplot(data, aes(x = .data[[x]], y = .data[[y]])) +
       geom_point(size = point.size, shape = point.shape, alpha = point.alpha, col = colors[1]) +
-      geom_smooth(method='lm', se = FALSE, alpha = line.alpha) +
+      geom_smooth(method='lm', se = FALSE) +
       stat_poly_eq(use_label(label),
                    label.y = c(label.position.y),
                    label.x = c(label.position.x)) +
@@ -1906,6 +1914,9 @@ single_pair_target <- function(data, x, y, by.group = TRUE,
 
 
 
+
+
+
 #' @title single_pair_sample
 #'
 #' @description
@@ -1917,7 +1928,6 @@ single_pair_target <- function(data, x, y, by.group = TRUE,
 #' @param point.shape integer: shape of points.
 #' @param point.alpha numeric: transparency of points, a value between 0 and 1.
 #' @param color character: color used for points.
-#' @param line.alpha numeric: transparency of regression line, a value between 0 and 1.
 #' @param axis.title.size integer: font size of axis titles.
 #' @param axis.text.size integer: font size of axis text.
 #' @param plot.title character: title of plot.
@@ -1956,7 +1966,6 @@ single_pair_target <- function(data, x, y, by.group = TRUE,
 single_pair_sample <- function(data, x, y,
                                    point.size = 4, point.shape = 19, point.alpha = 0.7,
                                    color = "black",
-                                   line.alpha = 0.7,
                                    axis.title.size = 12,
                                    axis.text.size = 10,
                                    plot.title = "",
@@ -1971,7 +1980,7 @@ single_pair_sample <- function(data, x, y,
                                    rr.digits = 2,
                                    save.to.tiff = FALSE,
                                    dpi = 600, width = 15, height = 15,
-                                   name.tiff = "samples_single_plot"){
+                                   name.tiff = "samples_single_pair_plot"){
 
   data <- as.data.frame(data)
   data_t <- t(select(data, -Group, -Sample))
@@ -1979,7 +1988,7 @@ single_pair_sample <- function(data, x, y,
 
   single_pair_t <- ggplot(as.data.frame(data_t), aes(x = .data[[x]], y = .data[[y]])) +
     geom_point(size = point.size, shape = point.shape, alpha = point.alpha, color = color) +
-    geom_smooth(method='lm', se = FALSE, alpha = alpha) +
+    geom_smooth(method='lm', se = FALSE) +
     xlab(x) +
     ylab(y) +
     labs(title = plot.title) +
@@ -2011,6 +2020,8 @@ single_pair_sample <- function(data, x, y,
 
 
 
+
+
 #' @title filter_transformed_Ct
 #'
 #' @description
@@ -2034,7 +2045,7 @@ single_pair_sample <- function(data, x, y,
 #'                      imput.by.mean.within.groups = TRUE,
 #'                      ref = "Gene8")
 #' data.dCt.exp <- exp_delta_Ct(data.dCt)
-#' data.dCt.expF <- filter_transformed_Ct(data.dCt.exp, remove.Sample = c("Control11"))0
+#' data.dCt.expF <- filter_transformed_Ct(data.dCt.exp, remove.Sample = c("Control11"))
 #'
 #' dim(data.dCt.exp)
 #' dim(data.dCt.expF)
@@ -2061,7 +2072,8 @@ filter_transformed_Ct <- function(data,
 
 
 
-#' @title exp_delta_Ct
+
+#' @title exp_dCt
 #'
 #' @description
 #' This function exponentiates delta Ct (dCt) values by using formula 2^(-dCt).
@@ -2110,6 +2122,9 @@ exp_dCt <- function(data,
 
 
 
+
+
+
 #' @title results_boxplot
 #'
 #' @description
@@ -2123,7 +2138,7 @@ exp_dCt <- function(data,
 #' @param sel.Target character vector with names of targets to include, or "all" (default) to use all names of targets.
 #' @param by.group logical: if TRUE (default), distributions will be drawn by compared groups of samples.
 #' @param faceting logical: if TRUE (default), plot will be drawn with facets with free scales using ggplot2::facet_wrap() function (see its documentation for more details).
-#' @param facet.row,facet.col integer: number of rows and column to arrange facets.
+#' @param facet.row,facet.col integer: number of rows and columns to arrange facets.
 #' @param angle integer: value of angle in which names of genes should be displayed. Default to 0.
 #' @param rotate logical: if TRUE, boxplots will be arranged horizontally. Deafault to FALSE.
 #' @param add.mean logical: if TRUE, means will be added to boxes as squares. Default to TRUE.
@@ -2161,10 +2176,11 @@ exp_dCt <- function(data,
 #'                      ref = "Gene8")
 #' data.dCt.exp <- exp_delta_Ct(data.dCt)
 #' data.dCt.expF <- filter_transformed_Ct(data.dCt.exp, remove.Sample = c("Control11"))
-#' results_boxplott(data.dCt,
-#'                  sel.Target = c("Gene1","Gene12","Gene16","Gene19","Gene20")
-#'                  facet.row = 3,
-#'                  facet.col = 5)
+#' results_boxplot(data.dCt.expF,
+#'                  sel.Target = c("Gene1","Gene16","Gene19","Gene20")
+#'                  facet.row = 2,
+#'                  facet.col = 2,
+#'                  y.axis.title = bquote(~2^-dCt))
 #'
 #' @importFrom base print paste
 #' @importFrom dplyr filter
@@ -2184,7 +2200,7 @@ results_boxplot <- function(data,
                             add.mean.size = 2,
                             add.mean.color = "black",
                             colors = c("#66c2a5", "#fc8d62"),
-                            x.axis.title = "Sample",
+                            x.axis.title = "Target",
                             y.axis.title = "value",
                             axis.title.size = 12,
                             axis.text.size = 10,
@@ -2222,6 +2238,7 @@ results_boxplot <- function(data,
       theme(axis.title = element_text(size = axis.title.size, colour="black")) +
       theme(legend.text = element_text(size = legend.text.size, colour="black")) +
       theme(legend.title = element_text(size = legend.title.size, colour="black")) +
+      theme(plot.title = element_text(size = plot.title.size)) +
       theme(panel.grid.major.x = element_blank())
 
     if (faceting == TRUE) {
@@ -2242,6 +2259,7 @@ results_boxplot <- function(data,
       theme(axis.title = element_text(size = axis.title.size, colour="black")) +
       theme(legend.text = element_text(size = legend.text.size, colour="black")) +
       theme(legend.title = element_text(size = legend.title.size, colour="black")) +
+      theme(plot.title = element_text(size = plot.title.size)) +
       theme(panel.grid.major.x = element_blank())
 
     if (faceting == TRUE) {
@@ -2294,6 +2312,8 @@ results_boxplot <- function(data,
 
 
 
+
+
 #' @title RQ_exp_ddCt
 #'
 #' @description
@@ -2329,7 +2349,7 @@ results_boxplot <- function(data,
 #' data.dCt <- delta_Ct(data.CtF,
 #'                      imput.by.mean.within.groups = TRUE,
 #'                      ref = "Gene8")
-#' RQ.ddCt.exp <- RQ_exp_ddCt(data, "Disease", "Control")
+#' RQ.ddCt.exp <- RQ_exp_ddCt(data.dCt, "Disease", "Control")
 #' head(RQ.ddCt.exp)
 #'
 #' @importFrom base as.data.frame as.factor mean
@@ -2371,10 +2391,10 @@ RQ_exp_ddCt <- function(data,
 
     data_ddCt_tests <- data_slim %>%
       group_by(Target) %>%
-      summarise(t.test.p = t.test(dCt ~ Group, alternative = "two.sided")$p.value,
-                t.test.stat = t.test(dCt ~ Group, alternative = "two.sided")$statistic,
-                MW.test.p = pvalue(wilcox_test(dCt ~ Group)),
-                MW.test.stat = statistic(wilcox_test(dCt ~ Group)), .groups = "keep")
+      summarise(t_test_p = t.test(dCt ~ Group, alternative = "two.sided")$p.value,
+                t_test_stat = t.test(dCt ~ Group, alternative = "two.sided")$statistic,
+                MW_test_p = pvalue(wilcox_test(dCt ~ Group)),
+                MW_test_stat = statistic(wilcox_test(dCt ~ Group)), .groups = "keep")
 
     data_ddCt_norm_tests <- full_join(data_ddCt_norm, data_ddCt_tests, by = c("Target"))
 
@@ -2388,7 +2408,6 @@ RQ_exp_ddCt <- function(data,
     write.table(data_ddCt_norm_tests, paste(name.txt,".txt", sep = ""))
   }
 }
-
 
 
 
@@ -2448,9 +2467,18 @@ RQ_exp_ddCt <- function(data,
 #' data.dCt.exp <- exp_delta_Ct(data.dCt)
 #' data.dCt.expF <- filter_transformed_Ct(data.dCt.exp, remove.Sample = c("Control11"))
 #' RQ.ddCt.exp <- RQ_exp_ddCt(data, "Disease", "Control")
-#' RQ.plot <- RQ_plot(RQ.ddCt.exp, mode = "depends", Target.sel = c("Gene1","Gene12","Gene16","Gene19","Gene20"))
+#' RQ.plot <- RQ_plot(RQ.ddCt.exp, mode = "depends", use.log10FCh = TRUE, log10FCh.threshold = 0.30103)
 #' head(RQ.plot[[2]])
 #'
+#' # with user p values - in this example used p values are calculated using stats::wilcox.test() function:
+#' user <- data.dCt %>%
+#' pivot_longer(cols = -c(Group, Sample), names_to = "Target", values_to = "dCt") %>%
+#'   group_by(Target) %>%
+#'   summarise(MW_test_p = wilcox.test(dCt ~ Group)$p.value, .groups = "keep")
+#'
+#' RQ.plot <- RQ_plot(RQ.ddCt.exp, mode = "user", use.log10FCh = TRUE, log10FCh.threshold = 0.30103)
+#' head(RQ.plot[[2]])
+#
 #' @importFrom base print paste colnames factor
 #' @importFrom dplyr filter
 #' @importFrom stats reorder
@@ -2477,6 +2505,7 @@ RQ_plot <- function(data,
                     legend.title.size = 12,
                     legend.position = "top",
                     plot.title = "",
+                    plot.title.size = 14,
                     dpi = 600, width = 15, height = 15,
                     save.to.tiff = FALSE,
                     name.tiff = "RQ_plot"){
@@ -2491,15 +2520,16 @@ RQ_plot <- function(data,
 
   if (use.p == TRUE){
     if (mode == "t"){
-      data$p.used <- data$t.test.p
+      data$p.used <- data$t_test_p
     }
     if (mode == "mw"){
-      data$p.used <- data$MW.test.p
+      data$p.used <- data$MW_test_p
     }
     if (mode == "depends"){
+      data <- ungroup(data)
       vars <- colnames(select(data, ends_with("norm_p")))
       data <- mutate(data, test.for.comparison = ifelse(.data[[vars[[1]]]] >= 0.05 & .data[[vars[[2]]]] >= 0.05, "t.student's.test", "Mann-Whitney.test"))
-      data <- mutate(data, p.used = ifelse(test.for.comparison == "t.student's.test", t.test.p, MW.test.p))
+      data <- mutate(data, p.used = ifelse(test.for.comparison == "t.student's.test", t_test_p, MW_test_p))
     }
     if (mode == "user"){
       colnames(user) <- c("Target","p.used")
@@ -2528,6 +2558,7 @@ RQ_plot <- function(data,
       theme(axis.title = element_text(size = axis.title.size, colour="black")) +
       theme(legend.text = element_text(size = legend.text.size, colour="black")) +
       theme(legend.title = element_text(size = legend.title.size, colour="black")) +
+      theme(plot.title = element_text(size = plot.title.size)) +
       theme(panel.grid.major.x = element_blank()) +
       geom_hline(yintercept = 0, linewidth = 0.4)
 
@@ -2543,6 +2574,7 @@ RQ_plot <- function(data,
       theme(axis.title = element_text(size = axis.title.size, colour="black")) +
       theme(legend.text = element_text(size = legend.text.size, colour="black")) +
       theme(legend.title = element_text(size = legend.title.size, colour="black")) +
+      theme(plot.title = element_text(size = plot.title.size)) +
       theme(panel.grid.major.x = element_blank())
   }
 
@@ -2574,55 +2606,110 @@ RQ_plot <- function(data,
 
 
 
-
-
-
-ROC <- function(data,
-                Target.sel = "all",
-                Groups,
-                save.to.tiff = FALSE, plot.title = "",
-                dpi = 600, width = 15, height = 15,
+#' @title ROCh
+#'
+#' @description
+#' This function performs Receiver Operating Characteristic (ROC) analysis of samples of targets based on the expression data.
+#' This analysis could be useful to further examine performance of samples classification into groups using gene expression data.
+#'
+#' @param data object returned from delta_Ct(), exp_Ct() or exp_delta_Ct() functions.
+#' @param sel.Target character vector with names of targets to include, or "all" (default) to use all names of targets.
+#' @param groups character vector length of two with names of compared groups
+#' @param panels.row,panels.col integer: number of rows and columns to arrange panels with plots.
+#' @param text.size numeric: size of text on the plot. Default to 1.1.
+#' @param print.auc logical: if TRUE, AUC values will be added to the plot. Default to TRUE.
+#' @param print.auc.size numeric: size of AUC text on the plot. Default to 0.8.
+#' @param plot.title character: title of the plot.
+#' @param save.to.tiff logical: if TRUE, plot will be saved as .tiff file. Default to FALSE.
+#' @param dpi integer: resolution of saved .tiff file. Default to 600.
+#' @param width numeric: width (in cm) of saved .tiff file. Default to 15.
+#' @param height integer: height (in cm) of saved .tiff file. Default to 15.
+#' @param name.tiff character: name of saved .tiff file, without ".tiff" name of extension. Default to "ROC_plot".
+#' @param save.to.txt logical: if TRUE, returned table with results will be saved to .txt file. Default to FALSE.
+#' @param name.txt character: name of saved .txt file, without ".txt" name of extension. Default to "ROC_results".
+#'
+#' @return Data frame with ROC parameters including AUC, threshold, specificity, sensitivity, accuracy,
+#' positive predictive value, negative predictive value, and Youden's J statistic.
+#' Plot with ROC curves could be saved to .tiff file (will not be displayed on the graphic device).
+#' @export
+#'
+#' @examples
+#' library(tidyverse)
+#' library(pROC)
+#' data(data.Ct)
+#' data.CtF <- filter_Ct(data.Ct,
+#'                       remove.Target = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+#'                       remove.Sample = c("Control08","Control16","Control22"))
+#' data.dCt <- delta_Ct(data.CtF,
+#'                      imput.by.mean.within.groups = TRUE,
+#'                      ref = "Gene8")
+#' data.dCt.expF <- filter_transformed_Ct(data.dCt.exp, remove.Sample = c("Control11"))
+#' roc_parameters <- ROCh(data.dCt, sel.Target = c("Gene1","Gene16","Gene19","Gene20"),
+#'                        groups = c("Disease","Control"),
+#'                        panels.row = 2,
+#'                        panels.col = 2)
+#'
+#' @importFrom base plot colnames as.data.frame ncol matrix
+#' @importFrom dplyr select filter
+#' @importFrom utils write.table
+#' @import tidyverse
+#' @import pROC
+#'
+ROCh <- function(data,
+                sel.Target = "all",
+                groups,
                 panels.row,
                 panels.col,
-                name.tiff = "dCt_ROC_plot",
                 text.size = 1.1,
                 print.auc = TRUE,
-                print.auc.cex = 0.8,
+                print.auc.size = 0.8,
+                save.to.tiff = FALSE,
+                dpi = 600, width = 15, height = 15,
+                name.tiff = "ROC_plot",
                 save.to.txt = FALSE,
-                name.txt = "dCt_ROC_results"){
-  data <- filter(data, Group %in% Groups)
-  if (Target.sel[1] != "all"){
-    data <- data[, colnames(data) %in% c("Group", "Sample", Target.sel)]
+                name.txt = "ROC_results"){
+
+  data <- filter(data, Group %in% groups)
+
+  if (sel.Target[1] != "all"){
+    data <- data[, colnames(data) %in% c("Group", "Sample", sel.Target)]
   }
-  roc_param <- as.data.frame(matrix(nrow = ncol(data)-2, ncol = 10))
-  colnames(roc_param) <- c("Target","Threshold", "Specificity", "Sensitivity", "Accuracy", "ppv", "npv", "youden", "AUC", "Target.control")
+
+  roc_param <- as.data.frame(matrix(nrow = ncol(data)-2, ncol = 9))
+  colnames(roc_param) <- c("Target","Threshold", "Specificity", "Sensitivity", "Accuracy", "ppv", "npv", "youden", "AUC")
   roc_param$Target <- colnames(data)[-c(1:2)]
+
   for (x in 1:nrow(roc_param)){
-    myproc <- roc(response = data$Group, predictor = as.data.frame(data)[ ,x+2], levels = c(Groups),
+    myproc <- roc(response = data$Group, predictor = as.data.frame(data)[ ,x+2], levels = c(groups),
                   smooth = FALSE, auc = TRUE, plot=FALSE, ci=TRUE, of = "auc", quiet = TRUE)
     parameters <- coords(myproc, "best", ret = c("threshold", "specificity", "sensitivity","accuracy", "ppv", "npv", "youden"))
     roc_param[x,2:8] <- parameters
     roc_param[x,9] <- myproc$auc
-    roc_param[x,10] <- colnames(data)[x+2]
+    roc_param[x,1] <- colnames(data)[x+2]
+
     if (nrow(parameters) > 1){
       cat('Warning: ',colnames(data)[x+2],'has more than 1 threshold value for calculated Youden’s J statistic.\n')
     } else {}
   }
+
   if (save.to.tiff == TRUE){
     tiff(paste(name.tiff,".tiff", sep = ""), res = dpi, width = width, height = height, units = "cm", compression = "lzw")
     par(mfrow = c(panels.row, panels.col))
+
     for (x in 1:nrow(roc_param)){
-      myproc <- roc(response = data$Group, predictor = as.data.frame(data)[ ,x+2], levels = c(Groups),
+      myproc <- roc(response = data$Group, predictor = as.data.frame(data)[ ,x+2], levels = c(groups),
                     smooth = FALSE, auc = TRUE, plot=FALSE, ci=TRUE, of = "auc", quiet = TRUE)
       plot.roc(myproc, main = roc_param$Target[x],
                smooth = FALSE, cex.axis = text.size, cex.lab = text.size, identity.lwd = 2,
-               plot = TRUE, percent = TRUE, print.auc = print.auc, print.auc.x = 0.85, print.auc.y = 0.1, print.auc.cex = print.auc.cex)
+               plot = TRUE, percent = TRUE, print.auc = print.auc, print.auc.x = 0.85, print.auc.y = 0.1, print.auc.cex = print.auc.size)
     }
     dev.off()
   }
+
   if (save.to.txt == TRUE){
     write.table(roc_param, paste(name.txt,".txt", sep = ""))
   }
+
   return(roc_param)
 }
 
@@ -2630,30 +2717,93 @@ ROC <- function(data,
 
 
 
-log_reg <- function(data, remove.Inf.NA = FALSE,
-                    Target.sel = "all",
+
+#' @title log_reg
+#'
+#' @description
+#' This function performs logistic regression analysis, computes odd ratio values and presents them graphically.
+#'
+#' @param data object returned from delta_Ct(), exp_Ct() or exp_delta_Ct() functions.
+#' @param sel.Target character vector with names of targets to include, or "all" (default) to use all names of targets.
+#' @param group.study character: name of study group (group of interest).
+#' @param group.ref character: name of reference group.
+#' @param centerline numeric: position of vertical centerline on the plot, if logaxis = TRUE, centerline should be set to 0, otherwise to 1 (default).
+#' @param ci numeric: confidence level used for computation of confidence interval. Default to 0.95.
+#' @param log.axis logical: if TRUE, axis with odds ratio values will be in log10 scale. If axis is in logarithmic scale, centerline parameter should be set to 0. Default ot FALSE.
+#' @param x.axis.title character: title of x axis. Default to "Target".
+#' @param y.axis.title character: title of y axis. Default to "value".
+#' @param axis.title.size integer: font size of axis titles. Default to 12.
+#' @param axis.text.size integer: font size of axis text. Default to 10.
+#' @param legend.title character: title of legend. Default to "Group".
+#' @param legend.title.size integer: font size of legend title. Default to 12.
+#' @param legend.text.size integer: font size of legend text. Default to 12.
+#' @param legend.position position of the legend, one of "top" (default), "right", "bottom", "left", or "none" (no legend).
+#' See description for legend.position in ggplot2::theme() function.
+#' @param plot.title character: title of plot. Default to "".
+#' @param plot.title.size integer: font size of plot title. Default to 14.
+#' @param save.to.tiff logical: if TRUE, plot will be saved as .tiff file. Default to FALSE.
+#' @param dpi integer: resolution of saved .tiff file. Default to 600.
+#' @param width numeric: width (in cm) of saved .tiff file. Default to 15.
+#' @param height integer: height (in cm) of saved .tiff file. Default to 15.
+#' @param name.tiff character: name of saved .tiff file, without ".tiff" name of extension. Default to "OR_plot".
+#' @param save.to.txt logical: if TRUE, returned table with results will be saved to .txt file. Default to FALSE.
+#' @param name.txt character: name of saved .txt file, without ".txt" name of extension. Default to "OR_results".
+#'
+#' @return List containing object with barplot and dataframe with results. Created plot will be also displayed on graphic device.
+#' @export
+#'
+#' @examples
+#' library(tidyverse)
+#' library(oddsratio)
+#' data(data.Ct)
+#' data.CtF <- filter_Ct(data.Ct,
+#'                       remove.Target = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+#'                       remove.Sample = c("Control08","Control16","Control22"))
+#' data.dCt <- delta_Ct(data.CtF,
+#'                      imput.by.mean.within.groups = TRUE,
+#'                      ref = "Gene8")
+#' log.reg.results <- log_reg(data.dCt,
+#'                            Target.sel = c("Gene1","Gene16","Gene19","Gene20"),
+#'                            group.study = "Disease",
+#'                            group.ref = "Control")
+#
+#' @importFrom base print paste colnames ncol lapply as.data.frame as.vrctor names summary data.frame
+#' @importFrom dplyr filter
+#' @importFrom stats coef
+#' @importFrom utils write.table
+#' @import ggplot2
+#' @import tidyverse
+#' @import oddsratio
+#'
+log_reg <- function(data,
+                    sel.Target = "all",
                     group.study,
                     group.ref,
+                    centerline = 1,
                     ci = 0.95,
-                    axis.title.size = 12,
-                    axis.text.size = 10,
-                    legend.text.size = 12,
+                    log.axis = FALSE,
                     x.axis.title = "Odds ratio",
                     y.axis.title = "",
+                    axis.title.size = 12,
+                    axis.text.size = 10,
                     legend.title = "p value",
+                    legend.text.size = 12,
                     legend.title.size = 12,
                     legend.position = "right",
                     plot.title = "",
-                    dpi = 600, width = 15, height = 15,
+                    plot.title.size = 14,
                     save.to.tiff = FALSE,
-                    name.tiff = "dCt_OR_plot",
+                    dpi = 600, width = 15, height = 15,
+                    name.tiff = "OR_plot",
                     save.to.txt = FALSE,
-                    name.txt = "dCt_OR_results",
-                    log.axis = FALSE){
+                    name.txt = "OR_results"){
+
   data <- filter(data, Group %in% c(group.study, group.ref))
+
   if (Target.sel[1] != "all"){
-    data <- data[, colnames(data) %in% c("Group", "Sample", Target.sel)]
+    data <- data[, colnames(data) %in% c("Group", "Sample", sel.Target)]
   }
+
   data <- mutate(data, Group_num = ifelse(Group == group.study, 0, 1))
   n.targets <- ncol(data)-3
   list.models <- lapply(data[3:(n.targets+2)], function(x) glm(data$Group_num ~ x, data = data, family = binomial))
@@ -2663,6 +2813,7 @@ log_reg <- function(data, remove.Inf.NA = FALSE,
                                                            ci = ci))
   data.CI <- as.data.frame(matrix(ncol = 8, nrow = n.targets))
   colnames(data.CI) <- c("Target", "oddsratio", "CI_low", "CI_high", "Intercept", "coeficient","p_intercept","p_coef")
+
   for (x in 1:n.targets){
     data.CI$Target <- names(list.models)
     data.CI[x,2:4] <- as.vector(list.CI)[[x]][2:4]
@@ -2676,13 +2827,8 @@ log_reg <- function(data, remove.Inf.NA = FALSE,
                         boxLabels = data.CI$Target,
                         p = data.CI$p_coef)
 
-  if (remove.Inf.NA == TRUE){
-    od_df[sapply(od_df, is.infinite)] <- NA
-    od_df <- na.omit(od_df)
-  }
-
   odd.ratio <- ggplot(od_df, aes(x = boxOdds, y = boxLabels, label = boxOdds)) +
-    geom_vline(aes(xintercept = 1), linewidth = .25, linetype = "dashed") +
+    geom_vline(aes(xintercept = centerline), linewidth = .25, linetype = "dashed") +
     geom_errorbarh(aes(xmax = boxCIHigh, xmin = boxCILow), linewidth = .5, height = .2) +
     geom_point(aes(color = p), size = 3.5) +
     scale_color_continuous(type = "viridis") +
@@ -2694,18 +2840,23 @@ log_reg <- function(data, remove.Inf.NA = FALSE,
     theme(axis.text = element_text(size = axis.text.size, colour = "black")) +
     theme(axis.title = element_text(size = axis.title.size, colour="black")) +
     theme(legend.text = element_text(size = legend.text.size, colour="black")) +
-    theme(legend.title = element_text(size = legend.title.size, colour="black"))
+    theme(legend.title = element_text(size = legend.title.size, colour="black")) +
+    theme(plot.title = element_text(size = plot.title.size))
+
   if (log.axis == TRUE){
     odd.ratio <- odd.ratio +
       scale_x_log10()
   }
+
   print(odd.ratio)
-  if (save.to.tiff == TRUE){
+
+   if (save.to.tiff == TRUE){
     ggsave(paste(name.tiff,".tiff", sep = ""), odd.ratio, dpi = dpi, width = width, height = height, units = "cm", compression = "lzw")
   }
+
   if (save.to.txt == TRUE){
     write.table(data.CI, paste(name.txt,".txt", sep = ""))
   }
+
   return(data.CI)
 }
-

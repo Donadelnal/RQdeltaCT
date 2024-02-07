@@ -25,7 +25,7 @@ Data.frame in long format ready to analysis.
 Enables to import Ct dataset in a wide-format table with sample names given in columns.
 }
 \details{
-This function needs two tables to import: a wide-format table with Ct values and design file (see parameters `path.Ct.file` and `path.design.file` for further details regarding tables structure).
+This function needs two files to import: a wide-format table with Ct values and design file (see parameters path.Ct.file and path.design.file for further details regarding tables structure).
 Subsequently merges both files to return long-format table ready for analysis.
 All parameters must be specified, there is no default values.
 }

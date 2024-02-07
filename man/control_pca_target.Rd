@@ -29,7 +29,7 @@ control_pca_target(
 )
 }
 \arguments{
-\item{data}{object returned from `delta_Ct()`, `exp_Ct()` or `exp_delta_Ct()` function.}
+\item{data}{object returned from make_Ct_ready(), exp_Ct_or_dCt() or delta_Ct() functions.}
 
 \item{point.size}{numeric: size of points. Default to 4.}
 
@@ -56,7 +56,7 @@ control_pca_target(
 \item{legend.title.size}{integer: font size of legend title. Default to 12.}
 
 \item{legend.position}{position of the legend, one of "top", "right" (default), "bottom", "left", or "none" (no legend).
-See description for `legend.position` parameter in [ggplot2::theme()] function.}
+See description for legend.position parameter in ggplot2::theme() function.}
 
 \item{plot.title}{character: title of plot. Default to "".}
 
@@ -78,4 +78,15 @@ Object with plot illustrating spatial arrangement of targets according to coordi
 \description{
 Performs principal component analysis (PCA) for targets and generate plot illustrating spatial arrangement of targets using 2 components. Could be useful to gain insight into similarity in expression of analyzed targets.
 IMPORTANT: PCA analysis can not deal with missing values, thus all targets with at least one missing value are removed from data before analysis. It is recommended to run this function on data after imputation of missing values.
+}
+\examples{
+library(tidyverse)
+data(data.Ct)
+data.CtF <- filter_Ct(data.Ct,
+                      remove.Target = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+                      remove.Sample = c("Control08","Control16","Control22"))
+data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
+data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
+control_pca_target(data.dCt)
+
 }

@@ -29,7 +29,7 @@ control_pca_sample(
 )
 }
 \arguments{
-\item{data}{object returned from delta_Ct(), exp_Ct() or exp_delta_Ct() function.}
+\item{data}{object returned from make_Ct_ready(), exp_Ct_or_dCt() or delta_Ct() functions.}
 
 \item{point.size}{numeric: size of points. Default to 4.}
 
@@ -85,7 +85,8 @@ data(data.Ct)
 data.CtF <- filter_Ct(data.Ct,
                       remove.Target = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
                       remove.Sample = c("Control08","Control16","Control22"))
-data.CtF.prepared <- Ct_for_control(data.CtF)
-control_pca_sample(data.CtF.prepared)
+data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
+data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
+control_pca_sample(data.dCt)
 
 }

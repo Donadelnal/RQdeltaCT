@@ -18,7 +18,7 @@ results_boxplot(
   add.mean.size = 2,
   add.mean.color = "black",
   colors = c("#66c2a5", "#fc8d62"),
-  x.axis.title = "Sample",
+  x.axis.title = "Target",
   y.axis.title = "value",
   axis.title.size = 12,
   axis.text.size = 10,
@@ -36,7 +36,7 @@ results_boxplot(
 )
 }
 \arguments{
-\item{data}{object returned from delta_Ct(), exp_Ct() or exp_delta_Ct() function.}
+\item{data}{object returned from make_Ct_ready(), exp_Ct_or_dCt() or delta_Ct() functions.}
 
 \item{coef}{numeric: how many times of interquartile range should be used to indicate the most extend data point for whiskers. Default to 1.5.}
 
@@ -46,7 +46,7 @@ results_boxplot(
 
 \item{faceting}{logical: if TRUE (default), plot will be drawn with facets with free scales using ggplot2::facet_wrap() function (see its documentation for more details).}
 
-\item{facet.row, facet.col}{integer: number of rows and column to arrange facets.}
+\item{facet.row, facet.col}{integer: number of rows and columns to arrange facets.}
 
 \item{angle}{integer: value of angle in which names of genes should be displayed. Default to 0.}
 
@@ -106,14 +106,14 @@ data(data.Ct)
 data.CtF <- filter_Ct(data.Ct,
                       remove.Target = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
                       remove.Sample = c("Control08","Control16","Control22"))
-data.dCt <- delta_Ct(data.CtF,
-                     imput.by.mean.within.groups = TRUE,
-                     ref = "Gene8")
+data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
+data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
 data.dCt.exp <- exp_delta_Ct(data.dCt)
 data.dCt.expF <- filter_transformed_Ct(data.dCt.exp, remove.Sample = c("Control11"))
-results_boxplott(data.dCt,
-                 sel.Target = c("Gene1","Gene12","Gene16","Gene19","Gene20")
-                 facet.row = 3,
-                 facet.col = 5)
+results_boxplot(data.dCt.expF,
+                 sel.Target = c("Gene1","Gene16","Gene19","Gene20")
+                 facet.row = 2,
+                 facet.col = 2,
+                 y.axis.title = bquote(~2^-dCt))
 
 }

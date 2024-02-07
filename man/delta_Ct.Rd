@@ -13,12 +13,7 @@ delta_Ct(
 )
 }
 \arguments{
-\item{data}{data object returned from read_Ct_long(), read_Ct_wide() or filter_Ct() function,
-or data frame containing column named "Sample" with sample names, column named "Target" with target names,
-column named "Ct" with raw Ct values, column named "Group" with group names.
-    Any other columns could exist, but will not be used by this function.}
-
-\item{imput.by.mean.within.groups}{logical: if TRUE, missing values will be imputed by means within groups. Default to TRUE.}
+\item{data}{data object returned from make_Ct_ready function,}
 
 \item{ref}{character: name of reference gene.}
 
@@ -30,9 +25,7 @@ column named "Ct" with raw Ct values, column named "Group" with group names.
 Data.frame with dCt values and printed information about number and percentage of missing values.
 }
 \description{
-This function collapses technical replicates (if present in data) by means,
-counts and imputes missing data by means within groups (if so indicated),
-and finally calculates delta Ct (dCt) values by subtracting Ct values of reference gene from Ct values of other genes.
+This function calculates delta Ct (dCt) values by subtracting Ct values of reference gene from Ct values of other genes.
 }
 \examples{
 library(tidyverse)
@@ -40,9 +33,8 @@ data(data.Ct)
 data.CtF <- filter_Ct(data.Ct,
                       remove.Target = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
                       remove.Sample = c("Control08","Control16","Control22"))
-data.dCt <- delta_Ct(data.CtF,
-                     imput.by.mean.within.groups = TRUE,
-                     ref = "Gene8")
+data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
+data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
 head(data.dCt)
 
 }

@@ -11,7 +11,7 @@ RQ_plot(
   p.threshold = 0.05,
   use.log10FCh = FALSE,
   log10FCh.threshold = 0,
-  Target.sel = "all",
+  sel.Target = "all",
   bar.width = 0.8,
   angle = 0,
   rotate = FALSE,
@@ -25,6 +25,7 @@ RQ_plot(
   legend.title.size = 12,
   legend.position = "top",
   plot.title = "",
+  plot.title.size = 14,
   dpi = 600,
   width = 15,
   height = 15,
@@ -33,7 +34,7 @@ RQ_plot(
 )
 }
 \arguments{
-\item{data}{object returned from RQ_exp_ddCt() or RQ_exp_Ct() functions.}
+\item{data}{object returned from RQ_exp_Ct_or_dCt() or RQ_exp_ddCt() functions.}
 
 \item{use.p}{logical: if TRUE, bars of statistically significant genes will be distinguished by colors.}
 
@@ -49,6 +50,8 @@ data.frame object names "user"with two columns, one named "Target" with Target n
 \item{use.log10FCh}{logical: if TRUE, the criterion of fold change will be also used for significance assessment of genes.}
 
 \item{log10FCh.threshold}{numeric: threshold of log10 fold change values used for significance assessment of genes.}
+
+\item{sel.Target}{character vector with names of targets to include, or "all" (default) to use all names of targets.}
 
 \item{bar.width}{numeric: width of bars..}
 
@@ -77,6 +80,8 @@ See description for legend.position in ggplot2::theme() function.}
 
 \item{plot.title}{character: title of plot. Default to "".}
 
+\item{plot.title.size}{integer: font size of plot title. Default to 14.}
+
 \item{dpi}{integer: resolution of saved .tiff file. Default to 600.}
 
 \item{width}{numeric: width (in cm) of saved .tiff file. Default to 15.}
@@ -86,10 +91,6 @@ See description for legend.position in ggplot2::theme() function.}
 \item{save.to.tiff}{logical: if TRUE, plot will be saved as .tiff file. Default to FALSE.}
 
 \item{name.tiff}{character: name of saved .tiff file, without ".tiff" name of extension. Default to "results_boxplot".}
-
-\item{sel.Target}{character vector with names of targets to include, or "all" (default) to use all names of targets.}
-
-\item{plot.title.size}{integer: font size of plot title. Default to 14.}
 }
 \value{
 List containing object with barplot and dataframe with results. Created plot will be also displayed on graphic device.
@@ -104,13 +105,20 @@ data(data.Ct)
 data.CtF <- filter_Ct(data.Ct,
                       remove.Target = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
                       remove.Sample = c("Control08","Control16","Control22"))
-data.dCt <- delta_Ct(data.CtF,
-                     imput.by.mean.within.groups = TRUE,
-                     ref = "Gene8")
+data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
+data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
 data.dCt.exp <- exp_delta_Ct(data.dCt)
 data.dCt.expF <- filter_transformed_Ct(data.dCt.exp, remove.Sample = c("Control11"))
 RQ.ddCt.exp <- RQ_exp_ddCt(data, "Disease", "Control")
-RQ.plot <- RQ_plot(RQ.ddCt.exp, mode = "depends", Target.sel = c("Gene1","Gene12","Gene16","Gene19","Gene20"))
+RQ.plot <- RQ_plot(RQ.ddCt.exp, mode = "depends", use.log10FCh = TRUE, log10FCh.threshold = 0.30103)
 head(RQ.plot[[2]])
 
+# with user p values - in this example used p values are calculated using stats::wilcox.test() function:
+user <- data.dCt \%>\%
+pivot_longer(cols = -c(Group, Sample), names_to = "Target", values_to = "dCt") \%>\%
+  group_by(Target) \%>\%
+  summarise(MW_test_p = wilcox.test(dCt ~ Group)$p.value, .groups = "keep")
+
+RQ.plot <- RQ_plot(RQ.ddCt.exp, mode = "user", use.log10FCh = TRUE, log10FCh.threshold = 0.30103)
+head(RQ.plot[[2]])
 }

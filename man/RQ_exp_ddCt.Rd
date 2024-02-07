@@ -49,10 +49,9 @@ data(data.Ct)
 data.CtF <- filter_Ct(data.Ct,
                       remove.Target = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
                       remove.Sample = c("Control08","Control16","Control22"))
-data.dCt <- delta_Ct(data.CtF,
-                     imput.by.mean.within.groups = TRUE,
-                     ref = "Gene8")
-RQ.ddCt.exp <- RQ_exp_ddCt(data, "Disease", "Control")
+data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
+data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
+RQ.ddCt.exp <- RQ_exp_ddCt(data.dCt, "Disease", "Control")
 head(RQ.ddCt.exp)
 
 }

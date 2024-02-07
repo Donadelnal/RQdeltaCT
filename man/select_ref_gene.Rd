@@ -6,6 +6,7 @@
 \usage{
 select_ref_gene(
   data,
+  groups,
   candidates,
   colors,
   line.width = 1,
@@ -28,10 +29,9 @@ select_ref_gene(
 )
 }
 \arguments{
-\item{data}{object returned from read_Ct_long(), read_Ct_wide() or filter_Ct() functions,
-or data frame containing column named "Sample" with sample names, column named "Target" with target names,
-column named "Ct" with raw Ct values, column named "Group" with group names.
-    Any other columns could exist, but will not be used by this function.}
+\item{data}{object returned from make_Ct_ready() functions,}
+
+\item{groups}{character vector length of two with names of compared groups}
 
 \item{candidates}{character: vector of names of targets - candidates for gene reference.}
 
@@ -89,9 +89,10 @@ data(data.Ct)
 data.CtF <- filter_Ct(data.Ct,
                       remove.Target = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
                       remove.Sample = c("Control08","Control16","Control22"))
-ref <-  select_ref_gene(data.CtF,
-                        candidates = c("Gene4", "Gene8","Gene10","Gene16","Gene17", "Gene18"),
-                        col = c("#66c2a5", "#fc8d62","#6A6599", "#D62728", "#1F77B4", "black"))
+data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
+ref <- select_ref_gene(data.CtF.ready, groups = c("Disease","Control"),
+                         candidates = c("Gene4", "Gene8","Gene10","Gene16","Gene17", "Gene18"),
+                         col = c("#66c2a5", "#fc8d62","#6A6599", "#D62728", "#1F77B4", "black"))
 ref[[2]]
 
 }

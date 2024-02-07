@@ -514,7 +514,7 @@ filter_Ct <- function(data,
 
 
 
-#' @title Ct_for_control
+#' @title make_Ct_ready
 #'
 #' @description
 #' This function collapses technical replicates (if present in data) by means counts and imputes missing data by means within groups (if so indicated).
@@ -523,9 +523,9 @@ filter_Ct <- function(data,
 #' @param data data object returned from read_Ct_long(), read_Ct_wide() or filter_Ct() function,
 #' or data frame containing column named "Sample" with sample names, column named "Target" with target names,
 #' column named "Ct" with raw Ct values (must be numeric), column named "Group" with group names. Any other columns could exist, but will not be used by this function.
-#' @param imput.by.mean.within.groups logical: if TRUE, missing values will be imputed by means within groups. Default to TRUE.
+#' @param imput.by.mean.within.groups logical: if TRUE, missing values will be imputed by means within groups. This parameter could influence results, thus to draw more user attention on this parameter, no default value was set.
 #' @param save.to.txt logical: if TRUE, returned data will be saved to .txt file. Default to FALSE.
-#' @param name.txt character: name of saved .txt file, without ".txt" name of extension. Default to "data.exp.Ct".
+#' @param name.txt character: name of saved .txt file, without ".txt" name of extension. Default to "Ct_ready".
 #'
 #' @return Data.frame with prepared data and printed information about number and percentage of missing values.
 #' @export
@@ -536,17 +536,17 @@ filter_Ct <- function(data,
 #' data.CtF <- filter_Ct(data.Ct,
 #'                       remove.Target = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
 #'                       remove.Sample = c("Control08","Control16","Control22"))
-#'data.CtF.prepared <- Ct_for_control(data.CtF)
-#'head(data.CtF.prepared)
+#'data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
+#'head(data.CtF.ready)
 #'
 #' @importFrom base mean
 #' @importFrom dplyr select summarise
 #' @import tidyverse
 #'
-Ct_for_control <- function(data,
-                   imput.by.mean.within.groups = TRUE,
+make_Ct_ready <- function(data,
+                   imput.by.mean.within.groups,
                    save.to.txt = FALSE,
-                   name.txt = "data.exp.Ct"){
+                   name.txt = "Ct_ready"){
   data <- data %>%
     group_by(Group, Target, Sample) %>%
     summarise(mean = mean(Ct, na.rm = TRUE), .groups = "keep") %>%
@@ -587,21 +587,16 @@ Ct_for_control <- function(data,
 
 
 
-
-#' @title exp_Ct
+#' @title exp_Ct_or_dCt
 #'
 #' @description
-#' This function collapses technical replicates (if present in data) by means, counts and imputes missing data by means within groups (if so indicated),
-#' and finally exponentiates Ct values by using formula 2^(-Ct).
+#' This function exponentiates Ct or delta Ct (dCt) values by using formula 2^(-Ct) or 2^(-dCt), respectively.
 #'
-#' @param data data object returned from read_Ct_long(), read_Ct_wide() or filter_Ct() function,
-#' or data frame containing column named "Sample" with sample names, column named "Target" with target names,
-#' column named "Ct" with raw Ct values (must be numeric), column named "Group" with group names. Any other columns could exist, but will not be used by this function.
-#' @param imput.by.mean.within.groups logical: if TRUE, missing values will be imputed by means within groups. Default to TRUE.
+#' @param data data object returned from make_Ct_ready() or delta_Ct() functions.
 #' @param save.to.txt logical: if TRUE, returned data will be saved to .txt file. Default to FALSE.
-#' @param name.txt character: name of saved .txt file, without ".txt" name of extension. Default to "data.exp.Ct".
+#' @param name.txt character: name of saved .txt file, without ".txt" name of extension. Default to "data_exp_Ct_or_dCt".
 #'
-#' @return Data.frame with exponentiated Ct values and printed information about number and percentage of missing values.
+#' @return Data frame with exponentiated Ct or dCt values.
 #' @export
 #'
 #' @examples
@@ -610,66 +605,37 @@ Ct_for_control <- function(data,
 #' data.CtF <- filter_Ct(data.Ct,
 #'                       remove.Target = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
 #'                       remove.Sample = c("Control08","Control16","Control22"))
-#' data.Ct.exp <- exp_Ct(data.CtF, imput.by.mean.within.groups = TRUE)
+#' data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
+#' data.Ct.exp <- exp_Ct_or_dCt(data.CtF.ready)
 #' head(data.Ct.exp)
 #'
-#' @importFrom base as.data.frame as.vector sum is.na ncol nrow paste cat
+#' @importFrom base as.data.frame paste
 #' @importFrom utils write.table
-#' @importFrom dplyr mutate filter select
+#' @importFrom dplyr mutate_at
 #' @import tidyverse
 #'
-exp_Ct <- function(data,
-                  imput.by.mean.within.groups = TRUE,
-                  save.to.txt = FALSE,
-                  name.txt = "data.exp.Ct"){
-  data <- data %>%
-    group_by(Group, Target, Sample) %>%
-    summarise(mean = mean(Ct, na.rm = TRUE), .groups = "keep") %>%
-    as.data.frame()
+exp_Ct_or_dCt <- function(data,
+                    save.to.txt = FALSE,
+                    name.txt = "data_exp_Ct_or_dCt"){
 
-  calcRQ <- function(x){
+  exp <- function(x){
     x <- 2^-x
   }
 
-  data_wide <- data %>%
-    select(Group, Sample, Target, mean) %>%
-    pivot_wider(names_from = Target, values_from = mean)
+  data_exp <- data %>%
+    mutate_at(vars(-c("Group","Sample")), exp)
 
-  nas <- sum(is.na(data_wide))
-  percentage <- sum(is.na(data_wide))/((ncol(data_wide)-2)*nrow(data_wide))
-
-  if (imput.by.mean.within.groups == TRUE){
-    data_wide_imp_exp <- data_wide %>%
-      group_by(Group) %>%
-      mutate(across(where(is.numeric), ~ replace(., is.na(.), mean(., na.rm = TRUE)))) %>%
-      mutate_at(vars(-c("Group","Sample")), calcRQ)
-
-    cat("Data contained", nas, "missing values that constitute", round(percentage*100, 5), "percent of the total data.\n Missing values were imputed using means within compared groups.\n")
-
-    if (save.to.txt == TRUE){
-      write.table(as.data.frame(data_wide_imp), paste(name.txt,".txt", sep = ""))
-    }
-    return(data_wide_imp_exp)
-
-  } else {
-
-    data_wide_exp <- data_wide %>%
-      mutate_at(vars(-c("Group","Sample")), calcRQ)
-
-    cat("Data contains", nas, "missing values that constitute", round(percentage*100, 5), "percent of the total data.")
-
-    if (save.to.txt == TRUE){
-      write.table(as.data.frame(data_wide_exp), paste(name.txt,".txt", sep = ""))
-    }
-    return(data_wide_exp)
+  if (save.to.txt == TRUE){
+    write.table(as.data.frame(data_exp), paste(name.txt,".txt", sep = ""))
   }
+  return(data_exp)
 }
 
 
 
 
 
-#' @title RQ_exp_Ct
+#' @title RQ_exp_Ct_or_dCt
 #'
 #' @description
 #' Performs relative quantification of gene expression using 2^(-Ct) and 2^(-dCt) methods.
@@ -683,12 +649,12 @@ exp_Ct <- function(data,
 #' * Statistical testing of differences in exponentiated Ct or dCt values between study group and reference group.
 #'   Student's t test and Mann-Whitney U test are implemented and resulted statistics (in column with "_test_stat" pattern) and p values (in column with "_test_p" pattern) are returned.
 #'
-#' @param data data object returned from exp_Ct() or exp_delta_Ct() function.
+#' @param data data object returned from exp_Ct_or_dCt() function.
 #' @param group.study character: name of study group (group of interest).
 #' @param group.ref character: name of reference group.
-#' @param do.tests logical: if TRUE, statistical significance of differences in exponentiated Ct values between compared groups will be calculated using Student's t test and Mann-Whitney U test. Default to TRUE.
+#' @param do.tests logical: if TRUE, statistical significance of differences between compared groups will be calculated using Student's t test and Mann-Whitney U test. Default to TRUE.
 #' @param save.to.txt logical: if TRUE, returned table with results will be saved to .txt file. Default to FALSE.
-#' @param name.txt character: name of saved .txt file, without ".txt" name of extension. Default to "RQ_expCt_results".
+#' @param name.txt character: name of saved .txt file, without ".txt" name of extension. Default to "RQ_exp_results".
 #
 #' @return Data.frame with transformed Ct values and printed information about number and percentage of missing values.
 #' @export
@@ -700,8 +666,9 @@ exp_Ct <- function(data,
 #' data.CtF <- filter_Ct(data.Ct,
 #'                       remove.Target = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
 #'                       remove.Sample = c("Control08","Control16","Control22"))
-#' data.Ct.exp <- exp_Ct(data.CtF, imput.by.mean.within.groups = TRUE)
-#' RQ.Ct.exp <- RQ_exp_Ct(data.Ct.exp, group.study = "Disease", group.ref = "Control", do.tests = TRUE)
+#' data.CtF.ready <- make_Ct_ready(data.CtF)
+#' data.Ct.exp <- exp_Ct_or_dCt(data.CtF.ready)
+#' RQ.Ct.exp <- RQ_exp_Ct_or_dCt(data.Ct.exp, group.study = "Disease", group.ref = "Control")
 #' head(RQ.Ct.exp)
 #'
 #' @importFrom base as.data.frame as.factor mean
@@ -711,12 +678,12 @@ exp_Ct <- function(data,
 #' @importFrom dplyr filter select rename_with full_join
 #' @import tidyverse
 #'
-RQ_exp_Ct <- function(data,
+RQ_exp_Ct_or_dCt <- function(data,
                      group.study,
                      group.ref,
                      do.tests = TRUE,
                      save.to.txt = FALSE,
-                     name.txt = "RQ_expCt_results"){
+                     name.txt = "RQ_exp_results"){
 
   data_slim <- data %>%
     filter(Group == group.study | Group == group.ref) %>%
@@ -783,7 +750,7 @@ RQ_exp_Ct <- function(data,
 #' variance and colinearity coefficient VIF) that could be helpful to select the best
 #' reference gene for normalization of Ct values.
 #'
-#' @param data object returned from Ct_for_control() functions,
+#' @param data object returned from make_Ct_ready() functions,
 #'
 #' @param candidates character: vector of names of targets - candidates for gene reference.
 #' @param groups character vector length of two with names of compared groups
@@ -819,8 +786,8 @@ RQ_exp_Ct <- function(data,
 #' data.CtF <- filter_Ct(data.Ct,
 #'                       remove.Target = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
 #'                       remove.Sample = c("Control08","Control16","Control22"))
-#' data.CtF.prepared <- Ct_for_control(data.CtF, imput.by.mean.within.groups = TRUE)
-#' ref <- select_ref_gene(data.CtF.prepared, groups = c("Disease","Control"),
+#' data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
+#' ref <- select_ref_gene(data.CtF.ready, groups = c("Disease","Control"),
 #'                          candidates = c("Gene4", "Gene8","Gene10","Gene16","Gene17", "Gene18"),
 #'                          col = c("#66c2a5", "#fc8d62","#6A6599", "#D62728", "#1F77B4", "black"))
 #' ref[[2]]
@@ -918,21 +885,12 @@ select_ref_gene <- function(data,
 
 
 
-
-
-
 #' @title delta_Ct
 #'
 #' @description
-#' This function collapses technical replicates (if present in data) by means,
-#' counts and imputes missing data by means within groups (if so indicated),
-#' and finally calculates delta Ct (dCt) values by subtracting Ct values of reference gene from Ct values of other genes.
+#' This function calculates delta Ct (dCt) values by subtracting Ct values of reference gene from Ct values of other genes.
 #'
-#' @param data data object returned from read_Ct_long(), read_Ct_wide() or filter_Ct() function,
-#' or data frame containing column named "Sample" with sample names, column named "Target" with target names,
-#' column named "Ct" with raw Ct values, column named "Group" with group names.
-#'     Any other columns could exist, but will not be used by this function.
-#' @param imput.by.mean.within.groups logical: if TRUE, missing values will be imputed by means within groups. Default to TRUE.
+#' @param data data object returned from make_Ct_ready function,
 #' @param ref character: name of reference gene.
 #' @param save.to.txt logical: if TRUE, returned data will be saved to .txt file. Default to FALSE.
 #' @param name.txt character: name of saved .txt file, without ".txt" name of extension. Default to "data_dCt".
@@ -946,14 +904,13 @@ select_ref_gene <- function(data,
 #' data.CtF <- filter_Ct(data.Ct,
 #'                       remove.Target = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
 #'                       remove.Sample = c("Control08","Control16","Control22"))
-#' data.dCt <- delta_Ct(data.CtF,
-#'                      imput.by.mean.within.groups = TRUE,
-#'                      ref = "Gene8")
+#' data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
+#' data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
 #' head(data.dCt)
 #'
-#' @importFrom base as.data.frame as.vector sum is.na ncol nrow paste cat
+#' @importFrom base as.data.frame colnames paste
 #' @importFrom utils write.table
-#' @importFrom dplyr mutate filter select
+#' @importFrom dplyr mutate_at select
 #' @import tidyverse
 #'
 delta_Ct <- function(data,
@@ -961,48 +918,21 @@ delta_Ct <- function(data,
                     ref,
 					          save.to.txt = FALSE,
                     name.txt = "data_dCt"){
-  data <- data %>%
-    group_by(Group, Target, Sample) %>%
-    summarise(mean = base::mean(Ct, na.rm = TRUE)) %>%
-    as.data.frame()
-  data_wide <- data %>%
-    select(Group, Sample, Target, mean) %>%
-    pivot_wider(names_from = Target, values_from = mean)
 
-  nas <- sum(is.na(data_wide))
-  percentage <- sum(is.na(data_wide))/((ncol(data_wide)-2)*nrow(data_wide))
-
-  if (imput.by.mean.within.groups == TRUE){
-
-  data_wide_imp <- data_wide %>%
-      group_by(Group) %>%
-    mutate(across(where(is.numeric), ~ replace(., is.na(.), mean(., na.rm = TRUE))))
-
-  dCt <- mutate_at(data_wide_imp,
-                   vars(-c("Group", "Sample", ref)),
+  dCt <- mutate_at(data,
+                   vars(-c("Group", "Sample", all_of(ref))),
                    list(dCt = ~ . - .data[[ref]]))
   dCt <- select(dCt, Group, Sample, ends_with("dCt"))
   colnames(dCt) <- sub("_dCt*", "", colnames(dCt))
-  cat("Data contained", nas, "missing values that constitute", round(percentage*100, 5), "percent of the total data.\n Missing values were imputed using means within compared groups.")
+
   if (save.to.txt == TRUE){
     write.table(as.data.frame(dCt), paste(name.txt,".txt", sep = ""))
   }
+
   return(dCt)
-
-  } else {
-
-    dCt <- mutate_at(data_wide,
-                     vars(-c("Group", "Sample", ref)),
-                     list(dCt = ~ . - .data[[ref]]))
-    dCt <- select(dCt, Group, Sample, ends_with("dCt"))
-    colnames(dCt) <- sub("_dCt*", "", colnames(dCt))
-    cat("Data contains", nas, "missing values that constitute", round(percentage*100, 5), "percent of the total data.")
-    if (save.to.txt == TRUE){
-      write.table(as.data.frame(dCt), paste(name.txt,".txt", sep = ""))
-    }
-    return(dCt)
-  }
 }
+
+
 
 
 
@@ -1012,7 +942,7 @@ delta_Ct <- function(data,
 #' @description
 #' Boxplot illustrating distribution of data in each sample. Could be useful to identify outlier samples.
 #'
-#' @param data object returned from delta_Ct(), exp_Ct() or exp_delta_Ct() function.
+#' @param data object returned from make_Ct_ready(), exp_Ct_or_dCt() or delta_Ct() functions.
 #' @param coef numeric: how many times of interquartile range should be used to indicate the most extend data point for whiskers. Default to 1.5.
 #' @param colors character vector length of two, containing colors for compared groups. Default to c("#66c2a5", "#fc8d62").
 #' @param x.axis.title character: title of x axis. Default to "Sample".
@@ -1041,9 +971,8 @@ delta_Ct <- function(data,
 #' data.CtF <- filter_Ct(data.Ct,
 #'                       remove.Target = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
 #'                       remove.Sample = c("Control08","Control16","Control22"))
-#' data.dCt <- delta_Ct(data.CtF,
-#'                      imput.by.mean.within.groups = TRUE,
-#'                      ref = "Gene8")
+#' data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
+#' data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
 #' control.boxplot.sample <- control_boxplot_sample(data.dCt)
 #'
 #' @importFrom base print
@@ -1099,7 +1028,7 @@ control_boxplot_sample <- function(data, coef = 1.5,
 #' @description
 #' This function creates boxplot illustrating distribution of data in each target. Could be useful to compare expression of analyzed targets.
 #'
-#' @param data object returned from delta_Ct(), exp_Ct() or exp_delta_Ct() function.
+#' @param data object returned from make_Ct_ready(), exp_Ct_or_dCt() or delta_Ct() functions.
 #' @param by.group logical: if TRUE, distributions will be drawn by compared groups of samples.
 #' @param coef numeric: how many times of interquartile range should be used to indicate the most extend data point for whiskers.
 #' @param colors character vector length of one (when by.group = FALSE) or two (when by.group = TRUE), containing colors for groups.
@@ -1130,9 +1059,8 @@ control_boxplot_sample <- function(data, coef = 1.5,
 #' data.CtF <- filter_Ct(data.Ct,
 #'                       remove.Target = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
 #'                       remove.Sample = c("Control08","Control16","Control22"))
-#' data.dCt <- delta_Ct(data.CtF,
-#'                      imput.by.mean.within.groups = TRUE,
-#'                      ref = "Gene8")
+#' data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
+#' data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
 #' control.boxplot.target <- control_boxplot_target(data.dCt)
 #'
 #' @importFrom base print
@@ -1210,7 +1138,7 @@ control_boxplot_target <- function(data, coef = 1.5,
 #' @description
 #' Performs hierarchical clustering of samples based on the data. Could be useful to identify outlier samples.
 #'
-#' @param data object returned from delta_Ct(), exp_Ct() or exp_delta_Ct() function.
+#' @param data object returned from make_Ct_ready(), exp_Ct_or_dCt() or delta_Ct() functions.
 #' @param method.dist character: name of method used for calculation of distances, derived from stats::dist() function, should be one of "euclidean" (default) , "maximum", "manhattan", "canberra", "binary" or "minkowski".
 #' @param method.clust character: name of used method for agglomeration, derived from stats::hclust() function, should be one of "ward.D", "ward.D2", "single", "complete", "average" (default), "mcquitty", "median" or "centroid".
 #' @param x.axis.title character: title of x axis. Default to "Samples".
@@ -1231,9 +1159,8 @@ control_boxplot_target <- function(data, coef = 1.5,
 #' data.CtF <- filter_Ct(data.Ct,
 #'                       remove.Target = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
 #'                       remove.Sample = c("Control08","Control16","Control22"))
-#' data.dCt <- delta_Ct(data.CtF,
-#'                      imput.by.mean.within.groups = TRUE,
-#'                      ref = "Gene8")
+#' data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
+#' data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
 #' control_cluster_sample(data.dCt)
 #'
 #' @importFrom stats hclust dist
@@ -1270,7 +1197,7 @@ control_cluster_sample <- function(data,
 #' @description
 #' Performs hierarchical clustering of targets based on the data. Could be useful to gain insight into similarity in expression of analyzed targets.
 #'
-#' @param data object returned from delta_Ct(), exp_Ct() or exp_delta_Ct() function.
+#' @param data object returned from make_Ct_ready(), exp_Ct_or_dCt() or delta_Ct() functions.
 #' @param method.dist character: name of method used for calculation of distances, derived from stats::dist() function, should be one of "euclidean" (default) , "maximum", "manhattan", "canberra", "binary" or "minkowski".
 #' @param method.clust character: name of used method for agglomeration, derived from stats::hclust() function, should be one of "ward.D", "ward.D2", "single", "complete", "average" (default), "mcquitty", "median" or "centroid".
 #' @param x.axis.title character: title of x axis. Default to "Targets".
@@ -1291,9 +1218,8 @@ control_cluster_sample <- function(data,
 #' data.CtF <- filter_Ct(data.Ct,
 #'                       remove.Target = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
 #'                       remove.Sample = c("Control08","Control16","Control22"))
-#' data.dCt <- delta_Ct(data.CtF,
-#'                      imput.by.mean.within.groups = TRUE,
-#'                      ref = "Gene8")
+#' data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
+#' data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
 #' control_cluster_target(data.dCt)
 #'
 #' @importFrom stats hclust dist
@@ -1335,7 +1261,7 @@ control_cluster_target <- function (data,
 #' Performs principal component analysis (PCA) for samples and generate plot illustrating spatial arrangement of samples using two first components. Could be useful to identify outlier samples.
 #'     IMPORTANT: PCA analysis can not deal with missing values, thus all samples with at least one missing value are removed from data before analysis. It is recommended to run this function on data after imputation of missing values.
 #'
-#' @param data object returned from delta_Ct(), exp_Ct() or exp_delta_Ct() function.
+#' @param data object returned from make_Ct_ready(), exp_Ct_or_dCt() or delta_Ct() functions.
 #' @param point.size numeric: size of points. Default to 4.
 #' @param point.shape integer: shape of points. Default to 19.
 #' @param alpha numeric: transparency of points, a value between 0 and 1. Default to 0.7.
@@ -1367,8 +1293,9 @@ control_cluster_target <- function (data,
 #' data.CtF <- filter_Ct(data.Ct,
 #'                       remove.Target = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
 #'                       remove.Sample = c("Control08","Control16","Control22"))
-#' data.CtF.prepared <- Ct_for_control(data.CtF)
-#' control_pca_sample(data.CtF.prepared)
+#' data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
+#' data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
+#' control_pca_sample(data.dCt)
 #'
 #' @importFrom base print as.data.frame rownames summary paste round
 #' @importFrom stats na.omit prcomp
@@ -1436,7 +1363,7 @@ control_pca_sample <- function(data,
 #' Performs principal component analysis (PCA) for targets and generate plot illustrating spatial arrangement of targets using 2 components. Could be useful to gain insight into similarity in expression of analyzed targets.
 #' IMPORTANT: PCA analysis can not deal with missing values, thus all targets with at least one missing value are removed from data before analysis. It is recommended to run this function on data after imputation of missing values.
 #'
-#' @param data object returned from delta_Ct(), exp_Ct() or exp_delta_Ct()` function.
+#' @param data object returned from make_Ct_ready(), exp_Ct_or_dCt() or delta_Ct() functions.
 #' @param point.size numeric: size of points. Default to 4.
 #' @param point.shape integer: shape of points. Default to 19.
 #' @param alpha numeric: transparency of points, a value between 0 and 1. Default to 0.7.
@@ -1468,8 +1395,9 @@ control_pca_sample <- function(data,
 #' data.CtF <- filter_Ct(data.Ct,
 #'                       remove.Target = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
 #'                       remove.Sample = c("Control08","Control16","Control22"))
-#' data.CtF.prepared <- Ct_for_control(data.CtF)
-#' control_pca_target(data.CtF.prepared)
+#' data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
+#' data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
+#' control_pca_target(data.dCt)
 #'
 #' @importFrom base print as.data.frame rownames summary paste round t colnames
 #' @importFrom stats na.omit prcomp
@@ -1531,7 +1459,7 @@ control_pca_target <- function(data, point.size = 4, point.shape = 19, alpha = 0
 #' @description
 #' Performs correlation analysis of targets based on the data. Could be useful to gain insight into relationships between analyzed targets.
 #'
-#' @param data object returned from delta_Ct(), exp_Ct() or exp_delta_Ct() function.
+#' @param data object returned from make_Ct_ready(), exp_Ct_or_dCt() or delta_Ct() functions.
 #' @param add.coef if coefficients should be add to the plot, specify color of coefficients (default to "black"), otherwise set to NULL.
 #' @param method character: type of correlations to compute, specify "pearson" (default) for Pearson's correlation coefficients
 #' or "spearman" for Spearman's rank correlation coefficients.
@@ -1561,9 +1489,8 @@ control_pca_target <- function(data, point.size = 4, point.shape = 19, alpha = 0
 #' data.CtF <- filter_Ct(data.Ct,
 #'                       remove.Target = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
 #'                       remove.Sample = c("Control08","Control16","Control22"))
-#' data.dCt <- delta_Ct(data.CtF,
-#'                      imput.by.mean.within.groups = TRUE,
-#'                      ref = "Gene8")
+#' data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
+#' data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
 #' corr.targets <- control_corr_target(data.dCt)
 #' head(corr.targets)
 #'
@@ -1654,7 +1581,7 @@ control_corr_target <- function(data,
 #' @description
 #' Performs correlation analysis of samples based on the data. Could be useful to gain insight into relationships between analyzed samples.
 #'
-#' @param data object returned from delta_Ct(), exp_Ct() or exp_delta_Ct() function.
+#' @param data object returned from make_Ct_ready(), exp_Ct_or_dCt() or delta_Ct() functions.
 #' @param add.coef if coefficients should be add to the plot, specify color of coefficients (default to "black"), otherwise set to NULL.
 #' @param method character: type of correlations to compute, specify "pearson" (default) for Pearson's correlation coefficients
 #' or "spearman" for Spearman's rank correlation coefficients.
@@ -1684,10 +1611,9 @@ control_corr_target <- function(data,
 #' data.CtF <- filter_Ct(data.Ct,
 #'                       remove.Target = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
 #'                       remove.Sample = c("Control08","Control16","Control22"))
-#' data.dCt <- delta_Ct(data.CtF,
-#'                      imput.by.mean.within.groups = TRUE,
-#'                      ref = "Gene8")
-#' corr.samples <- control_corr_sample(data.dCt)
+#' data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
+#' data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
+#' corr.samples <- control_corr_sample(data.CtF.ready)
 #' head(corr.samples)
 #'
 #' @importFrom base as.data.frame paste upper.tri rownames
@@ -1781,7 +1707,7 @@ control_corr_sample <- function(data,
 #' @description
 #' Generate scatter plot with linear regression line for two specified targets. Could be useful to assess linear relationship between these targets.
 #'
-#' @param data object returned from delta_Ct(), exp_Ct() or exp_delta_Ct() function.
+#' @param data object returned from make_Ct_ready(), exp_Ct_or_dCt() or delta_Ct() functions.
 #' @param x,y characters: names of targets to use.
 #' @param by.group logical: if TRUE (default), relationships will be shown separately for compared groups.
 #' @param point.size numeric: size of points. Default to 4.
@@ -1813,14 +1739,13 @@ control_corr_sample <- function(data,
 #'
 #' @examples
 #' library(tidyverse)
-#' library(ggpmisc)
+#'library(ggpmisc)
 #' data(data.Ct)
 #' data.CtF <- filter_Ct(data.Ct,
 #'                       remove.Target = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
 #'                       remove.Sample = c("Control08","Control16","Control22"))
-#' data.dCt <- delta_Ct(data.CtF,
-#'                      imput.by.mean.within.groups = TRUE,
-#'                      ref = "Gene8")
+#' data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
+#' data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
 #' single_pair_target(data.dCt, "Gene16", "Gene17")
 #'
 #' @importFrom base print paste
@@ -1922,7 +1847,7 @@ single_pair_target <- function(data, x, y, by.group = TRUE,
 #' @description
 #' Generate scatter plot with linear regression line for two specified samples Could be useful to assess linear relationship between these samples.
 #'
-#' @param data object returned from delta_Ct(), exp_Ct() or exp_delta_Ct() function.
+#' @param data object returned from make_Ct_ready(), exp_Ct_or_dCt() or delta_Ct() functions.
 #' @param x,y characters: names of targets to use.
 #' @param point.size numeric: size of points.
 #' @param point.shape integer: shape of points.
@@ -1953,9 +1878,8 @@ single_pair_target <- function(data, x, y, by.group = TRUE,
 #' data.CtF <- filter_Ct(data.Ct,
 #'                       remove.Target = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
 #'                       remove.Sample = c("Control08","Control16","Control22"))
-#' data.dCt <- delta_Ct(data.CtF,
-#'                      imput.by.mean.within.groups = TRUE,
-#'                      ref = "Gene8")
+#' data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
+#' data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
 #' single_pair_sample(data.dCt, "Disease6", "Control17")
 #'
 #' @importFrom base print paste t colnames
@@ -2027,7 +1951,7 @@ single_pair_sample <- function(data, x, y,
 #' @description
 #' Filters transformed Ct data (2^(-Ct), delta Ct, and 2^(-dCt) data) according to the used filtering criteria (see parameters).
 #'
-#' @param data object returned from delta_Ct(), exp_Ct() or exp_delta_Ct() functions.
+#' @param data object returned from make_Ct_ready(), exp_Ct_or_dCt() or delta_Ct() functions.
 #' @param remove.Target character: vector with names of targets which should be removed from data.
 #' @param remove.Sample character: vector with names of samples which should be removed from data.
 #' @param remove.Group character: vector with names of groups which should be removed from data.
@@ -2041,10 +1965,9 @@ single_pair_sample <- function(data, x, y,
 #' data.CtF <- filter_Ct(data.Ct,
 #'                       remove.Target = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
 #'                       remove.Sample = c("Control08","Control16","Control22"))
-#' data.dCt <- delta_Ct(data.CtF,
-#'                      imput.by.mean.within.groups = TRUE,
-#'                      ref = "Gene8")
-#' data.dCt.exp <- exp_delta_Ct(data.dCt)
+#' data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
+#' data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
+#' data.dCt.exp <- exp_Ct_or_dCt(data.dCt)
 #' data.dCt.expF <- filter_transformed_Ct(data.dCt.exp, remove.Sample = c("Control11"))
 #'
 #' dim(data.dCt.exp)
@@ -2073,52 +1996,6 @@ filter_transformed_Ct <- function(data,
 
 
 
-#' @title exp_dCt
-#'
-#' @description
-#' This function exponentiates delta Ct (dCt) values by using formula 2^(-dCt).
-#'
-#' @param data data object returned from delta_Ct() function.
-#' @param save.to.txt logical: if TRUE, returned data will be saved to .txt file. Default to FALSE.
-#' @param name.txt character: name of saved .txt file, without ".txt" name of extension. Default to "data.exp.dCt".
-#'
-#' @return Data.frame with exponentiated dCt values.
-#' @export
-#'
-#' @examples
-#' library(tidyverse)
-#' data(data.Ct)
-#' data.CtF <- filter_Ct(data.Ct,
-#'                       remove.Target = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
-#'                       remove.Sample = c("Control08","Control16","Control22"))
-#' data.dCt <- delta_Ct(data.CtF,
-#'                      imput.by.mean.within.groups = TRUE,
-#'                      ref = "Gene8")
-#' data.dCt.exp <- exp_delta_Ct(data.dCt)
-#' head(data.dCt.exp)
-#'
-#' @importFrom base as.data.frame paste
-#' @importFrom utils write.table
-#' @importFrom dplyr mutate_at
-#' @import tidyverse
-#'
-exp_dCt <- function(data,
-                    save.to.txt = FALSE,
-                    name.txt = "data.exp.dCt"){
-
-  calcRQ <- function(x){
-    x <- 2^-x
-  }
-
-  data_exp <- data %>%
-    mutate_at(vars(-c("Group","Sample")), calcRQ)
-
-  if (save.to.txt == TRUE){
-    write.table(as.data.frame(data_exp), paste(name.txt,".txt", sep = ""))
-  }
-  return(data_exp)
-}
-
 
 
 
@@ -2133,7 +2010,7 @@ exp_dCt <- function(data,
 #'     including target selection, faceting, and adding mean labels to boxes.
 #'     This, this function could be useful to present results for finally selected targets.
 #'
-#' @param data object returned from delta_Ct(), exp_Ct() or exp_delta_Ct() function.
+#' @param data object returned from make_Ct_ready(), exp_Ct_or_dCt() or delta_Ct() functions.
 #' @param coef numeric: how many times of interquartile range should be used to indicate the most extend data point for whiskers. Default to 1.5.
 #' @param sel.Target character vector with names of targets to include, or "all" (default) to use all names of targets.
 #' @param by.group logical: if TRUE (default), distributions will be drawn by compared groups of samples.
@@ -2171,9 +2048,8 @@ exp_dCt <- function(data,
 #' data.CtF <- filter_Ct(data.Ct,
 #'                       remove.Target = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
 #'                       remove.Sample = c("Control08","Control16","Control22"))
-#' data.dCt <- delta_Ct(data.CtF,
-#'                      imput.by.mean.within.groups = TRUE,
-#'                      ref = "Gene8")
+#' data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
+#' data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
 #' data.dCt.exp <- exp_delta_Ct(data.dCt)
 #' data.dCt.expF <- filter_transformed_Ct(data.dCt.exp, remove.Sample = c("Control11"))
 #' results_boxplot(data.dCt.expF,
@@ -2346,9 +2222,8 @@ results_boxplot <- function(data,
 #' data.CtF <- filter_Ct(data.Ct,
 #'                       remove.Target = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
 #'                       remove.Sample = c("Control08","Control16","Control22"))
-#' data.dCt <- delta_Ct(data.CtF,
-#'                      imput.by.mean.within.groups = TRUE,
-#'                      ref = "Gene8")
+#' data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
+#' data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
 #' RQ.ddCt.exp <- RQ_exp_ddCt(data.dCt, "Disease", "Control")
 #' head(RQ.ddCt.exp)
 #'
@@ -2419,7 +2294,7 @@ RQ_exp_ddCt <- function(data,
 #' This function creates barplot illustrating fold change (when 2^-Ct or 2^-dCt methods are used) or RQ (when 2^-ddCt method is used) values.
 #' with indicating of statistical significance.
 #'
-#' @param data object returned from RQ_exp_ddCt() or RQ_exp_Ct() functions.
+#' @param data object returned from RQ_exp_Ct_or_dCt() or RQ_exp_ddCt() functions.
 #' @param use.p logical: if TRUE, bars of statistically significant genes will be distinguished by colors.
 #' @param mode character: which p value should be used? One of the "t" (p values from Student's t test),
 #' "mw" (p values from Mann-Whitney U test), "depends" (if data in both compared groups were considered as derived from normal distribution (p value from Shapiro_Wilk test > 0.05) - p
@@ -2461,9 +2336,8 @@ RQ_exp_ddCt <- function(data,
 #' data.CtF <- filter_Ct(data.Ct,
 #'                       remove.Target = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
 #'                       remove.Sample = c("Control08","Control16","Control22"))
-#' data.dCt <- delta_Ct(data.CtF,
-#'                      imput.by.mean.within.groups = TRUE,
-#'                      ref = "Gene8")
+#' data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
+#' data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
 #' data.dCt.exp <- exp_delta_Ct(data.dCt)
 #' data.dCt.expF <- filter_transformed_Ct(data.dCt.exp, remove.Sample = c("Control11"))
 #' RQ.ddCt.exp <- RQ_exp_ddCt(data, "Disease", "Control")
@@ -2491,7 +2365,7 @@ RQ_plot <- function(data,
                     p.threshold = 0.05,
                     use.log10FCh = FALSE,
                     log10FCh.threshold = 0,
-                    Target.sel = "all",
+                    sel.Target = "all",
                     bar.width = 0.8,
                     angle = 0,
                     rotate = FALSE,
@@ -2510,8 +2384,8 @@ RQ_plot <- function(data,
                     save.to.tiff = FALSE,
                     name.tiff = "RQ_plot"){
 
-  if (Target.sel[1] != "all"){
-    data <- filter(data, Target %in% Target.sel)
+  if (sel.Target[1] != "all"){
+    data <- filter(data, Target %in% sel.Target)
   }
 
   if(sum(colnames(data) %in% "RQ") > 0){
@@ -2612,7 +2486,7 @@ RQ_plot <- function(data,
 #' This function performs Receiver Operating Characteristic (ROC) analysis of samples of targets based on the expression data.
 #' This analysis could be useful to further examine performance of samples classification into groups using gene expression data.
 #'
-#' @param data object returned from delta_Ct(), exp_Ct() or exp_delta_Ct() functions.
+#' @param data object returned from exp_Ct_or_dCt() or delta_Ct() functions.
 #' @param sel.Target character vector with names of targets to include, or "all" (default) to use all names of targets.
 #' @param groups character vector length of two with names of compared groups
 #' @param panels.row,panels.col integer: number of rows and columns to arrange panels with plots.
@@ -2640,9 +2514,8 @@ RQ_plot <- function(data,
 #' data.CtF <- filter_Ct(data.Ct,
 #'                       remove.Target = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
 #'                       remove.Sample = c("Control08","Control16","Control22"))
-#' data.dCt <- delta_Ct(data.CtF,
-#'                      imput.by.mean.within.groups = TRUE,
-#'                      ref = "Gene8")
+#' data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
+#' data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
 #' data.dCt.expF <- filter_transformed_Ct(data.dCt.exp, remove.Sample = c("Control11"))
 #' roc_parameters <- ROCh(data.dCt, sel.Target = c("Gene1","Gene16","Gene19","Gene20"),
 #'                        groups = c("Disease","Control"),
@@ -2723,7 +2596,7 @@ ROCh <- function(data,
 #' @description
 #' This function performs logistic regression analysis, computes odd ratio values and presents them graphically.
 #'
-#' @param data object returned from delta_Ct(), exp_Ct() or exp_delta_Ct() functions.
+#' @param data object returned from exp_Ct_or_dCt() or delta_Ct() functions.
 #' @param sel.Target character vector with names of targets to include, or "all" (default) to use all names of targets.
 #' @param group.study character: name of study group (group of interest).
 #' @param group.ref character: name of reference group.
@@ -2763,9 +2636,9 @@ ROCh <- function(data,
 #'                      imput.by.mean.within.groups = TRUE,
 #'                      ref = "Gene8")
 #' log.reg.results <- log_reg(data.dCt,
-#'                            Target.sel = c("Gene1","Gene16","Gene19","Gene20"),
-#'                            group.study = "Disease",
-#'                            group.ref = "Control")
+#'                             sel.Target = c("Gene1","Gene16","Gene19","Gene20"),
+#'                             group.study = "Disease",
+#'                             group.ref = "Control")
 #
 #' @importFrom base print paste colnames ncol lapply as.data.frame as.vrctor names summary data.frame
 #' @importFrom dplyr filter
@@ -2800,7 +2673,7 @@ log_reg <- function(data,
 
   data <- filter(data, Group %in% c(group.study, group.ref))
 
-  if (Target.sel[1] != "all"){
+  if (sel.Target[1] != "all"){
     data <- data[, colnames(data) %in% c("Group", "Sample", sel.Target)]
   }
 

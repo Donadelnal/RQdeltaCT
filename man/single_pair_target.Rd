@@ -13,7 +13,6 @@ single_pair_target(
   point.shape = 19,
   point.alpha = 0.7,
   colors = c("#66c2a5", "#fc8d62"),
-  line.alpha = 0.7,
   axis.title.size = 12,
   axis.text.size = 10,
   legend.title = "Group",
@@ -34,11 +33,11 @@ single_pair_target(
   dpi = 600,
   width = 15,
   height = 15,
-  name.tiff = "targetss_single_plot"
+  name.tiff = "targets_single_pair_plot"
 )
 }
 \arguments{
-\item{data}{object returned from delta_Ct(), exp_Ct() or exp_delta_Ct() function.}
+\item{data}{object returned from make_Ct_ready(), exp_Ct_or_dCt() or delta_Ct() functions.}
 
 \item{x, y}{characters: names of targets to use.}
 
@@ -51,8 +50,6 @@ single_pair_target(
 \item{point.alpha}{numeric: transparency of points, a value between 0 and 1. Default to 0.7.}
 
 \item{colors}{character: color for points (if by.group = FALSE) or vector of two colors for points, used to distinguish groups (if by.group = TRUE).}
-
-\item{line.alpha}{numeric: transparency of regression line, a value between 0 and 1. Default to 0.7.}
 
 \item{axis.title.size}{integer: font size of axis titles. Default to 12.}
 
@@ -104,9 +101,8 @@ data(data.Ct)
 data.CtF <- filter_Ct(data.Ct,
                       remove.Target = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
                       remove.Sample = c("Control08","Control16","Control22"))
-data.dCt <- delta_Ct(data.CtF,
-                     imput.by.mean.within.groups = TRUE,
-                     ref = "Gene8")
-single_pair_target(data.dCt, "Gene16, "Gene17)
+data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
+data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
+single_pair_target(data.dCt, "Gene16", "Gene17")
 
 }

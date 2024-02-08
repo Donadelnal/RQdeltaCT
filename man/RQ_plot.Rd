@@ -34,7 +34,7 @@ RQ_plot(
 )
 }
 \arguments{
-\item{data}{object returned from RQ_exp_Ct_or_dCt() or RQ_exp_ddCt() functions.}
+\item{data}{object returned from RQ_exp_Ct_or_dCt() or RQ_ddCt() functions.}
 
 \item{use.p}{logical: if TRUE, bars of statistically significant genes will be distinguished by colors.}
 
@@ -108,9 +108,9 @@ data.CtF <- filter_Ct(data.Ct,
 data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
 data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
 data.dCt.exp <- exp_delta_Ct(data.dCt)
-data.dCt.expF <- filter_transformed_Ct(data.dCt.exp, remove.Sample = c("Control11"))
-RQ.ddCt.exp <- RQ_exp_ddCt(data, "Disease", "Control")
-RQ.plot <- RQ_plot(RQ.ddCt.exp, mode = "depends", use.log10FCh = TRUE, log10FCh.threshold = 0.30103)
+data.dCt.expF <- filter_transformed_data(data.dCt.exp, remove.Sample = c("Control11"))
+RQ.ddCt <- RQ_ddCt(data, "Disease", "Control")
+RQ.plot <- RQ_plot(RQ.ddCt, mode = "depends", use.log10FCh = TRUE, log10FCh.threshold = 0.30103)
 head(RQ.plot[[2]])
 
 # with user p values - in this example used p values are calculated using stats::wilcox.test() function:
@@ -119,6 +119,6 @@ pivot_longer(cols = -c(Group, Sample), names_to = "Target", values_to = "dCt") \
   group_by(Target) \%>\%
   summarise(MW_test_p = wilcox.test(dCt ~ Group)$p.value, .groups = "keep")
 
-RQ.plot <- RQ_plot(RQ.ddCt.exp, mode = "user", use.log10FCh = TRUE, log10FCh.threshold = 0.30103)
+RQ.plot <- RQ_plot(RQ.ddCt, mode = "user", use.log10FCh = TRUE, log10FCh.threshold = 0.30103)
 head(RQ.plot[[2]])
 }

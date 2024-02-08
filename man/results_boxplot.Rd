@@ -109,7 +109,7 @@ data.CtF <- filter_Ct(data.Ct,
 data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
 data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
 data.dCt.exp <- exp_delta_Ct(data.dCt)
-data.dCt.expF <- filter_transformed_Ct(data.dCt.exp, remove.Sample = c("Control11"))
+data.dCt.expF <- filter_transformed_data(data.dCt.exp, remove.Sample = c("Control11"))
 results_boxplot(data.dCt.expF,
                  sel.Target = c("Gene1","Gene16","Gene19","Gene20")
                  facet.row = 2,

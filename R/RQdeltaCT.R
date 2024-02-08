@@ -1454,7 +1454,7 @@ control_pca_target <- function(data, point.size = 4, point.shape = 19, alpha = 0
 
 
 
-#' @title control_corr_target
+#' @title corr_target
 #'
 #' @description
 #' Performs correlation analysis of targets based on the data. Could be useful to gain insight into relationships between analyzed targets.
@@ -1474,9 +1474,9 @@ control_pca_target <- function(data, point.size = 4, point.shape = 19, alpha = 0
 #' @param dpi integer: resolution of saved .tiff file. Default to 600.
 #' @param width numeric: width (in cm) of saved .tiff file. Default to 15.
 #' @param height integer: height (in cm) of saved .tiff file. Default to 15.
-#' @param name.tiff character: name of saved .tiff file, without ".tiff" name of extension. Default to "control_corr_targets".
+#' @param name.tiff character: name of saved .tiff file, without ".tiff" name of extension. Default to "corr_targets".
 #' @param save.to.txt logical: if TRUE, correlation results (sorted by descending absolute values of correlation coefficients) will be saved to .txt file. Default to FALSE.
-#' @param name.txt character: name of saved .txt file, without ".txt" name of extension.. Default to "control_corr_targets".
+#' @param name.txt character: name of saved .txt file, without ".txt" name of extension.. Default to "corr_targets".
 #'
 #' @return Plot illustrating correlation matrix (displayed in graphic device) and data.frame with computed correlation coefficients and p values.
 #' @export
@@ -1491,7 +1491,7 @@ control_pca_target <- function(data, point.size = 4, point.shape = 19, alpha = 0
 #'                       remove.Sample = c("Control08","Control16","Control22"))
 #' data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
 #' data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
-#' corr.targets <- control_corr_target(data.dCt)
+#' corr.targets <- corr_target(data.dCt)
 #' head(corr.targets)
 #'
 #' @importFrom base as.data.frame paste upper.tri rownames
@@ -1501,7 +1501,7 @@ control_pca_target <- function(data, point.size = 4, point.shape = 19, alpha = 0
 #' @import corrplot
 #' @import tidyverse
 #'
-control_corr_target <- function(data,
+corr_target <- function(data,
                                 method = "pearson",
                                 add.coef = "black",
                                 order = "hclust",
@@ -1511,9 +1511,9 @@ control_corr_target <- function(data,
                                 p.adjust.method = "BH",
                                 save.to.tiff = FALSE,
                                 dpi = 600, width = 15, height = 15,
-                                name.tiff = "control_corr_targets",
+                                name.tiff = "corr_targets",
                                 save.to.txt = FALSE,
-                                name.txt = "control_corr_targets"){
+                                name.txt = "corr_targets"){
 
   data <- as.data.frame(data)
   data <- select(data, -Group, -Sample)
@@ -1576,7 +1576,7 @@ control_corr_target <- function(data,
 
 
 
-#' @title control_corr_sample
+#' @title corr_sample
 #'
 #' @description
 #' Performs correlation analysis of samples based on the data. Could be useful to gain insight into relationships between analyzed samples.
@@ -1596,9 +1596,9 @@ control_corr_target <- function(data,
 #' @param dpi integer: resolution of saved .tiff file. Default to 600.
 #' @param width numeric: width (in cm) of saved .tiff file. Default to 15.
 #' @param height integer: height (in cm) of saved .tiff file. Default to 15.
-#' @param name.tiff character: name of saved .tiff file, without ".tiff" name of extension. Default to "control_corr_samples".
+#' @param name.tiff character: name of saved .tiff file, without ".tiff" name of extension. Default to "corr_samples".
 #' @param save.to.txt logical: if TRUE, correlation results (sorted by descending absolute values of correlation coefficients) will be saved to .txt file. Default to FALSE.
-#' @param name.txt character: name of saved .txt file, without ".txt" name of extension.. Default to "control_corr_samples".
+#' @param name.txt character: name of saved .txt file, without ".txt" name of extension.. Default to "corr_samples".
 #'
 #' @return Plot illustrating correlation matrix (displayed in graphic device) and data.frame with computed correlation coefficients and p values.
 #' @export
@@ -1613,7 +1613,7 @@ control_corr_target <- function(data,
 #'                       remove.Sample = c("Control08","Control16","Control22"))
 #' data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
 #' data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
-#' corr.samples <- control_corr_sample(data.CtF.ready)
+#' corr.samples <- corr_sample(data.CtF.ready)
 #' head(corr.samples)
 #'
 #' @importFrom base as.data.frame paste upper.tri rownames
@@ -1623,7 +1623,7 @@ control_corr_target <- function(data,
 #' @import corrplot
 #' @import tidyverse
 #'
-control_corr_sample <- function(data,
+corr_sample <- function(data,
                                 method = "pearson",
                                 add.coef = "black",
                                 order = "hclust",
@@ -1633,9 +1633,9 @@ control_corr_sample <- function(data,
                                 p.adjust.method = "BH",
                                 save.to.tiff = FALSE,
                                 dpi = 600, width = 15, height = 15,
-                                name.tiff = "control_corr_samples",
+                                name.tiff = "corr_samples",
                                 save.to.txt = FALSE,
-                                name.txt = "control_corr_samples"){
+                                name.txt = "corr_samples"){
 
   data <- as.data.frame(data)
   data_t <- t(select(data, -Group, -Sample))
@@ -1946,7 +1946,7 @@ single_pair_sample <- function(data, x, y,
 
 
 
-#' @title filter_transformed_Ct
+#' @title filter_transformed_data
 #'
 #' @description
 #' Filters transformed Ct data (2^(-Ct), delta Ct, and 2^(-dCt) data) according to the used filtering criteria (see parameters).
@@ -1968,7 +1968,7 @@ single_pair_sample <- function(data, x, y,
 #' data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
 #' data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
 #' data.dCt.exp <- exp_Ct_or_dCt(data.dCt)
-#' data.dCt.expF <- filter_transformed_Ct(data.dCt.exp, remove.Sample = c("Control11"))
+#' data.dCt.expF <- filter_transformed_data(data.dCt.exp, remove.Sample = c("Control11"))
 #'
 #' dim(data.dCt.exp)
 #' dim(data.dCt.expF)
@@ -1977,7 +1977,7 @@ single_pair_sample <- function(data, x, y,
 #' @importFrom dplyr filter select
 #' @import tidyverse
 #'
-filter_transformed_Ct <- function(data,
+filter_transformed_data <- function(data,
                                   remove.Target = c(""),
                                   remove.Sample = c(""),
                                   remove.Group = c("")){
@@ -2051,7 +2051,7 @@ filter_transformed_Ct <- function(data,
 #' data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
 #' data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
 #' data.dCt.exp <- exp_delta_Ct(data.dCt)
-#' data.dCt.expF <- filter_transformed_Ct(data.dCt.exp, remove.Sample = c("Control11"))
+#' data.dCt.expF <- filter_transformed_data(data.dCt.exp, remove.Sample = c("Control11"))
 #' results_boxplot(data.dCt.expF,
 #'                  sel.Target = c("Gene1","Gene16","Gene19","Gene20")
 #'                  facet.row = 2,
@@ -2190,7 +2190,7 @@ results_boxplot <- function(data,
 
 
 
-#' @title RQ_exp_ddCt
+#' @title RQ_ddCt
 #'
 #' @description
 #' Performs relative quantification of gene expression using 2^(-ddCt) method.
@@ -2224,8 +2224,8 @@ results_boxplot <- function(data,
 #'                       remove.Sample = c("Control08","Control16","Control22"))
 #' data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
 #' data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
-#' RQ.ddCt.exp <- RQ_exp_ddCt(data.dCt, "Disease", "Control")
-#' head(RQ.ddCt.exp)
+#' RQ.ddCt <- RQ_ddCt(data.dCt, "Disease", "Control")
+#' head(RQ.ddCt)
 #'
 #' @importFrom base as.data.frame as.factor mean
 #' @importFrom stats sd shapiro.test t.test
@@ -2234,7 +2234,7 @@ results_boxplot <- function(data,
 #' @importFrom dplyr filter select rename_with full_join
 #' @import tidyverse
 #'
-RQ_exp_ddCt <- function(data,
+RQ_ddCt <- function(data,
                     group.study,
                     group.ref,
                     do.tests = TRUE,
@@ -2294,7 +2294,7 @@ RQ_exp_ddCt <- function(data,
 #' This function creates barplot illustrating fold change (when 2^-Ct or 2^-dCt methods are used) or RQ (when 2^-ddCt method is used) values.
 #' with indicating of statistical significance.
 #'
-#' @param data object returned from RQ_exp_Ct_or_dCt() or RQ_exp_ddCt() functions.
+#' @param data object returned from RQ_exp_Ct_or_dCt() or RQ_ddCt() functions.
 #' @param use.p logical: if TRUE, bars of statistically significant genes will be distinguished by colors.
 #' @param mode character: which p value should be used? One of the "t" (p values from Student's t test),
 #' "mw" (p values from Mann-Whitney U test), "depends" (if data in both compared groups were considered as derived from normal distribution (p value from Shapiro_Wilk test > 0.05) - p
@@ -2339,9 +2339,9 @@ RQ_exp_ddCt <- function(data,
 #' data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
 #' data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
 #' data.dCt.exp <- exp_delta_Ct(data.dCt)
-#' data.dCt.expF <- filter_transformed_Ct(data.dCt.exp, remove.Sample = c("Control11"))
-#' RQ.ddCt.exp <- RQ_exp_ddCt(data, "Disease", "Control")
-#' RQ.plot <- RQ_plot(RQ.ddCt.exp, mode = "depends", use.log10FCh = TRUE, log10FCh.threshold = 0.30103)
+#' data.dCt.expF <- filter_transformed_data(data.dCt.exp, remove.Sample = c("Control11"))
+#' RQ.ddCt <- RQ_ddCt(data, "Disease", "Control")
+#' RQ.plot <- RQ_plot(RQ.ddCt, mode = "depends", use.log10FCh = TRUE, log10FCh.threshold = 0.30103)
 #' head(RQ.plot[[2]])
 #'
 #' # with user p values - in this example used p values are calculated using stats::wilcox.test() function:
@@ -2350,7 +2350,7 @@ RQ_exp_ddCt <- function(data,
 #'   group_by(Target) %>%
 #'   summarise(MW_test_p = wilcox.test(dCt ~ Group)$p.value, .groups = "keep")
 #'
-#' RQ.plot <- RQ_plot(RQ.ddCt.exp, mode = "user", use.log10FCh = TRUE, log10FCh.threshold = 0.30103)
+#' RQ.plot <- RQ_plot(RQ.ddCt, mode = "user", use.log10FCh = TRUE, log10FCh.threshold = 0.30103)
 #' head(RQ.plot[[2]])
 #
 #' @importFrom base print paste colnames factor
@@ -2516,7 +2516,7 @@ RQ_plot <- function(data,
 #'                       remove.Sample = c("Control08","Control16","Control22"))
 #' data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
 #' data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
-#' data.dCt.expF <- filter_transformed_Ct(data.dCt.exp, remove.Sample = c("Control11"))
+#' data.dCt.expF <- filter_transformed_data(data.dCt.exp, remove.Sample = c("Control11"))
 #' roc_parameters <- ROCh(data.dCt, sel.Target = c("Gene1","Gene16","Gene19","Gene20"),
 #'                        groups = c("Disease","Control"),
 #'                        panels.row = 2,

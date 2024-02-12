@@ -37,7 +37,7 @@ single_pair_target(
 )
 }
 \arguments{
-\item{data}{object returned from make_Ct_ready(), exp_Ct_or_dCt() or delta_Ct() functions.}
+\item{data}{object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.}
 
 \item{x, y}{characters: names of targets to use.}
 
@@ -62,7 +62,7 @@ single_pair_target(
 \item{legend.text.size}{integer: font size of legend text. Default to 12.}
 
 \item{legend.position}{position of the legend, one of "top", "right" (default), "bottom", "left", or "none" (no legend).
-See description for `legend.position` parameter in ggplot2::theme() function.}
+See description for legend.position parameter in ggplot2::theme() function.}
 
 \item{plot.title}{character: title of plot. Default to "".}
 

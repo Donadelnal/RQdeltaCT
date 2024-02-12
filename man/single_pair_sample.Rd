@@ -32,7 +32,7 @@ single_pair_sample(
 )
 }
 \arguments{
-\item{data}{object returned from make_Ct_ready(), exp_Ct_or_dCt() or delta_Ct() functions.}
+\item{data}{object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.}
 
 \item{x, y}{characters: names of targets to use.}
 

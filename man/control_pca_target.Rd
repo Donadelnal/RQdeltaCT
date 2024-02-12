@@ -6,6 +6,7 @@
 \usage{
 control_pca_target(
   data,
+  sel.Target = "all",
   point.size = 4,
   point.shape = 19,
   alpha = 0.7,
@@ -29,7 +30,9 @@ control_pca_target(
 )
 }
 \arguments{
-\item{data}{object returned from make_Ct_ready(), exp_Ct_or_dCt() or delta_Ct() functions.}
+\item{data}{object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.}
+
+\item{sel.Target}{character vector with names of targets to include, or "all" (default) to use all names of targets.}
 
 \item{point.size}{numeric: size of points. Default to 4.}
 

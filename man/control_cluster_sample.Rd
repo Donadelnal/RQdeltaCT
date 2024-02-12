@@ -6,10 +6,12 @@
 \usage{
 control_cluster_sample(
   data,
+  sel.Sample = "all",
   method.dist = "euclidean",
   method.clust = "average",
   x.axis.title = "Samples",
   y.axis.title = "Height",
+  label.size = 1,
   plot.title = "",
   save.to.tiff = FALSE,
   dpi = 600,
@@ -19,7 +21,9 @@ control_cluster_sample(
 )
 }
 \arguments{
-\item{data}{object returned from make_Ct_ready(), exp_Ct_or_dCt() or delta_Ct() functions.}
+\item{data}{object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.}
+
+\item{sel.Sample}{character vector with names of samples to include, or "all" (default) to use all samples.}
 
 \item{method.dist}{character: name of method used for calculation of distances, derived from stats::dist() function, should be one of "euclidean" (default) , "maximum", "manhattan", "canberra", "binary" or "minkowski".}
 
@@ -28,6 +32,8 @@ control_cluster_sample(
 \item{x.axis.title}{character: title of x axis. Default to "Samples".}
 
 \item{y.axis.title}{character: title of y axis. Default to "Height".}
+
+\item{label.size}{numeric: size of text labels. Defaault to 1.}
 
 \item{plot.title}{character: title of plot. Default to "".}
 

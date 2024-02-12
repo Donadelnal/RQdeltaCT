@@ -1,10 +1,10 @@
 ---
-title: "RQdeltaCT - relative quantification of gene expression using delta Ct methods"
+title: "RQdeltaCT - relative quantification of gene expression using delta Ct method"
 output: rmarkdown::html_vignette
 author: "Daniel Zalewski"
-date: "5 February 2024"
+date: "9 February 2024"
 vignette: >
-  %\VignetteIndexEntry{RQdeltaCT - relative quantification of gene expression using delta Ct methods}
+  %\VignetteIndexEntry{RQdeltaCT - relative quantification of gene expression using delta Ct method}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -12,95 +12,557 @@ vignette: >
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  message = FALSE,
+  warning = FALSE,
+  cache = FALSE
 )
 ```
 
-### Short description
+## Introduction
 `RQdeltaCT` is a R packege developed to perform relative quantification of gene expression using delta Ct method, proposed by Kenneth J. Livak and Thomas D. Schmittgen  [Article1](https://www.sciencedirect.com/science/article/pii/S1046202301912629?via%3Dihub) [Article2](https://www.nature.com/articles/nprot.2008.73).
 
-These methods were designed to analyze gene expression data (Ct values) obtained from real-time PCR experiments, and allow to normalize gene expression values and compare them between groups of samples.
+These methods were designed to analyze gene expression data (Ct values) obtained from real-time PCR experiments. The main idea is to normalize gene expression values using endogenous control gene, calculate differences in gene expression levels between groups of samples (or technical replicates of sample) and present obtained differences in linear form by using 2^-(value)^ transformation.  
 
-The main idea is to normalize gene expression values using endogenous control gene, calculate differences in gene expression levels between groups of samples (or technical replicates of one sample) and present obtained differences in linear form by using 2^-(value)^ transformation.  
+There are three main variants of delta Ct method for relative quantification, depending on the study design. Short description of these methods are provided below, for more details refer to articles from links above.
 
-There are three main variants delta Ct method of relative quantification, depending on the study design. Short description of these methods are provided below, for more details refer to articles from links above.
+1. 2^-Ct^ method. Could be used in scenario where several genes are tested if they are influenced by studied experimental condition and are suitable to be used as reference genes (also called endogenous controls or internal controls). Obtained from experiments raw Ct values are transformed using 2^-Ct^ formula, summarized by means in compared study conditions, and a ratio of means (fold change) is calculated for experimental condition. If fold change is significant, gene would be not a good choice for reference gene. See example no 3 in this [Article2](https://www.nature.com/articles/nprot.2008.73).  
 
-1. 2^-Ct^ method. Could be used in scenario where several genes are tested if are suitable to be used as reference genes (if are influenced by studied experiment condition). Obtained Ct values are transformed using 2^-Ct^ formula, summarized by means in compared study conditions, and a ratio of means (fold change) is calculated for experimental condition.
+2. 2^-dCt^ method. In this method, Ct values are normalized by endogenous control gene (often GAPDH, beta-actin, or other) by subtracting Ct value of endogenous control in sample from Ct value of target gene in the same sample, obtaining delta Ct (dCt) value. Subsequently, dCt values are transformed using 2^-dCt^ formula, summarized by means in compared study groups, and a ratio of means (fold change) is calculated for a study group. This method is useful where samples should be analyzed a individual data points, ex. patients vs. healthy controls. See example no 5 in [Article2](https://www.nature.com/articles/nprot.2008.73).
 
-2. 2^-dCt^ method. In this method, Ct values are normalized by endogenous control gene (often GAPDH, beta-actin, or other) by subtracting Ct value of engogenous control in sample from Ct value of target gene in the same sample, obtaining delta Ct (dCt) value. Subsequently, dCt values are transformed using 2^-dCt^ formula, summarized by means in compared study groups, and a ratio of means (fold change) is calculated for a study group. This method is useful where a compared groups contain biological replicates, ex. patients vs. healthy controls.  
-
-3. 2^-ddCt^ method. similarly to 2^-dCt^ method, Ct values are normalized by endogenous control gene, but obtained delta Ct (dCt) values are not exponentially transformed, but summarized by means in compared study groups, and mean dCt in control group is subtracted from mean dCt in a study group, giving delta delta Ct (ddCt value). Subsequently, ddCt values are transformed using 2^-ddCt^ formula to obtain fold change value. This method is useful where a compared groups contain technical replicates, ex. samples of cell line before adding stimulant vs. samples of cell line after stimulation.
+3. 2^-ddCt^ method. Similarly to 2^-dCt^ method, Ct values are normalized by endogenous control gene, but obtained delta Ct (dCt) values are not exponentially transformed, but summarized by means in compared study groups, and mean dCt in control group is subtracted from mean dCt in a study group, giving delta delta Ct (ddCt) value. Subsequently, ddCt values are transformed using 2^-ddCt^ formula to obtain fold change value. This method is useful where a compared groups contain rather technical than biological replicates, ex. samples of cell line before adding stimulant vs. samples of cell line after stimulation. See examples no 1 and 2 in [Article2](https://www.nature.com/articles/nprot.2008.73).  
 
 Presented `RQdeltaCT` package includes functions that encompass all of these methods. Selection of proper method for analysis is up to the user.  
 
-Functions developed within `RQdeltaCT` packages are designed to be maximally easy to use, even for the users who are beginners to R. The parameters of functions were prepared to sufficiently ranged all essential actions, and no additional, extensive coding steps are necessary in standard analysis. The package was developed in the intention to make an opportunity to use `RQdeltaCT` by no experts in R programming.
+Functions developed within `RQdeltaCT` packages are designed to be maximally easy to use, even for the users who are beginners to R. The parameters of functions were prepared to sufficiently ranged all essential actions, and no additional, extensive coding steps are necessary in standard workflow. The package was developed in the intention to make an opportunity to use `RQdeltaCT` by no experts in R programming.  
 
-### Data import
-Data analyzed with `RQdeltaCT` package should be in tabular form and contain the following information: group names, sample names, target names and Ct values. Flag information could be also added for data filtering purpose. Any other information could exist in data (user do not have to remove them), but will not be imported and analyzed.  
+The workflow with function names and data flow was presented below:  
 
-For user convenience, `RQdeltaCT` package provides two functions (read_Ct_long and read_Ct_wide) useful to import tables in .txt format, either in long-format structure (each information in columns):
+```{r echo=FALSE, out.width="800px", dpi = 600, fig.align="center", warning=FALSE, message=FALSE, cache = TRUE}
+library(here)
+knitr::include_graphics(file.path(here::here(),"vignettes", "figure", "figure1ok.png"))
+
+```
+
+The `RQdeltaCT` package requires the following packages: 
+
+* `tidyverse` - main package for data processing (`dplyr`, `tidyr`) and visualisation (`ggplot2`)  
+* `coin` - used to perform Mann-Whitney U test (`wilcox_test()` function)   
+* `car` - used to compute VIF coefficients (`vif()` function)  
+* `Hmisc` - used to perform correlation analysis (`rcor()` function)  
+* `corrplot` - used to visualise results of correlation analysis (`corrplot()` function)  
+* `ggpmisc` - used to add linear regression results to plot (`stat_poly_eq()` function)  
+* `pROC` - used to perform analysis (`roc()` function)  
+* `oddsratio` - used to compute odds ratio values (`or_glm()` function)  
+
+---
+
+## Data import
+Data analyzed with `RQdeltaCT` package should be in tabular form and contain the following information: group names, sample names, target names and Ct values. Flag information could be also included for data filtering purpose. Any other information could exist in data (user do not have to remove them), but will not be imported and analyzed.
+
+Such a tables are a typically returned by software used to analysis of raw data files generated during real-time PCR runs. This could be programs coupled with PCR devices or external software, such as [SDS](https://www.thermofisher.com/pl/en/home/technical-resources/software-downloads/applied-biosystems-7900ht-fast-real-timespcr-system.html), or even R packages, ex. [qpcR](https://academic.oup.com/bioinformatics/article/24/13/1549/238435)   
+
+For user convenience, `RQdeltaCT` package provides two functions (`read_Ct_long()` and `read_Ct_wide()`) useful to import tables in .txt format, either in long-format structure (each information in columns) and wide-format structure (samples by columns, targets by rows), respectively.  
+
+However, the user could import data by their own code, but the final object should contain table with column named "Sample" with sample names, column named "Target" with target names, column named "Ct" with raw Ct values, column named "Group" with group names, and optionally column named "Flag" with flag information (should be class of character or factor).
+
+**NOTE:** Imported tables must be free from empty lines.  
+
+#### 1. Reading long-format data using `read_Ct_long()` function.
+
+Example of long-format table suitable for analysis using `RQdeltaCT` package:
+
+| Group | Sample | Target | Ct | Flag |
+|:--------|:---------|:------|:-----|:----|
+| Disease | Disease1 | Gene1 | 25.6 | OK |
+| Disease | Disease2 | Gene2 | 32.9 | Undetermined |
+| Control | Control1 | Gene1 | Undetermined | OK |
+| Control | Control2 | Gene2 | 27.5 | OK |
+| ... | ... | ... | ... | ...|
 
 
-
-
-
-or wide-format columns (samples by columns, targets by rows), respectively. However, the users could import data by their own code, but the final object should contain table with column named "Sample" with sample names, column named "Target" with target names, column named "Ct" with raw Ct values, column named "Group" with group names, and optionally column named "Flag" with flag information (should be class of character or factor).
-
-#### Reading data using `read_Ct_long()` function.
 
 In the following example, a `read_Ct_long()` function will be used to import long-format .txt table (data_Ct_long.txt) from `RQdeltaCt` package directory:
 
-```{r eval=TRUE}
+```{r message=FALSE, cache=TRUE}
 # Set path to file:
 path <- system.file("extdata", "data_Ct_long.txt", package = "RQdeltaCT")
 
-# Import file using path, values separator, decimal character and number of necessary columns:
+# Import file using path, remember to specify proper separator, decimal character and numbers of necessary columns:
 library(RQdeltaCT)
 library(tidyverse)
 data.Ct <- read_Ct_long(path = path, sep = "\t",dec = ".",skip = 0,
                          add.column.Flag = TRUE, column.Sample = 1, column.Target = 2,
                          column.Ct = 5, column.Group = 9, column.Flag = 4)
-
 ```
+
 Let's look at the data structure:
-```{r eval=TRUE}
+```{r cache=TRUE}
 str(data.Ct)
 ```
 
+The data were imported properly; however, Flag variable is numeric, but character or factor is required. The reason for this is that, in this example, Flag column contains numeric AmpScore parameter, which is often used to evaluate a quality of amplification curve - curves with AmpScore below 1 are typically considered as low quality and removed from data during analysis.  
 
-The Flag column contains AmpScore parameter, which is typically used to evaluate amplification curve (curves with AmpScore below 1 are considered as low quality) and data filtering. This variable is of class numeric, therefore, additional transformation of this variable is necessary:
+We can easy handle with this issue by performing additional transformation of this variable according to the applied AmpScore criterion:  
 
-```{r}
+```{r, cache=TRUE}
 library(tidyverse)
 data.Ct <- mutate(data.Ct, Flag = ifelse(Flag < 1, "Undetermined", "OK"))
 str(data.Ct)
 ```
 
-In Flag column, all values below were changed to "Undetermined", while other values were changed to "OK". Flag variable now is of class character, as required.
+Thanks to this transformation, all AmpScore values in Flag column which are below 1 were changed to "Undetermined", otherwise to "OK". Flag variable now is character, as required.  
 
-#### Reading data using `read_Ct_wide()` function.
+**NOTE:** At this stage, Ct values do not have to be numeric.
 
-A `read_Ct_wide()` function was designed to import data in wide-format, containing sample names in the first row, and target names in first column. Such a structure do not icludes names of groups, thus another file with groups names and assigned samples is required. This second file must contain two columns: column named "Sample" with names of samples and column named "Group" with names of groups assigned to samples. Names of samples in this file should correspond to the names of columns in file with Ct values.
+Imported data has a proper structure, ready to further steps of analysis.
 
-In this example, `read_Ct_wide()` function was used to import file with Ct values (data_Ct_wide.txt) and file with names of groups (data_design.txt) from `RQdeltaCt` package directory:
+#### 2. Reading wide-format data using `read_Ct_wide()` function.
 
-```{r eval=FALSE, include=FALSE}
-# Import long-format table using 
-library(RQdeltaCT)
+A data with gene expression results could be in also in form of a wide-format table, containing sample names in the first row and target names in first column. To import such a data, a `read_Ct_wide()` function was designed. An additional file is required, because Such a structure do not includes names of groups, this second file, with groups names and assigned samples, is required. This second file must contain two columns: column named "Sample" with names of samples and column named "Group" with names of groups assigned to samples. Moreover, names of samples in this file should correspond to the names of columns in file with Ct values.
+
+Example structures of wide-format table and additional file suitable for analysis using `RQdeltaCT` package are provided below:
+
+| Target | Sample1 | Sample2 | Sample3 | ... |
+|:--------|:---------|:------|:-----|:----|
+| Gene1 | 25.4 | 24.9 | 25.6 | ... |
+| Gene2 | 21.6 | 22.5 | 20.8 | ... |
+| Gene3 | 33.7 | Undetermined | Undetermined | ... |
+| Gene4 | 15.8 | 16.2 | 17.5 | ... |
+| ... | ... | ... | ... | ...|
+
+In the following example, `read_Ct_wide()` function was used to import wide-format file with Ct values (data_Ct_wide.txt) and file with names of groups (data_design.txt) from `RQdeltaCt` package directory:
+
+```{r cache=TRUE}
+# Set a paths to required files: 
 path.Ct.file <- system.file("extdata", "data_Ct_wide.txt", package = "RQdeltaCT")
 path.design.file <- system.file("extdata", "data_design.txt", package = "RQdeltaCT")
+
+# Import files:
 library(tidyverse)
 data.Ct <- read_Ct_wide(path.Ct.file = path.Ct.file,
                     path.design.file = path.design.file,
                     sep ="\t",
                     dec = ".")
- str(data.Ct)
+
+# Look at the structure:
+str(data.Ct)
+```
+Table imported from the package data object has no Flag column and could be directly subjected to further steps of analysis. 
+
+For package testing purpose, there is also a convenient possibility to use data object included in `RQdeltaCT` package, named `data.Ct`.
+
+```{r, cache=TRUE}
+data(data.Ct)
+str(data.Ct)
+```
+
+---
+
+## Quality control of raw Ct data
+
+The crucial step of data analysis is assessment of quality and usefulness to investigate studied problem. For this purpose, two functions from `RQdeltaCT` package could be used: `control_Ct_barplot_sample()` (for quality control of samples) and  `control_Ct_barplot_target()` (for quality control of targets). Both functions require to specify quality control criteria to be applied to Ct values, in order to label each Ct value as reliable or not. These functions return numbers of reliable and unreliable Ct values in each samples or target, and also present them graphically on barplots. Obtained results could be useful to check numbers Ct values obtained from each sample and target and identify samples and targets that should be considered to be removed from data based on applied reliability criteria.  
+
+Three selection criteria could be set in these functions:  
+
+* a flag used for undetermined Ct values. Default to "Undetermined".
+* a maximum of Ct value allowed. Default to 35.
+* a flag used in Flag column for values which are unreliable. Default to "Undetermined".
+
+**NOTE:** This function does not perform data filtering, but only numbers Ct values labeled as reliable or not and presents them graphically.  
+
+An example of using these functions are provided below:
+
+```{r results="hide", fig.keep="none", cache = TRUE}
+sample.Ct.control <- control_Ct_barplot_sample(data.Ct,
+                                               flag.Ct = "Undetermined",
+                                               maxCt = 35,
+                                               flag = c("Undetermined"),
+                                               axis.title.size = 8,
+                                               axis.text.size = 7,
+                                               plot.title.size = 8,
+                                               legend.title.size = 8,
+                                               legend.text.size = 8)
+target.Ct.control <- control_Ct_barplot_target(data.Ct,
+                                               flag.Ct = "Undetermined",
+                                               maxCt = 35,
+                                               flag = c("Undetermined"),
+                                               axis.title.size = 8,
+                                               axis.text.size = 8,
+                                               plot.title.size = 8,
+                                               legend.title.size = 8,
+                                               legend.text.size = 8)
+```
+
+Created plots are displayed on the graphic device, and short information appears. Each returned objects contain two elements: object with plot and table with results:
+
+```{r fig.dim=c(7.1,7), cache = TRUE}
+sample.Ct.control[[1]]
+```
+
+```{r cache = TRUE}
+sample.Ct.control[[2]][,1:14]
+```
+
+```{r fig.dim=c(7.1,4), cache = TRUE}
+target.Ct.control[[1]]
+```
+
+```{r cache = TRUE}
+target.Ct.control[[2]]
+```
+
+Visual inspection of returned plots and careful reading of obtained tables give clear image of data quality as well as numbers of samples and numbers of genes analyzed in each sample. We can see that Disease group contains more samples than Control group. Some of the samples have more Ct values (more technical replicates) than other samples. Furthermore, in all samples a majority of Ct values are reliable.  
+
+Regarding genes, Gene6 and Gene8 were analyzed in duplicates, other genes have single Ct values. Furthermore, Gene6 was analysed only in Control group and have all values labeled as unreliable; therefore, it is obvious that this gene should be excluded from the analysis. Some other genes have also many unreliable Ct values (ex. Gene2, Gene9) and maybe should be considered to be removed from the data.  
+
+In some situations, ex. where data contain high number of genes or some unified fraction of unreliable data must be establish to make decision on which samples or targets should be excluded from the analysis, two additional functions from `RQdeltaCT` package could be useful: `samples_to_remove()` and `targets_to_remove()`. These functions return vector with samples or targets for which the amount of unreliable Ct values are higher than fraction specified in `fraction` parameter:  
+
+```{r cache = TRUE}
+samples.to.remove <- samples_to_remove(sample.Ct.control[[2]], 0.5)
+samples.to.remove
+targets.to.remove <- targets_to_remove(target.Ct.control[[2]], 0.5, groups = c("Disease", "Control"))
+targets.to.remove
+```
+
+In examples above, there is no sample with more than half unreliable data. This criterion was met by 5 genes (Gene2, Gene5, Gene6, Gene9, and Gene11); therefore, these genes will be removed from data in the next step of analysis. 
+
+**NOTE:** Functions `samples_to_remove()` and `targets_to_remove()` works with the second element (table) of lists returned from `control_Ct_barplot_sample()` and `control_Ct_barplot_target()` functions, respectively.
+
+---
+
+## Filtering of raw Ct data
+
+When reliability criteria will be finally established for Ct values, and some samples or targets will be decided to be excluded from the analysis after quality control of data, raw Ct values could be filtered using `filter_Ct()` function.  
+
+As a filtering criteria, a flag used for undetermined Ct values, a maximum of Ct threshold, and a flag used in Flag column could be applied. Furthermore, vectors with samples, targets, and groups to be removed could be also specified:
+
+```{r cache = TRUE}
+data.CtF <- filter_Ct(data.Ct,
+                      flag.Ct = "Undetermined",
+                      maxCt = 35,
+                      flag = c("Undetermined"),
+                      remove.Target = targets.to.remove,
+                      remove.Sample = samples.to.remove)
+
+#Check dimensions of data before and after filtering:
+dim(data.Ct)
+dim(data.CtF)
+```
+
+---
+
+## Collapsing technical replicates and imputation of missing data - `make_Ct_ready()` function
+
+In the next step, collapsing technical replicates and optional data imputation by means within groups could be performed using `make_Ct_ready()` function. in this function, 'technical replicates' term means observations with the same group name, target name and sample name. In the scenario when data contain technical replicates, but they should not be collapsed, these technical replicates must be distinguished by different sample names, ex. Sample1_1, Sample1_2, Sample1_3, etc.  
+
+The parameter `imput.by.mean.within.groups` could be used to control data imputation, if set to TRUE, imputation will be done, otherwise missing values will be leave in the data. For better view of amount of missing values in the data, the information about number and percentage of missing values is displayed automatically:  
+
+```{r cache=TRUE}
+# Without imputation:
+data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = FALSE)
+
+as.data.frame(data.CtF.ready)[19:25,]
+
+# With imputation:
+data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
+
+as.data.frame(data.CtF.ready)[19:25,]
+```
+**NOTE:** The data imputation could significantly influence data; therefore, no default value was set to `imput.by.mean.within.groups` parameter and must be specified by user.  
+
+**NOTE:** `make_Ct_ready()` function should be used even the collapsing of technical replicates and data imputation is not required, because this function also prepare data structure to fit to further functions.  
+
+---
+
+## Relative quantification: 2^-Ct^ method
+
+This method could be used ex. where several genes are tested for they suitability to be a endogenous control by investigating whether studied experimental condition significantly influences their expression (see [Introduction]).  
+
+In this method, raw Ct values are transformed using 2^-Ct^ formula, summarized by means in compared study conditions, and a ratio of means (fold change) is calculated for experimental condition. This processes are carried out by two functions:   
+
+* `exp_Ct_dCt()` - this function performs Ct data transformation using 2^-Ct^ formula  
+* `RQ_exp_Ct_dCt()` - this function performs:  
+  + calculation of means (returned in columns with "_mean" pattern) and standard deviations (returned in columns with "_sd" pattern) of transformed Ct values of analyzed targets across compared groups.
+  + normality test (Shapiro_Wilk test) of transformed Ct values of analyzed targets across compared groups and returned p values in columns with "_norm_p" pattern.
+  + calculation of fold change values for each target by dividing mean of transformed Ct values in study group by mean of transformed Ct values in reference group. Fold Change values are returned in "FCh" column and log10 Fold change values are returned in "log10FCh" column.
+  + statistical testing of differences in transformed Ct values between study group and reference group. Student's t test and Mann-Whitney U test are implemented and resulted statistics (in column with "_test_stat" pattern) and p values (in column with "_test_p" pattern) are returned.
+
+
+The `RQ_exp_Ct_dCt()` function gives a choice if normality and statistical tests should be done (`do.tests` parameter). In the situations, where compared groups contain less than three samples (at least three samples are required to testing), `do.test` should be set to FALSE too avoid error. 
+
+```{r cache=TRUE}
+data.Ct.exp <- exp_Ct_dCt(data.CtF.ready)
+library(coin)
+RQ.Ct.exp <- RQ_exp_Ct_dCt(data.Ct.exp, do.tests = TRUE, group.study = "Disease", group.ref = "Control")
+head(as.data.frame(RQ.Ct.exp))
+```
+**NOTE:** Both function could be also used to analyze delta Ct data (see [Relative quantification: 2^-dCt^ method]).
+
+---
+
+## Reference gene selection
+
+Ideally, the reference gene should have an identical expression level in all samples, but in many situations it in not possible to achieve, especially when biological replicates are analyzed (the lowest variance is desired). It is also recommend that Ct values would not be very low (below 15) or very high (above 30) [Kozera and Rapacz 2013](https://link.springer.com/article/10.1007/s13353-013-0173-x).   
+The `RQdeltaCT` package include `select_ref_gene()` function that could be useful to select best reference gene for normalization. It calculates descriptive statistics including minimum, maximum, standard deviation, variance and colinearity coefficient VIF (separately for each group), as well as present Ct values on a line plot.  
+
+In this example, 6 genes are tested for suitability to be a reference gene: 
+
+```{r fig.dim=c(7.1,4), cache=TRUE}
+library(car)
+ref <- select_ref_gene(data.CtF.ready,
+                       groups = c("Disease","Control"),
+                       candidates = c("Gene4", "Gene8","Gene10","Gene16","Gene17", "Gene18"),
+                       col = c("#66c2a5", "#fc8d62","#6A6599", "#D62728", "#1F77B4", "black"),
+                       angle = 60,
+                       axis.text.size = 7)
+ref[[2]]
+```
+Among tested genes, Gene16 and Gene8 seems to have the best characteristics to be a reference gene (low variance and high VIF values).
+
+**NOTE:** Missing data could be present in data, but it could generate a warning: "diag(.) had 0 or NA entries; non-finite result is doubtful".  
+
+---
+
+## Relative quantification: 2^-dCt^ method
+
+This method could be used ex. where samples should be analyzed as individual data points, ex. in analysis of biological replicates (ex. patients vs. healthy controls.) In this method, Ct values are normalized by endogenous control gene (often GAPDH, beta-actin, or other) by subtracting Ct value of endogenous control in sample from Ct value of target gene in the same sample, the obtained delta Ct (dCt) values are subsequently transformed using 2^-dCt^ formula, summarized by means in compared study groups, and a ratio of means (fold change) is calculated for a study group (see [Introduction]).  
+
+The whole processes could be done using three functions:   
+
+* `delta_Ct` - this function calculates delta Ct (dCt) values by subtracting Ct values of reference gene from Ct values of other genes
+* `exp_Ct_dCt()` - this function performs dCt data transformation using 2^-dCt^ formula  
+* `RQ_exp_Ct_dCt()` - this function performs:  
+  + calculation of means (returned in columns with "_mean" pattern) and standard deviations (returned in columns with "_sd" pattern) of transformed dCt values of analyzed targets across compared groups.
+  + normality test (Shapiro_Wilk test) of transformed dCt values of analyzed targets across compared groups and returned p values in columns with "_norm_p" pattern.
+  + calculation of fold change values for each target by dividing mean of transformed dCt values in study group by mean of transformed dCt values in reference group. Fold Change values are returned in "FCh" column and log10 Fold change values are returned in "log10FCh" column.
+  + statistical testing of differences in transformed Ct values between study group and reference group. Student's t test and Mann-Whitney U test are implemented and resulted statistics (in column with "_test_stat" pattern) and p values (in column with "_test_p" pattern) are returned. If compared groups contain less than three samples, normality and statistical tests are not possible to perform (`do.test` parameter should be set to FALSE too avoid error). 
+
+```{r cache=TRUE}
+data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
+data.dCt.exp <- exp_Ct_dCt(data.dCt)
+library(coin)
+RQ.dCt.exp <- RQ_exp_Ct_dCt(data.dCt.exp, do.tests = TRUE, group.study = "Disease", group.ref = "Control")
+head(as.data.frame(RQ.dCt.exp))
+```
+
+---
+
+## Relative quantification: 2^-ddCt^ method
+
+Similarly to 2^-dCt^ method, Ct values are normalized by endogenous control gene obtaining dCt values, summarized by means in compared groups, and obtained means in control group are subtracted from means in a study group, giving delta delta Ct (ddCt) values. Subsequently, ddCt values are transformed using 2^-ddCt^ formula to obtain fold change value. This method is recommended for, ex. analysis of technical replicates (see [Introduction]).
+
+The whole processes could be done using three functions:   
+
+* `delta_Ct` - this function calculates delta Ct (dCt) values by subtracting Ct values of reference gene from Ct values of other genes
+* `RQ_ddCt()` - this function performs:  
+   + Means (return in columns with "_mean" pattern) and standard deviations (return in columns with "_sd" pattern) of delta Ct values of analyzed targets across compared groups.
+   + Normality tests (Shapiro_Wilk test) of delta Ct values of analyzed targets across compared groups and returns p values in columns with "_norm_p" pattern.
+   + Differences in mean delta Ct values of targets between compared groups, obtaining delta delta Ct values (in returned "ddCt" column).
+   + RQ values (return in "RQ" column) together with log10 RQ values (return in "log10RQ" column). RQ values are calculated for each target by transforming ddCt values using 2^-ddCt^ formula.
+   + Statistical tests of delta delta Ct values (differences between study group and reference group). Student's t test and Mann-Whitney U test are implemented and resulted statistics (in column with "_test_stat" pattern) and p values (in column with "_test_p" pattern) are returned. If compared groups contain less than three samples, normality and statistical tests are not possible to perform (`do.test` parameter should be set to FALSE too avoid error). 
+
+```{r cache=TRUE}
+data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
+library(coin)
+RQ.ddCt <- RQ_ddCt(data.dCt, "Disease", "Control")
+head(as.data.frame(RQ.ddCt))
+```
+
+---
+
+## Quality control and filtering of transformed Ct data
+
+Data with transformed values and intended to use for relative quantification should be subjected to quality control assessment.The main purpose is to identify outlier samples that could introduce bias into results. `RQdeltaCT` package offers several functions which facilitate quality control of data by implementing distribution analysis (`control_boxplot_sample()` function), hierarchical clustering (`control_cluster_sample()` function) and principal component analysis PCA (`control_pca_sample()` function). However, corresponding functions for target are also provided to evaluate similarities and differences between targets (`control_boxplot_target()`, `control_cluster_target()` and `control_pca_target()` functions.
+
+Above data quality control functions could be directly applied to data objects returned from `make_Ct_ready()`, `exp_Ct_dCt()` or `delta_Ct()` functions.
+
+#### Analysis of data distributions
+
+One of the ways to gain insight into data distribution is drawing boxplot showing such statistics as median, box ranged first and third quartiles, whiskers reaching extreme point in interquartile range, and more distant data as points. In `RQdeltaCT` package, `control_boxplot_sample()` and `control_boxplot_target()` functions are included to graphically present distribution of samples and targets, respectively.
+
+```{r fig.dim=c(7.1,6), cache=TRUE}
+control_boxplot_sample <- control_boxplot_sample(data.dCt,
+                                                 axis.text.size = 7)
+```
+```{r fig.dim=c(7.1,4)}
+control_boxplot_target <- control_boxplot_target(data.dCt,
+                                                 axis.text.size = 10)
+```
+
+#### Hierarchical clustering
+
+Hierarchical clustering is a convenient method to investigate similarities between samples and target. For this purpose, `control_cluster_sample()` and `control_cluster_target()` functions were developed to make hierarchical clustering of samples and targets, respectively. These function allow to draw dendrogram using different methods of distance calculation (ex. euclidean, canberra) and agglomeration (ex. complete, average, single).
+
+```{r fig.dim=c(7.1,4)}
+control_cluster_sample(data.dCt)
+control_cluster_target(data.dCt)
+```
+
+#### PCA analysis
+
+Principal component analysis (PCA) is a data exploratory method, which could be used to investigate similarities between variables based on first principal components which contain as much information about variance as possible. In `RQdeltaCT` package, `control_pca_sample()` and `control_pca_target()` functions could beb used to perform PCA analysis for samples and targets, respectively.
+
+```{r fig.dim=c(7.1,5.5)}
+control.pca.sample <- control_pca_sample(data.dCt,
+                                         point.size = 3,
+                                         label.size = 2.5)
+```
+```{r fig.dim=c(6,5.5), cache = TRUE}
+control.pca.target <- control_pca_target(data.dCt)
+```
+
+**NOTE:** These functions can not deal with missing data; therefore, variables with such values are removed before analysis. If NA values occur in all variables in at least one of compared group, the analysis can not be done. Imputation of missing data will avoid this issue.
+
+#### Data filtering after quality control
+
+If any sample or target was decided to be removed from data, `filter_transformed_data()` could be used to filter data. Similarly to quality control functions, this function could be directly applied to data objects returned from `make_Ct_ready()`, `exp_Ct_dCt()` or `delta_Ct()` functions. 
+
+```{r cache=TRUE}
+data.dCtF <- filter_transformed_data(data.dCt, remove.Sample = c("Control11"))
+```
+
+---
+
+## Final visualisations
+
+For visualisation of final results, two functions could be used: `RQ_plot()` and `results_boxplot()`.
+
+#### The `RQ_plot()` function
+
+This function creates barplot illustrating fold change values obtained from the analysis with indication of significance. Data returned from `RQ_exp_Ct_dCt()` and `RQ_ddCt()` functions could be directly applied to this function.  
+
+On the barplot, bars of significant genes are distinguished by colors. Significance of genes could be set by two criteria: p value and (optional) fold change, and thresholds for both criteria could be specified. `RQ_plot()` function offers various options of p values usage on the plot:
+
+* p values from Student's t test (if `mode` = "t")
+* p values from Mann-Whitney U test (if `mode` = "mw")
+* p values depend on normality of data (if `mode` = "depends"), if data in both compared groups were considered as derived from normal distribution (p value from Shapiro_Wilk test > 0.05) - p values from Student's t test will be used, otherwise p values from Mann-Whitney U test will be used.
+* external p values provided by user (if `mode` = "user"), if user intends to use p values  obtained from other statistical test, `mode` parameter could be set to "user". In this situation, before run `RQ_plot()` function, user should prepare
+a data.frame object named "user" containing two columns: the first column named "Target" with Target names and the second column with p values (see example below).
+
+`RQ_plot()` function could be run for all analyzed genes or selected genes (see `sel.Target` parameter).
+
+```{r fig.dim=c(7.1,4), cache=TRUE}
+# With p values depending on data normality:
+RQ.plot <- RQ_plot(RQ.ddCt,
+                   mode = "depends",
+                   use.log10FCh = TRUE,
+                   log10FCh.threshold = 0.30103,
+                   angle = 40)
+head(RQ.plot[[2]])
+```
+
+```{r fig.dim=c(7.1,4), cache=TRUE}
+# With user p values - in this example used p values are calculated using stats::wilcox.test() function:
+user <- data.dCt %>%
+ pivot_longer(cols = -c(Group, Sample), names_to = "Target", values_to = "dCt") %>%
+ group_by(Target) %>%
+ summarise(MW_test_p = wilcox.test(dCt ~ Group)$p.value, .groups = "keep")
+# The stats::wilcox.test() functions is limited to cases without ties; therefore, a warning "cannot compute exact p-value with ties" could appear.
+
+RQ.plot <- RQ_plot(RQ.ddCt,
+                   mode = "user", 
+                   use.log10FCh = TRUE,
+                   log10FCh.threshold = 0.30103,
+                   angle = 40)
+head(RQ.plot[[2]])
+```
+Three genes (Gene1, Gene12, and Gene19) are showed to met used significance criteria.
+
+#### The `results_boxplot()` function
+
+This function creates a boxplot illustrating distribution of data for selected targets. It is similar to `control_boxplot_target()` function; however, some new options are added, including target selection, faceting, and adding mean labels to boxes. This function could be useful to present distributions of targets finally selected as significant (but all genes also could be plotted, see `sel.Target` parameter).
+
+Data objects returned from `make_Ct_ready()`, `exp_Ct_dCt()` and `delta_Ct() functions` can be directly applied to this function.
+
+```{r fig.dim=c(5,5), fig.align='center', cache=TRUE}
+final_boxplot <- results_boxplot(data.dCtF,
+                                 sel.Target = c("Gene1","Gene12", "Gene16","Gene19"),
+                                 facet.row = 2,
+                                 facet.col = 2,
+                                 y.axis.title = "dCt")
+```
+
+---
+
+## Further analyses
+
+Expression levels of genes and differences between groups could be further analysed using the following methods and corresponding functions from the `RQdeltaCT` package:
+
+* correlation analysis - generating and visualisation of correlation matrix using `corr_sample()` (for correlation of samples) and `corr_target()` (for correlation of targets) functions.
+* simple linear regression - analysis and visualisation of relationships between pair of samples (`single_pair_sample()` function) and targets (`single_pair_target()` function).
+* Receiver Operating Characteristic (ROC) analysis - evaluation of samples classification performance using gene expression data (`ROCh()` function).
+* simple logistic regression analysis - calculation odds ratio values for genes (`log_reg()` function).  
+
+All functions can be run on the entire data or only selected samples/targets.
+
+#### Correlation analysis
+
+Correlation analysis is a very useful method to explore linear relationships between variables. The `RQdeltaCT` package offers `corr_sample()` and `corr_target()` functions to generate and plot correlation matrices of samples and targets, respectively. Correlation coefficients could be calculated using Pearson or Spearman algorithms. To facilitate plots interpretation, these function have possibilities to order samples or targets according to several methods, ex. hierarchical clustering or PCA first component (see `order` parameter).
+
+```{r fig.dim=c(6,6), fig.align='center'}
+library(Hmisc)
+library(corrplot)
+corr.samples <- corr_sample(data.dCtF,
+                            order = "hclust")
+```
+```{r fig.dim=c(6,6), fig.align='center', cache=TRUE}
+library(Hmisc)
+library(corrplot)
+corr.targets <- corr_target(data.dCt,
+                            order = "FPC")
+```
+Returned objects are a data frames with computed correlation coefficients, p values and p values adjusted by Benjamini-Hochberg correction.
+
+#### Simple linear regression analysis
+
+Linear relationships between samples or targets could be further analysed using simple linear regression modeling using `single_pair_sample()` function (for analysis of samples) `single_pair_target()` function for analysis of targets. These functions draw a scatter plot with regression line and optionally regression results such as regression equation, coefficient of determination, F value, or p value.
+
+```{r fig.dim=c(5,5), fig.align='center', cache=TRUE}
+library(ggpmisc)
+Disease6_Control17 <- single_pair_sample(data.dCt, "Disease6", "Control17", label.position.x = 0.05)
+```
+```{r fig.dim=c(5,5), fig.align='center', cache=TRUE}
+library(ggpmisc)
+Gene16_Gene17 <- single_pair_target(data.dCt,
+                                    x = "Gene16",
+                                    y = "Gene17",
+                                    point.size = 3,
+                                    label.position.x = c(0.05),
+                                    label.position.y = c(1,0.95))
+```
+#### Receiver Operating Characteristic (ROC) analysis
+
+Receiver Operating Characteristic (ROC) analysis is the other method useful to assess the performance of sample classification based on gene expression data. In this analysis, ROC curves together with such parameters as area under curve (AUC), specificity, sensitivity, accuracy, positive and negative predictive value are computed. `ROCh()` function was designed to perform all of these jobs. This function returns table with calculated parameters. Created plot is not displayed on graphic device, as usually, but should be saved as .tiff image and open from file in working directory.
+
+```{r}
+library(pROC)
+roc_parameters <- ROCh(data.dCt, sel.Target = c("Gene1","Gene12","Gene16","Gene19"),
+                        groups = c("Disease","Control"),
+                        panels.row = 2,
+                        panels.col = 2)
+roc_parameters
+```
+
+```{r echo=FALSE, out.width="500px", fig.align="center", warning=FALSE, message=FALSE, cache=TRUE}
+library(here)
+knitr::include_graphics(file.path(here::here(),"vignettes", "figure", "ROC_plot.png"))
 
 ```
 
+#### Simple logistic regression
 
+Logistic regression is useful method to investigate impact of analyzed variable on the odds of the occurrence of the studied experimental condition. In the `RQdeltaCT` package, `log_reg()` function is included to calculate chances (odds ratio, OR) of being included in the study group when gene expression level increase by one unit. This function returns table with calculated parameters (OR, confidence interval, intercept, coefficient, and p values).
 
-
-
-
-
+```{r fig.dim=c(5,4), fig.align='center', cache=TRUE}
+library(oddsratio)
+log.reg.results <- log_reg(data.dCt,
+                             sel.Target = c("Gene1","Gene12","Gene16","Gene19"),
+                             group.study = "Disease",
+                             group.ref = "Control")
+log.reg.results[[2]]
+```
+#### Session info
+```{r}
+sessionInfo()
+```

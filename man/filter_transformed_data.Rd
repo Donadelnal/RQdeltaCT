@@ -12,7 +12,7 @@ filter_transformed_data(
 )
 }
 \arguments{
-\item{data}{object returned from make_Ct_ready(), exp_Ct_or_dCt() or delta_Ct() functions.}
+\item{data}{object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.}
 
 \item{remove.Target}{character: vector with names of targets which should be removed from data.}
 
@@ -34,7 +34,7 @@ data.CtF <- filter_Ct(data.Ct,
                       remove.Sample = c("Control08","Control16","Control22"))
 data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
 data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
-data.dCt.exp <- exp_Ct_or_dCt(data.dCt)
+data.dCt.exp <- exp_Ct_dCt(data.dCt)
 data.dCt.expF <- filter_transformed_data(data.dCt.exp, remove.Sample = c("Control11"))
 
 dim(data.dCt.exp)

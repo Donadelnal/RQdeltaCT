@@ -6,6 +6,7 @@
 \usage{
 corr_target(
   data,
+  sel.Target = "all",
   method = "pearson",
   add.coef = "black",
   order = "hclust",
@@ -23,7 +24,9 @@ corr_target(
 )
 }
 \arguments{
-\item{data}{object returned from make_Ct_ready(), exp_Ct_or_dCt() or delta_Ct() functions.}
+\item{data}{object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.}
+
+\item{sel.Target}{character vector with names of targets to include, or "all" (default) to use all names of targets.}
 
 \item{method}{character: type of correlations to compute, specify "pearson" (default) for Pearson's correlation coefficients
 or "spearman" for Spearman's rank correlation coefficients.}

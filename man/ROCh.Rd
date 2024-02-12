@@ -23,7 +23,7 @@ ROCh(
 )
 }
 \arguments{
-\item{data}{object returned from exp_Ct_or_dCt() or delta_Ct() functions.}
+\item{data}{object returned from exp_Ct_dCt() or delta_Ct() functions.}
 
 \item{sel.Target}{character vector with names of targets to include, or "all" (default) to use all names of targets.}
 

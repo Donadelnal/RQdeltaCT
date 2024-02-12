@@ -6,6 +6,7 @@
 \usage{
 control_boxplot_target(
   data,
+  sel.Target = "all",
   coef = 1.5,
   by.group = TRUE,
   colors = c("#66c2a5", "#fc8d62"),
@@ -27,7 +28,9 @@ control_boxplot_target(
 )
 }
 \arguments{
-\item{data}{object returned from make_Ct_ready(), exp_Ct_or_dCt() or delta_Ct() functions.}
+\item{data}{object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.}
+
+\item{sel.Target}{character vector with names of targets to include, or "all" (default) to use all names of targets.}
 
 \item{coef}{numeric: how many times of interquartile range should be used to indicate the most extend data point for whiskers. Default to 1.5.}
 

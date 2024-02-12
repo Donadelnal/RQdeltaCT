@@ -34,7 +34,7 @@ RQ_plot(
 )
 }
 \arguments{
-\item{data}{object returned from RQ_exp_Ct_or_dCt() or RQ_ddCt() functions.}
+\item{data}{object returned from RQ_exp_Ct_dCt() or RQ_ddCt() functions.}
 
 \item{use.p}{logical: if TRUE, bars of statistically significant genes will be distinguished by colors.}
 

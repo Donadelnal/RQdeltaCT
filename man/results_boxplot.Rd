@@ -36,7 +36,7 @@ results_boxplot(
 )
 }
 \arguments{
-\item{data}{object returned from make_Ct_ready(), exp_Ct_or_dCt() or delta_Ct() functions.}
+\item{data}{object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.}
 
 \item{coef}{numeric: how many times of interquartile range should be used to indicate the most extend data point for whiskers. Default to 1.5.}
 
@@ -111,7 +111,7 @@ data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
 data.dCt.exp <- exp_delta_Ct(data.dCt)
 data.dCt.expF <- filter_transformed_data(data.dCt.exp, remove.Sample = c("Control11"))
 results_boxplot(data.dCt.expF,
-                 sel.Target = c("Gene1","Gene16","Gene19","Gene20")
+                 sel.Target = c("Gene1","Gene16","Gene19","Gene20"),
                  facet.row = 2,
                  facet.col = 2,
                  y.axis.title = bquote(~2^-dCt))

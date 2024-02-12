@@ -250,6 +250,9 @@ control_Ct_barplot_sample <- function(data,
 
 
 
+
+
+
 #' @title control_Ct_barplot_target
 #'
 #' @description
@@ -357,7 +360,6 @@ control_Ct_barplot_target <- function(data,
     tab <- table(data$Reliable, data$Target, data$Group)
 
     return(list(barplot.targets, tab))
-
 }
 
 
@@ -587,14 +589,14 @@ make_Ct_ready <- function(data,
 
 
 
-#' @title exp_Ct_or_dCt
+#' @title exp_Ct_dCt
 #'
 #' @description
 #' This function exponentiates Ct or delta Ct (dCt) values by using formula 2^(-Ct) or 2^(-dCt), respectively.
 #'
 #' @param data data object returned from make_Ct_ready() or delta_Ct() functions.
 #' @param save.to.txt logical: if TRUE, returned data will be saved to .txt file. Default to FALSE.
-#' @param name.txt character: name of saved .txt file, without ".txt" name of extension. Default to "data_exp_Ct_or_dCt".
+#' @param name.txt character: name of saved .txt file, without ".txt" name of extension. Default to "data_exp_Ct_dCt".
 #'
 #' @return Data frame with exponentiated Ct or dCt values.
 #' @export
@@ -606,7 +608,7 @@ make_Ct_ready <- function(data,
 #'                       remove.Target = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
 #'                       remove.Sample = c("Control08","Control16","Control22"))
 #' data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
-#' data.Ct.exp <- exp_Ct_or_dCt(data.CtF.ready)
+#' data.Ct.exp <- exp_Ct_dCt(data.CtF.ready)
 #' head(data.Ct.exp)
 #'
 #' @importFrom base as.data.frame paste
@@ -614,9 +616,9 @@ make_Ct_ready <- function(data,
 #' @importFrom dplyr mutate_at
 #' @import tidyverse
 #'
-exp_Ct_or_dCt <- function(data,
+exp_Ct_dCt <- function(data,
                     save.to.txt = FALSE,
-                    name.txt = "data_exp_Ct_or_dCt"){
+                    name.txt = "data_exp_Ct_dCt"){
 
   exp <- function(x){
     x <- 2^-x
@@ -635,7 +637,7 @@ exp_Ct_or_dCt <- function(data,
 
 
 
-#' @title RQ_exp_Ct_or_dCt
+#' @title RQ_exp_Ct_dCt
 #'
 #' @description
 #' Performs relative quantification of gene expression using 2^(-Ct) and 2^(-dCt) methods.
@@ -649,7 +651,7 @@ exp_Ct_or_dCt <- function(data,
 #' * Statistical testing of differences in exponentiated Ct or dCt values between study group and reference group.
 #'   Student's t test and Mann-Whitney U test are implemented and resulted statistics (in column with "_test_stat" pattern) and p values (in column with "_test_p" pattern) are returned.
 #'
-#' @param data data object returned from exp_Ct_or_dCt() function.
+#' @param data data object returned from exp_Ct_dCt() function.
 #' @param group.study character: name of study group (group of interest).
 #' @param group.ref character: name of reference group.
 #' @param do.tests logical: if TRUE, statistical significance of differences between compared groups will be calculated using Student's t test and Mann-Whitney U test. Default to TRUE.
@@ -667,8 +669,8 @@ exp_Ct_or_dCt <- function(data,
 #'                       remove.Target = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
 #'                       remove.Sample = c("Control08","Control16","Control22"))
 #' data.CtF.ready <- make_Ct_ready(data.CtF)
-#' data.Ct.exp <- exp_Ct_or_dCt(data.CtF.ready)
-#' RQ.Ct.exp <- RQ_exp_Ct_or_dCt(data.Ct.exp, group.study = "Disease", group.ref = "Control")
+#' data.Ct.exp <- exp_Ct_dCt(data.CtF.ready)
+#' RQ.Ct.exp <- RQ_exp_Ct_dCt(data.Ct.exp, group.study = "Disease", group.ref = "Control")
 #' head(RQ.Ct.exp)
 #'
 #' @importFrom base as.data.frame as.factor mean
@@ -678,7 +680,7 @@ exp_Ct_or_dCt <- function(data,
 #' @importFrom dplyr filter select rename_with full_join
 #' @import tidyverse
 #'
-RQ_exp_Ct_or_dCt <- function(data,
+RQ_exp_Ct_dCt <- function(data,
                      group.study,
                      group.ref,
                      do.tests = TRUE,
@@ -942,7 +944,8 @@ delta_Ct <- function(data,
 #' @description
 #' Boxplot illustrating distribution of data in each sample. Could be useful to identify outlier samples.
 #'
-#' @param data object returned from make_Ct_ready(), exp_Ct_or_dCt() or delta_Ct() functions.
+#' @param data object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.
+#' @param sel.Sample character vector with names of samples to include, or "all" (default) to use all samples.
 #' @param coef numeric: how many times of interquartile range should be used to indicate the most extend data point for whiskers. Default to 1.5.
 #' @param colors character vector length of two, containing colors for compared groups. Default to c("#66c2a5", "#fc8d62").
 #' @param x.axis.title character: title of x axis. Default to "Sample".
@@ -979,7 +982,9 @@ delta_Ct <- function(data,
 #' @import ggplot2
 #' @import tidyverse
 #'
-control_boxplot_sample <- function(data, coef = 1.5,
+control_boxplot_sample <- function(data,
+                                   sel.Sample = "all",
+                                   coef = 1.5,
                                    colors = c("#66c2a5", "#fc8d62"),
 							                     x.axis.title = "Sample",
 							                     y.axis.title = "value",
@@ -994,6 +999,13 @@ control_boxplot_sample <- function(data, coef = 1.5,
 							                     save.to.tiff = FALSE,
                                    dpi = 600, width = 15, height = 15,
                                    name.tiff = "control_boxplot_samples"){
+  if (sel.Sample[1] == "all"){
+    data <- data
+
+  } else {
+
+    data <- filter(data, Sample %in% sel.Sample)
+  }
 
     data <- pivot_longer(data, !c(Sample, Group), names_to = "Target" , values_to = "value")
 
@@ -1028,7 +1040,8 @@ control_boxplot_sample <- function(data, coef = 1.5,
 #' @description
 #' This function creates boxplot illustrating distribution of data in each target. Could be useful to compare expression of analyzed targets.
 #'
-#' @param data object returned from make_Ct_ready(), exp_Ct_or_dCt() or delta_Ct() functions.
+#' @param data object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.
+#' @param sel.Target character vector with names of targets to include, or "all" (default) to use all names of targets.
 #' @param by.group logical: if TRUE, distributions will be drawn by compared groups of samples.
 #' @param coef numeric: how many times of interquartile range should be used to indicate the most extend data point for whiskers.
 #' @param colors character vector length of one (when by.group = FALSE) or two (when by.group = TRUE), containing colors for groups.
@@ -1067,7 +1080,9 @@ control_boxplot_sample <- function(data, coef = 1.5,
 #' @import ggplot2
 #' @import tidyverse
 #'
-control_boxplot_target <- function(data, coef = 1.5,
+control_boxplot_target <- function(data,
+                                   sel.Target = "all",
+                                   coef = 1.5,
                                    by.group = TRUE,
                                    colors = c("#66c2a5", "#fc8d62"),
                                    axis.title.size = 12,
@@ -1083,6 +1098,13 @@ control_boxplot_target <- function(data, coef = 1.5,
                                    save.to.tiff = FALSE,
                                    dpi = 600, width = 15, height = 15,
                                    name.tiff = "control_boxplot_targets"){
+  if (sel.Target[1] == "all"){
+    data <- data
+
+  } else {
+
+    data <- select(data, Group, Sample, any_of(sel.Target))
+  }
 
   data <- pivot_longer(data, !c(Sample, Group), names_to = "Target" , values_to = "value")
 
@@ -1138,11 +1160,13 @@ control_boxplot_target <- function(data, coef = 1.5,
 #' @description
 #' Performs hierarchical clustering of samples based on the data. Could be useful to identify outlier samples.
 #'
-#' @param data object returned from make_Ct_ready(), exp_Ct_or_dCt() or delta_Ct() functions.
+#' @param data object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.
+#' @param sel.Sample character vector with names of samples to include, or "all" (default) to use all samples.
 #' @param method.dist character: name of method used for calculation of distances, derived from stats::dist() function, should be one of "euclidean" (default) , "maximum", "manhattan", "canberra", "binary" or "minkowski".
 #' @param method.clust character: name of used method for agglomeration, derived from stats::hclust() function, should be one of "ward.D", "ward.D2", "single", "complete", "average" (default), "mcquitty", "median" or "centroid".
 #' @param x.axis.title character: title of x axis. Default to "Samples".
 #' @param y.axis.title character: title of y axis. Default to "Height".
+#' @param label.size numeric: size of text labels. Defaault to 1.
 #' @param plot.title character: title of plot. Default to "".
 #' @param save.to.tiff logical: if TRUE, plot will be saved as .tiff file. Default to FALSE.
 #' @param dpi integer: resolution of saved .tiff file. Default to 600.
@@ -1169,22 +1193,32 @@ control_boxplot_target <- function(data, coef = 1.5,
 #' @import tidyverse
 #'
 control_cluster_sample <- function(data,
+                                   sel.Sample = "all",
                                    method.dist = "euclidean",
                                    method.clust = "average",
                                    x.axis.title = "Samples",
                                    y.axis.title = "Height",
+                                   label.size = 1,
                                    plot.title = "",
                                    save.to.tiff = FALSE,
                                    dpi = 600, width = 15, height = 15,
                                    name.tiff = "control_clust_samples"){
+  if (sel.Sample[1] == "all"){
+    data <- data
+
+  } else {
+
+    data <- filter(data, Sample %in% sel.Sample)
+  }
+
   data <- ungroup(data)
   cluster <- hclust(dist(select(data, -Group, -Sample), method = method.dist), method = method.clust)
   cluster$labels <- data$Sample
-  plot(cluster, xlab = x.axis.title, ylab = y.axis.title, main = plot.title)
+  plot(cluster, xlab = x.axis.title, ylab = y.axis.title, main = plot.title, cex = label.size)
 
   if (save.to.tiff == TRUE){
     tiff(paste(name.tiff, ".tiff", sep = ""), res = dpi, width = width, height = height, units = "cm", compression = "lzw")
-    plot(cluster, xlab  = x.axis.title, ylab = y.axis.title, main = plot.title)
+    plot(cluster, xlab  = x.axis.title, ylab = y.axis.title, main = plot.title, cex = label.size)
     dev.off()
   }
 }
@@ -1197,12 +1231,14 @@ control_cluster_sample <- function(data,
 #' @description
 #' Performs hierarchical clustering of targets based on the data. Could be useful to gain insight into similarity in expression of analyzed targets.
 #'
-#' @param data object returned from make_Ct_ready(), exp_Ct_or_dCt() or delta_Ct() functions.
+#' @param data object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.
+#' @param sel.Target character vector with names of targets to include, or "all" (default) to use all names of targets.
 #' @param method.dist character: name of method used for calculation of distances, derived from stats::dist() function, should be one of "euclidean" (default) , "maximum", "manhattan", "canberra", "binary" or "minkowski".
 #' @param method.clust character: name of used method for agglomeration, derived from stats::hclust() function, should be one of "ward.D", "ward.D2", "single", "complete", "average" (default), "mcquitty", "median" or "centroid".
 #' @param x.axis.title character: title of x axis. Default to "Targets".
 #' @param y.axis.title character: title of y axis. Default to "Height".
 #' @param plot.title character: title of plot. Default to "".
+#' @param label.size numeric: size of text labels. Defaault to 1.
 #' @param save.to.tiff logical: if TRUE, plot will be saved as .tiff file. Default to FALSE.
 #' @param dpi integer: resolution of saved .tiff file. Default to 600.
 #' @param width numeric: width (in cm) of saved .tiff file. Default to 15.
@@ -1229,25 +1265,35 @@ control_cluster_sample <- function(data,
 #'
 control_cluster_target <- function (data,
                                     method.dist = "euclidean",
+                                    sel.Target = "all",
                                     method.clust = "average",
                                     x.axis.title = "Targets",
                                     y.axis.title = "Height",
+                                    label.size = 1,
                                     plot.title = "",
                                     save.to.tiff = FALSE,
                                     dpi = 600, width = 15, height = 15,
                                     name.tiff = "control_clust_targets")
 {
+  if (sel.Target[1] == "all"){
+    data <- data
+
+  } else {
+
+    data <- select(data, Group, Sample, any_of(sel.Target))
+  }
+
   data_t <- ungroup(data)
   data_t <- t(select(data_t, -Group, -Sample))
   colnames(data_t) <- data$Sample
   cluster <- hclust(dist(as.data.frame(data_t), method = method.dist), method = method.clust)
-  plot(cluster, xlab = x.axis.title, ylab = y.axis.title, main = plot.title)
+  plot(cluster, xlab = x.axis.title, ylab = y.axis.title, main = plot.title, cex = label.size)
 
   if (save.to.tiff == TRUE) {
     tiff(paste(name.tiff, ".tiff", sep = ""), res = dpi,
          width = width, height = height, units = "cm", compression = "lzw")
     plot(cluster, xlab = x.axis.title, ylab = y.axis.title,
-         main = plot.title)
+         main = plot.title, cex = label.size)
     dev.off()
   }
 }
@@ -1261,7 +1307,8 @@ control_cluster_target <- function (data,
 #' Performs principal component analysis (PCA) for samples and generate plot illustrating spatial arrangement of samples using two first components. Could be useful to identify outlier samples.
 #'     IMPORTANT: PCA analysis can not deal with missing values, thus all samples with at least one missing value are removed from data before analysis. It is recommended to run this function on data after imputation of missing values.
 #'
-#' @param data object returned from make_Ct_ready(), exp_Ct_or_dCt() or delta_Ct() functions.
+#' @param data object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.
+#' @param sel.Sample character vector with names of samples to include, or "all" (default) to use all samples.
 #' @param point.size numeric: size of points. Default to 4.
 #' @param point.shape integer: shape of points. Default to 19.
 #' @param alpha numeric: transparency of points, a value between 0 and 1. Default to 0.7.
@@ -1303,6 +1350,7 @@ control_cluster_target <- function (data,
 #' @import tidyverse
 #'
 control_pca_sample <- function(data,
+                               sel.Sample = "all",
                                point.size = 4,
                                point.shape = 19,
                                alpha = 0.7,
@@ -1321,11 +1369,18 @@ control_pca_sample <- function(data,
                                save.to.tiff = FALSE,
                                dpi = 600, width = 15, height = 15,
                                name.tiff = "control_pca_samples"){
+  if (sel.Sample[1] == "all"){
+    data <- data
+
+  } else {
+
+    data <- filter(data, Sample %in% sel.Sample)
+  }
 
   data <- as.data.frame(data)
   rownames(data) <- data$Sample
   data <- na.omit(data)
-  pca <- prcomp(select(data, -Sample, -Group))
+  pca <- prcomp(select(data, -Sample, -Group), scale = TRUE)
   var_pca1 <- summary(pca)$importance[2,][1]
   var_pca2 <- summary(pca)$importance[2,][2]
   pca_comp <- as.data.frame(pca$x)
@@ -1363,7 +1418,8 @@ control_pca_sample <- function(data,
 #' Performs principal component analysis (PCA) for targets and generate plot illustrating spatial arrangement of targets using 2 components. Could be useful to gain insight into similarity in expression of analyzed targets.
 #' IMPORTANT: PCA analysis can not deal with missing values, thus all targets with at least one missing value are removed from data before analysis. It is recommended to run this function on data after imputation of missing values.
 #'
-#' @param data object returned from make_Ct_ready(), exp_Ct_or_dCt() or delta_Ct() functions.
+#' @param data object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.
+#' @param sel.Target character vector with names of targets to include, or "all" (default) to use all names of targets.
 #' @param point.size numeric: size of points. Default to 4.
 #' @param point.shape integer: shape of points. Default to 19.
 #' @param alpha numeric: transparency of points, a value between 0 and 1. Default to 0.7.
@@ -1404,7 +1460,11 @@ control_pca_sample <- function(data,
 #' @import ggplot2
 #' @import tidyverse
 #'
-control_pca_target <- function(data, point.size = 4, point.shape = 19, alpha = 0.7,
+control_pca_target <- function(data,
+                               sel.Target = "all",
+                               point.size = 4,
+                               point.shape = 19,
+                               alpha = 0.7,
                                label.size = 3, hjust = 0, vjust = -1,
                                color = "black",
                                axis.title.size = 12,
@@ -1418,13 +1478,20 @@ control_pca_target <- function(data, point.size = 4, point.shape = 19, alpha = 0
                                save.to.tiff = FALSE,
                                dpi = 600, width = 15, height = 15,
                               name.tiff = "control_pca_targets"){
+  if (sel.Target[1] == "all"){
+    data <- data
+
+  } else {
+
+    data <- select(data, Group, Sample, any_of(sel.Target))
+  }
 
   data <- ungroup(data)
   data <- as.data.frame(data)
   data_t <- t(select(data, -Group, -Sample))
   colnames(data_t) <- data$Sample
   data_t <- na.omit(data_t)
-  pca <- prcomp(data_t)
+  pca <- prcomp(data_t, scale = TRUE)
   var_pca1 <- summary(pca)$importance[2,][1]
   var_pca2 <- summary(pca)$importance[2,][2]
   pca_comp <- as.data.frame(pca$x)
@@ -1453,13 +1520,13 @@ control_pca_target <- function(data, point.size = 4, point.shape = 19, alpha = 0
 
 
 
-
 #' @title corr_target
 #'
 #' @description
 #' Performs correlation analysis of targets based on the data. Could be useful to gain insight into relationships between analyzed targets.
 #'
-#' @param data object returned from make_Ct_ready(), exp_Ct_or_dCt() or delta_Ct() functions.
+#' @param data object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.
+#' @param sel.Target character vector with names of targets to include, or "all" (default) to use all names of targets.
 #' @param add.coef if coefficients should be add to the plot, specify color of coefficients (default to "black"), otherwise set to NULL.
 #' @param method character: type of correlations to compute, specify "pearson" (default) for Pearson's correlation coefficients
 #' or "spearman" for Spearman's rank correlation coefficients.
@@ -1501,7 +1568,7 @@ control_pca_target <- function(data, point.size = 4, point.shape = 19, alpha = 0
 #' @import corrplot
 #' @import tidyverse
 #'
-corr_target <- function(data,
+corr_target <- function(data,sel.Target = "all",
                                 method = "pearson",
                                 add.coef = "black",
                                 order = "hclust",
@@ -1514,6 +1581,13 @@ corr_target <- function(data,
                                 name.tiff = "corr_targets",
                                 save.to.txt = FALSE,
                                 name.txt = "corr_targets"){
+  if (sel.Target[1] == "all"){
+    data <- data
+
+  } else {
+
+    data <- select(data, Group, Sample, any_of(sel.Target))
+  }
 
   data <- as.data.frame(data)
   data <- select(data, -Group, -Sample)
@@ -1581,7 +1655,8 @@ corr_target <- function(data,
 #' @description
 #' Performs correlation analysis of samples based on the data. Could be useful to gain insight into relationships between analyzed samples.
 #'
-#' @param data object returned from make_Ct_ready(), exp_Ct_or_dCt() or delta_Ct() functions.
+#' @param data object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.
+#' @param sel.Sample character vector with names of samples to include, or "all" (default) to use all samples.
 #' @param add.coef if coefficients should be add to the plot, specify color of coefficients (default to "black"), otherwise set to NULL.
 #' @param method character: type of correlations to compute, specify "pearson" (default) for Pearson's correlation coefficients
 #' or "spearman" for Spearman's rank correlation coefficients.
@@ -1623,7 +1698,7 @@ corr_target <- function(data,
 #' @import corrplot
 #' @import tidyverse
 #'
-corr_sample <- function(data,
+corr_sample <- function(data, sel.Sample = "all",
                                 method = "pearson",
                                 add.coef = "black",
                                 order = "hclust",
@@ -1636,6 +1711,12 @@ corr_sample <- function(data,
                                 name.tiff = "corr_samples",
                                 save.to.txt = FALSE,
                                 name.txt = "corr_samples"){
+  if (sel.Sample[1] == "all"){
+    data <- data
+
+  } else {
+    data <- filter(data, Sample %in% sel.Sample)
+  }
 
   data <- as.data.frame(data)
   data_t <- t(select(data, -Group, -Sample))
@@ -1707,7 +1788,7 @@ corr_sample <- function(data,
 #' @description
 #' Generate scatter plot with linear regression line for two specified targets. Could be useful to assess linear relationship between these targets.
 #'
-#' @param data object returned from make_Ct_ready(), exp_Ct_or_dCt() or delta_Ct() functions.
+#' @param data object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.
 #' @param x,y characters: names of targets to use.
 #' @param by.group logical: if TRUE (default), relationships will be shown separately for compared groups.
 #' @param point.size numeric: size of points. Default to 4.
@@ -1720,7 +1801,7 @@ corr_sample <- function(data,
 #' @param legend.title.size integer: font size of legend title. Default to 12.
 #' @param legend.text.size integer: font size of legend text. Default to 12.
 #' @param legend.position position of the legend, one of "top", "right" (default), "bottom", "left", or "none" (no legend).
-#' See description for `legend.position` parameter in ggplot2::theme() function.
+#' See description for legend.position parameter in ggplot2::theme() function.
 #' @param plot.title character: title of plot. Default to "".
 #' @param plot.title.size integer: font size of plot title. Default to 14.
 #' @param labels logical: if TRUE (default), a regression statistics will be added to the plot using ggpimsc::stat_poly_eq() function.
@@ -1739,7 +1820,7 @@ corr_sample <- function(data,
 #'
 #' @examples
 #' library(tidyverse)
-#'library(ggpmisc)
+#' library(ggpmisc)
 #' data(data.Ct)
 #' data.CtF <- filter_Ct(data.Ct,
 #'                       remove.Target = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
@@ -1847,7 +1928,7 @@ single_pair_target <- function(data, x, y, by.group = TRUE,
 #' @description
 #' Generate scatter plot with linear regression line for two specified samples Could be useful to assess linear relationship between these samples.
 #'
-#' @param data object returned from make_Ct_ready(), exp_Ct_or_dCt() or delta_Ct() functions.
+#' @param data object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.
 #' @param x,y characters: names of targets to use.
 #' @param point.size numeric: size of points.
 #' @param point.shape integer: shape of points.
@@ -1951,7 +2032,7 @@ single_pair_sample <- function(data, x, y,
 #' @description
 #' Filters transformed Ct data (2^(-Ct), delta Ct, and 2^(-dCt) data) according to the used filtering criteria (see parameters).
 #'
-#' @param data object returned from make_Ct_ready(), exp_Ct_or_dCt() or delta_Ct() functions.
+#' @param data object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.
 #' @param remove.Target character: vector with names of targets which should be removed from data.
 #' @param remove.Sample character: vector with names of samples which should be removed from data.
 #' @param remove.Group character: vector with names of groups which should be removed from data.
@@ -1967,7 +2048,7 @@ single_pair_sample <- function(data, x, y,
 #'                       remove.Sample = c("Control08","Control16","Control22"))
 #' data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
 #' data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
-#' data.dCt.exp <- exp_Ct_or_dCt(data.dCt)
+#' data.dCt.exp <- exp_Ct_dCt(data.dCt)
 #' data.dCt.expF <- filter_transformed_data(data.dCt.exp, remove.Sample = c("Control11"))
 #'
 #' dim(data.dCt.exp)
@@ -2010,7 +2091,7 @@ filter_transformed_data <- function(data,
 #'     including target selection, faceting, and adding mean labels to boxes.
 #'     This, this function could be useful to present results for finally selected targets.
 #'
-#' @param data object returned from make_Ct_ready(), exp_Ct_or_dCt() or delta_Ct() functions.
+#' @param data object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.
 #' @param coef numeric: how many times of interquartile range should be used to indicate the most extend data point for whiskers. Default to 1.5.
 #' @param sel.Target character vector with names of targets to include, or "all" (default) to use all names of targets.
 #' @param by.group logical: if TRUE (default), distributions will be drawn by compared groups of samples.
@@ -2053,7 +2134,7 @@ filter_transformed_data <- function(data,
 #' data.dCt.exp <- exp_delta_Ct(data.dCt)
 #' data.dCt.expF <- filter_transformed_data(data.dCt.exp, remove.Sample = c("Control11"))
 #' results_boxplot(data.dCt.expF,
-#'                  sel.Target = c("Gene1","Gene16","Gene19","Gene20")
+#'                  sel.Target = c("Gene1","Gene16","Gene19","Gene20"),
 #'                  facet.row = 2,
 #'                  facet.col = 2,
 #'                  y.axis.title = bquote(~2^-dCt))
@@ -2200,8 +2281,8 @@ results_boxplot <- function(data,
 #' * Means (return in columns with "_mean" pattern) and standard deviations (return in columns with "_sd" pattern) of delta Ct values of analyzed targets across compared groups.
 #' * Normality tests (Shapiro_Wilk test) of delta Ct values of analyzed targets across compared groups and returned p values in columns with "_norm_p" pattern.
 #' * Differences in mean delta Ct values of targets between compared groups, obtaining delta delta Ct values (in returned "ddCt" column).
-#' * RQ values (return in "RQ" column) together with log10 RQ values (return in "log10RQ" column).
-#'   RQ values are calculated for each target by exponentiating ddCt values using 2^-ddCt formula.
+#' * Fold change values (return in "FCh" column) together with log10 Fold change values (return in "log10FCh" column).
+#'   Fold change values are calculated for each target by exponentiating ddCt values using 2^-ddCt formula.
 #' * Statistical testing of delta delta Ct values (differences between study group and reference group).
 #'   Student's t test and Mann-Whitney U test are implemented and resulted statistics (in column with "_test_stat" pattern) and p values (in column with "_test_p" pattern) are returned.
 #'
@@ -2252,7 +2333,7 @@ RQ_ddCt <- function(data,
     summarise(ddCt = mean(dCt, na.rm = TRUE), .groups = "keep") %>%
     pivot_wider(names_from = Group, values_from = ddCt) %>%
     mutate(ddCt = .data[[group.study]] - .data[[group.ref]]) %>%
-    mutate(RQ = 2^-ddCt) %>%
+    mutate(FCh = 2^-ddCt) %>%
     rename_with(~paste0(.x, "_mean", recycle0 = TRUE), all_of(c(group.study, group.ref)))
 
   if (do.tests == TRUE){
@@ -2294,7 +2375,7 @@ RQ_ddCt <- function(data,
 #' This function creates barplot illustrating fold change (when 2^-Ct or 2^-dCt methods are used) or RQ (when 2^-ddCt method is used) values.
 #' with indicating of statistical significance.
 #'
-#' @param data object returned from RQ_exp_Ct_or_dCt() or RQ_ddCt() functions.
+#' @param data object returned from RQ_exp_Ct_dCt() or RQ_ddCt() functions.
 #' @param use.p logical: if TRUE, bars of statistically significant genes will be distinguished by colors.
 #' @param mode character: which p value should be used? One of the "t" (p values from Student's t test),
 #' "mw" (p values from Mann-Whitney U test), "depends" (if data in both compared groups were considered as derived from normal distribution (p value from Shapiro_Wilk test > 0.05) - p
@@ -2386,10 +2467,6 @@ RQ_plot <- function(data,
 
   if (sel.Target[1] != "all"){
     data <- filter(data, Target %in% sel.Target)
-  }
-
-  if(sum(colnames(data) %in% "RQ") > 0){
-    data <- rename(data, FCh = RQ)
   }
 
   if (use.p == TRUE){
@@ -2486,7 +2563,7 @@ RQ_plot <- function(data,
 #' This function performs Receiver Operating Characteristic (ROC) analysis of samples of targets based on the expression data.
 #' This analysis could be useful to further examine performance of samples classification into groups using gene expression data.
 #'
-#' @param data object returned from exp_Ct_or_dCt() or delta_Ct() functions.
+#' @param data object returned from exp_Ct_dCt() or delta_Ct() functions.
 #' @param sel.Target character vector with names of targets to include, or "all" (default) to use all names of targets.
 #' @param groups character vector length of two with names of compared groups
 #' @param panels.row,panels.col integer: number of rows and columns to arrange panels with plots.
@@ -2591,12 +2668,13 @@ ROCh <- function(data,
 
 
 
+
 #' @title log_reg
 #'
 #' @description
 #' This function performs logistic regression analysis, computes odd ratio values and presents them graphically.
 #'
-#' @param data object returned from exp_Ct_or_dCt() or delta_Ct() functions.
+#' @param data object returned from exp_Ct_dCt() or delta_Ct() functions.
 #' @param sel.Target character vector with names of targets to include, or "all" (default) to use all names of targets.
 #' @param group.study character: name of study group (group of interest).
 #' @param group.ref character: name of reference group.
@@ -2731,5 +2809,5 @@ log_reg <- function(data,
     write.table(data.CI, paste(name.txt,".txt", sep = ""))
   }
 
-  return(data.CI)
+  return(list(odd.ratio, data.CI))
 }

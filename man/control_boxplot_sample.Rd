@@ -6,6 +6,7 @@
 \usage{
 control_boxplot_sample(
   data,
+  sel.Sample = "all",
   coef = 1.5,
   colors = c("#66c2a5", "#fc8d62"),
   x.axis.title = "Sample",
@@ -26,7 +27,9 @@ control_boxplot_sample(
 )
 }
 \arguments{
-\item{data}{object returned from make_Ct_ready(), exp_Ct_or_dCt() or delta_Ct() functions.}
+\item{data}{object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.}
+
+\item{sel.Sample}{character vector with names of samples to include, or "all" (default) to use all samples.}
 
 \item{coef}{numeric: how many times of interquartile range should be used to indicate the most extend data point for whiskers. Default to 1.5.}
 

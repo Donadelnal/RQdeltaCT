@@ -17,7 +17,7 @@
 #' @param sep character of a field separator in both imported files.
 #' @param dec character used for decimal points in Ct values.
 #'
-#' @return Data.frame in long format ready to analysis.
+#' @return Data frame in long format ready to analysis.
 #' @export
 #'
 #' @examples
@@ -745,11 +745,170 @@ RQ_exp_Ct_dCt <- function(data,
 
 
 
-#' @title select_ref_gene
+
+
+
+#' @title norm_finder
 #'
 #' @description
-#' This function draw line plot and calculate statistics (minimum, maximum, standard deviation,
-#' variance and colinearity coefficient VIF) that could be helpful to select the best
+#' This function calculate stability scores using a code adapted from the [NormFinder algorithm](https://www.moma.dk/software/normfinder) published in [this article](https://aacrjournals.org/cancerres/article/64/15/5245/511517/Normalization-of-Real-Time-Quantitative-Reverse).
+#' This function is internally used by `RQdeltaCT::find_ref_gene()` function and do not need to be use separately.
+#'
+#' @param data object returned from make_Ct_ready() functions.
+#' @param candidates character: vector of names of targets - candidates for reference gene.
+#' @param save.to.txt logical: if TRUE, returned table with results will be saved to .txt file. Default to FALSE.
+#' @param name.txt character: name of saved .txt file, without ".txt" name of extension. Default to "RQ_exp_results".
+#'
+#' @return Table with calculated stability scores, the lowest value the best candidate for reference gene.
+#'
+#' @export
+#'
+#' @examples
+#' library(tidyverse)
+#' data(data.Ct)
+#' data.CtF <- filter_Ct(data.Ct,
+#'                       remove.Target = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+#'                       remove.Sample = c("Control08","Control16","Control22"))
+#' data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
+#' reference.stability.nF <- norm_finder(data.CtF.ready,
+#'                                    candidates = c("Gene4", "Gene8","Gene10","Gene16","Gene17", "Gene18"))
+#'
+#' @importFrom dplyr filter select
+#' @import tidyverse
+#'
+norm_finder <- function(data,
+                        candidates,
+                        save.to.txt = FALSE,
+                        name.txt = "NormFinder_results"){
+
+  data.t <- data %>%
+    pivot_longer(!c(Sample, Group), names_to = "Target", values_to = "Ct") %>%
+    filter(Target %in% candidates) %>%
+    pivot_wider(id_cols = !c(Group), names_from = "Sample", values_from = "Ct")
+
+  last.row <- c("Group", data$Group)
+  dat0 <- rbind(as.data.frame(data.t), last.row)
+  rownames(dat0) <- dat0[,"Target"]
+  dat0 <- select(dat0, -Target)
+
+  ntotal = dim(dat0)[2]
+  k0 = dim(dat0)[1]
+  ngenes=k0-1
+  genenames=rownames(dat0)[-k0]
+  grId=dat0[k0,]
+  dat0=dat0[-k0,]
+
+  dat=matrix(as.numeric(unlist(dat0)),ngenes,ntotal)
+
+  samplenames=colnames(dat0)
+  grId=factor(unlist(grId))
+  groupnames=levels(grId)
+  ngr=length(levels(grId))
+  nsamples=rep(0,ngr)
+
+  for (group in 1:ngr){nsamples[group]=sum(grId==groupnames[group])}
+
+  MakeStab=function(da){
+    ngenes=dim(da)[1]
+    sampleavg=apply(da,2,mean)
+    genegroupavg=matrix(0,ngenes,ngr)
+
+    for (group in 1:ngr){
+      genegroupavg[,group]=apply(da[,grId==groupnames[group]],1,mean)}
+
+    groupavg=rep(0,ngr)
+
+    for (group in 1:ngr){groupavg[group]=mean(da[,grId==groupnames[group]])}
+
+    GGvar=matrix(0,ngenes,ngr)
+
+    for (group in 1:ngr){
+      grset=(grId==groupnames[group])
+      a=rep(0,ngenes)
+
+      for (gene in 1:ngenes){
+        a[gene]=sum((da[gene,grset]-genegroupavg[gene,group]-
+                       sampleavg[grset]+groupavg[group])^2)/(nsamples[group]-1)
+      }
+      GGvar[,group]=(a-sum(a)/(ngenes*ngenes-ngenes))/(1-2/ngenes)
+    }
+
+    genegroupMinvar=matrix(0,ngenes,ngr)
+
+    for (group in 1:ngr){
+      grset=(grId==groupnames[group])
+      z=da[,grset]
+
+      for (gene in 1:ngenes){
+        varpair=rep(0,ngenes)
+
+        for (gene1 in 1:ngenes){varpair[gene1]=var(z[gene,]-z[gene1,])}
+        genegroupMinvar[gene,group]=min(varpair[-gene])/4
+      }
+    }
+
+    GGvar=ifelse(GGvar<0,genegroupMinvar,GGvar)
+
+    dif=genegroupavg
+    difgeneavg=apply(dif,1,mean)
+    difgroupavg=apply(dif,2,mean)
+    difavg=mean(dif)
+
+    for (gene in 1:ngenes){
+      for (group in 1:ngr){
+        dif[gene,group]=dif[gene,group]-difgeneavg[gene]-difgroupavg[group]+difavg
+      }
+    }
+
+    nsampMatrix=matrix(rep(nsamples,ngenes),ngenes,ngr,byrow=T)
+    vardif=GGvar/nsampMatrix
+    gamma=sum(dif*dif)/((ngr-1)*(ngenes-1))-sum(vardif)/(ngenes*ngr)
+    gamma=ifelse(gamma<0,0,gamma)
+
+    difnew=dif*gamma/(gamma+vardif)
+    varnew=vardif+gamma*vardif/(gamma+vardif)
+    Ostab0=abs(difnew)+sqrt(varnew)
+    Ostab=apply(Ostab0,1,mean)
+
+    mud=rep(0,ngenes)
+    for (gene in 1:ngenes){
+      mud[gene]=2*max(abs(dif[gene,]))
+    }
+
+    genevar=rep(0,ngenes)
+    for (gene in 1:ngenes){
+      genevar[gene]=sum((nsamples-1)*GGvar[gene,])/(sum(nsamples)-ngr)
+    }
+    Gsd=sqrt(genevar)
+
+    return(cbind(mud,Gsd,Ostab,rep(gamma,ngenes),GGvar,dif))
+  }
+
+  res = MakeStab(dat)
+  ord = order(res[,3])
+  FinalRes = data.frame("Stability" = round(res[ord,3],2),
+                        row.names = genenames[ord])
+
+  if (save.to.txt == TRUE){
+    write.table(FinalRes, paste(name.txt,".txt", sep = ""))
+  }
+
+  return(FinalRes)
+}
+
+
+
+
+
+
+
+
+#' @title find_ref_gene
+#'
+#' @description
+#' This function draw a line plot and calculate parameters useful to assess gene expression stability:
+#'  minimum, maximum, standard deviation, variance, colinearity coefficient (VIF),
+#'  and stability measures from NormFinder and geNorm algorithms. This function could be helpful to select the best
 #' reference gene for normalization of Ct values.
 #'
 #' @param data object returned from make_Ct_ready() functions,
@@ -776,32 +935,33 @@ RQ_exp_Ct_dCt <- function(data,
 #' @param height integer: height (in cm) of saved .tiff file. Default to 15.
 #' @param name.tiff character: name of saved .tiff file, without ".tiff" name of extension. Default to "Ct_reference_gene_selection".
 #'
-#' @return List containing plot object and table with calculated statistics.
-#'     Additional information about returned table is also printed, it could help user to properly interpret returned table.
-#'     Created plot is displayed on graphic device.
+#' @return List containing plot object and table with calculated parameters. Created plot is displayed on graphic device.
+#'
 #' @export
 #'
 #' @examples
-#' library(car)
-#' library(tidyverse)
-#' data(data.Ct)
-#' data.CtF <- filter_Ct(data.Ct,
-#'                       remove.Target = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
-#'                       remove.Sample = c("Control08","Control16","Control22"))
-#' data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
-#' ref <- select_ref_gene(data.CtF.ready, groups = c("Disease","Control"),
-#'                          candidates = c("Gene4", "Gene8","Gene10","Gene16","Gene17", "Gene18"),
-#'                          col = c("#66c2a5", "#fc8d62","#6A6599", "#D62728", "#1F77B4", "black"))
+library(car)
+library(ctrlGene)
+library(tidyverse)
+data(data.Ct)
+data.CtF <- filter_Ct(data.Ct,
+                       remove.Target = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+                       remove.Sample = c("Control08","Control16","Control22"))
+ data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
+ref <- find_ref_gene(data.CtF.ready, groups = c("Disease","Control"),
+                          candidates = c("Gene4", "Gene8","Gene10","Gene16","Gene17", "Gene18"),
+                          col = c("#66c2a5", "#fc8d62","#6A6599", "#D62728", "#1F77B4", "black"))
 #' ref[[2]]
 #'
 #' @importFrom base mean print min max as.data.frame
 #' @importFrom stats sd var
 #' @importFrom dplyr filter
 #' @importFrom car vif
+#' @import ctrlGene
 #' @import ggplot2
 #' @import tidyverse
 #'
-select_ref_gene <- function(data,
+find_ref_gene <- function(data,
                             groups,
                             candidates,
                             colors,
@@ -829,6 +989,7 @@ select_ref_gene <- function(data,
   ref_plot <- ggplot(ref, aes(x = Sample, y = Ct, color = Target, group = Target)) +
     geom_line(linewidth = line.width) +
     scale_color_manual(values = c(colors)) +
+    guides(x =  guide_axis(angle = angle)) +
     theme_bw() +
     xlab(x.axis.title) +
     ylab(y.axis.title) +
@@ -838,12 +999,7 @@ select_ref_gene <- function(data,
     theme(axis.title = element_text(size = axis.title.size, color = 'black')) +
     theme(legend.title = element_text(size = legend.title.size, colour="black")) +
     theme(legend.text = element_text(size = legend.text.size, colour="black")) +
-	theme(plot.title = element_text(size = plot.title.size))
-
-  if (angle != 0){
-    ref_plot <- ref_plot +
-      guides(x =  guide_axis(angle = angle))
-  }
+	  theme(plot.title = element_text(size = plot.title.size))
 
   print(ref_plot)
 
@@ -881,7 +1037,31 @@ select_ref_gene <- function(data,
   ref_var$VIF2 <- vif_sel2
   colnames(ref_var)[colnames(ref_var) == "VIF2"] = paste(groups[2], "_VIF", sep = "")
 
-  return(list(ref_plot, ref_var))
+
+  reference.stability.nF <- norm_finder(data, candidates = candidates)
+  colnames(reference.stability.nF) <- "NormFinder_score"
+  reference.stability.nF$Target <- rownames(reference.stability.nF)
+
+  data <- data %>%
+    ungroup() %>%
+    select(-Group) %>%
+    select(any_of(c("Sample", candidates))) %>%
+    as.data.frame()
+
+  rownames(data) <- data[,"Sample"]
+  data <- select(data, -Sample)
+  data <- as.matrix(data)
+
+  reference.stability.gF <- geNorm(data,
+         genes = data.frame(Target = character(0), geNorm_score = numeric(0)),
+         ctVal = TRUE)
+  colnames(reference.stability.gF) <- c("Target", "geNorm_score")
+
+  results <- ref_var %>%
+    full_join(reference.stability.nF, by = join_by(Target)) %>%
+    full_join(reference.stability.gF, by = join_by(Target))
+
+  return(list(ref_plot, results))
 }
 
 
@@ -1111,37 +1291,28 @@ control_boxplot_target <- function(data,
   if (by.group == TRUE){
     box_control_targets <- ggplot(data, aes(x = Target, y = value, color = Group)) +
       geom_boxplot(coef = coef) +
-      scale_x_discrete(limits = rev(unique(data$Target))) +
-      scale_color_manual(values = c(colors)) +
-      coord_flip() +
-      xlab(x.axis.title) +
-      ylab(y.axis.title) +
-      labs(color = legend.title, title = plot.title) +
-      theme_classic() +
-      theme(legend.position = legend.position) +
-      theme(axis.text = element_text(size = axis.text.size, colour = "black")) +
-      theme(axis.title = element_text(size = axis.title.size, colour="black")) +
-      theme(legend.title = element_text(size = legend.title.size, colour="black")) +
-      theme(legend.text = element_text(size = legend.text.size, colour="black")) +
-      theme(plot.title = element_text(size = plot.title.size))
+      labs(color = legend.title, title = plot.title)
 
   } else {
 
     box_control_targets <- ggplot(data, aes(x = Target, y = value)) +
       geom_boxplot(coef = coef, fill = colors[1]) +
-      scale_x_discrete(limits = rev(unique(data$Target))) +
-      coord_flip() +
-      xlab(x.axis.title) +
-      ylab(y.axis.title) +
-      labs(title = plot.title) +
-      theme_classic() +
-      theme(legend.position = legend.position) +
-      theme(axis.text = element_text(size = axis.text.size, colour = "black")) +
-      theme(axis.title = element_text(size = axis.title.size, colour="black")) +
-      theme(legend.title = element_text(size = legend.title.size, colour="black")) +
-      theme(legend.text = element_text(size = legend.text.size, colour="black")) +
-      theme(plot.title = element_text(size = plot.title.size))
+      labs(title = plot.title)
   }
+
+  box_control_targets <- box_control_targets +
+    scale_x_discrete(limits = rev(unique(data$Target))) +
+    coord_flip() +
+    xlab(x.axis.title) +
+    ylab(y.axis.title) +
+    theme_classic() +
+    theme(legend.position = legend.position) +
+    theme(axis.text = element_text(size = axis.text.size, colour = "black")) +
+    theme(axis.title = element_text(size = axis.title.size, colour="black")) +
+    theme(legend.title = element_text(size = legend.title.size, colour="black")) +
+    theme(legend.text = element_text(size = legend.text.size, colour="black")) +
+    theme(plot.title = element_text(size = plot.title.size))
+
 
   print(box_control_targets)
 
@@ -2095,9 +2266,19 @@ filter_transformed_data <- function(data,
 #' @param coef numeric: how many times of interquartile range should be used to indicate the most extend data point for whiskers. Default to 1.5.
 #' @param sel.Target character vector with names of targets to include, or "all" (default) to use all names of targets.
 #' @param by.group logical: if TRUE (default), distributions will be drawn by compared groups of samples.
+#' @param signif.show logical: if TRUE, labels for statistical significance will be added to the plot.
+#' @param signif.labels character vector with statistical significance labels (ex. "ns.","***", etc.) with number
+#' of elements equal to nimber of targets used for plotting.
+#' The ggsignif package was used for convenient adding labels, but there is one tricky point:
+#' the same elements of labels can not be handled by used package and must be different.
+#' It could be achieved by adding symmetrically white spaces to repeated labels, ex. "ns.", " ns. ", "  ns.  ".
+#' @param signif.length numeric: length of horizontal bars, values from 0 to 1.
+#' @param signif.dist numeric: distance between errorbar and significance label.
+#' Could be in y axis units (if `faceting` = TRUE) or fraction of y axis value reached by errorbar (mean + sd value) (if `faceting` = TRUE).
 #' @param faceting logical: if TRUE (default), plot will be drawn with facets with free scales using ggplot2::facet_wrap() function (see its documentation for more details).
 #' @param facet.row,facet.col integer: number of rows and columns to arrange facets.
 #' @param angle integer: value of angle in which names of genes should be displayed. Default to 0.
+#' @param y.exp.low,y.exp.up numeric: space between data on the plot and lower or upper axis. Useful to add extra space for statistical significance labels when `faceting` = TRUE.
 #' @param rotate logical: if TRUE, boxplots will be arranged horizontally. Deafault to FALSE.
 #' @param add.mean logical: if TRUE, means will be added to boxes as squares. Default to TRUE.
 #' @param add.mean.size numeric: size of squares indicating means. Default to 2.
@@ -2124,6 +2305,7 @@ filter_transformed_data <- function(data,
 #' @export
 #'
 #' @examples
+#' library(ggsignif)
 #' library(tidyverse)
 #' data(data.Ct)
 #' data.CtF <- filter_Ct(data.Ct,
@@ -2133,14 +2315,19 @@ filter_transformed_data <- function(data,
 #' data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
 #' data.dCt.exp <- exp_delta_Ct(data.dCt)
 #' data.dCt.expF <- filter_transformed_data(data.dCt.exp, remove.Sample = c("Control11"))
-#' results_boxplot(data.dCt.expF,
-#'                  sel.Target = c("Gene1","Gene16","Gene19","Gene20"),
-#'                  facet.row = 2,
-#'                  facet.col = 2,
-#'                  y.axis.title = bquote(~2^-dCt))
+#' results_boxplot(data.dCt.exp,
+#'                 sel.Target = c("Gene1","Gene16","Gene19","Gene20"),
+#'                 signif.labels = c("****","*","***"," * "),
+#'                 angle = 30,
+#'                 signif.dist = 1.05,
+#'                 facet.row = 1,
+#'                 facet.col = 4,
+#'                 y.exp.up = 0.1,
+#'                 y.axis.title = bquote(~2^-dCt))
 #'
 #' @importFrom base print paste
 #' @importFrom dplyr filter
+#' @import ggsignif
 #' @import ggplot2
 #' @import tidyverse
 #'
@@ -2148,16 +2335,22 @@ results_boxplot <- function(data,
                             coef = 1.5,
                             sel.Target = "all",
                             by.group = TRUE,
+                            signif.show = TRUE,
+                            signif.labels,
+                            signif.length = 0.2,
+                            signif.dist = 0.2,
                             faceting = TRUE,
                             facet.row,
                             facet.col,
+                            y.exp.low = 0.1,
+                            y.exp.up = 0.2,
                             angle = 0,
                             rotate = FALSE,
                             add.mean = TRUE,
                             add.mean.size = 2,
                             add.mean.color = "black",
                             colors = c("#66c2a5", "#fc8d62"),
-                            x.axis.title = "Target",
+                            x.axis.title = "",
                             y.axis.title = "value",
                             axis.title.size = 12,
                             axis.text.size = 10,
@@ -2183,54 +2376,81 @@ results_boxplot <- function(data,
 
   if (by.group == TRUE){
 
-    box_results <- ggplot(data, aes(x = Target, y = value, fill = Group)) +
-      geom_boxplot(coef = coef) +
+    box_results <- ggplot(data, aes(x = Target, y = value)) +
+      geom_boxplot(aes(fill = Group), coef = 1.5) +
       scale_fill_manual(values = c(colors)) +
-      xlab(x.axis.title) +
-      ylab(y.axis.title) +
-      labs(fill = legend.title, title = plot.title) +
-      theme_bw() +
-      theme(legend.position = legend.position) +
-      theme(axis.text = element_text(size = axis.text.size, colour = "black")) +
-      theme(axis.title = element_text(size = axis.title.size, colour="black")) +
-      theme(legend.text = element_text(size = legend.text.size, colour="black")) +
-      theme(legend.title = element_text(size = legend.title.size, colour="black")) +
-      theme(plot.title = element_text(size = plot.title.size)) +
-      theme(panel.grid.major.x = element_blank())
+      labs(fill = legend.title, title = plot.title)
+
+    if (signif.show == TRUE){
+      label.height <- data %>%
+        group_by(Target) %>%
+        summarise(height = max(value), .groups = "keep")
+
+      data.label <- data.frame(matrix(nrow = length(unique(label.height$Target)), ncol = 4))
+      rownames(data.label) <- label.height$Target
+      colnames(data.label) <- c("x", "xend", "y", "annotation")
+
+
+      if (faceting == TRUE){
+
+        data.label$x <- rep(1 - signif.length, nrow(data.label))
+        data.label$xend <- rep(1 + signif.length, nrow(data.label))
+        data.label$y <- label.height$height * signif.dist
+      } else {
+
+        data.label$x <- (1:nrow(data.label)) - signif.length
+        data.label$xend <- (1:nrow(data.label)) + signif.length
+        data.label$y <- label.height$height + signif.dist
+
+      }
+      data.label$annotation <- signif.labels
+      data.label$Target <- rownames(data.label)
+
+      box_results <- box_results +
+        geom_signif(stat = "identity",
+                    data = data.label,
+                    aes(x = x,
+                        xend = xend,
+                        y = y,
+                        yend = y,
+                        annotation = annotation),
+                    color = "black",
+                    manual = TRUE) +
+        scale_y_continuous(expand = expansion(mult = c(y.exp.low, y.exp.up)))
+
+      }
 
     if (faceting == TRUE) {
       box_results <- box_results +
         theme(axis.text.x = element_blank(), axis.ticks.x = element_blank()) +
         facet_wrap(vars(Target), scales = "free", nrow = facet.row, ncol = facet.col)
     }
-
-  } else {
+      } else {
 
     box_results <- ggplot(data, aes(x = Target, y = value)) +
       geom_boxplot(coef = coef, fill = colors[1]) +
-      xlab(x.axis.title) + ylab(y.axis.title) +
-      labs(fill = legend.title, title = plot.title) +
-      theme_bw() +
-      theme(legend.position = legend.position) +
-      theme(axis.text = element_text(size = axis.text.size, colour = "black")) +
-      theme(axis.title = element_text(size = axis.title.size, colour="black")) +
-      theme(legend.text = element_text(size = legend.text.size, colour="black")) +
-      theme(legend.title = element_text(size = legend.title.size, colour="black")) +
-      theme(plot.title = element_text(size = plot.title.size)) +
-      theme(panel.grid.major.x = element_blank())
+      labs(title = plot.title)
 
     if (faceting == TRUE) {
       box_results <- box_results +
         theme(axis.text.x = element_blank(), axis.ticks.x = element_blank()) +
         facet_wrap(vars(Target), scales = "free", nrow = facet.row, ncol = facet.col)
     }
-
   }
 
-  if (angle != 0){
-    box_results <- box_results +
-      guides(x =  guide_axis(angle = angle))
-  }
+  box_results <- box_results +
+    guides(x =  guide_axis(angle = angle)) +
+    xlab(x.axis.title) +
+    ylab(y.axis.title) +
+    theme_bw() +
+    theme(legend.position = legend.position) +
+    theme(axis.text = element_text(size = axis.text.size, colour = "black")) +
+    theme(axis.title = element_text(size = axis.title.size, colour="black")) +
+    theme(legend.text = element_text(size = legend.text.size, colour="black")) +
+    theme(legend.title = element_text(size = legend.title.size, colour="black")) +
+    theme(plot.title = element_text(size = plot.title.size)) +
+    theme(panel.grid.major.x = element_blank())
+
 
   if (rotate == TRUE){
     box_results <- box_results +
@@ -2265,6 +2485,207 @@ results_boxplot <- function(data,
   return(box_results)
 }
 
+
+
+
+
+
+
+#' @title results_barplot
+#'
+#' @description
+#' This function creates a barplot illustrating mean and sd values of each target.
+#' Faceting and adding custom labels of statistical significance is possible.
+#' This function could be useful to present results for finally selected targets.
+#'
+#' @param data object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.
+#' @param sel.Target character vector with names of targets to include, or "all" (default) to use all names of targets.
+#' @param bar.width numeric: width of bars.
+#' @param signif.show logical: if TRUE, labels for statistical significance will be added to the plot.
+#' @param signif.labels character vector with statistical significance labels (ex. "ns.","***", etc.) with number
+#' of elements equal to nimber of targets used for plotting.
+#' The ggsignif package was used for convenient adding labels, but there is one tricky point:
+#' the same elements of labels can not be handled by used package and must be different.
+#' It could be achieved by adding symmetrically white spaces to repeated labels, ex. "ns.", " ns. ", "  ns.  ".
+#' @param signif.length numeric: length of horizontal bars, values from 0 to 1.
+#' @param signif.dist numeric: distance between errorbar and significance label.
+#' Could be in y axis units (if `faceting` = TRUE) or fraction of y axis value reached by errorbar (mean + sd value) (if `faceting` = TRUE).
+#' @param faceting logical: if TRUE (default), plot will be drawn with facets with free scales using ggplot2::facet_wrap() function (see its documentation for more details).
+#' @param facet.row,facet.col integer: number of rows and columns to arrange facets.
+#' @param y.exp.low,y.exp.up numeric: space between data on the plot and lower or upper axis. Useful to add extra space for statistical significance labels when `faceting` = TRUE.
+#' @param angle integer: value of angle in which names of genes should be displayed. Default to 0.
+#' @param rotate logical: if TRUE, boxplots will be arranged horizontally. Deafault to FALSE.
+#' @param colors character vector length of one (when by.group = FALSE) or two (when by.group = TRUE), containing colors for groups.
+#' @param x.axis.title character: title of x axis. Default to "Target".
+#' @param y.axis.title character: title of y axis. Default to "value".
+#' @param axis.title.size integer: font size of axis titles. Default to 12.
+#' @param axis.text.size integer: font size of axis text. Default to 10.
+#' @param legend.title character: title of legend. Default to "Group".
+#' @param legend.title.size integer: font size of legend title. Default to 12.
+#' @param legend.text.size integer: font size of legend text. Default to 12.
+#' @param legend.position position of the legend, one of "top" (default), "right", "bottom", "left", or "none" (no legend).
+#' See description for legend.position in ggplot2::theme() function.
+#' @param plot.title character: title of plot. Default to "".
+#' @param plot.title.size integer: font size of plot title. Default to 14.
+#' @param save.to.tiff logical: if TRUE, plot will be saved as .tiff file. Default to FALSE.
+#' @param dpi integer: resolution of saved .tiff file. Default to 600.
+#' @param width numeric: width (in cm) of saved .tiff file. Default to 15.
+#' @param height integer: height (in cm) of saved .tiff file. Default to 15.
+#' @param name.tiff character: name of saved .tiff file, without ".tiff" name of extension. Default to "results_boxplot".
+#'
+#' @return Object with boxplot illustrating distribution of data for selected targets. Created plot will be also displayed on graphic device.
+#' @export
+#'
+#' @examples
+#' library(ggsignif)
+#' library(tidyverse)
+#' data(data.Ct)
+#' data.CtF <- filter_Ct(data.Ct,
+#'                       remove.Target = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+#'                       remove.Sample = c("Control08","Control16","Control22"))
+#' data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
+#' data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
+#' data.dCt.exp <- exp_delta_Ct(data.dCt)
+#' data.dCt.expF <- filter_transformed_data(data.dCt.exp, remove.Sample = c("Control11"))
+#' results_barplot(data.dCt.exp,
+#'                 sel.Target = c("Gene1","Gene16","Gene19","Gene20"),
+#'                 signif.labels = c("****","*","***"," * "),
+#'                 angle = 30,
+#'                 signif.dist = 1.05,
+#'                 facet.row = 1,
+#'                 facet.col = 4,
+#'                 y.exp.up = 0.1,
+#'                 y.axis.title = bquote(~2^-dCt))
+#'
+#' @importFrom base print paste
+#' @importFrom dplyr filter
+#' @import ggsignif
+#' @import ggplot2
+#' @import tidyverse
+#'
+results_barplot <- function(data,
+                            sel.Target = "all",
+                            bar.width = 0.8,
+                            signif.show = TRUE,
+                            signif.labels,
+                            signif.length = 0.2,
+                            signif.dist = 0.2,
+                            faceting = TRUE,
+                            facet.row,
+                            facet.col,
+                            y.exp.low = 0.1,
+                            y.exp.up = 0.2,
+                            angle = 0,
+                            rotate = FALSE,
+                            colors = c("#66c2a5", "#fc8d62"),
+                            x.axis.title = "",
+                            y.axis.title = "value",
+                            axis.title.size = 12,
+                            axis.text.size = 10,
+                            legend.text.size = 12,
+                            legend.title = "Group",
+                            legend.title.size = 12,
+                            legend.position = "top",
+                            plot.title = "",
+                            plot.title.size = 14,
+                            save.to.tiff = FALSE,
+                            dpi = 600, width = 15, height = 15,
+                            name.tiff = "results_barplot"){
+
+  data <- pivot_longer(data, !c(Sample, Group), names_to = "Target" , values_to = "value")
+
+  if (sel.Target[1] == "all"){
+    data <- data
+
+  } else {
+
+    data <- filter(data, Target %in% sel.Target)
+  }
+
+  data.mean <- data %>%
+    group_by(Group, Target) %>%
+    summarise(mean = mean(value, na.rm = TRUE), .groups = "keep")
+
+  data.sd <- data %>%
+    group_by(Group, Target) %>%
+    summarise(sd = sd(value, na.rm = TRUE), .groups = "keep")
+
+  data.mean$sd <- data.sd$sd
+
+    bar_results <- ggplot(data.mean, aes(x = Target, y = mean)) +
+      geom_errorbar(aes(group = Group, ymin=mean, ymax=mean+sd), width=.2,
+                    position=position_dodge(.9)) +
+      geom_col(aes(fill = Group, group = Group), position=position_dodge(.9), width = bar.width, color = "black") +
+      scale_fill_manual(values = c(colors)) +
+      guides(x =  guide_axis(angle = angle)) +
+      xlab(x.axis.title) +
+      ylab(y.axis.title) +
+      labs(fill = legend.title, title = plot.title) +
+      theme_bw() +
+      theme(legend.position = legend.position) +
+      theme(axis.text = element_text(size = axis.text.size, colour = "black")) +
+      theme(axis.title = element_text(size = axis.title.size, colour="black")) +
+      theme(legend.text = element_text(size = legend.text.size, colour="black")) +
+      theme(legend.title = element_text(size = legend.title.size, colour="black")) +
+      theme(plot.title = element_text(size = plot.title.size)) +
+      theme(panel.grid.major.x = element_blank())
+
+    if (faceting == TRUE) {
+      bar_results <- bar_results +
+        theme(axis.text.x = element_blank(), axis.ticks.x = element_blank()) +
+        facet_wrap(vars(Target), scales = "free", nrow = facet.row, ncol = facet.col)
+    }
+
+    if (signif.show == TRUE) {
+      label.height <- data.mean %>%
+        mutate(max = mean + sd) %>%
+        group_by(Target) %>%
+        summarise(height = max(max, na.rm = TRUE), .groups = "keep")
+
+      data.label <- data.frame(matrix(nrow = length(unique(data.mean$Target)), ncol = 4))
+      rownames(data.label) <- unique(data.mean$Target)
+      colnames(data.label) <- c("x", "xend", "y", "annotation")
+
+      if (faceting == TRUE) {
+        data.label$x <- rep(1 - signif.length, length(unique(data.mean$Target)))
+        data.label$xend <- rep(1 + signif.length, length(unique(data.mean$Target)))
+        data.label$y <- label.height$height * signif.dist
+
+        } else {
+
+      data.label$x <- (1:length(unique(data.mean$Target))) - signif.length
+      data.label$xend <- (1:length(unique(data.mean$Target))) + signif.length
+      data.label$y <- label.height$height + signif.dist
+    }
+
+      data.label$annotation <- signif.labels
+      data.label$Target <- rownames(data.label)
+
+      bar_results <- bar_results +
+        geom_signif(stat = "identity",
+                    data = data.label,
+                    aes(x = x,
+                      xend = xend,
+                      y = y,
+                      yend = y,
+                      annotation = annotation),
+                   color = "black",
+                   manual = TRUE) +
+        scale_y_continuous(expand = expansion(mult = c(y.exp.low, y.exp.up)))
+    }
+
+  if (rotate == TRUE){
+    bar_results <- bar_results +
+      coord_flip()
+  }
+
+  print(bar_results)
+
+  if (save.to.tiff == TRUE){
+    ggsave(paste(name.tiff,".tiff", sep = ""), bar_results, dpi = dpi, width = width, height = height, units = "cm", compression = "lzw")
+  }
+  return(bar_results)
+}
 
 
 
@@ -2336,6 +2757,12 @@ RQ_ddCt <- function(data,
     mutate(FCh = 2^-ddCt) %>%
     rename_with(~paste0(.x, "_mean", recycle0 = TRUE), all_of(c(group.study, group.ref)))
 
+  data_ddCt_sd <- data_slim %>%
+    group_by(Group, Target) %>%
+    summarise(dCt_sd = sd(dCt, na.rm = TRUE), .groups = "keep") %>%
+    pivot_wider(names_from = Group, values_from = dCt_sd) %>%
+    rename_with(~paste0(.x, "_sd", recycle0 = TRUE), all_of(c(group.study, group.ref)))
+
   if (do.tests == TRUE){
 
     data_ddCt_norm <- data_slim %>%
@@ -2353,12 +2780,18 @@ RQ_ddCt <- function(data,
                 MW_test_stat = statistic(wilcox_test(dCt ~ Group)), .groups = "keep")
 
     data_ddCt_norm_tests <- full_join(data_ddCt_norm, data_ddCt_tests, by = c("Target"))
+    data_ddCt_results <- full_join(data_ddCt_norm_tests, data_ddCt_sd, by = c("Target"))
+    data_ddCt_results <- select(data_ddCt_results, Target, ends_with("_mean"), ends_with("_sd"), everything())
 
-    return(data_ddCt_norm_tests)
+    return(data_ddCt_results)
 
     } else{
 
-    return(data_ddCt)
+      data_ddCt_results <- full_join(data_ddCt, data_ddCt_sd, by = c("Target"))
+      data_ddCt_results <- rename_with(data_ddCt_results, ~paste0(.x, "_mean", recycle0 = TRUE), all_of(c(group.study, group.ref)))
+      data_ddCt_results <- select(data_ddCt_results, Target, ends_with("_mean"), ends_with("_sd"), everything())
+
+    return(data_ddCt_results)
   }
   if (save.to.txt == TRUE){
     write.table(data_ddCt_norm_tests, paste(name.txt,".txt", sep = ""))
@@ -2387,7 +2820,17 @@ RQ_ddCt <- function(data,
 #' @param use.log10FCh logical: if TRUE, the criterion of fold change will be also used for significance assessment of genes.
 #' @param log10FCh.threshold numeric: threshold of log10 fold change values used for significance assessment of genes.
 #' @param sel.Target character vector with names of targets to include, or "all" (default) to use all names of targets.
-#' @param bar.width numeric: width of bars..
+#' @param bar.width numeric: width of bars.
+#' @param signif.show logical: if TRUE, labels for statistical significance will be added to the plot.
+#' @param signif.labels character vector with statistical significance labels (ex. "ns.","***", etc.) with number
+#' of elements equal to nimber of targets used for plotting.
+#' The ggsignif package was used for convenient adding labels, but there is one tricky point:
+#' the same elements of labels can not be handled by used package and must be different.
+#' It could be achieved by adding symmetrically white spaces to repeated labels, ex. "ns.", " ns. ", "  ns.  ".
+#' @param signif.length numeric: length of horizontal bars, values from 0 to 1.
+#' @param signif.dist numeric: distance between errorbar and significance label.
+#' Could be in y axis units (if `faceting` = TRUE) or fraction of y axis value reached by errorbar (mean + sd value) (if `faceting` = TRUE).
+#' @param y.exp.low,y.exp.up numeric: space between data on the plot and lower or upper axis. Useful to add extra space for statistical significance labels when `faceting` = TRUE.
 #' @param angle integer: value of angle in which names of genes should be displayed. Default to 0.
 #' @param rotate logical: if TRUE, bars will be arranged horizontally. Deafault to FALSE.
 #' @param colors character vector length of one (when use.p = FALSE) or two (when use.p = TRUE), containing colors for significant and no significant genes.
@@ -2412,6 +2855,7 @@ RQ_ddCt <- function(data,
 #' @export
 #'
 #' @examples
+#' library(signif)
 #' library(tidyverse)
 #' data(data.Ct)
 #' data.CtF <- filter_Ct(data.Ct,
@@ -2421,8 +2865,15 @@ RQ_ddCt <- function(data,
 #' data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
 #' data.dCt.exp <- exp_delta_Ct(data.dCt)
 #' data.dCt.expF <- filter_transformed_data(data.dCt.exp, remove.Sample = c("Control11"))
-#' RQ.ddCt <- RQ_ddCt(data, "Disease", "Control")
-#' RQ.plot <- RQ_plot(RQ.ddCt, mode = "depends", use.log10FCh = TRUE, log10FCh.threshold = 0.30103)
+#' RQ.ddCt <- RQ_ddCt(data.dCt.expF, "Disease", "Control")
+#'
+#' signif.labels <- c("****","**","ns."," ns. ","  ns.  ","   ns.   ","    ns.    ","     ns.     ","      ns.      ","       ns.       ",        "ns.        ","         ns.         ","          ns.          ","***")
+#' RQ.plot <- RQ_plot(RQ.ddCt,
+#'                    mode = "depends",
+#'                    use.log10FCh = TRUE,
+#'                    log10FCh.threshold = 0.30103,
+#'                    signif.labels = signif.labels,
+#'                    angle = 30)
 #' head(RQ.plot[[2]])
 #'
 #' # with user p values - in this example used p values are calculated using stats::wilcox.test() function:
@@ -2431,12 +2882,18 @@ RQ_ddCt <- function(data,
 #'   group_by(Target) %>%
 #'   summarise(MW_test_p = wilcox.test(dCt ~ Group)$p.value, .groups = "keep")
 #'
-#' RQ.plot <- RQ_plot(RQ.ddCt, mode = "user", use.log10FCh = TRUE, log10FCh.threshold = 0.30103)
+#' RQ.plot <- RQ_plot(RQ.ddCt,
+#'                    mode = "user",
+#'                    use.log10FCh = TRUE,
+#'                    log10FCh.threshold = 0.30103,
+#'                    signif.labels = signif.labels,
+#'                    angle = 30)
 #' head(RQ.plot[[2]])
 #
 #' @importFrom base print paste colnames factor
 #' @importFrom dplyr filter
 #' @importFrom stats reorder
+#' @import ggsignif
 #' @import ggplot2
 #' @import tidyverse
 #'
@@ -2448,10 +2905,16 @@ RQ_plot <- function(data,
                     log10FCh.threshold = 0,
                     sel.Target = "all",
                     bar.width = 0.8,
+                    signif.show = TRUE,
+                    signif.labels,
+                    signif.length = 0.2,
+                    signif.dist = 0.1,
+                    y.exp.low = 0.1,
+                    y.exp.up = 0.1,
                     angle = 0,
                     rotate = FALSE,
                     colors = c("#66c2a5", "#fc8d62"),
-                    x.axis.title = "Target",
+                    x.axis.title = "",
                     y.axis.title = "log10(Fold change)",
                     axis.title.size = 12,
                     axis.text.size = 10,
@@ -2497,41 +2960,60 @@ RQ_plot <- function(data,
     data$`Selected as significant?` <- factor(data$`Selected as significant?`, levels = c("Yes (p <= 0.05)", "No (p > 0.05)"))
           }
 
-    RQ <- ggplot(data, aes(x = reorder(Target, -FCh), y = log10(FCh), fill = `Selected as significant?`)) +
-      geom_col(width = bar.width) +
+    RQ <- ggplot(data, aes(x = reorder(Target, -FCh), y = log10(FCh))) +
+      geom_col(aes(fill = `Selected as significant?`, group = `Selected as significant?`), width = bar.width) +
       scale_fill_manual(values = c(colors)) +
-      xlab(x.axis.title) +
-      ylab(y.axis.title) +
-      labs(fill = legend.title, title = plot.title) +
-      theme_bw() +
-      theme(legend.position = legend.position) +
-      theme(axis.text = element_text(size = axis.text.size, colour = "black")) +
-      theme(axis.title = element_text(size = axis.title.size, colour="black")) +
-      theme(legend.text = element_text(size = legend.text.size, colour="black")) +
-      theme(legend.title = element_text(size = legend.title.size, colour="black")) +
-      theme(plot.title = element_text(size = plot.title.size)) +
-      theme(panel.grid.major.x = element_blank()) +
-      geom_hline(yintercept = 0, linewidth = 0.4)
+      labs(fill = legend.title, title = plot.title)
 
     } else {
 
       RQ <- ggplot(data, aes(x = reorder(Target, -FCh), y = log10(FCh))) +
-      geom_col(width = bar.width, fill = colors[1]) +
-      xlab(x.axis.title) + ylab(y.axis.title) +
-      labs(title = plot.title) +
-      theme_bw() +
-      theme(legend.position = legend.position) +
-      theme(axis.text = element_text(size = axis.text.size, colour = "black")) +
-      theme(axis.title = element_text(size = axis.title.size, colour="black")) +
-      theme(legend.text = element_text(size = legend.text.size, colour="black")) +
-      theme(legend.title = element_text(size = legend.title.size, colour="black")) +
-      theme(plot.title = element_text(size = plot.title.size)) +
-      theme(panel.grid.major.x = element_blank())
+        geom_col(width = bar.width, fill = colors[1]) +
+        labs(title = plot.title)
   }
 
-  if (angle != 0){
+
+  RQ <- RQ +
+    guides(x =  guide_axis(angle = angle)) +
+    xlab(x.axis.title) +
+    ylab(y.axis.title) +
+    theme_bw() +
+    theme(legend.position = legend.position) +
+    theme(axis.text = element_text(size = axis.text.size, colour = "black")) +
+    theme(axis.title = element_text(size = axis.title.size, colour="black")) +
+    theme(legend.text = element_text(size = legend.text.size, colour="black")) +
+    theme(legend.title = element_text(size = legend.title.size, colour="black")) +
+    theme(plot.title = element_text(size = plot.title.size)) +
+    theme(panel.grid.major.x = element_blank()) +
+    geom_hline(yintercept = 0, linewidth = 0.4)
+
+
+  if (signif.show == TRUE) {
+
+    data.label <- data.frame(matrix(nrow = nrow(data), ncol = 4))
+    colnames(data.label) <- c("x", "xend", "y", "annotation")
+    data <- arrange(data, desc(FCh))
+    data.label$x <- (1:nrow(data)) - signif.length
+    data.label$xend <- (1:nrow(data)) + signif.length
+
+    data.label <- mutate(data.label, y = ifelse(log10(data$FCh) > 0,
+                                                log10(data$FCh) + signif.dist,
+                                                log10(data$FCh) - signif.dist))
+
+    data.label$annotation <- signif.labels
+
     RQ <- RQ +
-      guides(x =  guide_axis(angle = angle))
+      geom_signif(stat = "identity",
+                  data = data.label,
+                  aes(x = x,
+                      xend = xend,
+                      y = y,
+                      yend = y,
+                      annotation = annotation),
+                  color = "black",
+                  manual = TRUE) +
+      scale_y_continuous(expand = expansion(mult = c(y.exp.low, y.exp.up)))
+
   }
 
   if (rotate == TRUE){
@@ -2547,10 +3029,6 @@ RQ_plot <- function(data,
 
   return(list(RQ, data))
 }
-
-
-
-
 
 
 

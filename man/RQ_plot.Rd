@@ -13,10 +13,16 @@ RQ_plot(
   log10FCh.threshold = 0,
   sel.Target = "all",
   bar.width = 0.8,
+  signif.show = TRUE,
+  signif.labels,
+  signif.length = 0.2,
+  signif.dist = 0.1,
+  y.exp.low = 0.1,
+  y.exp.up = 0.1,
   angle = 0,
   rotate = FALSE,
   colors = c("#66c2a5", "#fc8d62"),
-  x.axis.title = "Target",
+  x.axis.title = "",
   y.axis.title = "log10(Fold change)",
   axis.title.size = 12,
   axis.text.size = 10,
@@ -53,7 +59,22 @@ data.frame object names "user"with two columns, one named "Target" with Target n
 
 \item{sel.Target}{character vector with names of targets to include, or "all" (default) to use all names of targets.}
 
-\item{bar.width}{numeric: width of bars..}
+\item{bar.width}{numeric: width of bars.}
+
+\item{signif.show}{logical: if TRUE, labels for statistical significance will be added to the plot.}
+
+\item{signif.labels}{character vector with statistical significance labels (ex. "ns.","***", etc.) with number
+of elements equal to nimber of targets used for plotting.
+The ggsignif package was used for convenient adding labels, but there is one tricky point:
+the same elements of labels can not be handled by used package and must be different.
+It could be achieved by adding symmetrically white spaces to repeated labels, ex. "ns.", " ns. ", "  ns.  ".}
+
+\item{signif.length}{numeric: length of horizontal bars, values from 0 to 1.}
+
+\item{signif.dist}{numeric: distance between errorbar and significance label.
+Could be in y axis units (if `faceting` = TRUE) or fraction of y axis value reached by errorbar (mean + sd value) (if `faceting` = TRUE).}
+
+\item{y.exp.low, y.exp.up}{numeric: space between data on the plot and lower or upper axis. Useful to add extra space for statistical significance labels when `faceting` = TRUE.}
 
 \item{angle}{integer: value of angle in which names of genes should be displayed. Default to 0.}
 
@@ -100,6 +121,7 @@ This function creates barplot illustrating fold change (when 2^-Ct or 2^-dCt met
 with indicating of statistical significance.
 }
 \examples{
+library(signif)
 library(tidyverse)
 data(data.Ct)
 data.CtF <- filter_Ct(data.Ct,
@@ -109,8 +131,15 @@ data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
 data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
 data.dCt.exp <- exp_delta_Ct(data.dCt)
 data.dCt.expF <- filter_transformed_data(data.dCt.exp, remove.Sample = c("Control11"))
-RQ.ddCt <- RQ_ddCt(data, "Disease", "Control")
-RQ.plot <- RQ_plot(RQ.ddCt, mode = "depends", use.log10FCh = TRUE, log10FCh.threshold = 0.30103)
+RQ.ddCt <- RQ_ddCt(data.dCt.expF, "Disease", "Control")
+
+signif.labels <- c("****","**","ns."," ns. ","  ns.  ","   ns.   ","    ns.    ","     ns.     ","      ns.      ","       ns.       ",        "ns.        ","         ns.         ","          ns.          ","***")
+RQ.plot <- RQ_plot(RQ.ddCt,
+                   mode = "depends",
+                   use.log10FCh = TRUE,
+                   log10FCh.threshold = 0.30103,
+                   signif.labels = signif.labels,
+                   angle = 30)
 head(RQ.plot[[2]])
 
 # with user p values - in this example used p values are calculated using stats::wilcox.test() function:
@@ -119,6 +148,11 @@ pivot_longer(cols = -c(Group, Sample), names_to = "Target", values_to = "dCt") \
   group_by(Target) \%>\%
   summarise(MW_test_p = wilcox.test(dCt ~ Group)$p.value, .groups = "keep")
 
-RQ.plot <- RQ_plot(RQ.ddCt, mode = "user", use.log10FCh = TRUE, log10FCh.threshold = 0.30103)
+RQ.plot <- RQ_plot(RQ.ddCt,
+                   mode = "user",
+                   use.log10FCh = TRUE,
+                   log10FCh.threshold = 0.30103,
+                   signif.labels = signif.labels,
+                   angle = 30)
 head(RQ.plot[[2]])
 }

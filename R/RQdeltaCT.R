@@ -943,14 +943,14 @@ norm_finder <- function(data,
 library(car)
 library(ctrlGene)
 library(tidyverse)
-data(data.Ct)
-data.CtF <- filter_Ct(data.Ct,
-                       remove.Target = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
-                       remove.Sample = c("Control08","Control16","Control22"))
- data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
-ref <- find_ref_gene(data.CtF.ready, groups = c("Disease","Control"),
-                          candidates = c("Gene4", "Gene8","Gene10","Gene16","Gene17", "Gene18"),
-                          col = c("#66c2a5", "#fc8d62","#6A6599", "#D62728", "#1F77B4", "black"))
+#' data(data.Ct)
+#' data.CtF <- filter_Ct(data.Ct,
+#'                        remove.Target = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+#'                        remove.Sample = c("Control08","Control16","Control22"))
+#' data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
+#' ref <- find_ref_gene(data.CtF.ready, groups = c("Disease","Control"),
+#'                           candidates = c("Gene4", "Gene8","Gene10","Gene16","Gene17", "Gene18"),
+#'                           col = c("#66c2a5", "#fc8d62","#6A6599", "#D62728", "#1F77B4", "black"))
 #' ref[[2]]
 #'
 #' @importFrom base mean print min max as.data.frame

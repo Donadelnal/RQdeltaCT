@@ -10,7 +10,7 @@ read_Ct_long(
   dec,
   skip = 0,
   column.Sample,
-  column.Target,
+  column.Gene,
   column.Ct,
   column.Group,
   add.column.Flag = FALSE,
@@ -19,7 +19,7 @@ read_Ct_long(
 }
 \arguments{
 \item{path}{path to a .txt file with long-type table of Ct values. This table should contain at least  4 columns, with
-sample names, target names, Ct values and group names (those columns will be imported by this function).
+sample names, gene names, Ct values and group names (those columns will be imported by this function).
 Imported table could also contain a column with flag information, which could be optionally imported (see add.col.Flag and col.Flag parameters).}
 
 \item{sep}{character of a field separator in imported file.}
@@ -30,7 +30,7 @@ Imported table could also contain a column with flag information, which could be
 
 \item{col.Sample}{integer: number of column with sample names.}
 
-\item{col.Target}{integer: number of column with target names.}
+\item{col.gene}{integer: number of column with gene names.}
 
 \item{col.Ct}{integer: number of column with Ct values.}
 
@@ -53,7 +53,7 @@ path <- system.file("extdata", "data_Ct_long.txt", package = "RQdeltaCT")
 
 library(tidyverse)
 data.Ct <- read_Ct_long(path = path, sep = "\t",dec = ".",skip = 0,
-                        add.column.Flag = TRUE, column.Sample = 1, column.Target = 2,
+                        add.column.Flag = TRUE, column.Sample = 1, column.Gene = 2,
                         column.Ct = 5, column.Group = 9, column.Flag = 4)
 str(data.Ct)
 

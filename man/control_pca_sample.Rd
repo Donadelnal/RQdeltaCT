@@ -14,11 +14,11 @@ control_pca_sample(
   label.size = 3,
   hjust = 0,
   vjust = -1,
-  axis.title.size = 12,
+  axis.title.size = 11,
   axis.text.size = 10,
-  legend.text.size = 12,
+  legend.text.size = 11,
   legend.title = "Group",
-  legend.title.size = 12,
+  legend.title.size = 11,
   legend.position = "right",
   plot.title = "",
   plot.title.size = 14,
@@ -86,7 +86,7 @@ Performs principal component analysis (PCA) for samples and generate plot illust
 library(tidyverse)
 data(data.Ct)
 data.CtF <- filter_Ct(data.Ct,
-                      remove.Target = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+                      remove.gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
                       remove.Sample = c("Control08","Control16","Control22"))
 data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
 data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")

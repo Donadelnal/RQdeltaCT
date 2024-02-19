@@ -6,7 +6,7 @@
 \usage{
 ROCh(
   data,
-  sel.Target = "all",
+  sel.genes = "all",
   groups,
   panels.row,
   panels.col,
@@ -25,7 +25,7 @@ ROCh(
 \arguments{
 \item{data}{object returned from exp_Ct_dCt() or delta_Ct() functions.}
 
-\item{sel.Target}{character vector with names of targets to include, or "all" (default) to use all names of targets.}
+\item{sel.genes}{character vector with names of genes to include, or "all" (default) to use all names of genes.}
 
 \item{groups}{character vector length of two with names of compared groups}
 
@@ -59,7 +59,7 @@ positive predictive value, negative predictive value, and Youden's J statistic.
 Plot with ROC curves could be saved to .tiff file (will not be displayed on the graphic device).
 }
 \description{
-This function performs Receiver Operating Characteristic (ROC) analysis of samples of targets based on the expression data.
+This function performs Receiver Operating Characteristic (ROC) analysis of samples of genes based on the expression data.
 This analysis could be useful to further examine performance of samples classification into groups using gene expression data.
 }
 \examples{
@@ -67,12 +67,12 @@ library(tidyverse)
 library(pROC)
 data(data.Ct)
 data.CtF <- filter_Ct(data.Ct,
-                      remove.Target = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+                      remove.gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
                       remove.Sample = c("Control08","Control16","Control22"))
 data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
 data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
 data.dCt.expF <- filter_transformed_data(data.dCt.exp, remove.Sample = c("Control11"))
-roc_parameters <- ROCh(data.dCt, sel.Target = c("Gene1","Gene16","Gene19","Gene20"),
+roc_parameters <- ROCh(data.dCt, sel.genes = c("Gene1","Gene16","Gene19","Gene20"),
                        groups = c("Disease","Control"),
                        panels.row = 2,
                        panels.col = 2)

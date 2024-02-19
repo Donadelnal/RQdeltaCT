@@ -12,13 +12,13 @@ control_Ct_barplot_sample(
   colors = c("#66c2a5", "#fc8d62"),
   x.axis.title = "",
   y.axis.title = "Number",
-  axis.title.size = 12,
+  axis.title.size = 11,
   axis.text.size = 10,
   plot.title = "",
   plot.title.size = 14,
   legend.title = "Reliable Ct value?",
-  legend.title.size = 12,
-  legend.text.size = 12,
+  legend.title.size = 11,
+  legend.text.size = 11,
   legend.position = "top",
   save.to.tiff = FALSE,
   dpi = 600,
@@ -29,7 +29,7 @@ control_Ct_barplot_sample(
 }
 \arguments{
 \item{data}{object returned from read_Ct_long() or read_Ct_wide() function,
-or data frame containing column named "Sample" with sample names, column named "Target" with target names,
+or data frame containing column named "Sample" with sample names, column named "gene" with gene names,
 column named "Ct" with raw Ct values, and column named "Group" with group names.
 Optionally, data frame could contain column named "Flag" with flag information (ex. "Undetermined" and "OK"), which will be used for reliability assessment.}
 

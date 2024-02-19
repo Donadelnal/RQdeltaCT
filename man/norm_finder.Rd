@@ -4,12 +4,17 @@
 \alias{norm_finder}
 \title{norm_finder}
 \usage{
-norm_finder(data, candidates)
+norm_finder(
+  data,
+  candidates,
+  save.to.txt = FALSE,
+  name.txt = "NormFinder_results"
+)
 }
 \arguments{
 \item{data}{object returned from make_Ct_ready() functions.}
 
-\item{candidates}{character: vector of names of targets - candidates for reference gene.}
+\item{candidates}{character: vector of names of genes - candidates for reference gene.}
 
 \item{save.to.txt}{logical: if TRUE, returned table with results will be saved to .txt file. Default to FALSE.}
 
@@ -26,7 +31,7 @@ This function is internally used by `RQdeltaCT::find_ref_gene()` function and do
 library(tidyverse)
 data(data.Ct)
 data.CtF <- filter_Ct(data.Ct,
-                      remove.Target = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+                      remove.gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
                       remove.Sample = c("Control08","Control16","Control22"))
 data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
 reference.stability.nF <- norm_finder(data.CtF.ready,

@@ -11,11 +11,11 @@ control_boxplot_sample(
   colors = c("#66c2a5", "#fc8d62"),
   x.axis.title = "Sample",
   y.axis.title = "value",
-  axis.title.size = 12,
+  axis.title.size = 11,
   axis.text.size = 12,
   legend.title = "Group",
-  legend.title.size = 12,
-  legend.text.size = 12,
+  legend.title.size = 11,
+  legend.text.size = 11,
   legend.position = "right",
   plot.title = "",
   plot.title.size = 14,
@@ -76,7 +76,7 @@ Boxplot illustrating distribution of data in each sample. Could be useful to ide
 library(tidyverse)
 data(data.Ct)
 data.CtF <- filter_Ct(data.Ct,
-                      remove.Target = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+                      remove.gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
                       remove.Sample = c("Control08","Control16","Control22"))
 data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
 data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")

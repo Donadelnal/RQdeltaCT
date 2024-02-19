@@ -4,13 +4,7 @@
 \alias{delta_Ct}
 \title{delta_Ct}
 \usage{
-delta_Ct(
-  data,
-  imput.by.mean.within.groups = TRUE,
-  ref,
-  save.to.txt = FALSE,
-  name.txt = "data_dCt"
-)
+delta_Ct(data, ref, save.to.txt = FALSE, name.txt = "data_dCt")
 }
 \arguments{
 \item{data}{data object returned from make_Ct_ready function,}
@@ -31,7 +25,7 @@ This function calculates delta Ct (dCt) values by subtracting Ct values of refer
 library(tidyverse)
 data(data.Ct)
 data.CtF <- filter_Ct(data.Ct,
-                      remove.Target = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+                      remove.gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
                       remove.Sample = c("Control08","Control16","Control22"))
 data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
 data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")

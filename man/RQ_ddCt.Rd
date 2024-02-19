@@ -34,11 +34,11 @@ Performs relative quantification of gene expression using 2^(-ddCt) method.
 }
 \details{
 This function calculates:
-* Means (return in columns with "_mean" pattern) and standard deviations (return in columns with "_sd" pattern) of delta Ct values of analyzed targets across compared groups.
-* Normality tests (Shapiro_Wilk test) of delta Ct values of analyzed targets across compared groups and returned p values in columns with "_norm_p" pattern.
-* Differences in mean delta Ct values of targets between compared groups, obtaining delta delta Ct values (in returned "ddCt" column).
+* Means (return in columns with "_mean" pattern) and standard deviations (return in columns with "_sd" pattern) of delta Ct values of analyzed genes across compared groups.
+* Normality tests (Shapiro_Wilk test) of delta Ct values of analyzed genes across compared groups and returned p values in columns with "_norm_p" pattern.
+* Differences in mean delta Ct values of genes between compared groups, obtaining delta delta Ct values (in returned "ddCt" column).
 * Fold change values (return in "FCh" column) together with log10 Fold change values (return in "log10FCh" column).
-  Fold change values are calculated for each target by exponentiating ddCt values using 2^-ddCt formula.
+  Fold change values are calculated for each gene by exponentiating ddCt values using 2^-ddCt formula.
 * Statistical testing of delta delta Ct values (differences between study group and reference group).
   Student's t test and Mann-Whitney U test are implemented and resulted statistics (in column with "_test_stat" pattern) and p values (in column with "_test_p" pattern) are returned.
 }
@@ -47,7 +47,7 @@ library(tidyverse)
 library(coin)
 data(data.Ct)
 data.CtF <- filter_Ct(data.Ct,
-                      remove.Target = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+                      remove.gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
                       remove.Sample = c("Control08","Control16","Control22"))
 data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
 data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")

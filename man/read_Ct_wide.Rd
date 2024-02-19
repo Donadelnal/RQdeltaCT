@@ -7,8 +7,8 @@
 read_Ct_wide(path.Ct.file, path.design.file, sep, dec)
 }
 \arguments{
-\item{path.Ct.file}{path to wide-format table in .txt format containing Ct values, target names in the first column, and
-sample names in the first row. In other words, this table should contain targets by rows and samples by columns.}
+\item{path.Ct.file}{path to wide-format table in .txt format containing Ct values, gene names in the first column, and
+sample names in the first row. In other words, this table should contain genes by rows and samples by columns.}
 
 \item{path.design.file}{path to .txt file with two columns: column named "Sample" with names of samples
 and column named "Group" with names of groups assigned to samples. Names of samples in this file

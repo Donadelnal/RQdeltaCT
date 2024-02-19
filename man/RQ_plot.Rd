@@ -11,7 +11,7 @@ RQ_plot(
   p.threshold = 0.05,
   use.log10FCh = FALSE,
   log10FCh.threshold = 0,
-  sel.Target = "all",
+  sel.genes = "all",
   bar.width = 0.8,
   signif.show = TRUE,
   signif.labels,
@@ -24,11 +24,11 @@ RQ_plot(
   colors = c("#66c2a5", "#fc8d62"),
   x.axis.title = "",
   y.axis.title = "log10(Fold change)",
-  axis.title.size = 12,
+  axis.title.size = 11,
   axis.text.size = 10,
-  legend.text.size = 12,
+  legend.text.size = 11,
   legend.title = "Selected as significant?",
-  legend.title.size = 12,
+  legend.title.size = 11,
   legend.position = "top",
   plot.title = "",
   plot.title.size = 14,
@@ -49,7 +49,7 @@ RQ_plot(
 values from Student's t test will be used for significance assessment, otherwise p values from Mann-Whitney U test will be used for significance assessment).
 There is one more option, if user intend to use another p values, ex. obtained from other statistical test,
 a mode parameter could be set to "user". In this situation, before run RQ_plot function, user should to prepare
-data.frame object names "user"with two columns, one named "Target" with Target names and second with p values. The order of columns must be kept as described.}
+data.frame object names "user"with two columns, one named "gene" with gene names and second with p values. The order of columns must be kept as described.}
 
 \item{p.threshold}{numeric: threshold of p values for statistical significance.}
 
@@ -57,14 +57,14 @@ data.frame object names "user"with two columns, one named "Target" with Target n
 
 \item{log10FCh.threshold}{numeric: threshold of log10 fold change values used for significance assessment of genes.}
 
-\item{sel.Target}{character vector with names of targets to include, or "all" (default) to use all names of targets.}
+\item{sel.genes}{character vector with names of genes to include, or "all" (default) to use all names of genes.}
 
 \item{bar.width}{numeric: width of bars.}
 
 \item{signif.show}{logical: if TRUE, labels for statistical significance will be added to the plot.}
 
 \item{signif.labels}{character vector with statistical significance labels (ex. "ns.","***", etc.) with number
-of elements equal to nimber of targets used for plotting.
+of elements equal to nimber of genes used for plotting.
 The ggsignif package was used for convenient adding labels, but there is one tricky point:
 the same elements of labels can not be handled by used package and must be different.
 It could be achieved by adding symmetrically white spaces to repeated labels, ex. "ns.", " ns. ", "  ns.  ".}
@@ -82,7 +82,7 @@ Could be in y axis units (if `faceting` = TRUE) or fraction of y axis value reac
 
 \item{colors}{character vector length of one (when use.p = FALSE) or two (when use.p = TRUE), containing colors for significant and no significant genes.}
 
-\item{x.axis.title}{character: title of x axis. Default to "Target".}
+\item{x.axis.title}{character: title of x axis. Default to "gene".}
 
 \item{y.axis.title}{character: title of y axis. Default to "value".}
 
@@ -125,7 +125,7 @@ library(signif)
 library(tidyverse)
 data(data.Ct)
 data.CtF <- filter_Ct(data.Ct,
-                      remove.Target = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+                      remove.gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
                       remove.Sample = c("Control08","Control16","Control22"))
 data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
 data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
@@ -144,8 +144,8 @@ head(RQ.plot[[2]])
 
 # with user p values - in this example used p values are calculated using stats::wilcox.test() function:
 user <- data.dCt \%>\%
-pivot_longer(cols = -c(Group, Sample), names_to = "Target", values_to = "dCt") \%>\%
-  group_by(Target) \%>\%
+pivot_longer(cols = -c(Group, Sample), names_to = "gene", values_to = "dCt") \%>\%
+  group_by(gene) \%>\%
   summarise(MW_test_p = wilcox.test(dCt ~ Group)$p.value, .groups = "keep")
 
 RQ.plot <- RQ_plot(RQ.ddCt,

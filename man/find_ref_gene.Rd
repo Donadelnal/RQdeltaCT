@@ -13,11 +13,11 @@ find_ref_gene(
   angle = 0,
   x.axis.title = "",
   y.axis.title = "Ct",
-  axis.title.size = 12,
+  axis.title.size = 11,
   axis.text.size = 10,
   legend.title = "",
-  legend.title.size = 12,
-  legend.text.size = 12,
+  legend.title.size = 11,
+  legend.text.size = 11,
   legend.position = "top",
   plot.title = "",
   plot.title.size = 14,
@@ -33,9 +33,9 @@ find_ref_gene(
 
 \item{groups}{character vector length of two with names of compared groups}
 
-\item{candidates}{character: vector of names of targets - candidates for gene reference.}
+\item{candidates}{character: vector of names of genes - candidates for gene reference.}
 
-\item{colors}{character: vector of colors for targets, number of elements should be equal to number of candidate genes (elements in `candidates` vector).}
+\item{colors}{character: vector of colors for genes, number of elements should be equal to number of candidate genes (elements in `candidates` vector).}
 
 \item{line.width}{numeric: width of lines drawn in the plot. Default to 1.}
 
@@ -87,12 +87,12 @@ library(ctrlGene)
 library(tidyverse)
 data(data.Ct)
 data.CtF <- filter_Ct(data.Ct,
-                      remove.Target = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
-                      remove.Sample = c("Control08","Control16","Control22"))
+                       remove.gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+                       remove.Sample = c("Control08","Control16","Control22"))
 data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
 ref <- find_ref_gene(data.CtF.ready, groups = c("Disease","Control"),
-                         candidates = c("Gene4", "Gene8","Gene10","Gene16","Gene17", "Gene18"),
-                         col = c("#66c2a5", "#fc8d62","#6A6599", "#D62728", "#1F77B4", "black"))
+                          candidates = c("Gene4", "Gene8","Gene10","Gene16","Gene17", "Gene18"),
+                          col = c("#66c2a5", "#fc8d62","#6A6599", "#D62728", "#1F77B4", "black"))
 ref[[2]]
 
 }

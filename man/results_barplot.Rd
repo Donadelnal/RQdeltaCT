@@ -6,7 +6,7 @@
 \usage{
 results_barplot(
   data,
-  sel.Target = "all",
+  sel.genes = "all",
   bar.width = 0.8,
   signif.show = TRUE,
   signif.labels,
@@ -22,11 +22,11 @@ results_barplot(
   colors = c("#66c2a5", "#fc8d62"),
   x.axis.title = "",
   y.axis.title = "value",
-  axis.title.size = 12,
+  axis.title.size = 11,
   axis.text.size = 10,
-  legend.text.size = 12,
+  legend.text.size = 11,
   legend.title = "Group",
-  legend.title.size = 12,
+  legend.title.size = 11,
   legend.position = "top",
   plot.title = "",
   plot.title.size = 14,
@@ -40,14 +40,14 @@ results_barplot(
 \arguments{
 \item{data}{object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.}
 
-\item{sel.Target}{character vector with names of targets to include, or "all" (default) to use all names of targets.}
+\item{sel.genes}{character vector with names of genes to include, or "all" (default) to use all names of genes.}
 
 \item{bar.width}{numeric: width of bars.}
 
 \item{signif.show}{logical: if TRUE, labels for statistical significance will be added to the plot.}
 
 \item{signif.labels}{character vector with statistical significance labels (ex. "ns.","***", etc.) with number
-of elements equal to nimber of targets used for plotting.
+of elements equal to nimber of genes used for plotting.
 The ggsignif package was used for convenient adding labels, but there is one tricky point:
 the same elements of labels can not be handled by used package and must be different.
 It could be achieved by adding symmetrically white spaces to repeated labels, ex. "ns.", " ns. ", "  ns.  ".}
@@ -69,7 +69,7 @@ Could be in y axis units (if `faceting` = TRUE) or fraction of y axis value reac
 
 \item{colors}{character vector length of one (when by.group = FALSE) or two (when by.group = TRUE), containing colors for groups.}
 
-\item{x.axis.title}{character: title of x axis. Default to "Target".}
+\item{x.axis.title}{character: title of x axis. Default to "gene".}
 
 \item{y.axis.title}{character: title of y axis. Default to "value".}
 
@@ -101,26 +101,26 @@ See description for legend.position in ggplot2::theme() function.}
 \item{name.tiff}{character: name of saved .tiff file, without ".tiff" name of extension. Default to "results_boxplot".}
 }
 \value{
-Object with boxplot illustrating distribution of data for selected targets. Created plot will be also displayed on graphic device.
+Object with boxplot illustrating distribution of data for selected genes. Created plot will be also displayed on graphic device.
 }
 \description{
-This function creates a barplot illustrating mean and sd values of each target.
+This function creates a barplot illustrating mean and sd values of each gene.
 Faceting and adding custom labels of statistical significance is possible.
-This function could be useful to present results for finally selected targets.
+This function could be useful to present results for finally selected genes.
 }
 \examples{
 library(ggsignif)
 library(tidyverse)
 data(data.Ct)
 data.CtF <- filter_Ct(data.Ct,
-                      remove.Target = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+                      remove.gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
                       remove.Sample = c("Control08","Control16","Control22"))
 data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
 data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
 data.dCt.exp <- exp_delta_Ct(data.dCt)
 data.dCt.expF <- filter_transformed_data(data.dCt.exp, remove.Sample = c("Control11"))
 results_barplot(data.dCt.exp,
-                sel.Target = c("Gene1","Gene16","Gene19","Gene20"),
+                sel.genes = c("Gene1","Gene16","Gene19","Gene20"),
                 signif.labels = c("****","*","***"," * "),
                 angle = 30,
                 signif.dist = 1.05,

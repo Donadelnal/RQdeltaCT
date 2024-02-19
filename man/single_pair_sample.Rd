@@ -12,7 +12,7 @@ single_pair_sample(
   point.shape = 19,
   point.alpha = 0.7,
   color = "black",
-  axis.title.size = 12,
+  axis.title.size = 11,
   axis.text.size = 10,
   plot.title = "",
   plot.title.size = 14,
@@ -34,7 +34,7 @@ single_pair_sample(
 \arguments{
 \item{data}{object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.}
 
-\item{x, y}{characters: names of targets to use.}
+\item{x, y}{characters: names of genes to use.}
 
 \item{point.size}{numeric: size of points.}
 
@@ -83,7 +83,7 @@ library(tidyverse)
 library(ggpmisc)
 data(data.Ct)
 data.CtF <- filter_Ct(data.Ct,
-                      remove.Target = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+                      remove.gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
                       remove.Sample = c("Control08","Control16","Control22"))
 data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
 data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")

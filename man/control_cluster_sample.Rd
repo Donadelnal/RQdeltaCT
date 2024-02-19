@@ -33,7 +33,7 @@ control_cluster_sample(
 
 \item{y.axis.title}{character: title of y axis. Default to "Height".}
 
-\item{label.size}{numeric: size of text labels. Defaault to 1.}
+\item{label.size}{numeric: size of text labels. Default to 1.}
 
 \item{plot.title}{character: title of plot. Default to "".}
 
@@ -57,7 +57,7 @@ Performs hierarchical clustering of samples based on the data. Could be useful t
 library(tidyverse)
 data(data.Ct)
 data.CtF <- filter_Ct(data.Ct,
-                      remove.Target = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+                      remove.gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
                       remove.Sample = c("Control08","Control16","Control22"))
 data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
 data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")

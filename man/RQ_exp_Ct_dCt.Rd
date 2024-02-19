@@ -46,9 +46,9 @@ library(tidyverse)
 library(coin)
 data(data.Ct)
 data.CtF <- filter_Ct(data.Ct,
-                      remove.Gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
-                      remove.Sample = c("Control08","Control16","Control22"))
-data.CtF.ready <- make_Ct_ready(data.CtF)
+                     remove.Gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+                     remove.Sample = c("Control08","Control16","Control22"))
+data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
 data.Ct.exp <- exp_Ct_dCt(data.CtF.ready)
 RQ.Ct.exp <- RQ_exp_Ct_dCt(data.Ct.exp, group.study = "Disease", group.ref = "Control")
 head(RQ.Ct.exp)

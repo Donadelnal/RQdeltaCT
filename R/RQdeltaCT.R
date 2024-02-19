@@ -590,9 +590,9 @@ exp_Ct_dCt <- function(data,
 #' library(coin)
 #' data(data.Ct)
 #' data.CtF <- filter_Ct(data.Ct,
-#'                       remove.Gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
-#'                       remove.Sample = c("Control08","Control16","Control22"))
-#' data.CtF.ready <- make_Ct_ready(data.CtF)
+#'                      remove.Gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+#'                      remove.Sample = c("Control08","Control16","Control22"))
+#' data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
 #' data.Ct.exp <- exp_Ct_dCt(data.CtF.ready)
 #' RQ.Ct.exp <- RQ_exp_Ct_dCt(data.Ct.exp, group.study = "Disease", group.ref = "Control")
 #' head(RQ.Ct.exp)
@@ -2377,6 +2377,7 @@ results_boxplot <- function(data,
 
     box_results <- ggplot(data, aes(x = Gene, y = value)) +
       geom_boxplot(coef = coef, fill = colors[1]) +
+      theme(axis.text.x = element_text(size = axis.text.size, colour = "black")) +
       labs(title = plot.title)
 
     if (faceting == TRUE) {
@@ -2392,7 +2393,7 @@ results_boxplot <- function(data,
     ylab(y.axis.title) +
     theme_bw() +
     theme(legend.position = legend.position) +
-    theme(axis.text = element_text(size = axis.text.size, colour = "black")) +
+    theme(axis.text.y = element_text(size = axis.text.size, colour = "black")) +
     theme(axis.title = element_text(size = axis.title.size, colour="black")) +
     theme(legend.text = element_text(size = legend.text.size, colour="black")) +
     theme(legend.title = element_text(size = legend.title.size, colour="black")) +

@@ -2,7 +2,7 @@
 title: "RQdeltaCT - relative quantification of gene expression using delta Ct methods"
 output: rmarkdown::html_vignette
 author: "Daniel Zalewski daniel.piotr.zalewski@gmail.com"
-date: "16 February 2024"
+date: "19 February 2024"
 vignette: >
   %\VignetteIndexEntry{RQdeltaCT - relative quantification of gene expression using delta Ct methods}
   %\VignetteEngine{knitr::rmarkdown}
@@ -38,7 +38,7 @@ Functions developed within `RQdeltaCT` package are designed to be maximally easy
 
 The summary of standard workflow, including function names and data flow was presented below:  
 
-```{r echo=FALSE, out.width="600px", dpi = 600, fig.align="center", warning=FALSE, message=FALSE, cache=FALSE}
+```{r echo=FALSE, out.width="650px", dpi = 600, fig.align="center", warning=FALSE, message=FALSE, cache=FALSE}
 library(here)
 knitr::include_graphics(file.path(here::here(),"vignettes", "figure", "figure1ok.png"))
 
@@ -185,7 +185,7 @@ data.Ct.wide <- read.csv(file = "data/data.Ct.wide.vign.txt",
                          sep = ",")
 str(data.Ct.wide)
 
-# Imported table is now transformed to long-format structure. X colimn is unnecessary and is removed. All variables are converted to character to unify class of variables.
+# Imported table is now transformed to long-format structure. X column is unnecessary and is removed. All variables are converted to character to unify class of variables.
 library(tidyverse)
 data.Ct <- data.Ct.wide %>%
              select(-X) %>%
@@ -195,12 +195,13 @@ str(data.Ct)
 ```
 **NOTE:** At this stage, Ct values do not have to be numeric.
 
-**NOTE:** Of course, data can be imported to R using user own code, but the final object must be data frame and contain table with column named "Sample" with sample names, column named "Gene" with gene names, column named "Ct" with raw Ct values, column named "Group" with groups names, and optionally column named "Flag" that contain flag information (this column should be class of character or factor).
+**NOTE:** Data can be also imported to R using user own code, but the final object must be data frame and contain table with column named "Sample" with sample names, column named "Gene" with gene names, column named "Ct" with raw Ct values, column named "Group" with groups names, and optionally column named "Flag" that contain flag information (this column should be class of character or factor).
+
 ---
 
 For package testing purpose, there is also a convenient possibility to use data object included in `RQdeltaCT` package, named `data.Ct`:
 
-```{r, cache=FALSE}
+```{r cache=FALSE}
 data(data.Ct)
 str(data.Ct)
 ```
@@ -221,7 +222,7 @@ Three selection criteria can be set in these functions:
 
 An example of using these functions are provided below:
 
-```{r cache=FALSE}
+```{r fig.dim=c(7.1,7), cache=FALSE}
 sample.Ct.control <- control_Ct_barplot_sample(data = data.Ct,
                                                flag.Ct = "Undetermined",
                                                maxCt = 35,
@@ -231,6 +232,9 @@ sample.Ct.control <- control_Ct_barplot_sample(data = data.Ct,
                                                plot.title.size = 9,
                                                legend.title.size = 9,
                                                legend.text.size = 9)
+
+```
+```{r fig.dim=c(7.1,5.5), cache=FALSE}
 gene.Ct.control <- control_Ct_barplot_gene(data = data.Ct,
                                                flag.Ct = "Undetermined",
                                                maxCt = 35,
@@ -241,6 +245,7 @@ gene.Ct.control <- control_Ct_barplot_gene(data = data.Ct,
                                                legend.title.size = 9,
                                                legend.text.size = 9)
 ```
+
 
 Created plots are displayed on the graphic device, and short information about returned tables appears. Returned objects are lists that contain two elements: object with plot and table with numbers of Ct values labeled as reliable (Yes) and unreliable (No), as well as fraction of unreliable Ct values in each gene. In order to easy identify samples or genes with low quality, tables are sorted by descending number of unreliable values. To access returned tables, the second element of returned objects should be called:
 
@@ -321,7 +326,7 @@ as.data.frame(data.CtF.ready)[19:25,]
 
 **NOTE:** The data imputation process can significantly influence data; therefore, no default value was set to `imput.by.mean.within.groups` parameter to force specification by user.  
 
-In general, a majority of functions in `RQdeltaCT` package can deal with missing data; however, some used methods are sensitive to missing data, including VIF calculating in `find_ref_gene()` (see [Reference gene selection] section), PCA analysis (see [PCA analysis] section),   
+In general, a majority of functions in `RQdeltaCT` package can deal with missing data; however, some used methods are sensitive to missing data, including VIF calculating in `find_ref_gene()` (see [Reference gene selection] section) and PCA analysis (see [PCA analysis] section).
 
 **NOTE:** The `make_Ct_ready()` function should be used even if the collapsing of technical replicates and data imputation is not required, because this function also prepare data structure to fit to further functions.  
 
@@ -352,7 +357,7 @@ RQ.Ct.exp <- RQ_exp_Ct_dCt(data = data.Ct.exp,
                            group.ref = "Control")
 
 # Obtained table can be sorted by, e.g. p values from Mann-Whitney U test:
-head(as.data.frame(arrange(RQ.Ct.exp, mw_test_p)))
+head(as.data.frame(arrange(RQ.Ct.exp, MW_test_p)))
 ```
 **NOTE:** Both used functions are also used to analyze transformed delta Ct data (see [Relative quantification: 2^-dCt^ method]).
 
@@ -369,7 +374,7 @@ Due to different resistance to data characteristics, `norm_finder()` function al
 
 * VIF score is the most sensitive: it could be calculate for only two groups of samples, missing data could interfere correlation results (e.g. warning "In cov2cor(v) : diag(.) had 0 or NA entries; non-finite result is doubtful" can appear), and in the case of perfect correlation between genes, error "Error in vif.default(model) : there are aliased coefficients in the model" will be displayed and process will stop (it could especially occur when a low number samples is analyzed). In such a situation, `vif.score` should be set to FALSE.
 * NormFinder algorithm is calculated on data with missing values and more than three groups, but at least two samples must be in each group.
-*geNorm is free of limitations above.
+* geNorm is free of limitations above.
 
 Created plot is displayed on the graphic device. Returned object is a lists that contain two elements: object with plot and table with results. In example below, 6 genes are tested for suitability to be a reference gene: 
 
@@ -382,8 +387,11 @@ ref <- find_ref_gene(data = data.CtF.ready,
                      candidates = c("Gene4", "Gene8","Gene10","Gene16","Gene17", "Gene18"),
                      col = c("#66c2a5", "#fc8d62","#6A6599", "#D62728", "#1F77B4", "black"),
                      angle = 60,
-                     axis.text.size = 7)
-head(ref[[2]])
+                     axis.text.size = 7,
+                     vif.score = TRUE,
+                     norm.finder.score = TRUE,
+                     genorm.score = TRUE)
+ref[[2]]
 ```
 Among tested genes, Gene8, Gene16, Gene17, and Gene18 seems to have the best characteristics to be a reference gene (they have low variance, high VIF values, and low NormFinder and geNorm scores).
 
@@ -416,7 +424,7 @@ RQ.dCt.exp <- RQ_exp_Ct_dCt(data = data.dCt.exp,
                             group.ref = "Control")
 
 # Obtained table can be sorted by, e.g. p values from Mann-Whitney U test:
-head(as.data.frame(arrange(RQ.dCt.exp, mw_test_p)))
+head(as.data.frame(arrange(RQ.dCt.exp, MW_test_p)))
 ```
 
 ---
@@ -445,7 +453,7 @@ RQ.ddCt <- RQ_ddCt(data = data.dCt,
                    do.tests = TRUE)
 
 # Obtained table can be sorted by, e.g. p values from Mann-Whitney U test:
-head(as.data.frame(arrange(RQ.ddCt, mw_test_p)))
+head(as.data.frame(arrange(RQ.ddCt, MW_test_p)))
 ```
 
 ---
@@ -486,8 +494,9 @@ control_cluster_sample(data = data.dCt,
                        method.clust = "average",
                        label.size = 0.6)
 control_cluster_gene(data = data.dCt,
-                       method.dist = "euclidean",
-                       method.clust = "average")
+                     method.dist = "euclidean",
+                     method.clust = "average",
+                     label.size = 0.8)
 ```
 
 Created plots are displayed on the graphic device.
@@ -498,12 +507,13 @@ Created plots are displayed on the graphic device.
 
 Principal component analysis (PCA) is a data exploratory method, which is commonly used to investigate similarities between variables based on first principal components that contain the most information about variance. In the `RQdeltaCT` package, `control_pca_sample()` and `control_pca_gene()` functions are developed to perform PCA analysis for samples and genes, respectively. These functions return objects with plot. Created plots are also displayed on the graphic device.
 
-```{r fig.dim=c(6.1,5)}
+```{r fig.dim=c(5,5.5), fig.align='center', cache=FALSE}
 control.pca.sample <- control_pca_sample(data = data.dCt,
                                          point.size = 3,
-                                         label.size = 2.5)
+                                         label.size = 2.5,
+                                         legend.position = "top")
 ```
-```{r fig.dim=c(5.5,5), cache = TRUE}
+```{r fig.dim=c(5,5), fig.align='center', cache=FALSE}
 control.pca.gene <- control_pca_gene(data = data.dCt)
 ```
 
@@ -555,7 +565,7 @@ Created plots are displayed on the graphic device. Returned objects are a lists 
 # Variant with p values depending on data normality:
 library(ggsignif)
 # Specifying vector with significance labels: 
-signif.labels <- c("****","**","ns."," ns. ","  ns.  ","   ns.   ","    ns.    ","     ns.     ","      ns.      ","       ns.       ","        ns.        ","         ns.         ","          ns.          ","***")
+signif.labels <- c("****","**","ns."," ns. ","  ns.  ","   ns.   ","    ns.    ","     ns.     ","      ns.      ","       ns.       ","        ns.        ","         ns.         ","          ns.          ","           ns.           ","***")
 # Genes with p < 0.05 and 2-fold changed expression between compared groups are considered as significant: 
 RQ.plot <- RQ_plot(data = RQ.ddCt,
                    use.p = TRUE,
@@ -565,7 +575,7 @@ RQ.plot <- RQ_plot(data = RQ.ddCt,
                    log10FCh.threshold = 0.30103,
                    signif.show = TRUE,
                    signif.labels = signif.labels,
-                   angle = 30)
+                   angle = 20)
 # Access table with results:
 head(as.data.frame(RQ.plot[[2]]))
 ```
@@ -604,7 +614,7 @@ This function creates a boxplot illustrating distribution of data for genes. It 
 
 Data objects returned from `make_Ct_ready()`, `exp_Ct_dCt()` and `delta_Ct() functions` can be directly applied to this function (see [The summary of standard workflow]).
 
-```{r fig.dim=c(5,5), fig.align='center', cache=FALSE}
+```{r fig.dim=c(5,4.5), fig.align='center', cache=FALSE}
 final_boxplot <- results_boxplot(data = data.dCtF,
                                  sel.Gene = c("Gene1","Gene12", "Gene16","Gene19"),
                                  by.group = TRUE,
@@ -615,7 +625,7 @@ final_boxplot <- results_boxplot(data = data.dCtF,
                                  facet.row = 1,
                                  facet.col = 4,
                                  y.exp.up = 0.1,
-                                 angle = 30,
+                                 angle = 20,
                                  y.axis.title = "dCt")
 ```
 
@@ -623,11 +633,11 @@ final_boxplot <- results_boxplot(data = data.dCtF,
 
 #### The `results_barplot()` function
 
-This function creates a barplot illustrating mean and sd values of data for all or selected genes.
+This function creates a barplot illustrating mean and standard deviation values of data for all or selected genes.
 
 Data objects returned from `make_Ct_ready()`, `exp_Ct_dCt()` and `delta_Ct() functions` can be directly applied to this function (see [The summary of standard workflow]).
 
-```{r fig.dim=c(5,5), fig.align='center', cache=FALSE}
+```{r fig.dim=c(5,4.5), fig.align='center', cache=FALSE}
 final_barplot <- results_barplot(data = data.dCtF,
                                  sel.Gene = c("Gene1","Gene12","Gene19","Gene20"),
                                  signif.show = TRUE,
@@ -698,7 +708,7 @@ Disease6_Control17 <- single_pair_sample(data = data.dCt,
                                          label = c("eq", "R2", "p"),
                                          label.position.x = 0.05)
 ```
-```{r fig.dim=c(4.5,4.5), fig.align='center', cache=FALSE}
+```{r fig.dim=c(5,4.5), fig.align='center', cache=FALSE}
 library(ggpmisc)
 Gene16_Gene17 <- single_pair_gene(data.dCt,
                                     x = "Gene16",

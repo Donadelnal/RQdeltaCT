@@ -11,7 +11,8 @@ LazyData: true
 RoxygenNote: 7.2.3
 Depends: 
     R (>= 2.10),
-    tidyverse,
+    tidyverse
+Suggests: 
     coin,
     car,
     ctrlGene,
@@ -20,8 +21,7 @@ Depends:
     corrplot,
     ggpmisc,
     pROC,
-    oddsratio
-Suggests: 
+    oddsratio,
     knitr,
     rmarkdown,
     testthat (>= 3.0.0)

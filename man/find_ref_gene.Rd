@@ -9,6 +9,9 @@ find_ref_gene(
   groups,
   candidates,
   colors,
+  vif.score = FALSE,
+  norm.finder.score = FALSE,
+  genorm.score = FALSE,
   line.width = 1,
   angle = 0,
   x.axis.title = "",
@@ -36,6 +39,12 @@ find_ref_gene(
 \item{candidates}{character: vector of names of genes - candidates for gene reference.}
 
 \item{colors}{character: vector of colors for genes, number of elements should be equal to number of candidate genes (elements in `candidates` vector).}
+
+\item{vif.score}{logical: if TRUE, VIF colinearity coefficient will be calculated.}
+
+\item{norm.finder.score}{logical: if TRUE, NormFinder stability score will be calculated.}
+
+\item{genorm.score}{logical: if TRUE, geNorm stability score will be calculated.}
 
 \item{line.width}{numeric: width of lines drawn in the plot. Default to 1.}
 
@@ -87,12 +96,16 @@ library(ctrlGene)
 library(tidyverse)
 data(data.Ct)
 data.CtF <- filter_Ct(data.Ct,
-                       remove.gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+                       remove.Gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
                        remove.Sample = c("Control08","Control16","Control22"))
 data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
-ref <- find_ref_gene(data.CtF.ready, groups = c("Disease","Control"),
-                          candidates = c("Gene4", "Gene8","Gene10","Gene16","Gene17", "Gene18"),
-                          col = c("#66c2a5", "#fc8d62","#6A6599", "#D62728", "#1F77B4", "black"))
+ref <- find_ref_gene(data.CtF.ready,
+                     groups = c("Disease","Control"),
+                     candidates = c("Gene4", "Gene8","Gene10","Gene16","Gene17", "Gene18"),
+                     col = c("#66c2a5", "#fc8d62","#6A6599", "#D62728", "#1F77B4", "black"),
+                     vif.score = TRUE,
+                     norm.finder.score = TRUE,
+                     genorm.score = TRUE)
 ref[[2]]
 
 }

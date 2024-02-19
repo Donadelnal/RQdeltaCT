@@ -6,7 +6,7 @@
 \usage{
 log_reg(
   data,
-  sel.genes = "all",
+  sel.Gene = "all",
   group.study,
   group.ref,
   centerline = 1,
@@ -34,7 +34,7 @@ log_reg(
 \arguments{
 \item{data}{object returned from exp_Ct_dCt() or delta_Ct() functions.}
 
-\item{sel.genes}{character vector with names of genes to include, or "all" (default) to use all names of genes.}
+\item{sel.Gene}{character vector with names of genes to include, or "all" (default) to use all names of genes.}
 
 \item{group.study}{character: name of study group (group of interest).}
 
@@ -46,7 +46,7 @@ log_reg(
 
 \item{log.axis}{logical: if TRUE, axis with odds ratio values will be in log10 scale. If axis is in logarithmic scale, centerline parameter should be set to 0. Default ot FALSE.}
 
-\item{x.axis.title}{character: title of x axis. Default to "gene".}
+\item{x.axis.title}{character: title of x axis. Default to "Gene".}
 
 \item{y.axis.title}{character: title of y axis. Default to "value".}
 
@@ -92,13 +92,13 @@ library(tidyverse)
 library(oddsratio)
 data(data.Ct)
 data.CtF <- filter_Ct(data.Ct,
-                      remove.gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+                      remove.Gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
                       remove.Sample = c("Control08","Control16","Control22"))
 data.dCt <- delta_Ct(data.CtF,
                      imput.by.mean.within.groups = TRUE,
                      ref = "Gene8")
 log.reg.results <- log_reg(data.dCt,
-                            sel.genes = c("Gene1","Gene16","Gene19","Gene20"),
+                            sel.Gene = c("Gene1","Gene16","Gene19","Gene20"),
                             group.study = "Disease",
                             group.ref = "Control")
 }

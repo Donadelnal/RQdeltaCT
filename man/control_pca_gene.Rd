@@ -6,7 +6,7 @@
 \usage{
 control_pca_gene(
   data,
-  sel.genes = "all",
+  sel.Gene = "all",
   point.size = 4,
   point.shape = 19,
   alpha = 0.7,
@@ -32,7 +32,7 @@ control_pca_gene(
 \arguments{
 \item{data}{object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.}
 
-\item{sel.genes}{character vector with names of genes to include, or "all" (default) to use all names of genes.}
+\item{sel.Gene}{character vector with names of genes to include, or "all" (default) to use all names of genes.}
 
 \item{point.size}{numeric: size of points. Default to 4.}
 
@@ -86,7 +86,7 @@ IMPORTANT: PCA analysis can not deal with missing values, thus all genes with at
 library(tidyverse)
 data(data.Ct)
 data.CtF <- filter_Ct(data.Ct,
-                      remove.gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+                      remove.Gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
                       remove.Sample = c("Control08","Control16","Control22"))
 data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
 data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")

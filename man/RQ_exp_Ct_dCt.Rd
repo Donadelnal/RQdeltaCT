@@ -27,7 +27,7 @@ RQ_exp_Ct_dCt(
 \item{name.txt}{character: name of saved .txt file, without ".txt" name of extension. Default to "RQ_exp_results".}
 }
 \value{
-Data.frame with transformed Ct values and printed information about number and percentage of missing values.
+Data frame with transformed Ct values and printed information about number and percentage of missing values.
 }
 \description{
 Performs relative quantification of gene expression using 2^(-Ct) and 2^(-dCt) methods.
@@ -46,7 +46,7 @@ library(tidyverse)
 library(coin)
 data(data.Ct)
 data.CtF <- filter_Ct(data.Ct,
-                      remove.gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+                      remove.Gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
                       remove.Sample = c("Control08","Control16","Control22"))
 data.CtF.ready <- make_Ct_ready(data.CtF)
 data.Ct.exp <- exp_Ct_dCt(data.CtF.ready)

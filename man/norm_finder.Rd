@@ -31,7 +31,7 @@ This function is internally used by `RQdeltaCT::find_ref_gene()` function and do
 library(tidyverse)
 data(data.Ct)
 data.CtF <- filter_Ct(data.Ct,
-                      remove.gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+                      remove.Gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
                       remove.Sample = c("Control08","Control16","Control22"))
 data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
 reference.stability.nF <- norm_finder(data.CtF.ready,

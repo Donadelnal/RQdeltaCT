@@ -6,7 +6,7 @@
 \usage{
 results_barplot(
   data,
-  sel.genes = "all",
+  sel.Gene = "all",
   bar.width = 0.8,
   signif.show = TRUE,
   signif.labels,
@@ -40,7 +40,7 @@ results_barplot(
 \arguments{
 \item{data}{object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.}
 
-\item{sel.genes}{character vector with names of genes to include, or "all" (default) to use all names of genes.}
+\item{sel.Gene}{character vector with names of genes to include, or "all" (default) to use all names of genes.}
 
 \item{bar.width}{numeric: width of bars.}
 
@@ -67,9 +67,9 @@ Could be in y axis units (if `faceting` = TRUE) or fraction of y axis value reac
 
 \item{rotate}{logical: if TRUE, boxplots will be arranged horizontally. Deafault to FALSE.}
 
-\item{colors}{character vector length of one (when by.group = FALSE) or two (when by.group = TRUE), containing colors for groups.}
+\item{colors}{character vector length of one (when by.group = FALSE) or two (when by.group = TRUE), containing colors for groups. Numbers of colors must be equal to number of groups. Default to c("#66c2a5", "#fc8d62").}
 
-\item{x.axis.title}{character: title of x axis. Default to "gene".}
+\item{x.axis.title}{character: title of x axis. Default to "Gene".}
 
 \item{y.axis.title}{character: title of y axis. Default to "value".}
 
@@ -113,14 +113,14 @@ library(ggsignif)
 library(tidyverse)
 data(data.Ct)
 data.CtF <- filter_Ct(data.Ct,
-                      remove.gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+                      remove.Gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
                       remove.Sample = c("Control08","Control16","Control22"))
 data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
 data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
 data.dCt.exp <- exp_delta_Ct(data.dCt)
 data.dCt.expF <- filter_transformed_data(data.dCt.exp, remove.Sample = c("Control11"))
 results_barplot(data.dCt.exp,
-                sel.genes = c("Gene1","Gene16","Gene19","Gene20"),
+                sel.Gene = c("Gene1","Gene16","Gene19","Gene20"),
                 signif.labels = c("****","*","***"," * "),
                 angle = 30,
                 signif.dist = 1.05,

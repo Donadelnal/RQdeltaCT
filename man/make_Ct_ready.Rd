@@ -13,7 +13,7 @@ make_Ct_ready(
 }
 \arguments{
 \item{data}{data object returned from read_Ct_long(), read_Ct_wide() or filter_Ct() function,
-or data frame containing column named "Sample" with sample names, column named "gene" with gene names,
+or data frame containing column named "Sample" with sample names, column named "Gene" with gene names,
 column named "Ct" with raw Ct values (must be numeric), column named "Group" with group names. Any other columns could exist, but will not be used by this function.}
 
 \item{imput.by.mean.within.groups}{logical: if TRUE, missing values will be imputed by means within groups. This parameter could influence results, thus to draw more user attention on this parameter, no default value was set.}
@@ -33,7 +33,7 @@ These actions also prepare Ct data for control functions.
 library(tidyverse)
 data(data.Ct)
 data.CtF <- filter_Ct(data.Ct,
-                      remove.gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+                      remove.Gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
                       remove.Sample = c("Control08","Control16","Control22"))
 data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
 head(data.CtF.ready)

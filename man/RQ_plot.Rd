@@ -11,7 +11,7 @@ RQ_plot(
   p.threshold = 0.05,
   use.log10FCh = FALSE,
   log10FCh.threshold = 0,
-  sel.genes = "all",
+  sel.Gene = "all",
   bar.width = 0.8,
   signif.show = TRUE,
   signif.labels,
@@ -49,7 +49,7 @@ RQ_plot(
 values from Student's t test will be used for significance assessment, otherwise p values from Mann-Whitney U test will be used for significance assessment).
 There is one more option, if user intend to use another p values, ex. obtained from other statistical test,
 a mode parameter could be set to "user". In this situation, before run RQ_plot function, user should to prepare
-data.frame object names "user"with two columns, one named "gene" with gene names and second with p values. The order of columns must be kept as described.}
+data.frame object names "user"with two columns, one named "Gene" with Gene names and second with p values. The order of columns must be kept as described.}
 
 \item{p.threshold}{numeric: threshold of p values for statistical significance.}
 
@@ -57,7 +57,7 @@ data.frame object names "user"with two columns, one named "gene" with gene names
 
 \item{log10FCh.threshold}{numeric: threshold of log10 fold change values used for significance assessment of genes.}
 
-\item{sel.genes}{character vector with names of genes to include, or "all" (default) to use all names of genes.}
+\item{sel.Gene}{character vector with names of genes to include, or "all" (default) to use all names of genes.}
 
 \item{bar.width}{numeric: width of bars.}
 
@@ -82,7 +82,7 @@ Could be in y axis units (if `faceting` = TRUE) or fraction of y axis value reac
 
 \item{colors}{character vector length of one (when use.p = FALSE) or two (when use.p = TRUE), containing colors for significant and no significant genes.}
 
-\item{x.axis.title}{character: title of x axis. Default to "gene".}
+\item{x.axis.title}{character: title of x axis. Default to "Gene".}
 
 \item{y.axis.title}{character: title of y axis. Default to "value".}
 
@@ -125,7 +125,7 @@ library(signif)
 library(tidyverse)
 data(data.Ct)
 data.CtF <- filter_Ct(data.Ct,
-                      remove.gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+                      remove.Gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
                       remove.Sample = c("Control08","Control16","Control22"))
 data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
 data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
@@ -144,8 +144,8 @@ head(RQ.plot[[2]])
 
 # with user p values - in this example used p values are calculated using stats::wilcox.test() function:
 user <- data.dCt \%>\%
-pivot_longer(cols = -c(Group, Sample), names_to = "gene", values_to = "dCt") \%>\%
-  group_by(gene) \%>\%
+pivot_longer(cols = -c(Group, Sample), names_to = "Gene", values_to = "dCt") \%>\%
+  group_by(Gene) \%>\%
   summarise(MW_test_p = wilcox.test(dCt ~ Group)$p.value, .groups = "keep")
 
 RQ.plot <- RQ_plot(RQ.ddCt,

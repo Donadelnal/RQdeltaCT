@@ -6,7 +6,7 @@
 \usage{
 filter_transformed_data(
   data,
-  remove.gene = c(""),
+  remove.Gene = c(""),
   remove.Sample = c(""),
   remove.Group = c("")
 )
@@ -14,7 +14,7 @@ filter_transformed_data(
 \arguments{
 \item{data}{object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.}
 
-\item{remove.gene}{character: vector with names of genes which should be removed from data.}
+\item{remove.Gene}{character: vector with names of genes which should be removed from data.}
 
 \item{remove.Sample}{character: vector with names of samples which should be removed from data.}
 
@@ -30,7 +30,7 @@ Filters transformed Ct data (2^(-Ct), delta Ct, and 2^(-dCt) data) according to 
 library(tidyverse)
 data(data.Ct)
 data.CtF <- filter_Ct(data.Ct,
-                      remove.gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+                      remove.Gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
                       remove.Sample = c("Control08","Control16","Control22"))
 data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
 data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")

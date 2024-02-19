@@ -78,7 +78,7 @@ For user convenience, `RQdeltaCT` package provides two functions useful to impor
 
 Example of long-format table with structure suitable for `read_Ct_long()` function.:
 
-| Group | Sample | Target | Ct | Flag |
+| Group | Sample | Gene | Ct | Flag |
 |:--------|:---------|:------|:-----|:----|
 | Disease | Disease1 | Gene1 | 25.6 | OK |
 | Disease | Disease2 | Gene2 | 32.9 | Undetermined |
@@ -104,7 +104,7 @@ data.Ct <- read_Ct_long(path = path,
                         skip = 0,
                         add.column.Flag = TRUE,
                         column.Sample = 1,
-                        column.gene = 2,
+                        column.Gene = 2,
                         column.Ct = 5,
                         column.Group = 9,
                         column.Flag = 4)
@@ -132,7 +132,7 @@ The `read_Ct_wide()` function was designed to import data with gene expression r
 
 Example structure of wide-format table suitable for `read_Ct_wide()` function:
 
-| Target | Sample1 | Sample2 | Sample3 | ... |
+| Gene | Sample1 | Sample2 | Sample3 | ... |
 |:--------|:---------|:------|:-----|:----|
 | Gene1 | 25.4 | 24.9 | 25.6 | ... |
 | Gene2 | 21.6 | 22.5 | 20.8 | ... |
@@ -190,12 +190,12 @@ library(tidyverse)
 data.Ct <- data.Ct.wide %>%
              select(-X) %>%
              mutate(across(everything(), as.character)) %>%
-             pivot_longer(cols = -c(Group, Sample), names_to = "gene", values_to = "Ct")
+             pivot_longer(cols = -c(Group, Sample), names_to = "Gene", values_to = "Ct")
 str(data.Ct)
 ```
 **NOTE:** At this stage, Ct values do not have to be numeric.
 
-**NOTE:** Of course, data can be imported to R using user own code, but the final object must be data frame and contain table with column named "Sample" with sample names, column named "Target" with gene names, column named "Ct" with raw Ct values, column named "Group" with groups names, and optionally column named "Flag" that contain flag information (this column should be class of character or factor).
+**NOTE:** Of course, data can be imported to R using user own code, but the final object must be data frame and contain table with column named "Sample" with sample names, column named "Gene" with gene names, column named "Ct" with raw Ct values, column named "Group" with groups names, and optionally column named "Flag" that contain flag information (this column should be class of character or factor).
 ---
 
 For package testing purpose, there is also a convenient possibility to use data object included in `RQdeltaCT` package, named `data.Ct`:
@@ -252,28 +252,26 @@ head(sample.Ct.control[[2]])
 head(gene.Ct.control[[2]])
 ```
 
-Visual inspection of returned plots and careful reading of obtained tables give clear image of data quality as well as numbers of samples analyzed for each gene and numbers of genes analyzed in each sample. Results obtained in the examples show that Disease group contains more samples than Control group. Some of the samples have more Ct values (more technical replicates) than other samples. Furthermore, in all samples, a majority of Ct values are reliable.  
+Visual inspection of returned plots and obtained tables give clear image of data quality as well as numbers of samples analyzed for each gene and numbers of genes analyzed in each sample. Results obtained in the examples show that Disease group contains more samples than Control group. Some of the samples have more Ct values (more technical replicates) than other samples. Furthermore, in all samples, a majority of Ct values are reliable.  
 
 Regarding genes, Gene6 and Gene8 were analyzed in duplicates, other genes have single Ct values. Furthermore, Gene6 was analysed only in Control group and have all values labeled as unreliable; therefore, it is obvious that this gene should be excluded from the analysis. Some other genes have also many unreliable Ct values (e.g. Gene2, Gene9) and maybe should be considered to be removed from the data.  
 
 
-In some situations, unified fraction of unreliable data need to be establish and used to make decision which samples or genes should be excluded from the analysis. The `RQdeltaCT` package meets this needing and offers two additional functions: `low_quality_samples()` and `low_quality_genes()`. These functions return vector with samples or genes for which the amount of unreliable Ct values are higher than fraction specified in `fraction` parameter. The second element of object returned by  `control_Ct_barplot_sample()` and  `control_Ct_barplot_gene()` functions can be used directly:
+In some situations, unified fraction of unreliable data need to be establish and used to make decision which samples or genes should be excluded from the analysis. It can be done using the following code, in which the second element of object returned by `control_Ct_barplot_sample()` or `control_Ct_barplot_gene()` functions can be used directly, and a vector with samples or genes for which the fraction of unreliable Ct values is higher than a specified threshold is received: 
 
 ```{r cache=FALSE}
-low.quality.samples <- low_quality_samples(data = sample.Ct.control[[2]],
-                                           fraction = 0.5)
+# Finding samples with more than half unreliable Ct values.
+low.quality.samples <- filter(sample.Ct.control[[2]], Not.reliale.fraction > 0.5)$Sample
+low.quality.samples <- as.vector(low.quality.samples)                        
 low.quality.samples
 
-# Remember to provide names of groups - only two groups can be specify:
-low.quality.genes <- low_quality_genes(data = gene.Ct.control[[2]],
-                                           fraction = 0.5,
-                                           groups = c("Disease", "Control"))
+# Finding genes with more than half unreliable Ct values in given group.
+low.quality.genes <- filter(gene.Ct.control[[2]], Not.reliable.fraction > 0.5 & Group == "Disease")$Gene
+low.quality.genes <- as.vector(low.quality.genes)                        
 low.quality.genes
 ```
 
 In examples above, there is no sample with more than half unreliable data. Further, this criterion was met by 5 genes (Gene2, Gene5, Gene6, Gene9, and Gene11); therefore, these genes will be removed from data in the next step of analysis. 
-
-**NOTE:** Functions `low_quality_samples()` and `low_quality_genes()` works with the second element (table) of lists returned from `control_Ct_barplot_sample()` and `control_Ct_barplot_gene()` functions, respectively.
 
 ---
 
@@ -289,7 +287,7 @@ data.CtF <- filter_Ct(data = data.Ct,
                       flag.Ct = "Undetermined",
                       maxCt = 35,
                       flag = c("Undetermined"),
-                      remove.gene = low.quality.genes,
+                      remove.Gene = low.quality.genes,
                       remove.Sample = low.quality.samples)
 
 # Check dimensions of data before and after filtering:
@@ -297,7 +295,7 @@ dim(data.Ct)
 dim(data.CtF)
 ```
 
-**NOTE:** If data contain more than two groups, it is good practice to remove groups that are out of comparison; however, a majority further functions can deal with more groups unless two groups are indicated in function's parameter.
+**NOTE:** If data contain more than two groups, it is good practice to remove groups that are out of comparison; however, a majority further functions can deal with more groups unless only two groups are indicated to be given in function's parameters.
 
 ---
 
@@ -320,7 +318,10 @@ data.CtF.ready <- make_Ct_ready(data = data.CtF,
 # Missing values were imputed:
 as.data.frame(data.CtF.ready)[19:25,]
 ```
+
 **NOTE:** The data imputation process can significantly influence data; therefore, no default value was set to `imput.by.mean.within.groups` parameter to force specification by user.  
+
+In general, a majority of functions in `RQdeltaCT` package can deal with missing data; however, some used methods are sensitive to missing data, including VIF calculating in `find_ref_gene()` (see [Reference gene selection] section), PCA analysis (see [PCA analysis] section),   
 
 **NOTE:** The `make_Ct_ready()` function should be used even if the collapsing of technical replicates and data imputation is not required, because this function also prepare data structure to fit to further functions.  
 
@@ -362,7 +363,13 @@ head(as.data.frame(arrange(RQ.Ct.exp, mw_test_p)))
 Ideally, the reference gene should have an identical expression level in all samples, but in many situations it is not possible to achieve, especially when biological replicates are analyzed. Therefore, differences between samples are allowed, but the variance should be as low as possible, and it is also recommend that Ct values would not be very low (below 15) or very high (above 30) [Kozera and Rapacz 2013](https://link.springer.com/article/10.1007/s13353-013-0173-x).   
 The `RQdeltaCT` package include `find_ref_gene()` function that can be used to select best reference gene for normalization. This function calculates descriptive statistics such as minimum, maximum, standard deviation, and variance, as well as more advance parameters including colinearity coefficient VIF (separately for each group) and stability scores calculated using [NormFinder](https://www.moma.dk/software/normfinder) ([Article](https://aacrjournals.org/cancerres/article/64/15/5245/511517/Normalization-of-Real-Time-Quantitative-Reverse)) and [geNorm](https://genorm.cmgg.be/) ([Article](https://genomebiology.biomedcentral.com/articles/10.1186/gb-2002-3-7-research0034)) algorithms. Ct values are also presented on a line plot.  
 
-VIF colinearity coefficient is calculated usig `car::vif()` function running on multiple linear regression models with all genes as predictory variables and a dummy response variable. NormFinder scores are computed using additional `RQdeltaCT::norm_finder()` function working on the code adapted from the original NormFinder code. For geNorm score, `geNorm()` function from `ctrlGene` package is used. 
+VIF colinearity coefficient is calculated usig `car::vif()` function running on multiple linear regression models with all genes as predictory variables and a dummy response variable. NormFinder scores are computed using additional `RQdeltaCT::norm_finder()` function working on the code adapted from the original NormFinder code. For geNorm score, `geNorm()` function from `ctrlGene` package is used.
+
+Due to different resistance to data characteristics, `norm_finder()` function allows to choose which of these algorithms should be done by setting `vif.score`, `norm.finder.score`, and `genorm.score` logical parameters:
+
+* VIF score is the most sensitive: it could be calculate for only two groups of samples, missing data could interfere correlation results (e.g. warning "In cov2cor(v) : diag(.) had 0 or NA entries; non-finite result is doubtful" can appear), and in the case of perfect correlation between genes, error "Error in vif.default(model) : there are aliased coefficients in the model" will be displayed and process will stop (it could especially occur when a low number samples is analyzed). In such a situation, `vif.score` should be set to FALSE.
+* NormFinder algorithm is calculated on data with missing values and more than three groups, but at least two samples must be in each group.
+*geNorm is free of limitations above.
 
 Created plot is displayed on the graphic device. Returned object is a lists that contain two elements: object with plot and table with results. In example below, 6 genes are tested for suitability to be a reference gene: 
 
@@ -465,6 +472,10 @@ control_boxplot_gene <- control_boxplot_gene(data = data.dCt,
                                                  axis.text.size = 10)
 ```
 
+**NOTE:** If missing values are present in data, they will be automatically removed and warning "Warning message:
+Removed 29 rows containing non-finite values (`stat_boxplot()`)" will appear.
+
+
 #### Hierarchical clustering
 
 Hierarchical clustering is a convenient method to investigate similarities between variables. Hierarchical clustering of samples and genes can be done using `control_cluster_sample()` and `control_cluster_gene()` functions, respectively. These functions allow to draw dendrogram using various methods of distance calculation (e.g. euclidean, canberra) and agglomeration (e.g. complete, average, single). For more details, refer to the functions documentation.
@@ -481,6 +492,8 @@ control_cluster_gene(data = data.dCt,
 
 Created plots are displayed on the graphic device.
 
+**NOTE:** Minimum three samples or genes in data is required for clustering analysis.
+
 #### PCA analysis
 
 Principal component analysis (PCA) is a data exploratory method, which is commonly used to investigate similarities between variables based on first principal components that contain the most information about variance. In the `RQdeltaCT` package, `control_pca_sample()` and `control_pca_gene()` functions are developed to perform PCA analysis for samples and genes, respectively. These functions return objects with plot. Created plots are also displayed on the graphic device.
@@ -494,7 +507,7 @@ control.pca.sample <- control_pca_sample(data = data.dCt,
 control.pca.gene <- control_pca_gene(data = data.dCt)
 ```
 
-**NOTE:** PCA algorithm can not deal with missing data (NAs); therefore, variables with NA values are removed before analysis. If at least one NA value occur in all variables in at least one of compared group, the analysis can not be done. Imputation of missing data will avoid this issue.
+**NOTE:** PCA algorithm can not deal with missing data (NAs); therefore, variables with NA values are removed before analysis. If at least one NA value occur in all variables in at least one of compared group, the analysis can not be done. Imputation of missing data will avoid this issue. Also, minimum three samples or genes in data is required for clustering analysis.
 
 ---
 
@@ -517,7 +530,7 @@ For visualisation of final results, three functions can be used:
 * `results_barplot` that show mean and standard deviation values of genes across compared groups,
 * `results_boxplot()` that illustrate data distribution of genes across compared groups.  
 
-All these functions can be run on all data or on finally selected genes (see `sel.gene` parameter), and also allow to add customized statistical significance labels to plots using `ggsignif` package. These functions have a large number of parameters, and user should familiarize with all of them to properly adjust created plots to user needs.
+All these functions can be run on all data or on finally selected genes (see `sel.Gene` parameter), and also allow to add customized statistical significance labels to plots using `ggsignif` package. These functions have a large number of parameters, and user should familiarize with all of them to properly adjust created plots to user needs.
 
 **NOTE:** If statistical significance labels should be added to the plot, a vector with labels (e.g. "ns", "*", "p = 0.03") should be provided in `signif.labels` parameter. There are two important matter that must be taking into account when preparing this vector:
 
@@ -561,9 +574,9 @@ head(as.data.frame(RQ.plot[[2]]))
 # Variant with user p values - used p values are calculated using stats::wilcox.test() function:
 user <- data.dCt %>%
           pivot_longer(cols = -c(Group, Sample),
-                       names_to = "gene",
+                       names_to = "Gene",
                        values_to = "dCt") %>%
-          group_by(gene) %>%
+          group_by(Gene) %>%
           summarise(MW_test_p = wilcox.test(dCt ~ Group)$p.value,
                     .groups = "keep")
 # The stats::wilcox.test() functions is limited to cases without ties; therefore, a warning "cannot compute exact p-value with ties" will appear when ties occurr.
@@ -583,6 +596,8 @@ head(as.data.frame(RQ.plot[[2]]))
 
 Three genes (Gene1, Gene12, and Gene19) are showed to met used significance criteria.
 
+**NOTE:** If p values were not calculated due to low number of samples, or they are not intended to be used to create plot, `use.p` parameter should be set to FALSE.
+
 #### The `results_boxplot()` function
 
 This function creates a boxplot illustrating distribution of data for genes. It is similar to `control_boxplot_gene()` function; however, some new options are added, including gene selection, faceting, addition of mean points to boxes, and statistical significance labels.
@@ -591,7 +606,7 @@ Data objects returned from `make_Ct_ready()`, `exp_Ct_dCt()` and `delta_Ct() fun
 
 ```{r fig.dim=c(5,5), fig.align='center', cache=FALSE}
 final_boxplot <- results_boxplot(data = data.dCtF,
-                                 sel.gene = c("Gene1","Gene12", "Gene16","Gene19"),
+                                 sel.Gene = c("Gene1","Gene12", "Gene16","Gene19"),
                                  by.group = TRUE,
                                  signif.show = TRUE,
                                  signif.labels = c("****","*","***"," * "),
@@ -604,6 +619,8 @@ final_boxplot <- results_boxplot(data = data.dCtF,
                                  y.axis.title = "dCt")
 ```
 
+**NOTE:** If missing values are present in data, they will be automatically removed and warning will appear.
+
 #### The `results_barplot()` function
 
 This function creates a barplot illustrating mean and sd values of data for all or selected genes.
@@ -612,7 +629,7 @@ Data objects returned from `make_Ct_ready()`, `exp_Ct_dCt()` and `delta_Ct() fun
 
 ```{r fig.dim=c(5,5), fig.align='center', cache=FALSE}
 final_barplot <- results_barplot(data = data.dCtF,
-                                 sel.gene = c("Gene1","Gene12","Gene19","Gene20"),
+                                 sel.Gene = c("Gene1","Gene12","Gene19","Gene20"),
                                  signif.show = TRUE,
                                  signif.labels = c("****","*","***"," * "),
                                  angle = 30,
@@ -623,6 +640,8 @@ final_barplot <- results_barplot(data = data.dCtF,
                                  y.exp.up = 0.1,
                                  y.axis.title = "dCt")
 ```
+
+**NOTE:** A minimum two samples in each group are required to calculate standard deviation and properly generate plot.
 
 ---
 
@@ -635,7 +654,7 @@ Expression levels of genes and differences between groups can be further analyse
 * Receiver Operating Characteristic (ROC) analysis - used to evaluation of performance of sample classification by gene expression data (`ROCh()` function).
 * simple logistic regression analysis - used to calculation odds ratio values for genes (`log_reg()` function).  
 
-All functions can be run on the entire data or only on selected samples/genes.
+Data objects returned from `make_Ct_ready()`, `exp_Ct_dCt()` and `delta_Ct() functions` can be directly applied to all of these functions (see [The summary of standard workflow]). Moreover, all functions can be run on the entire data or only on selected samples/genes.
 
 #### Correlation analysis
 
@@ -662,6 +681,8 @@ corr.genes <- corr_gene(data = data.dCt,
 ```
 
 Created plots are displayed on the graphic device. Returned objects are a tables with computed correlation coefficients, p values and p values adjusted by Benjamini-Hochberg correction (by default). Tables are sorted by descending absolute values of correlation coefficients.
+
+**NOTE:** A minimum 5 samples/target are required for correlation analysis.
 
 #### Simple linear regression analysis
 
@@ -700,7 +721,7 @@ Receiver Operating Characteristic (ROC) analysis is useful to assess the perform
 library(pROC)
 # Remember to specify numbers of rows (panels.row parameter) and columns (panels.col parameter) to be sufficient to arrange panels of all analyzed genes: 
 roc_parameters <- ROCh(data = data.dCt,
-                       sel.gene = c("Gene1","Gene12","Gene16","Gene19"),
+                       sel.Gene = c("Gene1","Gene12","Gene16","Gene19"),
                        groups = c("Disease","Control"),
                        panels.row = 2,
                        panels.col = 2)
@@ -720,7 +741,7 @@ Logistic regression is useful method to investigate impact of analyzed variable 
 ```{r fig.dim=c(5,4), fig.align='center', cache=FALSE}
 library(oddsratio)
 log.reg.results <- log_reg(data = data.dCt,
-                           sel.gene = c("Gene1","Gene12","Gene16","Gene19"),
+                           sel.Gene = c("Gene1","Gene12","Gene16","Gene19"),
                            group.study = "Disease",
                            group.ref = "Control")
 log.reg.results[[2]]

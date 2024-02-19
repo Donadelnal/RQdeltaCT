@@ -30,7 +30,7 @@ Imported table could also contain a column with flag information, which could be
 
 \item{col.Sample}{integer: number of column with sample names.}
 
-\item{col.gene}{integer: number of column with gene names.}
+\item{col.Gene}{integer: number of column with gene names.}
 
 \item{col.Ct}{integer: number of column with Ct values.}
 
@@ -57,7 +57,7 @@ data.Ct <- read_Ct_long(path = path, sep = "\t",dec = ".",skip = 0,
                         column.Ct = 5, column.Group = 9, column.Flag = 4)
 str(data.Ct)
 
-data.Ct <- mutate(Ct, Flag = ifelse(Flag < 1, "Undetermined", "OK"))
+data.Ct <- mutate(data.Ct, Flag = ifelse(Flag < 1, "Undetermined", "OK"))
 str(data.Ct)
 
 }

@@ -29,7 +29,7 @@ control_Ct_barplot_gene(
 }
 \arguments{
 \item{data}{object returned from read_Ct_long() or read_Ct_wide() function,
-or data frame containing column named "Sample" with sample names, column named "gene" with gene names,
+or data frame containing column named "Sample" with sample names, column named "Gene" with gene names,
 column named "Ct" with raw Ct values, column named "Group" with group names.
 Optionally, data frame could contain column named "Flag" with flag information (ex. "Undetermined" and "OK"),
 which will be used for reliability assessment.}
@@ -79,7 +79,7 @@ Additional information about returned table is also printed, it could help user 
 Plot will be displayed on graphic device.
 }
 \description{
-gene-wide control of raw Ct values across groups by illustrating numbers of Ct values labeled as reliable or not by using reliability criteria (see function parameters).
+Gene-wide control of raw Ct values across groups by illustrating numbers of Ct values labeled as reliable or not by using reliability criteria (see function parameters).
 }
 \details{
 This function does not perform data filtering, but only numbers Ct values labeled as reliable or not and presents them graphically.

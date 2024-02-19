@@ -9,14 +9,14 @@ filter_Ct(
   flag.Ct = "Undetermined",
   maxCt = 35,
   flag = c("Undetermined"),
-  remove.gene = c(""),
+  remove.Gene = c(""),
   remove.Sample = c(""),
   remove.Group = c("")
 )
 }
 \arguments{
 \item{data}{object returned from read_Ct_long() or read_Ct_wide() function,
-or data frame containing column named "Sample" with sample names, column named "gene" with gene names,
+or data frame containing column named "Sample" with sample names, column named "Gene" with gene names,
 column named "Ct" with raw Ct values, column named "Group" with group names.
 Optionally, data frame could contain column named "Flag" with flag information (ex. "Undetermined" and "OK"),
 which will be used for filtering.}
@@ -27,7 +27,7 @@ which will be used for filtering.}
 
 \item{flag}{character: flag used in Flag column for values which should be filtered out, default to "Undetermined".}
 
-\item{remove.gene}{character: vector with names of genes which should be removed from data}
+\item{remove.Gene}{character: vector with names of genes which should be removed from data}
 
 \item{remove.Sample}{character: vector with names of samples which should be removed from data}
 
@@ -43,7 +43,7 @@ Filters Ct data according to the used filtering criteria (see parameters).
 library(tidyverse)
 data(data.Ct)
 data.CtF <- filter_Ct(data.Ct,
-                      remove.gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+                      remove.Gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
                       remove.Sample = c("Control08","Control16","Control22"))
 
 dim(data.Ct)

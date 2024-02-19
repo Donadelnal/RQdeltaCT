@@ -50,9 +50,9 @@ read_Ct_wide <- function(path.Ct.file,
                                header = TRUE,
                                sep = sep)
 
-  colnames(data_wide)[1] <- "gene"
+  colnames(data_wide)[1] <- "Gene"
   data_wide <- mutate(data_wide, across(everything(), as.character))
-  data_slim <- pivot_longer(data_wide, -gene, names_to = "Sample", values_to = "Ct")
+  data_slim <- pivot_longer(data_wide, -Gene, names_to = "Sample", values_to = "Ct")
   data_slim[ ,"Group"] <- NA
 
   for (x in 1:nrow(data_wide_design)) {
@@ -79,7 +79,7 @@ read_Ct_wide <- function(path.Ct.file,
 #' @param dec character used for decimal points in Ct values.
 #' @param skip integer: number of lines of the data file to skip before beginning to read data. Default to 0.
 #' @param col.Sample integer: number of column with sample names.
-#' @param col.gene integer: number of column with gene names.
+#' @param col.Gene integer: number of column with gene names.
 #' @param col.Ct integer: number of column with Ct values.
 #' @param col.Group integer: number of column with group names.
 #' @param add.col.Flag logical: if data contains a column with flag information which should be also imported, this parameters should be set to TRUE. Default to FALSE.
@@ -99,7 +99,7 @@ read_Ct_wide <- function(path.Ct.file,
 #'                         column.Ct = 5, column.Group = 9, column.Flag = 4)
 #' str(data.Ct)
 #'
-#' data.Ct <- mutate(Ct, Flag = ifelse(Flag < 1, "Undetermined", "OK"))
+#' data.Ct <- mutate(data.Ct, Flag = ifelse(Flag < 1, "Undetermined", "OK"))
 #' str(data.Ct)
 #'
 #' @importFrom utils read.csv
@@ -124,16 +124,19 @@ read_Ct_long <- function(path,
 
   if (add.column.Flag == FALSE){
   data <- data[ ,c(column.Sample, column.Gene, column.Ct, column.Group)]
-  colnames(data) <- c("Sample", "gene", "Ct", "Group")
+  colnames(data) <- c("Sample", "Gene", "Ct", "Group")
   }
 
   if (add.column.Flag == TRUE){
     data <- data[ ,c(column.Sample, column.Gene, column.Ct, column.Group, column.Flag)]
-    colnames(data) <- c("Sample", "gene", "Ct", "Group", "Flag")
+    colnames(data) <- c("Sample", "Gene", "Ct", "Group", "Flag")
   }
 
   return(data)
 }
+
+
+
 
 
 
@@ -148,7 +151,7 @@ read_Ct_long <- function(path,
 #' Results could be useful to identify samples with low number of reliable Ct values.
 #'
 #' @param data object returned from read_Ct_long() or read_Ct_wide() function,
-#' or data frame containing column named "Sample" with sample names, column named "gene" with gene names,
+#' or data frame containing column named "Sample" with sample names, column named "Gene" with gene names,
 #' column named "Ct" with raw Ct values, and column named "Group" with group names.
 #' Optionally, data frame could contain column named "Flag" with flag information (ex. "Undetermined" and "OK"), which will be used for reliability assessment.
 #' @param flag.Ct character of a flag used for undetermined Ct values. Default to "Undetermined".
@@ -218,7 +221,7 @@ control_Ct_barplot_sample <- function(data,
 
   bar <- as.data.frame(table(data$Reliable, data$Sample))
   order <- arrange(filter(bar, Var1 == "Yes"), Freq)$Var2
-  cat("Returned table contains number of genes retained (Yes) or not retained (No) in samples after reliability assessment, as well as fraction of unreliable Ct values in each sample.")
+  cat("Returned table contains numbers of Ct values labeled as reliable or not in each sample, as well as fraction of unreliable Ct values in each sample.\n")
 
   barplot.samples <- ggplot(bar, aes(x = reorder(Var2, desc(Freq)), y = Freq, fill = Var1)) +
     geom_bar(stat = "identity") +
@@ -247,7 +250,8 @@ control_Ct_barplot_sample <- function(data,
     as.data.frame() %>%
     pivot_wider(names_from = Var1, values_from = Freq) %>%
     arrange(desc(No)) %>%
-    mutate(No.fraction = No/(No+Yes))
+    mutate(Not.reliale.fraction = No/(No+Yes)) %>%
+    rename(Sample = Var2, Not.reliable = No, Reliable = Yes)
 
   return(list(barplot.samples, tab))
 }
@@ -261,14 +265,14 @@ control_Ct_barplot_sample <- function(data,
 #' @title control_Ct_barplot_gene
 #'
 #' @description
-#' gene-wide control of raw Ct values across groups by illustrating numbers of Ct values labeled as reliable or not by using reliability criteria (see function parameters).
+#' Gene-wide control of raw Ct values across groups by illustrating numbers of Ct values labeled as reliable or not by using reliability criteria (see function parameters).
 #'
 #' @details
 #' This function does not perform data filtering, but only numbers Ct values labeled as reliable or not and presents them graphically.
 #' Could be useful to identify genes with low number of reliable Ct values.
 #'
 #' @param data object returned from read_Ct_long() or read_Ct_wide() function,
-#' or data frame containing column named "Sample" with sample names, column named "gene" with gene names,
+#' or data frame containing column named "Sample" with sample names, column named "Gene" with gene names,
 #' column named "Ct" with raw Ct values, column named "Group" with group names.
 #' Optionally, data frame could contain column named "Flag" with flag information (ex. "Undetermined" and "OK"),
 #' which will be used for reliability assessment.
@@ -337,9 +341,9 @@ control_Ct_barplot_gene <- function(data,
     data <- mutate(data, Reliable = ifelse(Ct > maxCt , yes = "No",  no = "Yes"))
   }
 
-    bar <- as.data.frame(table(data$Reliable, data$gene, data$Group))
+    bar <- as.data.frame(table(data$Reliable, data$Gene, data$Group))
     order <- arrange(filter(bar, Var1 == "Yes"), Freq)$Var2
-    cat("Returned table contains number of samples retained (Yes) or not retained (No) for each gene after reliability assessment, as well as fraction of unreliable Ct values in each gene.")
+    cat("Returned table contains numbers of Ct values labeled as reliable or not in each gene, as well as fraction of unreliable Ct values in each gene.\n")
 
     barplot.genes <- ggplot(bar, aes(x = reorder(Var2, desc(Freq)), y = Freq, fill = Var1)) +
       geom_bar(stat = "identity") +
@@ -362,104 +366,18 @@ control_Ct_barplot_gene <- function(data,
       ggsave(paste(name.tiff, ".tiff", sep = ""), barplot.genes, dpi = dpi, width = width, height = height, units = "cm", compression = "lzw")
     }
 
-    tab <- table(data$Reliable, data$gene, data$Group)
+    tab <- table(data$Reliable, data$Gene, data$Group)
     tab <- tab %>%
       as.data.frame() %>%
       pivot_wider(names_from = Var1, values_from = Freq) %>%
       arrange(desc(No)) %>%
-      mutate(No.fraction = No/(No+Yes))
+      mutate(Not.reliable.fraction = No/(No+Yes)) %>%
+      rename(Gene = Var2, Group = Var3, Not.reliable = No, Reliable = Yes)
 
     return(list(barplot.genes, tab))
 }
 
 
-
-
-#' @title low_quality_samples
-#'
-#' @description
-#' Indicates samples with the amount of unreliable Ct values higher than specified fraction.
-#' Could be useful for identification of samples with specified fraction of unreliable Ct values.
-#' Samples with high amount of unreliable data could be considered to remove from the dataset.
-#'
-#' @param data object returned from control_Ct_barplot_sample() function.
-#' @param fraction numeric: a threshold fraction (ranged from 0 to 1),
-#' samples with the higher fraction of Ct values labeled as unreliable will be returned. Default to 0.5.
-#' @return Vector with names of samples.
-#' @export
-#'
-#' @examples
-#' library(tidyverse)
-#' data(data.Ct)
-#' sample.Ct.control <- control_Ct_barplot_sample(data.Ct)
-#' low.quality.samples <- low_quality_samples(sample.Ct.control[[2]], 0.4)
-#' low.quality.samples
-#'
-#' @importFrom base as.data.frame as.vector
-#' @importFrom tidyr pivot_wider
-#' @importFrom dplyr mutate filter
-#' @import tidyverse
-#'
-low_quality_samples <- function(data, fraction = 0.5){
-
-  data1 <- data %>%
-    as.data.frame() %>%
-    pivot_wider(names_from = Var1, values_from = Freq) %>%
-    mutate(rem = ifelse(No >= ((No + Yes) * fraction), "remove", "leave"))
-
-  to.remove <- filter(data1, rem == "remove")$Var2
-
-  return(as.vector(to.remove))
-}
-
-
-
-#' @title low_quality_genes
-#'
-#' @description
-#' Indicates genes with the amount of unreliable Ct values higher than specified fraction in at least one of the compared groups.
-#' Could be useful for identification of genes with specified fraction of unreliable Ct values.
-#' genes with high amount of unreliable data could be considered to remove from the data.
-#'
-#' @param data object returned from control_Ct_barplot_gene() function.
-#' @param fraction numeric: a threshold fraction (ranged from 0 to 1), genes with the higher fraction of Ct values labeled as unreliable in at least one of the compared groups will be returned. Default to 0.5.
-#' @param groups character vector length of two, containing names of compared groups.
-#'
-#' @return Vector with names of genes.
-#' @export
-#'
-#' @examples
-#' library(tidyverse)
-#' data(data.Ct)
-#' gene.Ct.control <- control_Ct_barplot_gene(data.Ct)
-#' low.quality.genes <- low_quality_genes(gene.Ct.control[[2]], fraction = 0.5, groups = c("Disease", "Control"))
-#' low.quality.genes
-#'
-#' @importFrom base as.data.frame as.vector unique
-#' @importFrom tidyr pivot_wider
-#' @importFrom dplyr mutate filter
-#' @import tidyverse
-#'
-low_quality_genes <- function(data, fraction = 0.5, groups){
-
-  data1 <- data %>%
-    as.data.frame() %>%
-    filter(Var3 == groups[1]) %>%
-    pivot_wider(names_from = Var1, values_from = Freq) %>%
-    mutate(rem = ifelse(No >= ((No + Yes) * fraction), "remove", "leave"))
-
-  to.remove1 <- filter(data1, rem == "remove")$Var2
-
-  data2 <- data %>%
-    as.data.frame() %>%
-    filter(Var3 == groups[2]) %>%
-    pivot_wider(names_from = Var1, values_from = Freq) %>%
-    mutate(rem = ifelse(No >= ((No + Yes) * fraction), "remove", "leave"))
-
-  to.remove2 <- filter(data2, rem == "remove")$Var2
-
-  return(unique(c(as.vector(to.remove1), as.vector(to.remove2))))
-}
 
 
 
@@ -470,7 +388,7 @@ low_quality_genes <- function(data, fraction = 0.5, groups){
 #' Filters Ct data according to the used filtering criteria (see parameters).
 #'
 #' @param data object returned from read_Ct_long() or read_Ct_wide() function,
-#' or data frame containing column named "Sample" with sample names, column named "gene" with gene names,
+#' or data frame containing column named "Sample" with sample names, column named "Gene" with gene names,
 #' column named "Ct" with raw Ct values, column named "Group" with group names.
 #' Optionally, data frame could contain column named "Flag" with flag information (ex. "Undetermined" and "OK"),
 #' which will be used for filtering.
@@ -478,7 +396,7 @@ low_quality_genes <- function(data, fraction = 0.5, groups){
 #' @param flag.Ct character of a flag used for undetermined Ct values, default to "Undetermined".
 #' @param maxCt numeric, a maximum of Ct value allowed.
 #' @param flag character: flag used in Flag column for values which should be filtered out, default to "Undetermined".
-#' @param remove.gene character: vector with names of genes which should be removed from data
+#' @param remove.Gene character: vector with names of genes which should be removed from data
 #' @param remove.Sample character: vector with names of samples which should be removed from data
 #' @param remove.Group character: vector with names of groups which should be removed from data
 #'
@@ -489,7 +407,7 @@ low_quality_genes <- function(data, fraction = 0.5, groups){
 #' library(tidyverse)
 #' data(data.Ct)
 #' data.CtF <- filter_Ct(data.Ct,
-#'                       remove.gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+#'                       remove.Gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
 #'                       remove.Sample = c("Control08","Control16","Control22"))
 #'
 #' dim(data.Ct)
@@ -503,14 +421,14 @@ filter_Ct <- function(data,
                       flag.Ct = "Undetermined",
                       maxCt = 35,
                       flag = c("Undetermined"),
-                      remove.gene = c(""),
+                      remove.Gene = c(""),
                       remove.Sample = c(""),
                       remove.Group = c("")){
 
   data <- filter(data, Ct != flag.Ct)
   data$Ct <- as.numeric(data$Ct)
   data <- filter(data, Ct <= maxCt,
-                        !gene %in% remove.gene,
+                        !Gene %in% remove.Gene,
                         !Sample %in% remove.Sample,
                         !Group %in% remove.Group)
 
@@ -524,8 +442,6 @@ filter_Ct <- function(data,
 
 
 
-
-
 #' @title make_Ct_ready
 #'
 #' @description
@@ -533,7 +449,7 @@ filter_Ct <- function(data,
 #' These actions also prepare Ct data for control functions.
 #'
 #' @param data data object returned from read_Ct_long(), read_Ct_wide() or filter_Ct() function,
-#' or data frame containing column named "Sample" with sample names, column named "gene" with gene names,
+#' or data frame containing column named "Sample" with sample names, column named "Gene" with gene names,
 #' column named "Ct" with raw Ct values (must be numeric), column named "Group" with group names. Any other columns could exist, but will not be used by this function.
 #' @param imput.by.mean.within.groups logical: if TRUE, missing values will be imputed by means within groups. This parameter could influence results, thus to draw more user attention on this parameter, no default value was set.
 #' @param save.to.txt logical: if TRUE, returned data will be saved to .txt file. Default to FALSE.
@@ -546,7 +462,7 @@ filter_Ct <- function(data,
 #' library(tidyverse)
 #' data(data.Ct)
 #' data.CtF <- filter_Ct(data.Ct,
-#'                       remove.gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+#'                       remove.Gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
 #'                       remove.Sample = c("Control08","Control16","Control22"))
 #'data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
 #'head(data.CtF.ready)
@@ -560,13 +476,13 @@ make_Ct_ready <- function(data,
                    save.to.txt = FALSE,
                    name.txt = "Ct_ready"){
   data <- data %>%
-    group_by(Group, gene, Sample) %>%
+    group_by(Group, Gene, Sample) %>%
     summarise(mean = mean(Ct, na.rm = TRUE), .groups = "keep") %>%
     as.data.frame()
 
   data_wide <- data %>%
-    select(Group, Sample, gene, mean) %>%
-    pivot_wider(names_from = gene, values_from = mean)
+    select(Group, Sample, Gene, mean) %>%
+    pivot_wider(names_from = Gene, values_from = mean)
 
   nas <- sum(is.na(data_wide))
   percentage <- sum(is.na(data_wide))/((ncol(data_wide)-2)*nrow(data_wide))
@@ -598,7 +514,6 @@ make_Ct_ready <- function(data,
 
 
 
-
 #' @title exp_Ct_dCt
 #'
 #' @description
@@ -615,7 +530,7 @@ make_Ct_ready <- function(data,
 #' library(tidyverse)
 #' data(data.Ct)
 #' data.CtF <- filter_Ct(data.Ct,
-#'                       remove.gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+#'                       remove.Gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
 #'                       remove.Sample = c("Control08","Control16","Control22"))
 #' data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
 #' data.Ct.exp <- exp_Ct_dCt(data.CtF.ready)
@@ -646,7 +561,6 @@ exp_Ct_dCt <- function(data,
 
 
 
-
 #' @title RQ_exp_Ct_dCt
 #'
 #' @description
@@ -668,7 +582,7 @@ exp_Ct_dCt <- function(data,
 #' @param save.to.txt logical: if TRUE, returned table with results will be saved to .txt file. Default to FALSE.
 #' @param name.txt character: name of saved .txt file, without ".txt" name of extension. Default to "RQ_exp_results".
 #
-#' @return Data.frame with transformed Ct values and printed information about number and percentage of missing values.
+#' @return Data frame with transformed Ct values and printed information about number and percentage of missing values.
 #' @export
 #'
 #' @examples
@@ -676,7 +590,7 @@ exp_Ct_dCt <- function(data,
 #' library(coin)
 #' data(data.Ct)
 #' data.CtF <- filter_Ct(data.Ct,
-#'                       remove.gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+#'                       remove.Gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
 #'                       remove.Sample = c("Control08","Control16","Control22"))
 #' data.CtF.ready <- make_Ct_ready(data.CtF)
 #' data.Ct.exp <- exp_Ct_dCt(data.CtF.ready)
@@ -699,20 +613,19 @@ RQ_exp_Ct_dCt <- function(data,
 
   data_slim <- data %>%
     filter(Group == group.study | Group == group.ref) %>%
-    pivot_longer(cols = -c(Group, Sample), names_to = "gene", values_to = "value")
+    pivot_longer(cols = -c(Group, Sample), names_to = "Gene", values_to = "value")
 
   data_slim$Group <- as.factor(data_slim$Group)
 
   data_FCh <- data_slim %>%
-    group_by(Group, gene) %>%
+    group_by(Group, Gene) %>%
     summarise(value = mean(value, na.rm = TRUE), .groups = "keep") %>%
     pivot_wider(names_from = Group, values_from = value) %>%
     mutate(FCh = .data[[group.study]]/.data[[group.ref]]) %>%
-    mutate(log10FCh = log10(FCh)) %>%
     as.data.frame()
 
   data_FCh_sd <- data_slim %>%
-    group_by(Group, gene) %>%
+    group_by(Group, Gene) %>%
     summarise(value_sd = sd(value, na.rm = TRUE), .groups = "keep") %>%
     pivot_wider(names_from = Group, values_from = value_sd) %>%
     rename_with(~paste0(.x, "_sd", recycle0 = TRUE), all_of(c(group.study, group.ref)))
@@ -720,30 +633,30 @@ RQ_exp_Ct_dCt <- function(data,
   if (do.tests == TRUE){
 
     data_FCh_norm <- data_slim %>%
-      group_by(Group, gene) %>%
+      group_by(Group, Gene) %>%
       summarise(shap_wilka_p = shapiro.test(value)$p.value, .groups = "keep") %>%
       pivot_wider(names_from = Group, values_from = shap_wilka_p) %>%
       rename_with(~paste0(.x, "_norm_p", recycle0 = TRUE), all_of(c(group.study, group.ref))) %>%
-      full_join(data_FCh, by = c("gene")) %>%
+      full_join(data_FCh, by = c("Gene")) %>%
       rename_with(~paste0(.x, "_mean", recycle0 = TRUE), all_of(c(group.study, group.ref)))
 
     data_FCh_tests <- data_slim %>%
-      group_by(gene) %>%
+      group_by(Gene) %>%
       summarise(t_test_p = t.test(value ~ Group, alternative = "two.sided")$p.value,
                 t_test_stat = t.test(value ~ Group, alternative = "two.sided")$statistic,
                 MW_test_p = pvalue(wilcox_test(value ~ Group)),
                 MW_test_stat = statistic(wilcox_test(value ~ Group)), .groups = "keep")
-    data_FCh_norm_tests <- full_join(data_FCh_norm, data_FCh_tests, by = c("gene"))
-    data_FCh_results <- full_join(data_FCh_norm_tests, data_FCh_sd, by = c("gene"))
-    data_FCh_results <- select(data_FCh_results, gene, ends_with("_mean"), ends_with("_sd"), everything())
+    data_FCh_norm_tests <- full_join(data_FCh_norm, data_FCh_tests, by = c("Gene"))
+    data_FCh_results <- full_join(data_FCh_norm_tests, data_FCh_sd, by = c("Gene"))
+    data_FCh_results <- select(data_FCh_results, Gene, ends_with("_mean"), ends_with("_sd"), everything())
 
     return(data_FCh_results)
 
   } else {
 
-    data_FCh_results <- full_join(data_FCh, data_FCh_sd, by = c("gene"))
+    data_FCh_results <- full_join(data_FCh, data_FCh_sd, by = c("Gene"))
     data_FCh_results <- rename_with(data_FCh_results, ~paste0(.x, "_mean", recycle0 = TRUE), all_of(c(group.study, group.ref)))
-    data_FCh_results <- select(data_FCh_results, gene, ends_with("_mean"), ends_with("_sd"), everything())
+    data_FCh_results <- select(data_FCh_results, Gene, ends_with("_mean"), ends_with("_sd"), everything())
 
     return(data_FCh_results)
   }
@@ -751,7 +664,6 @@ RQ_exp_Ct_dCt <- function(data,
     write.table(data_FCh_results, paste(name.txt,".txt", sep = ""))
   }
 }
-
 
 
 
@@ -777,7 +689,7 @@ RQ_exp_Ct_dCt <- function(data,
 #' library(tidyverse)
 #' data(data.Ct)
 #' data.CtF <- filter_Ct(data.Ct,
-#'                       remove.gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+#'                       remove.Gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
 #'                       remove.Sample = c("Control08","Control16","Control22"))
 #' data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
 #' reference.stability.nF <- norm_finder(data.CtF.ready,
@@ -792,14 +704,14 @@ norm_finder <- function(data,
                         name.txt = "NormFinder_results"){
 
   data.t <- data %>%
-    pivot_longer(!c(Sample, Group), names_to = "gene", values_to = "Ct") %>%
-    filter(gene %in% candidates) %>%
+    pivot_longer(!c(Sample, Group), names_to = "Gene", values_to = "Ct") %>%
+    filter(Gene %in% candidates) %>%
     pivot_wider(id_cols = !c(Group), names_from = "Sample", values_from = "Ct")
 
   last.row <- c("Group", data$Group)
   dat0 <- rbind(as.data.frame(data.t), last.row)
-  rownames(dat0) <- dat0[,"gene"]
-  dat0 <- select(dat0, -gene)
+  rownames(dat0) <- dat0[,"Gene"]
+  dat0 <- select(dat0, -Gene)
 
   ntotal = dim(dat0)[2]
   k0 = dim(dat0)[1]
@@ -910,9 +822,6 @@ norm_finder <- function(data,
 
 
 
-
-
-
 #' @title find_ref_gene
 #'
 #' @description
@@ -922,10 +831,12 @@ norm_finder <- function(data,
 #' reference gene for normalization of Ct values.
 #'
 #' @param data object returned from make_Ct_ready() functions,
-#'
 #' @param candidates character: vector of names of genes - candidates for gene reference.
 #' @param groups character vector length of two with names of compared groups
 #' @param colors character: vector of colors for genes, number of elements should be equal to number of candidate genes (elements in `candidates` vector).
+#' @param vif.score logical: if TRUE, VIF colinearity coefficient will be calculated.
+#' @param norm.finder.score logical: if TRUE, NormFinder stability score will be calculated.
+#' @param genorm.score logical: if TRUE, geNorm stability score will be calculated.
 #' @param line.width numeric: width of lines drawn in the plot. Default to 1.
 #' @param angle integer: value of angle in which names of genes should be displayed. Default to 0.
 #' @param x.axis.title character: title of x axis. Default to "".
@@ -955,12 +866,16 @@ norm_finder <- function(data,
 #'library(tidyverse)
 #' data(data.Ct)
 #' data.CtF <- filter_Ct(data.Ct,
-#'                        remove.gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+#'                        remove.Gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
 #'                        remove.Sample = c("Control08","Control16","Control22"))
 #' data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
-#' ref <- find_ref_gene(data.CtF.ready, groups = c("Disease","Control"),
-#'                           candidates = c("Gene4", "Gene8","Gene10","Gene16","Gene17", "Gene18"),
-#'                           col = c("#66c2a5", "#fc8d62","#6A6599", "#D62728", "#1F77B4", "black"))
+#' ref <- find_ref_gene(data.CtF.ready,
+#'                      groups = c("Disease","Control"),
+#'                      candidates = c("Gene4", "Gene8","Gene10","Gene16","Gene17", "Gene18"),
+#'                      col = c("#66c2a5", "#fc8d62","#6A6599", "#D62728", "#1F77B4", "black"),
+#'                      vif.score = TRUE,
+#'                      norm.finder.score = TRUE,
+#'                      genorm.score = TRUE)
 #' ref[[2]]
 #'
 #' @importFrom base mean print min max as.data.frame
@@ -972,31 +887,34 @@ norm_finder <- function(data,
 #' @import tidyverse
 #'
 find_ref_gene <- function(data,
-                            groups,
-                            candidates,
-                            colors,
-                            line.width = 1,
-                            angle = 0,
-                            x.axis.title = "",
-                            y.axis.title = "Ct",
-                            axis.title.size = 11,
-                            axis.text.size = 10,
-                            legend.title = "",
-                            legend.title.size = 11,
-                            legend.text.size = 11,
-                            legend.position = "top",
-                            plot.title = "",
-				          	        plot.title.size = 14,
-				          	        save.to.tiff = FALSE,
-                            dpi = 600, width = 15, height = 15,
-                            name.tiff = "Ct_reference_gene_selection"){
+                          groups,
+                          candidates,
+                          colors,
+                          vif.score = FALSE,
+                          norm.finder.score = FALSE,
+                          genorm.score = FALSE,
+                          line.width = 1,
+                          angle = 0,
+                          x.axis.title = "",
+                          y.axis.title = "Ct",
+                          axis.title.size = 11,
+                          axis.text.size = 10,
+                          legend.title = "",
+                          legend.title.size = 11,
+                          legend.text.size = 11,
+                          legend.position = "top",
+                          plot.title = "",
+			          	        plot.title.size = 14,
+			          	        save.to.tiff = FALSE,
+                          dpi = 600, width = 15, height = 15,
+                          name.tiff = "Ct_reference_gene_selection"){
 
   ref <- data %>%
-      filter(Group == groups[1] | Group == groups[2]) %>%
-      pivot_longer(cols = -c(Group, Sample), names_to = "gene", values_to = "Ct") %>%
-      filter(gene %in% candidates)
+      #filter(Group == groups[1] | Group == groups[2]) %>%
+      pivot_longer(cols = -c(Group, Sample), names_to = "Gene", values_to = "Ct") %>%
+      filter(Gene %in% candidates)
 
-  ref_plot <- ggplot(ref, aes(x = Sample, y = Ct, color = gene, group = gene)) +
+  ref_plot <- ggplot(ref, aes(x = Sample, y = Ct, color = Gene, group = Gene)) +
     geom_line(linewidth = line.width) +
     scale_color_manual(values = c(colors)) +
     guides(x =  guide_axis(angle = angle)) +
@@ -1018,18 +936,19 @@ find_ref_gene <- function(data,
   }
 
   ref_var <- ref %>%
-    group_by(gene) %>%
+    group_by(Gene) %>%
     summarise(min = min(Ct),
               max = max(Ct),
               sd = sd(Ct, na.rm = TRUE),
               var = var(Ct, na.rm = TRUE), .groups = "keep") %>%
     as.data.frame()
 
+  if (vif.score == TRUE){
   ref_lm <- data %>%
     filter(Group %in% groups[1]) %>%
     ungroup()
 
-  ref_lm$dum <- c(1:nrow(ref_lm))
+  ref_lm$dum <- sample(1:nrow(ref_lm), nrow(ref_lm), replace = FALSE)
   model <- lm(dum ~ ., data = select(ref_lm, -Sample, -Group))
   vif <- vif(model)
   vif_sel <- vif[names(vif) %in% candidates]
@@ -1046,12 +965,16 @@ find_ref_gene <- function(data,
   vif_sel2 <- vif2[names(vif2) %in% candidates]
   ref_var$VIF2 <- vif_sel2
   colnames(ref_var)[colnames(ref_var) == "VIF2"] = paste(groups[2], "_VIF", sep = "")
+  }
 
-
+if (norm.finder.score == TRUE){
   reference.stability.nF <- norm_finder(data, candidates = candidates)
   colnames(reference.stability.nF) <- "NormFinder_score"
-  reference.stability.nF$gene <- rownames(reference.stability.nF)
-
+  reference.stability.nF$Gene <- rownames(reference.stability.nF)
+  ref_var <- ref_var %>%
+    full_join(reference.stability.nF, by = join_by(Gene))
+}
+  if (genorm.score == TRUE){
   data <- data %>%
     ungroup() %>%
     select(-Group) %>%
@@ -1063,16 +986,19 @@ find_ref_gene <- function(data,
   data <- as.matrix(data)
 
   reference.stability.gF <- geNorm(data,
-         genes = data.frame(gene = character(0), geNorm_score = numeric(0)),
+         genes = data.frame(Gene = character(0), geNorm_score = numeric(0)),
          ctVal = TRUE)
-  colnames(reference.stability.gF) <- c("gene", "geNorm_score")
+  colnames(reference.stability.gF) <- c("Gene", "geNorm_score")
+  ref_var <- ref_var %>%
+    full_join(reference.stability.gF, by = join_by(Gene))
 
-  results <- ref_var %>%
-    full_join(reference.stability.nF, by = join_by(gene)) %>%
-    full_join(reference.stability.gF, by = join_by(gene))
+  }
 
-  return(list(ref_plot, as.data.frame(results)))
+  return(list(ref_plot, as.data.frame(ref_var)))
 }
+
+
+
 
 
 
@@ -1094,7 +1020,7 @@ find_ref_gene <- function(data,
 #' library(tidyverse)
 #' data(data.Ct)
 #' data.CtF <- filter_Ct(data.Ct,
-#'                       remove.gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+#'                       remove.Gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
 #'                       remove.Sample = c("Control08","Control16","Control22"))
 #' data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
 #' data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
@@ -1128,6 +1054,7 @@ delta_Ct <- function(data,
 
 
 
+
 #' @title control_boxplot_sample
 #'
 #' @description
@@ -1136,7 +1063,7 @@ delta_Ct <- function(data,
 #' @param data object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.
 #' @param sel.Sample character vector with names of samples to include, or "all" (default) to use all samples.
 #' @param coef numeric: how many times of interquartile range should be used to indicate the most extend data point for whiskers. Default to 1.5.
-#' @param colors character vector length of two, containing colors for compared groups. Default to c("#66c2a5", "#fc8d62").
+#' @param colors character vector containing colors for compared groups. Numbers of colors must be equal to number of groups. Default to c("#66c2a5", "#fc8d62").
 #' @param x.axis.title character: title of x axis. Default to "Sample".
 #' @param y.axis.title character: title of y axis. Default to "value".
 #' @param axis.title.size integer: font size of axis titles. Default to 12.
@@ -1161,7 +1088,7 @@ delta_Ct <- function(data,
 #' library(tidyverse)
 #' data(data.Ct)
 #' data.CtF <- filter_Ct(data.Ct,
-#'                       remove.gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+#'                       remove.Gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
 #'                       remove.Sample = c("Control08","Control16","Control22"))
 #' data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
 #' data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
@@ -1196,7 +1123,7 @@ control_boxplot_sample <- function(data,
     data <- filter(data, Sample %in% sel.Sample)
   }
 
-    data <- pivot_longer(data, !c(Sample, Group), names_to = "gene" , values_to = "value")
+    data <- pivot_longer(data, !c(Sample, Group), names_to = "Gene" , values_to = "value")
 
     box_control_sample <- ggplot(data, aes(x = Sample, y = value, color = Group)) +
       geom_boxplot(coef = coef) +
@@ -1224,18 +1151,20 @@ control_boxplot_sample <- function(data,
 
 
 
+
+
 #' @title control_boxplot_gene
 #'
 #' @description
 #' This function creates boxplot illustrating distribution of data in each gene. Could be useful to compare expression of analyzed genes.
 #'
 #' @param data object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.
-#' @param sel.genes character vector with names of genes to include, or "all" (default) to use all names of genes.
+#' @param sel.Gene character vector with names of genes to include, or "all" (default) to use all names of genes.
 #' @param by.group logical: if TRUE, distributions will be drawn by compared groups of samples.
 #' @param coef numeric: how many times of interquartile range should be used to indicate the most extend data point for whiskers.
-#' @param colors character vector length of one (when by.group = FALSE) or two (when by.group = TRUE), containing colors for groups.
+#' @param colors character vector containing colors for groups, length of one (when by.group = FALSE) or equal to number of groups (when by.group = TRUE).
 #' @param coef numeric: how many times of interquartile range should be used to indicate the most extend data point for whiskers. Default to 1.5.
-#' @param x.axis.title character: title of x axis. Default to "gene".
+#' @param x.axis.title character: title of x axis. Default to "Gene".
 #' @param y.axis.title character: title of y axis. Default to "value".
 #' @param axis.title.size integer: font size of axis titles. Default to 12.
 #' @param axis.text.size integer: font size of axis text. Default to 12.
@@ -1259,7 +1188,7 @@ control_boxplot_sample <- function(data,
 #' library(tidyverse)
 #' data(data.Ct)
 #' data.CtF <- filter_Ct(data.Ct,
-#'                       remove.gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+#'                       remove.Gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
 #'                       remove.Sample = c("Control08","Control16","Control22"))
 #' data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
 #' data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
@@ -1270,13 +1199,13 @@ control_boxplot_sample <- function(data,
 #' @import tidyverse
 #'
 control_boxplot_gene <- function(data,
-                                   sel.genes = "all",
+                                   sel.Gene = "all",
                                    coef = 1.5,
                                    by.group = TRUE,
                                    colors = c("#66c2a5", "#fc8d62"),
                                    axis.title.size = 11,
                                    axis.text.size = 12,
-                                   x.axis.title = "gene",
+                                   x.axis.title = "Gene",
                                    y.axis.title = "value",
                                    legend.title = "Group",
                                    legend.title.size = 11,
@@ -1287,30 +1216,31 @@ control_boxplot_gene <- function(data,
                                    save.to.tiff = FALSE,
                                    dpi = 600, width = 15, height = 15,
                                    name.tiff = "control_boxplot_genes"){
-  if (sel.genes[1] == "all"){
+  if (sel.Gene[1] == "all"){
     data <- data
 
   } else {
 
-    data <- select(data, Group, Sample, any_of(sel.genes))
+    data <- select(data, Group, Sample, any_of(sel.Gene))
   }
 
-  data <- pivot_longer(data, !c(Sample, Group), names_to = "gene" , values_to = "value")
+  data <- pivot_longer(data, !c(Sample, Group), names_to = "Gene" , values_to = "value")
 
   if (by.group == TRUE){
-    box_control_genes <- ggplot(data, aes(x = gene, y = value, color = Group)) +
+    box_control_genes <- ggplot(data, aes(x = Gene, y = value, color = Group)) +
       geom_boxplot(coef = coef) +
+      scale_color_manual(values = c(colors)) +
       labs(color = legend.title, title = plot.title)
 
   } else {
 
-    box_control_genes <- ggplot(data, aes(x = gene, y = value)) +
+    box_control_genes <- ggplot(data, aes(x = Gene, y = value)) +
       geom_boxplot(coef = coef, fill = colors[1]) +
       labs(title = plot.title)
   }
 
   box_control_genes <- box_control_genes +
-    scale_x_discrete(limits = rev(unique(data$gene))) +
+    scale_x_discrete(limits = rev(unique(data$Gene))) +
     coord_flip() +
     xlab(x.axis.title) +
     ylab(y.axis.title) +
@@ -1361,7 +1291,7 @@ control_boxplot_gene <- function(data,
 #' library(tidyverse)
 #' data(data.Ct)
 #' data.CtF <- filter_Ct(data.Ct,
-#'                       remove.gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+#'                       remove.Gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
 #'                       remove.Sample = c("Control08","Control16","Control22"))
 #' data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
 #' data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
@@ -1406,16 +1336,18 @@ control_cluster_sample <- function(data,
 
 
 
+
+
 #' @title control_cluster_gene
 #'
 #' @description
 #' Performs hierarchical clustering of genes based on the data. Could be useful to gain insight into similarity in expression of analyzed genes.
 #'
 #' @param data object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.
-#' @param sel.genes character vector with names of genes to include, or "all" (default) to use all names of genes.
+#' @param sel.Gene character vector with names of genes to include, or "all" (default) to use all names of genes.
 #' @param method.dist character: name of method used for calculation of distances, derived from stats::dist() function, should be one of "euclidean" (default) , "maximum", "manhattan", "canberra", "binary" or "minkowski".
 #' @param method.clust character: name of used method for agglomeration, derived from stats::hclust() function, should be one of "ward.D", "ward.D2", "single", "complete", "average" (default), "mcquitty", "median" or "centroid".
-#' @param x.axis.title character: title of x axis. Default to "genes".
+#' @param x.axis.title character: title of x axis. Default to "Genes".
 #' @param y.axis.title character: title of y axis. Default to "Height".
 #' @param plot.title character: title of plot. Default to "".
 #' @param label.size numeric: size of text labels. Defaault to 1.
@@ -1432,7 +1364,7 @@ control_cluster_sample <- function(data,
 #' library(tidyverse)
 #' data(data.Ct)
 #' data.CtF <- filter_Ct(data.Ct,
-#'                       remove.gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+#'                       remove.Gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
 #'                       remove.Sample = c("Control08","Control16","Control22"))
 #' data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
 #' data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
@@ -1445,9 +1377,9 @@ control_cluster_sample <- function(data,
 #'
 control_cluster_gene <- function (data,
                                     method.dist = "euclidean",
-                                    sel.genes = "all",
+                                    sel.Gene = "all",
                                     method.clust = "average",
-                                    x.axis.title = "genes",
+                                    x.axis.title = "Genes",
                                     y.axis.title = "Height",
                                     label.size = 1,
                                     plot.title = "",
@@ -1455,12 +1387,12 @@ control_cluster_gene <- function (data,
                                     dpi = 600, width = 15, height = 15,
                                     name.tiff = "control_clust_genes")
 {
-  if (sel.genes[1] == "all"){
+  if (sel.Gene[1] == "all"){
     data <- data
 
   } else {
 
-    data <- select(data, Group, Sample, any_of(sel.genes))
+    data <- select(data, Group, Sample, any_of(sel.Gene))
   }
 
   data_t <- ungroup(data)
@@ -1481,6 +1413,7 @@ control_cluster_gene <- function (data,
 
 
 
+
 #' @title control_pca_sample
 #'
 #' @description
@@ -1495,7 +1428,7 @@ control_cluster_gene <- function (data,
 #' @param label.size numeric: size of points labels (names of samples). Default to 3.
 #' @param hjust numeric: horizontal position of points labels. Default to 0.
 #' @param vjust numeric: vertical position of points labels.  Default to -1.
-#' @param colors character vector length of two, containing colors for compared groups.
+#' @param colors character vector containing colors for compared groups. Numbers of colors must be equal to number of groups. Default to c("#66c2a5", "#fc8d62").
 #' @param axis.title.size integer: font size of axis titles. Default to 12.
 #' @param axis.text.size integer: font size of axis text. Default to 10.
 #' @param legend.title character: title of legend. Default to "Group".
@@ -1518,7 +1451,7 @@ control_cluster_gene <- function (data,
 #' library(tidyverse)
 #' data(data.Ct)
 #' data.CtF <- filter_Ct(data.Ct,
-#'                       remove.gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+#'                       remove.Gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
 #'                       remove.Sample = c("Control08","Control16","Control22"))
 #' data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
 #' data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
@@ -1592,6 +1525,12 @@ control_pca_sample <- function(data,
 
 
 
+
+
+
+
+
+
 #' @title control_pca_gene
 #'
 #' @description
@@ -1599,7 +1538,7 @@ control_pca_sample <- function(data,
 #' IMPORTANT: PCA analysis can not deal with missing values, thus all genes with at least one missing value are removed from data before analysis. It is recommended to run this function on data after imputation of missing values.
 #'
 #' @param data object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.
-#' @param sel.genes character vector with names of genes to include, or "all" (default) to use all names of genes.
+#' @param sel.Gene character vector with names of genes to include, or "all" (default) to use all names of genes.
 #' @param point.size numeric: size of points. Default to 4.
 #' @param point.shape integer: shape of points. Default to 19.
 #' @param alpha numeric: transparency of points, a value between 0 and 1. Default to 0.7.
@@ -1629,7 +1568,7 @@ control_pca_sample <- function(data,
 #' library(tidyverse)
 #' data(data.Ct)
 #' data.CtF <- filter_Ct(data.Ct,
-#'                       remove.gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+#'                       remove.Gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
 #'                       remove.Sample = c("Control08","Control16","Control22"))
 #' data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
 #' data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
@@ -1641,7 +1580,7 @@ control_pca_sample <- function(data,
 #' @import tidyverse
 #'
 control_pca_gene <- function(data,
-                               sel.genes = "all",
+                               sel.Gene = "all",
                                point.size = 4,
                                point.shape = 19,
                                alpha = 0.7,
@@ -1658,12 +1597,12 @@ control_pca_gene <- function(data,
                                save.to.tiff = FALSE,
                                dpi = 600, width = 15, height = 15,
                               name.tiff = "control_pca_genes"){
-  if (sel.genes[1] == "all"){
+  if (sel.Gene[1] == "all"){
     data <- data
 
   } else {
 
-    data <- select(data, Group, Sample, any_of(sel.genes))
+    data <- select(data, Group, Sample, any_of(sel.Gene))
   }
 
   data <- ungroup(data)
@@ -1675,9 +1614,9 @@ control_pca_gene <- function(data,
   var_pca1 <- summary(pca)$importance[2,][1]
   var_pca2 <- summary(pca)$importance[2,][2]
   pca_comp <- as.data.frame(pca$x)
-  pca_comp$gene <- rownames(pca_comp)
+  pca_comp$Gene <- rownames(pca_comp)
 
-  control_pca <- ggplot(pca_comp, aes(x = PC1, y = PC2, label = gene)) +
+  control_pca <- ggplot(pca_comp, aes(x = PC1, y = PC2, label = Gene)) +
     geom_point(size = point.size, shape = point.shape, alpha = alpha, col = color) +
     labs(title = plot.title) +
     theme_bw() +
@@ -1687,7 +1626,7 @@ control_pca_gene <- function(data,
     theme(axis.text = element_text(size = axis.text.size, colour = "black")) +
     theme(axis.title = element_text(size = axis.title.size, colour="black")) +
     theme(plot.title = element_text(size = plot.title.size)) +
-    geom_text(aes(label = gene), hjust = hjust, vjust = vjust, size = label.size)
+    geom_text(aes(label = Gene), hjust = hjust, vjust = vjust, size = label.size)
 
   print(control_pca)
 
@@ -1700,13 +1639,14 @@ control_pca_gene <- function(data,
 
 
 
+
 #' @title corr_gene
 #'
 #' @description
 #' Performs correlation analysis of genes based on the data. Could be useful to gain insight into relationships between analyzed genes.
 #'
 #' @param data object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.
-#' @param sel.genes character vector with names of genes to include, or "all" (default) to use all names of genes.
+#' @param sel.Gene character vector with names of genes to include, or "all" (default) to use all names of genes.
 #' @param add.coef if coefficients should be add to the plot, specify color of coefficients (default to "black"), otherwise set to NULL.
 #' @param method character: type of correlations to compute, specify "pearson" (default) for Pearson's correlation coefficients
 #' or "spearman" for Spearman's rank correlation coefficients.
@@ -1734,7 +1674,7 @@ control_pca_gene <- function(data,
 #' library(corrplot)
 #' data(data.Ct)
 #' data.CtF <- filter_Ct(data.Ct,
-#'                       remove.gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+#'                       remove.Gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
 #'                       remove.Sample = c("Control08","Control16","Control22"))
 #' data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
 #' data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
@@ -1748,7 +1688,7 @@ control_pca_gene <- function(data,
 #' @import corrplot
 #' @import tidyverse
 #'
-corr_gene <- function(data,sel.genes = "all",
+corr_gene <- function(data,sel.Gene = "all",
                                 method = "pearson",
                                 add.coef = "black",
                                 order = "hclust",
@@ -1761,12 +1701,12 @@ corr_gene <- function(data,sel.genes = "all",
                                 name.tiff = "corr_genes",
                                 save.to.txt = FALSE,
                                 name.txt = "corr_genes"){
-  if (sel.genes[1] == "all"){
+  if (sel.Gene[1] == "all"){
     data <- data
 
   } else {
 
-    data <- select(data, Group, Sample, any_of(sel.genes))
+    data <- select(data, Group, Sample, any_of(sel.Gene))
   }
 
   data <- as.data.frame(data)
@@ -1864,7 +1804,7 @@ corr_gene <- function(data,sel.genes = "all",
 #' library(corrplot)
 #' data(data.Ct)
 #' data.CtF <- filter_Ct(data.Ct,
-#'                       remove.gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+#'                       remove.Gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
 #'                       remove.Sample = c("Control08","Control16","Control22"))
 #' data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
 #' data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
@@ -1974,7 +1914,7 @@ corr_sample <- function(data, sel.Sample = "all",
 #' @param point.size numeric: size of points. Default to 4.
 #' @param point.shape integer: shape of points. Default to 19.
 #' @param point.alpha numeric: transparency of points, a value between 0 and 1. Default to 0.7.
-#' @param colors character: color for points (if by.group = FALSE) or vector of two colors for points, used to distinguish groups (if by.group = TRUE).
+#' @param colors character vector containing colors for compared groups. Numbers of colors must be equal to number of groups. Default to c("#66c2a5", "#fc8d62").
 #' @param axis.title.size integer: font size of axis titles. Default to 12.
 #' @param axis.text.size integer: font size of axis text. Default to 10.
 #' @param legend.title character: title of legend. Default to "Group".
@@ -2003,7 +1943,7 @@ corr_sample <- function(data, sel.Sample = "all",
 #' library(ggpmisc)
 #' data(data.Ct)
 #' data.CtF <- filter_Ct(data.Ct,
-#'                       remove.gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+#'                       remove.Gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
 #'                       remove.Sample = c("Control08","Control16","Control22"))
 #' data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
 #' data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
@@ -2102,7 +2042,6 @@ single_pair_gene <- function(data, x, y, by.group = TRUE,
 
 
 
-
 #' @title single_pair_sample
 #'
 #' @description
@@ -2137,7 +2076,7 @@ single_pair_gene <- function(data, x, y, by.group = TRUE,
 #' library(ggpmisc)
 #' data(data.Ct)
 #' data.CtF <- filter_Ct(data.Ct,
-#'                       remove.gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+#'                       remove.Gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
 #'                       remove.Sample = c("Control08","Control16","Control22"))
 #' data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
 #' data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
@@ -2213,7 +2152,7 @@ single_pair_sample <- function(data, x, y,
 #' Filters transformed Ct data (2^(-Ct), delta Ct, and 2^(-dCt) data) according to the used filtering criteria (see parameters).
 #'
 #' @param data object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.
-#' @param remove.gene character: vector with names of genes which should be removed from data.
+#' @param remove.Gene character: vector with names of genes which should be removed from data.
 #' @param remove.Sample character: vector with names of samples which should be removed from data.
 #' @param remove.Group character: vector with names of groups which should be removed from data.
 #'
@@ -2224,7 +2163,7 @@ single_pair_sample <- function(data, x, y,
 #' library(tidyverse)
 #' data(data.Ct)
 #' data.CtF <- filter_Ct(data.Ct,
-#'                       remove.gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+#'                       remove.Gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
 #'                       remove.Sample = c("Control08","Control16","Control22"))
 #' data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
 #' data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
@@ -2239,7 +2178,7 @@ single_pair_sample <- function(data, x, y,
 #' @import tidyverse
 #'
 filter_transformed_data <- function(data,
-                                  remove.gene = c(""),
+                                  remove.Gene = c(""),
                                   remove.Sample = c(""),
                                   remove.Group = c("")){
 
@@ -2247,7 +2186,7 @@ filter_transformed_data <- function(data,
                  !Sample %in% remove.Sample,
                  !Group %in% remove.Group)
 
-  data <- select(data, -any_of(remove.gene))
+  data <- select(data, -any_of(remove.Gene))
 
   return(data)
 }
@@ -2273,7 +2212,7 @@ filter_transformed_data <- function(data,
 #'
 #' @param data object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.
 #' @param coef numeric: how many times of interquartile range should be used to indicate the most extend data point for whiskers. Default to 1.5.
-#' @param sel.genes character vector with names of genes to include, or "all" (default) to use all names of genes.
+#' @param sel.Gene character vector with names of genes to include, or "all" (default) to use all names of genes.
 #' @param by.group logical: if TRUE (default), distributions will be drawn by compared groups of samples.
 #' @param signif.show logical: if TRUE, labels for statistical significance will be added to the plot.
 #' @param signif.labels character vector with statistical significance labels (ex. "ns.","***", etc.) with number
@@ -2292,8 +2231,8 @@ filter_transformed_data <- function(data,
 #' @param add.mean logical: if TRUE, means will be added to boxes as squares. Default to TRUE.
 #' @param add.mean.size numeric: size of squares indicating means. Default to 2.
 #' @param add.mean.color character: color of squares indicating means. Default to "black".
-#' @param colors character vector length of one (when by.group = FALSE) or two (when by.group = TRUE), containing colors for groups.
-#' @param x.axis.title character: title of x axis. Default to "gene".
+#' @param colors character vector length of one (when by.group = FALSE) or more (when by.group = TRUE), containing colors for groups. Numbers of colors must be equal to number of groups. Default to c("#66c2a5", "#fc8d62").
+#' @param x.axis.title character: title of x axis. Default to "Gene".
 #' @param y.axis.title character: title of y axis. Default to "value".
 #' @param axis.title.size integer: font size of axis titles. Default to 12.
 #' @param axis.text.size integer: font size of axis text. Default to 10.
@@ -2318,14 +2257,14 @@ filter_transformed_data <- function(data,
 #' library(tidyverse)
 #' data(data.Ct)
 #' data.CtF <- filter_Ct(data.Ct,
-#'                       remove.gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+#'                       remove.Gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
 #'                       remove.Sample = c("Control08","Control16","Control22"))
 #' data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
 #' data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
 #' data.dCt.exp <- exp_delta_Ct(data.dCt)
 #' data.dCt.expF <- filter_transformed_data(data.dCt.exp, remove.Sample = c("Control11"))
 #' results_boxplot(data.dCt.exp,
-#'                 sel.genes = c("Gene1","Gene16","Gene19","Gene20"),
+#'                 sel.Gene = c("Gene1","Gene16","Gene19","Gene20"),
 #'                 signif.labels = c("****","*","***"," * "),
 #'                 angle = 30,
 #'                 signif.dist = 1.05,
@@ -2342,7 +2281,7 @@ filter_transformed_data <- function(data,
 #'
 results_boxplot <- function(data,
                             coef = 1.5,
-                            sel.genes = "all",
+                            sel.Gene = "all",
                             by.group = TRUE,
                             signif.show = TRUE,
                             signif.labels,
@@ -2373,30 +2312,30 @@ results_boxplot <- function(data,
                             dpi = 600, width = 15, height = 15,
                             name.tiff = "results_boxplot"){
 
-  data <- pivot_longer(data, !c(Sample, Group), names_to = "gene" , values_to = "value")
+  data <- pivot_longer(data, !c(Sample, Group), names_to = "Gene" , values_to = "value")
 
-  if (sel.genes[1] == "all"){
+  if (sel.Gene[1] == "all"){
     data <- data
 
   } else {
 
-    data <- filter(data, gene %in% sel.genes)
+    data <- filter(data, Gene %in% sel.Gene)
   }
 
   if (by.group == TRUE){
 
-    box_results <- ggplot(data, aes(x = gene, y = value)) +
+    box_results <- ggplot(data, aes(x = Gene, y = value)) +
       geom_boxplot(aes(fill = Group), coef = 1.5) +
       scale_fill_manual(values = c(colors)) +
       labs(fill = legend.title, title = plot.title)
 
     if (signif.show == TRUE){
       label.height <- data %>%
-        group_by(gene) %>%
+        group_by(Gene) %>%
         summarise(height = max(value), .groups = "keep")
 
-      data.label <- data.frame(matrix(nrow = length(unique(label.height$gene)), ncol = 4))
-      rownames(data.label) <- label.height$gene
+      data.label <- data.frame(matrix(nrow = length(unique(label.height$Gene)), ncol = 4))
+      rownames(data.label) <- label.height$Gene
       colnames(data.label) <- c("x", "xend", "y", "annotation")
 
 
@@ -2413,7 +2352,7 @@ results_boxplot <- function(data,
 
       }
       data.label$annotation <- signif.labels
-      data.label$gene <- rownames(data.label)
+      data.label$Gene <- rownames(data.label)
 
       box_results <- box_results +
         geom_signif(stat = "identity",
@@ -2432,18 +2371,18 @@ results_boxplot <- function(data,
     if (faceting == TRUE) {
       box_results <- box_results +
         theme(axis.text.x = element_blank(), axis.ticks.x = element_blank()) +
-        facet_wrap(vars(gene), scales = "free", nrow = facet.row, ncol = facet.col)
+        facet_wrap(vars(Gene), scales = "free", nrow = facet.row, ncol = facet.col)
     }
       } else {
 
-    box_results <- ggplot(data, aes(x = gene, y = value)) +
+    box_results <- ggplot(data, aes(x = Gene, y = value)) +
       geom_boxplot(coef = coef, fill = colors[1]) +
       labs(title = plot.title)
 
     if (faceting == TRUE) {
       box_results <- box_results +
         theme(axis.text.x = element_blank(), axis.ticks.x = element_blank()) +
-        facet_wrap(vars(gene), scales = "free", nrow = facet.row, ncol = facet.col)
+        facet_wrap(vars(Gene), scales = "free", nrow = facet.row, ncol = facet.col)
     }
   }
 
@@ -2508,7 +2447,7 @@ results_boxplot <- function(data,
 #' This function could be useful to present results for finally selected genes.
 #'
 #' @param data object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.
-#' @param sel.genes character vector with names of genes to include, or "all" (default) to use all names of genes.
+#' @param sel.Gene character vector with names of genes to include, or "all" (default) to use all names of genes.
 #' @param bar.width numeric: width of bars.
 #' @param signif.show logical: if TRUE, labels for statistical significance will be added to the plot.
 #' @param signif.labels character vector with statistical significance labels (ex. "ns.","***", etc.) with number
@@ -2524,8 +2463,8 @@ results_boxplot <- function(data,
 #' @param y.exp.low,y.exp.up numeric: space between data on the plot and lower or upper axis. Useful to add extra space for statistical significance labels when `faceting` = TRUE.
 #' @param angle integer: value of angle in which names of genes should be displayed. Default to 0.
 #' @param rotate logical: if TRUE, boxplots will be arranged horizontally. Deafault to FALSE.
-#' @param colors character vector length of one (when by.group = FALSE) or two (when by.group = TRUE), containing colors for groups.
-#' @param x.axis.title character: title of x axis. Default to "gene".
+#' @param colors character vector length of one (when by.group = FALSE) or two (when by.group = TRUE), containing colors for groups. Numbers of colors must be equal to number of groups. Default to c("#66c2a5", "#fc8d62").
+#' @param x.axis.title character: title of x axis. Default to "Gene".
 #' @param y.axis.title character: title of y axis. Default to "value".
 #' @param axis.title.size integer: font size of axis titles. Default to 12.
 #' @param axis.text.size integer: font size of axis text. Default to 10.
@@ -2550,14 +2489,14 @@ results_boxplot <- function(data,
 #' library(tidyverse)
 #' data(data.Ct)
 #' data.CtF <- filter_Ct(data.Ct,
-#'                       remove.gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+#'                       remove.Gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
 #'                       remove.Sample = c("Control08","Control16","Control22"))
 #' data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
 #' data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
 #' data.dCt.exp <- exp_delta_Ct(data.dCt)
 #' data.dCt.expF <- filter_transformed_data(data.dCt.exp, remove.Sample = c("Control11"))
 #' results_barplot(data.dCt.exp,
-#'                 sel.genes = c("Gene1","Gene16","Gene19","Gene20"),
+#'                 sel.Gene = c("Gene1","Gene16","Gene19","Gene20"),
 #'                 signif.labels = c("****","*","***"," * "),
 #'                 angle = 30,
 #'                 signif.dist = 1.05,
@@ -2573,7 +2512,7 @@ results_boxplot <- function(data,
 #' @import tidyverse
 #'
 results_barplot <- function(data,
-                            sel.genes = "all",
+                            sel.Gene = "all",
                             bar.width = 0.8,
                             signif.show = TRUE,
                             signif.labels,
@@ -2601,27 +2540,27 @@ results_barplot <- function(data,
                             dpi = 600, width = 15, height = 15,
                             name.tiff = "results_barplot"){
 
-  data <- pivot_longer(data, !c(Sample, Group), names_to = "gene" , values_to = "value")
+  data <- pivot_longer(data, !c(Sample, Group), names_to = "Gene" , values_to = "value")
 
-  if (sel.genes[1] == "all"){
+  if (sel.Gene[1] == "all"){
     data <- data
 
   } else {
 
-    data <- filter(data, gene %in% sel.genes)
+    data <- filter(data, Gene %in% sel.Gene)
   }
 
   data.mean <- data %>%
-    group_by(Group, gene) %>%
+    group_by(Group, Gene) %>%
     summarise(mean = mean(value, na.rm = TRUE), .groups = "keep")
 
   data.sd <- data %>%
-    group_by(Group, gene) %>%
+    group_by(Group, Gene) %>%
     summarise(sd = sd(value, na.rm = TRUE), .groups = "keep")
 
   data.mean$sd <- data.sd$sd
 
-    bar_results <- ggplot(data.mean, aes(x = gene, y = mean)) +
+    bar_results <- ggplot(data.mean, aes(x = Gene, y = mean)) +
       geom_errorbar(aes(group = Group, ymin=mean, ymax=mean+sd), width=.2,
                     position=position_dodge(.9)) +
       geom_col(aes(fill = Group, group = Group), position=position_dodge(.9), width = bar.width, color = "black") +
@@ -2642,33 +2581,33 @@ results_barplot <- function(data,
     if (faceting == TRUE) {
       bar_results <- bar_results +
         theme(axis.text.x = element_blank(), axis.ticks.x = element_blank()) +
-        facet_wrap(vars(gene), scales = "free", nrow = facet.row, ncol = facet.col)
+        facet_wrap(vars(Gene), scales = "free", nrow = facet.row, ncol = facet.col)
     }
 
     if (signif.show == TRUE) {
       label.height <- data.mean %>%
         mutate(max = mean + sd) %>%
-        group_by(gene) %>%
+        group_by(Gene) %>%
         summarise(height = max(max, na.rm = TRUE), .groups = "keep")
 
-      data.label <- data.frame(matrix(nrow = length(unique(data.mean$gene)), ncol = 4))
-      rownames(data.label) <- unique(data.mean$gene)
+      data.label <- data.frame(matrix(nrow = length(unique(data.mean$Gene)), ncol = 4))
+      rownames(data.label) <- unique(data.mean$Gene)
       colnames(data.label) <- c("x", "xend", "y", "annotation")
 
       if (faceting == TRUE) {
-        data.label$x <- rep(1 - signif.length, length(unique(data.mean$gene)))
-        data.label$xend <- rep(1 + signif.length, length(unique(data.mean$gene)))
+        data.label$x <- rep(1 - signif.length, length(unique(data.mean$Gene)))
+        data.label$xend <- rep(1 + signif.length, length(unique(data.mean$Gene)))
         data.label$y <- label.height$height * signif.dist
 
         } else {
 
-      data.label$x <- (1:length(unique(data.mean$gene))) - signif.length
-      data.label$xend <- (1:length(unique(data.mean$gene))) + signif.length
+      data.label$x <- (1:length(unique(data.mean$Gene))) - signif.length
+      data.label$xend <- (1:length(unique(data.mean$Gene))) + signif.length
       data.label$y <- label.height$height + signif.dist
     }
 
       data.label$annotation <- signif.labels
-      data.label$gene <- rownames(data.label)
+      data.label$Gene <- rownames(data.label)
 
       bar_results <- bar_results +
         geom_signif(stat = "identity",
@@ -2731,7 +2670,7 @@ results_barplot <- function(data,
 #' library(coin)
 #' data(data.Ct)
 #' data.CtF <- filter_Ct(data.Ct,
-#'                       remove.gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+#'                       remove.Gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
 #'                       remove.Sample = c("Control08","Control16","Control22"))
 #' data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
 #' data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
@@ -2754,12 +2693,12 @@ RQ_ddCt <- function(data,
 
   data_slim <- data %>%
     filter(Group == group.study | Group == group.ref) %>%
-    pivot_longer(cols = -c(Group, Sample), names_to = "gene", values_to = "dCt")
+    pivot_longer(cols = -c(Group, Sample), names_to = "Gene", values_to = "dCt")
 
   data_slim$Group <- as.factor(data_slim$Group)
 
   data_ddCt <- data_slim %>%
-    group_by(Group, gene) %>%
+    group_by(Group, Gene) %>%
     summarise(ddCt = mean(dCt, na.rm = TRUE), .groups = "keep") %>%
     pivot_wider(names_from = Group, values_from = ddCt) %>%
     mutate(ddCt = .data[[group.study]] - .data[[group.ref]]) %>%
@@ -2767,7 +2706,7 @@ RQ_ddCt <- function(data,
     rename_with(~paste0(.x, "_mean", recycle0 = TRUE), all_of(c(group.study, group.ref)))
 
   data_ddCt_sd <- data_slim %>%
-    group_by(Group, gene) %>%
+    group_by(Group, Gene) %>%
     summarise(dCt_sd = sd(dCt, na.rm = TRUE), .groups = "keep") %>%
     pivot_wider(names_from = Group, values_from = dCt_sd) %>%
     rename_with(~paste0(.x, "_sd", recycle0 = TRUE), all_of(c(group.study, group.ref)))
@@ -2775,30 +2714,30 @@ RQ_ddCt <- function(data,
   if (do.tests == TRUE){
 
     data_ddCt_norm <- data_slim %>%
-      group_by(Group, gene) %>%
+      group_by(Group, Gene) %>%
       summarise(shap_wilka_p = shapiro.test(dCt)$p.value, .groups = "keep") %>%
       pivot_wider(names_from = Group, values_from = shap_wilka_p) %>%
-      full_join(data_ddCt, by = c("gene")) %>%
+      full_join(data_ddCt, by = c("Gene")) %>%
       rename_with(~paste0(.x, "_norm_p", recycle0 = TRUE), all_of(c(group.study, group.ref)))
 
     data_ddCt_tests <- data_slim %>%
-      group_by(gene) %>%
+      group_by(Gene) %>%
       summarise(t_test_p = t.test(dCt ~ Group, alternative = "two.sided")$p.value,
                 t_test_stat = t.test(dCt ~ Group, alternative = "two.sided")$statistic,
                 MW_test_p = pvalue(wilcox_test(dCt ~ Group)),
                 MW_test_stat = statistic(wilcox_test(dCt ~ Group)), .groups = "keep")
 
-    data_ddCt_norm_tests <- full_join(data_ddCt_norm, data_ddCt_tests, by = c("gene"))
-    data_ddCt_results <- full_join(data_ddCt_norm_tests, data_ddCt_sd, by = c("gene"))
-    data_ddCt_results <- select(data_ddCt_results, gene, ends_with("_mean"), ends_with("_sd"), everything())
+    data_ddCt_norm_tests <- full_join(data_ddCt_norm, data_ddCt_tests, by = c("Gene"))
+    data_ddCt_results <- full_join(data_ddCt_norm_tests, data_ddCt_sd, by = c("Gene"))
+    data_ddCt_results <- select(data_ddCt_results, Gene, ends_with("_mean"), ends_with("_sd"), everything())
 
     return(data_ddCt_results)
 
     } else{
 
-      data_ddCt_results <- full_join(data_ddCt, data_ddCt_sd, by = c("gene"))
+      data_ddCt_results <- full_join(data_ddCt, data_ddCt_sd, by = c("Gene"))
       data_ddCt_results <- rename_with(data_ddCt_results, ~paste0(.x, "_mean", recycle0 = TRUE), all_of(c(group.study, group.ref)))
-      data_ddCt_results <- select(data_ddCt_results, gene, ends_with("_mean"), ends_with("_sd"), everything())
+      data_ddCt_results <- select(data_ddCt_results, Gene, ends_with("_mean"), ends_with("_sd"), everything())
 
     return(data_ddCt_results)
   }
@@ -2806,7 +2745,6 @@ RQ_ddCt <- function(data,
     write.table(data_ddCt_norm_tests, paste(name.txt,".txt", sep = ""))
   }
 }
-
 
 
 
@@ -2824,11 +2762,11 @@ RQ_ddCt <- function(data,
 #' values from Student's t test will be used for significance assessment, otherwise p values from Mann-Whitney U test will be used for significance assessment).
 #' There is one more option, if user intend to use another p values, ex. obtained from other statistical test,
 #' a mode parameter could be set to "user". In this situation, before run RQ_plot function, user should to prepare
-#' data.frame object names "user"with two columns, one named "gene" with gene names and second with p values. The order of columns must be kept as described.
+#' data.frame object names "user"with two columns, one named "Gene" with Gene names and second with p values. The order of columns must be kept as described.
 #' @param p.threshold numeric: threshold of p values for statistical significance.
 #' @param use.log10FCh logical: if TRUE, the criterion of fold change will be also used for significance assessment of genes.
 #' @param log10FCh.threshold numeric: threshold of log10 fold change values used for significance assessment of genes.
-#' @param sel.genes character vector with names of genes to include, or "all" (default) to use all names of genes.
+#' @param sel.Gene character vector with names of genes to include, or "all" (default) to use all names of genes.
 #' @param bar.width numeric: width of bars.
 #' @param signif.show logical: if TRUE, labels for statistical significance will be added to the plot.
 #' @param signif.labels character vector with statistical significance labels (ex. "ns.","***", etc.) with number
@@ -2843,7 +2781,7 @@ RQ_ddCt <- function(data,
 #' @param angle integer: value of angle in which names of genes should be displayed. Default to 0.
 #' @param rotate logical: if TRUE, bars will be arranged horizontally. Deafault to FALSE.
 #' @param colors character vector length of one (when use.p = FALSE) or two (when use.p = TRUE), containing colors for significant and no significant genes.
-#' @param x.axis.title character: title of x axis. Default to "gene".
+#' @param x.axis.title character: title of x axis. Default to "Gene".
 #' @param y.axis.title character: title of y axis. Default to "value".
 #' @param axis.title.size integer: font size of axis titles. Default to 12.
 #' @param axis.text.size integer: font size of axis text. Default to 10.
@@ -2868,7 +2806,7 @@ RQ_ddCt <- function(data,
 #' library(tidyverse)
 #' data(data.Ct)
 #' data.CtF <- filter_Ct(data.Ct,
-#'                       remove.gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+#'                       remove.Gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
 #'                       remove.Sample = c("Control08","Control16","Control22"))
 #' data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
 #' data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
@@ -2887,8 +2825,8 @@ RQ_ddCt <- function(data,
 #'
 #' # with user p values - in this example used p values are calculated using stats::wilcox.test() function:
 #' user <- data.dCt %>%
-#' pivot_longer(cols = -c(Group, Sample), names_to = "gene", values_to = "dCt") %>%
-#'   group_by(gene) %>%
+#' pivot_longer(cols = -c(Group, Sample), names_to = "Gene", values_to = "dCt") %>%
+#'   group_by(Gene) %>%
 #'   summarise(MW_test_p = wilcox.test(dCt ~ Group)$p.value, .groups = "keep")
 #'
 #' RQ.plot <- RQ_plot(RQ.ddCt,
@@ -2912,7 +2850,7 @@ RQ_plot <- function(data,
                     p.threshold = 0.05,
                     use.log10FCh = FALSE,
                     log10FCh.threshold = 0,
-                    sel.genes = "all",
+                    sel.Gene = "all",
                     bar.width = 0.8,
                     signif.show = TRUE,
                     signif.labels,
@@ -2937,8 +2875,8 @@ RQ_plot <- function(data,
                     save.to.tiff = FALSE,
                     name.tiff = "RQ_plot"){
 
-  if (sel.genes[1] != "all"){
-    data <- filter(data, gene %in% sel.genes)
+  if (sel.Gene[1] != "all"){
+    data <- filter(data, Gene %in% sel.Gene)
   }
 
   if (use.p == TRUE){
@@ -2955,8 +2893,8 @@ RQ_plot <- function(data,
       data <- mutate(data, p.used = ifelse(test.for.comparison == "t.student's.test", t_test_p, MW_test_p))
     }
     if (mode == "user"){
-      colnames(user) <- c("gene","p.used")
-      data <- full_join(data, user, by = c("gene"))
+      colnames(user) <- c("Gene","p.used")
+      data <- full_join(data, user, by = c("Gene"))
     }
     if (use.log10FCh == TRUE){
       data <- mutate(data, `Selected as significant?` = ifelse(p.used > p.threshold, yes = "No",
@@ -2969,14 +2907,14 @@ RQ_plot <- function(data,
     data$`Selected as significant?` <- factor(data$`Selected as significant?`, levels = c("Yes (p <= 0.05)", "No (p > 0.05)"))
           }
 
-    RQ <- ggplot(data, aes(x = reorder(gene, -FCh), y = log10(FCh))) +
+    RQ <- ggplot(data, aes(x = reorder(Gene, -FCh), y = log10(FCh))) +
       geom_col(aes(fill = `Selected as significant?`, group = `Selected as significant?`), width = bar.width) +
       scale_fill_manual(values = c(colors)) +
       labs(fill = legend.title, title = plot.title)
 
     } else {
 
-      RQ <- ggplot(data, aes(x = reorder(gene, -FCh), y = log10(FCh))) +
+      RQ <- ggplot(data, aes(x = reorder(Gene, -FCh), y = log10(FCh))) +
         geom_col(width = bar.width, fill = colors[1]) +
         labs(title = plot.title)
   }
@@ -3044,6 +2982,7 @@ RQ_plot <- function(data,
 
 
 
+
 #' @title ROCh
 #'
 #' @description
@@ -3051,7 +2990,7 @@ RQ_plot <- function(data,
 #' This analysis could be useful to further examine performance of samples classification into groups using gene expression data.
 #'
 #' @param data object returned from exp_Ct_dCt() or delta_Ct() functions.
-#' @param sel.genes character vector with names of genes to include, or "all" (default) to use all names of genes.
+#' @param sel.Gene character vector with names of genes to include, or "all" (default) to use all names of genes.
 #' @param groups character vector length of two with names of compared groups
 #' @param panels.row,panels.col integer: number of rows and columns to arrange panels with plots.
 #' @param text.size numeric: size of text on the plot. Default to 1.1.
@@ -3076,12 +3015,12 @@ RQ_plot <- function(data,
 #' library(pROC)
 #' data(data.Ct)
 #' data.CtF <- filter_Ct(data.Ct,
-#'                       remove.gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+#'                       remove.Gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
 #'                       remove.Sample = c("Control08","Control16","Control22"))
 #' data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
 #' data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
 #' data.dCt.expF <- filter_transformed_data(data.dCt.exp, remove.Sample = c("Control11"))
-#' roc_parameters <- ROCh(data.dCt, sel.genes = c("Gene1","Gene16","Gene19","Gene20"),
+#' roc_parameters <- ROCh(data.dCt, sel.Gene = c("Gene1","Gene16","Gene19","Gene20"),
 #'                        groups = c("Disease","Control"),
 #'                        panels.row = 2,
 #'                        panels.col = 2)
@@ -3093,7 +3032,7 @@ RQ_plot <- function(data,
 #' @import pROC
 #'
 ROCh <- function(data,
-                sel.genes = "all",
+                sel.Gene = "all",
                 groups,
                 panels.row,
                 panels.col,
@@ -3108,13 +3047,13 @@ ROCh <- function(data,
 
   data <- filter(data, Group %in% groups)
 
-  if (sel.genes[1] != "all"){
-    data <- data[, colnames(data) %in% c("Group", "Sample", sel.genes)]
+  if (sel.Gene[1] != "all"){
+    data <- data[, colnames(data) %in% c("Group", "Sample", sel.Gene)]
   }
 
   roc_param <- as.data.frame(matrix(nrow = ncol(data)-2, ncol = 9))
-  colnames(roc_param) <- c("gene","Threshold", "Specificity", "Sensitivity", "Accuracy", "ppv", "npv", "youden", "AUC")
-  roc_param$gene <- colnames(data)[-c(1:2)]
+  colnames(roc_param) <- c("Gene","Threshold", "Specificity", "Sensitivity", "Accuracy", "ppv", "npv", "youden", "AUC")
+  roc_param$Gene <- colnames(data)[-c(1:2)]
 
   for (x in 1:nrow(roc_param)){
     myproc <- roc(response = data$Group, predictor = as.data.frame(data)[ ,x+2], levels = c(groups),
@@ -3136,7 +3075,7 @@ ROCh <- function(data,
     for (x in 1:nrow(roc_param)){
       myproc <- roc(response = data$Group, predictor = as.data.frame(data)[ ,x+2], levels = c(groups),
                     smooth = FALSE, auc = TRUE, plot=FALSE, ci=TRUE, of = "auc", quiet = TRUE)
-      plot.roc(myproc, main = roc_param$gene[x],
+      plot.roc(myproc, main = roc_param$Gene[x],
                smooth = FALSE, cex.axis = text.size, cex.lab = text.size, identity.lwd = 2,
                plot = TRUE, percent = TRUE, print.auc = print.auc, print.auc.x = 0.85, print.auc.y = 0.1, print.auc.cex = print.auc.size)
     }
@@ -3162,13 +3101,13 @@ ROCh <- function(data,
 #' This function performs logistic regression analysis, computes odd ratio values and presents them graphically.
 #'
 #' @param data object returned from exp_Ct_dCt() or delta_Ct() functions.
-#' @param sel.genes character vector with names of genes to include, or "all" (default) to use all names of genes.
+#' @param sel.Gene character vector with names of genes to include, or "all" (default) to use all names of genes.
 #' @param group.study character: name of study group (group of interest).
 #' @param group.ref character: name of reference group.
 #' @param centerline numeric: position of vertical centerline on the plot, if logaxis = TRUE, centerline should be set to 0, otherwise to 1 (default).
 #' @param ci numeric: confidence level used for computation of confidence interval. Default to 0.95.
 #' @param log.axis logical: if TRUE, axis with odds ratio values will be in log10 scale. If axis is in logarithmic scale, centerline parameter should be set to 0. Default ot FALSE.
-#' @param x.axis.title character: title of x axis. Default to "gene".
+#' @param x.axis.title character: title of x axis. Default to "Gene".
 #' @param y.axis.title character: title of y axis. Default to "value".
 #' @param axis.title.size integer: font size of axis titles. Default to 12.
 #' @param axis.text.size integer: font size of axis text. Default to 10.
@@ -3195,13 +3134,13 @@ ROCh <- function(data,
 #' library(oddsratio)
 #' data(data.Ct)
 #' data.CtF <- filter_Ct(data.Ct,
-#'                       remove.gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+#'                       remove.Gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
 #'                       remove.Sample = c("Control08","Control16","Control22"))
 #' data.dCt <- delta_Ct(data.CtF,
 #'                      imput.by.mean.within.groups = TRUE,
 #'                      ref = "Gene8")
 #' log.reg.results <- log_reg(data.dCt,
-#'                             sel.genes = c("Gene1","Gene16","Gene19","Gene20"),
+#'                             sel.Gene = c("Gene1","Gene16","Gene19","Gene20"),
 #'                             group.study = "Disease",
 #'                             group.ref = "Control")
 #
@@ -3214,7 +3153,7 @@ ROCh <- function(data,
 #' @import oddsratio
 #'
 log_reg <- function(data,
-                    sel.genes = "all",
+                    sel.Gene = "all",
                     group.study,
                     group.ref,
                     centerline = 1,
@@ -3238,8 +3177,8 @@ log_reg <- function(data,
 
   data <- filter(data, Group %in% c(group.study, group.ref))
 
-  if (sel.genes[1] != "all"){
-    data <- data[, colnames(data) %in% c("Group", "Sample", sel.genes)]
+  if (sel.Gene[1] != "all"){
+    data <- data[, colnames(data) %in% c("Group", "Sample", sel.Gene)]
   }
 
   data <- mutate(data, Group_num = ifelse(Group == group.study, 0, 1))
@@ -3250,10 +3189,10 @@ log_reg <- function(data,
                                                            incr = list(x = 1),
                                                            ci = ci))
   data.CI <- as.data.frame(matrix(ncol = 8, nrow = n.genes))
-  colnames(data.CI) <- c("gene", "oddsratio", "CI_low", "CI_high", "Intercept", "coeficient","p_intercept","p_coef")
+  colnames(data.CI) <- c("Gene", "oddsratio", "CI_low", "CI_high", "Intercept", "coeficient","p_intercept","p_coef")
 
   for (x in 1:n.genes){
-    data.CI$gene <- names(list.models)
+    data.CI$Gene <- names(list.models)
     data.CI[x,2:4] <- as.vector(list.CI)[[x]][2:4]
     data.CI[x,5:6] <- list.models[[x]]$coefficients
     data.CI[x,7:8] <- coef(summary(list.models[[x]]))[,4]
@@ -3262,7 +3201,7 @@ log_reg <- function(data,
                         boxOdds = data.CI$oddsratio,
                         boxCILow = data.CI$CI_low,
                         boxCIHigh = data.CI$CI_high,
-                        boxLabels = data.CI$gene,
+                        boxLabels = data.CI$Gene,
                         p = data.CI$p_coef)
 
   odd.ratio <- ggplot(od_df, aes(x = boxOdds, y = boxLabels, label = boxOdds)) +

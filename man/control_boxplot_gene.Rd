@@ -6,13 +6,13 @@
 \usage{
 control_boxplot_gene(
   data,
-  sel.genes = "all",
+  sel.Gene = "all",
   coef = 1.5,
   by.group = TRUE,
   colors = c("#66c2a5", "#fc8d62"),
   axis.title.size = 11,
   axis.text.size = 12,
-  x.axis.title = "gene",
+  x.axis.title = "Gene",
   y.axis.title = "value",
   legend.title = "Group",
   legend.title.size = 11,
@@ -30,19 +30,19 @@ control_boxplot_gene(
 \arguments{
 \item{data}{object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.}
 
-\item{sel.genes}{character vector with names of genes to include, or "all" (default) to use all names of genes.}
+\item{sel.Gene}{character vector with names of genes to include, or "all" (default) to use all names of genes.}
 
 \item{coef}{numeric: how many times of interquartile range should be used to indicate the most extend data point for whiskers. Default to 1.5.}
 
 \item{by.group}{logical: if TRUE, distributions will be drawn by compared groups of samples.}
 
-\item{colors}{character vector length of one (when by.group = FALSE) or two (when by.group = TRUE), containing colors for groups.}
+\item{colors}{character vector containing colors for groups, length of one (when by.group = FALSE) or equal to number of groups (when by.group = TRUE).}
 
 \item{axis.title.size}{integer: font size of axis titles. Default to 12.}
 
 \item{axis.text.size}{integer: font size of axis text. Default to 12.}
 
-\item{x.axis.title}{character: title of x axis. Default to "gene".}
+\item{x.axis.title}{character: title of x axis. Default to "Gene".}
 
 \item{y.axis.title}{character: title of y axis. Default to "value".}
 
@@ -79,7 +79,7 @@ This function creates boxplot illustrating distribution of data in each gene. Co
 library(tidyverse)
 data(data.Ct)
 data.CtF <- filter_Ct(data.Ct,
-                      remove.gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+                      remove.Gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
                       remove.Sample = c("Control08","Control16","Control22"))
 data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
 data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")

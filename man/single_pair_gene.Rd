@@ -49,7 +49,7 @@ single_pair_gene(
 
 \item{point.alpha}{numeric: transparency of points, a value between 0 and 1. Default to 0.7.}
 
-\item{colors}{character: color for points (if by.group = FALSE) or vector of two colors for points, used to distinguish groups (if by.group = TRUE).}
+\item{colors}{character vector containing colors for compared groups. Numbers of colors must be equal to number of groups. Default to c("#66c2a5", "#fc8d62").}
 
 \item{axis.title.size}{integer: font size of axis titles. Default to 12.}
 
@@ -99,7 +99,7 @@ library(tidyverse)
 library(ggpmisc)
 data(data.Ct)
 data.CtF <- filter_Ct(data.Ct,
-                      remove.gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+                      remove.Gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
                       remove.Sample = c("Control08","Control16","Control22"))
 data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
 data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")

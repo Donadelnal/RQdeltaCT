@@ -33,7 +33,7 @@ control_boxplot_sample(
 
 \item{coef}{numeric: how many times of interquartile range should be used to indicate the most extend data point for whiskers. Default to 1.5.}
 
-\item{colors}{character vector length of two, containing colors for compared groups. Default to c("#66c2a5", "#fc8d62").}
+\item{colors}{character vector containing colors for compared groups. Numbers of colors must be equal to number of groups. Default to c("#66c2a5", "#fc8d62").}
 
 \item{x.axis.title}{character: title of x axis. Default to "Sample".}
 
@@ -76,7 +76,7 @@ Boxplot illustrating distribution of data in each sample. Could be useful to ide
 library(tidyverse)
 data(data.Ct)
 data.CtF <- filter_Ct(data.Ct,
-                      remove.gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+                      remove.Gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
                       remove.Sample = c("Control08","Control16","Control22"))
 data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
 data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")

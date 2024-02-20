@@ -6,7 +6,7 @@
 \usage{
 control_cluster_sample(
   data,
-  sel.Sample = "all",
+  sel.Gene = "all",
   method.dist = "euclidean",
   method.clust = "average",
   x.axis.title = "Samples",
@@ -23,7 +23,7 @@ control_cluster_sample(
 \arguments{
 \item{data}{object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.}
 
-\item{sel.Sample}{character vector with names of samples to include, or "all" (default) to use all samples.}
+\item{sel.Gene}{character vector with names of genes to include, or "all" (default) to use all names of genes.}
 
 \item{method.dist}{character: name of method used for calculation of distances, derived from stats::dist() function, should be one of "euclidean" (default) , "maximum", "manhattan", "canberra", "binary" or "minkowski".}
 
@@ -58,7 +58,7 @@ library(tidyverse)
 data(data.Ct)
 data.CtF <- filter_Ct(data.Ct,
                       remove.Gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
-                      remove.Sample = c("Control08","Control16","Control22"))
+                       remove.Sample = c("Control08","Control16","Control22"))
 data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
 data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
 control_cluster_sample(data.dCt)

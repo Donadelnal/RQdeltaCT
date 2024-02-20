@@ -117,7 +117,7 @@ data.CtF <- filter_Ct(data.Ct,
                       remove.Sample = c("Control08","Control16","Control22"))
 data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
 data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
-data.dCt.exp <- exp_delta_Ct(data.dCt)
+data.dCt.exp <- exp_Ct_dCt(data.dCt)
 data.dCt.expF <- filter_transformed_data(data.dCt.exp, remove.Sample = c("Control11"))
 results_barplot(data.dCt.exp,
                 sel.Gene = c("Gene1","Gene16","Gene19","Gene20"),

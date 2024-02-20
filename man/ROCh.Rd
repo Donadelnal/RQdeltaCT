@@ -50,8 +50,6 @@ ROCh(
 \item{save.to.txt}{logical: if TRUE, returned table with results will be saved to .txt file. Default to FALSE.}
 
 \item{name.txt}{character: name of saved .txt file, without ".txt" name of extension. Default to "ROC_results".}
-
-\item{plot.title}{character: title of the plot.}
 }
 \value{
 Data frame with ROC parameters including AUC, threshold, specificity, sensitivity, accuracy,
@@ -71,6 +69,7 @@ data.CtF <- filter_Ct(data.Ct,
                       remove.Sample = c("Control08","Control16","Control22"))
 data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
 data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
+data.dCt.exp <- exp_Ct_dCt(data.dCt)
 data.dCt.expF <- filter_transformed_data(data.dCt.exp, remove.Sample = c("Control11"))
 roc_parameters <- ROCh(data.dCt, sel.Gene = c("Gene1","Gene16","Gene19","Gene20"),
                        groups = c("Disease","Control"),

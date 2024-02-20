@@ -28,17 +28,17 @@ Imported table could also contain a column with flag information, which could be
 
 \item{skip}{integer: number of lines of the data file to skip before beginning to read data. Default to 0.}
 
-\item{col.Sample}{integer: number of column with sample names.}
+\item{column.Sample}{integer: number of column with sample names.}
 
-\item{col.Gene}{integer: number of column with gene names.}
+\item{column.Gene}{integer: number of column with gene names.}
 
-\item{col.Ct}{integer: number of column with Ct values.}
+\item{column.Ct}{integer: number of column with Ct values.}
 
-\item{col.Group}{integer: number of column with group names.}
+\item{column.Group}{integer: number of column with group names.}
 
-\item{add.col.Flag}{logical: if data contains a column with flag information which should be also imported, this parameters should be set to TRUE. Default to FALSE.}
+\item{add.column.Flag}{logical: if data contains a column with flag information which should be also imported, this parameters should be set to TRUE. Default to FALSE.}
 
-\item{col.Flag}{integer: number of column with flag information. Should be specified if add.col.Flag = TRUE.
+\item{column.Flag}{integer: number of column with flag information. Should be specified if add.col.Flag = TRUE.
 This column should contain a character-type values (ex. "Undetermined" and "OK"), however,
 other types of values are allowed (ex. numeric), but must be converted to character or factor after importing data (see examples).}
 }

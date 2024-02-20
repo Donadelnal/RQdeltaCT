@@ -121,7 +121,7 @@ This function creates barplot illustrating fold change (when 2^-Ct or 2^-dCt met
 with indicating of statistical significance.
 }
 \examples{
-library(signif)
+library(ggsignif)
 library(tidyverse)
 data(data.Ct)
 data.CtF <- filter_Ct(data.Ct,
@@ -129,11 +129,24 @@ data.CtF <- filter_Ct(data.Ct,
                       remove.Sample = c("Control08","Control16","Control22"))
 data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
 data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
-data.dCt.exp <- exp_delta_Ct(data.dCt)
+data.dCt.exp <- exp_Ct_dCt(data.dCt)
 data.dCt.expF <- filter_transformed_data(data.dCt.exp, remove.Sample = c("Control11"))
 RQ.ddCt <- RQ_ddCt(data.dCt.expF, "Disease", "Control")
 
-signif.labels <- c("****","**","ns."," ns. ","  ns.  ","   ns.   ","    ns.    ","     ns.     ","      ns.      ","       ns.       ",        "ns.        ","         ns.         ","          ns.          ","***")
+signif.labels <- c("****",
+                   "**",
+                   "ns.",
+                   " ns. ",
+                   "  ns.  ",
+                   "   ns.   ",
+                   "    ns.    ",
+                   "     ns.     ",
+                   "      ns.      ",
+                   "       ns.       ",
+                   "        ns.        ",
+                   "         ns.         ",
+                   "          ns.          ",
+                   "***")
 RQ.plot <- RQ_plot(RQ.ddCt,
                    mode = "depends",
                    use.log10FCh = TRUE,
@@ -142,7 +155,7 @@ RQ.plot <- RQ_plot(RQ.ddCt,
                    angle = 30)
 head(RQ.plot[[2]])
 
-# with user p values - in this example used p values are calculated using stats::wilcox.test() function:
+# with user p values - calculated using stats::wilcox.test() function:
 user <- data.dCt \%>\%
 pivot_longer(cols = -c(Group, Sample), names_to = "Gene", values_to = "dCt") \%>\%
   group_by(Gene) \%>\%

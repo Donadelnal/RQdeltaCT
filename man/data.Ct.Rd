@@ -8,7 +8,7 @@
 A data frame with 1288 rows and 5 variables:
 \describe{
   \item{\code{Sample}}{character COLUMN_DESCRIPTION}
-  \item{\code{Target}}{character COLUMN_DESCRIPTION}
+  \item{\code{Gene}}{character COLUMN_DESCRIPTION}
   \item{\code{Ct}}{character COLUMN_DESCRIPTION}
   \item{\code{Group}}{character COLUMN_DESCRIPTION}
   \item{\code{Flag}}{character COLUMN_DESCRIPTION}
@@ -21,6 +21,8 @@ A data frame with 1288 rows and 5 variables:
 data.Ct
 }
 \description{
-Dataset contains gene expression data obtained from qPCR experiments with TaqMan assays.
+Dataset that contain table with gene expression data obtained for 19 genes and 64 samples using qPCR experiments with TaqMan assays.
+Samples are divided into two groups: Disease (40 samples) and Control (24 samples). This dataset is a part of data used in article:
+Zalewski, D.; Chmiel, P.; Kołodziej, P.; Borowski, G.; Feldo, M.; Kocki, J.; Bogucka-Kocka, A. Dysregulations of Key Regulators of Angiogenesis and Inflammation in Abdominal Aortic Aneurysm. Int. J. Mol. Sci. 2023, 24, 12087. https://doi.org/10.3390/ijms241512087
 }
 \keyword{datasets}

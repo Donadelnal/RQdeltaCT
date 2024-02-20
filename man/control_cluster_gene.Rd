@@ -7,7 +7,7 @@
 control_cluster_gene(
   data,
   method.dist = "euclidean",
-  sel.Gene = "all",
+  sel.Sample = "all",
   method.clust = "average",
   x.axis.title = "Genes",
   y.axis.title = "Height",
@@ -25,7 +25,7 @@ control_cluster_gene(
 
 \item{method.dist}{character: name of method used for calculation of distances, derived from stats::dist() function, should be one of "euclidean" (default) , "maximum", "manhattan", "canberra", "binary" or "minkowski".}
 
-\item{sel.Gene}{character vector with names of genes to include, or "all" (default) to use all names of genes.}
+\item{sel.Sample}{character vector with names of samples to include, or "all" (default) to use all samples.}
 
 \item{method.clust}{character: name of used method for agglomeration, derived from stats::hclust() function, should be one of "ward.D", "ward.D2", "single", "complete", "average" (default), "mcquitty", "median" or "centroid".}
 
@@ -33,7 +33,7 @@ control_cluster_gene(
 
 \item{y.axis.title}{character: title of y axis. Default to "Height".}
 
-\item{label.size}{numeric: size of text labels. Defaault to 1.}
+\item{label.size}{numeric: size of text labels. Default to 1.}
 
 \item{plot.title}{character: title of plot. Default to "".}
 

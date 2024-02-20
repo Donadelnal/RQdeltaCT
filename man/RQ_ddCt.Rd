@@ -9,6 +9,7 @@ RQ_ddCt(
   group.study,
   group.ref,
   do.tests = TRUE,
+  alternative = "two.sided",
   save.to.txt = FALSE,
   name.txt = "ddCt_RQ_results"
 )
@@ -21,6 +22,8 @@ RQ_ddCt(
 \item{group.ref}{character: name of reference group.}
 
 \item{do.tests}{logical: if TRUE, statistical significance of delta delta Ct values between compared groups will be calculated using Student's t test and Mann-Whitney U test. Default to TRUE.}
+
+\item{alternative}{character: alternative hypothesis, must be one of "two.sided" (default), "greater" or "less".}
 
 \item{save.to.txt}{logical: if TRUE, returned table with results will be saved to .txt file. Default to FALSE.}
 

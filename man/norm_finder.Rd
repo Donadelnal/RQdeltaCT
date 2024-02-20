@@ -35,6 +35,10 @@ data.CtF <- filter_Ct(data.Ct,
                       remove.Sample = c("Control08","Control16","Control22"))
 data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
 reference.stability.nF <- norm_finder(data.CtF.ready,
-                                   candidates = c("Gene4", "Gene8","Gene10","Gene16","Gene17", "Gene18"))
-
+                                      candidates = c("Gene4",
+                                                     "Gene8",
+                                                     "Gene10",
+                                                     "Gene16",
+                                                     "Gene17",
+                                                     "Gene18"))
 }

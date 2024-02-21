@@ -16,4 +16,4 @@ The 'RQdeltaCT' package offers functions that encompass all of these steps, toge
 * enrichment of standard workflow with additional useful methods including correlation analysis, Receiver Operating Characteristic analysis, and logistic regression),
 * a convenient export of obtained results in table and image forms.  
 
-######The package has been designed to be friendly to non-experts in R programming users. No additional, extensive coding steps are necessary in the standard workflow. Detailed demonstration of the package functionalities with examples can be found in the prepared [vignette](https://github.com/Donadelnal/RQdeltaCT/blob/master/vignettes/RQdeltaCT_vignette.pdf). 
+###### The package has been designed to be friendly to non-experts in R programming users. No additional, extensive coding steps are necessary in the standard workflow. Detailed demonstration of the package functionalities with examples can be found in the prepared [vignette](https://github.com/Donadelnal/RQdeltaCT/blob/master/vignettes/RQdeltaCT_vignette.pdf). 

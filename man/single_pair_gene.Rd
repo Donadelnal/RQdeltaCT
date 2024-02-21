@@ -33,66 +33,70 @@ single_pair_gene(
   dpi = 600,
   width = 15,
   height = 15,
-  name.tiff = "genes_single_pair_plot"
+  name.tiff = "_single_pair_plot"
 )
 }
 \arguments{
-\item{data}{object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.}
+\item{data}{Object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.}
 
-\item{x, y}{characters: names of genes to use.}
+\item{x, y}{Characters: names of genes to use.}
 
-\item{by.group}{logical: if TRUE (default), relationships will be shown separately for compared groups.}
+\item{by.group}{Logical: if TRUE (default), relationships will be shown separately for compared groups.}
 
-\item{point.size}{numeric: size of points. Default to 4.}
+\item{point.size}{Numeric: size of points. Default to 4.}
 
-\item{point.shape}{integer: shape of points. Default to 19.}
+\item{point.shape}{Integer: shape of points. Default to 19.}
 
-\item{point.alpha}{numeric: transparency of points, a value between 0 and 1. Default to 0.7.}
+\item{point.alpha}{Numeric: transparency of points, a value between 0 and 1. Default to 0.7.}
 
-\item{colors}{character vector containing colors for compared groups. Numbers of colors must be equal to number of groups. Default to c("#66c2a5", "#fc8d62").}
+\item{colors}{Character vector containing colors for compared groups. The number of colors must be equal to the number of groups.
+Default to c("#66c2a5", "#fc8d62").}
 
-\item{axis.title.size}{integer: font size of axis titles. Default to 12.}
+\item{axis.title.size}{Integer: font size of axis titles. Default to 11.}
 
-\item{axis.text.size}{integer: font size of axis text. Default to 10.}
+\item{axis.text.size}{Integer: font size of axis text. Default to 10.}
 
-\item{legend.title}{character: title of legend. Default to "Group".}
+\item{legend.title}{Character: title of legend. Default to "Group".}
 
-\item{legend.title.size}{integer: font size of legend title. Default to 12.}
+\item{legend.title.size}{Integer: font size of legend title. Default to 11.}
 
-\item{legend.text.size}{integer: font size of legend text. Default to 12.}
+\item{legend.text.size}{Integer: font size of legend text. Default to 11.}
 
-\item{legend.position}{position of the legend, one of "top", "right" (default), "bottom", "left", or "none" (no legend).
+\item{legend.position}{Position of the legend, can be "top", "right" (default), "bottom", "left", or "none" (no legend).
 See description for legend.position parameter in ggplot2::theme() function.}
 
-\item{plot.title}{character: title of plot. Default to "".}
+\item{plot.title}{Character: title of plot. Default to "".}
 
-\item{plot.title.size}{integer: font size of plot title. Default to 14.}
+\item{plot.title.size}{Integer: font size of plot title. Default to 14.}
 
-\item{labels}{logical: if TRUE (default), a regression statistics will be added to the plot using ggpimsc::stat_poly_eq() function.}
+\item{labels}{Logical: if TRUE (default), a regression statistics will be added to the plot using ggpimsc::stat_poly_eq() function.}
 
-\item{label}{character: which regression statistics should be drawn, use names specified by ggpimsc::stat_poly_eq() function. Default to c("eq", "R2", "p") for regression equation, coefficient of determination and p value, respectively.}
+\item{label}{Character: specifies regression statistics to add, names specified by ggpimsc::stat_poly_eq() function must be used.
+Default to c("eq", "R2", "p") for regression equation, coefficient of determination and p value, respectively.}
 
-\item{label.position.x, label.position.y}{numeric: coordinates for position of regression statistics. If by.group = TRUE, two values could be provided for each of these parameters (for different regression lines). See description of label.x and label.y parameters from ggpimsc::stat_poly_eq() function.}
+\item{label.position.x, label.position.y}{Numeric: coordinates for position of regression statistics. If by.group = TRUE,
+a vector length of groups number can be provided to avoid overlapping. See description of label.x and label.y parameters from ggpimsc::stat_poly_eq() function.}
 
-\item{small.p, small.r}{logical, if TRUE, p in p value label and r in coefficient of determination label, will be lowercase. Default to FALSE.}
+\item{small.p, small.r}{Logical, if TRUE, p character in p value label and r character in coefficient of determination label will be lowercase. Default to FALSE.}
 
-\item{rr.digits, p.digits}{integer: number of digits after the decimal point in coefficient of determination and p value in labels. Default to 2 for rr.digits and 3 for p.digits.}
+\item{rr.digits, p.digits}{Integer: number of digits after the decimal point in coefficient of determination and p value in labels.
+Default to 2 for rr.digits and 3 for p.digits.}
 
-\item{save.to.tiff}{logical: if TRUE, plot will be saved as .tiff file. Default to FALSE.}
+\item{save.to.tiff}{Logical: if TRUE, plot will be saved as .tiff file. Default to FALSE.}
 
-\item{dpi}{integer: resolution of saved .tiff file. Default to 600.}
+\item{dpi}{Integer: resolution of saved .tiff file. Default to 600.}
 
-\item{width}{numeric: width (in cm) of saved .tiff file. Default to 15.}
+\item{width}{Numeric: width (in cm) of saved .tiff file. Default to 15.}
 
-\item{height}{integer: height (in cm) of saved .tiff file. Default to 15.}
+\item{height}{Numeric: height (in cm) of saved .tiff file. Default to 15.}
 
-\item{name.tiff}{character: name of saved .tiff file, without ".tiff" name of extension. Default to "samples_single_plot".}
+\item{name.tiff}{Character: name of saved .tiff file, without ".tiff" name of extension. Default to "Gene1_Gene2_single_pair_plot".}
 }
 \value{
-Object with plot illustrating spatial arrangement of samples according to coordinates of 2 components obtained from principal component analysis (PCA). Created plot will be also displayed on graphic device.
+Object with plot. Created plot is also displayed on the graphic device.
 }
 \description{
-Generate scatter plot with linear regression line for two specified genes. Could be useful to assess linear relationship between these genes.
+This function generates scatter plot with linear regression line for two specified genes.
 }
 \examples{
 library(tidyverse)

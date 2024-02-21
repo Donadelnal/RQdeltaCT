@@ -15,35 +15,37 @@ RQ_ddCt(
 )
 }
 \arguments{
-\item{data}{data object returned from delta_Ct() function.}
+\item{data}{Data object returned from delta_Ct() function.}
 
-\item{group.study}{character: name of study group (group of interest).}
+\item{group.study}{Character: name of study group (group of interest).}
 
-\item{group.ref}{character: name of reference group.}
+\item{group.ref}{Character: name of reference group.}
 
-\item{do.tests}{logical: if TRUE, statistical significance of delta delta Ct values between compared groups will be calculated using Student's t test and Mann-Whitney U test. Default to TRUE.}
+\item{do.tests}{Logical: if TRUE, statistical significance of delta delta Ct values between compared groups
+is calculated using Student's t test and Mann-Whitney U test. Default to TRUE.}
 
-\item{alternative}{character: alternative hypothesis, must be one of "two.sided" (default), "greater" or "less".}
+\item{alternative}{Character: alternative hypothesis, must be one of "two.sided" (default), "greater" or "less".}
 
-\item{save.to.txt}{logical: if TRUE, returned table with results will be saved to .txt file. Default to FALSE.}
+\item{save.to.txt}{Logical: if TRUE, returned table with results is saved to .txt file. Default to FALSE.}
 
-\item{name.txt}{character: name of saved .txt file, without ".txt" name of extension. Default to "RQ_expCt_results".}
+\item{name.txt}{Character: name of saved .txt file, without ".txt" name of extension. Default to "RQ_ddCt_results".}
 }
 \value{
-Data.frame with relative quantification results.
+Data frame with relative quantification results.
 }
 \description{
-Performs relative quantification of gene expression using 2^(-ddCt) method.
+This function performs relative quantification of gene expression using 2^-ddCt method.
 }
 \details{
-This function calculates:
-* Means (return in columns with "_mean" pattern) and standard deviations (return in columns with "_sd" pattern) of delta Ct values of analyzed genes across compared groups.
-* Normality tests (Shapiro_Wilk test) of delta Ct values of analyzed genes across compared groups and returned p values in columns with "_norm_p" pattern.
-* Differences in mean delta Ct values of genes between compared groups, obtaining delta delta Ct values (in returned "ddCt" column).
-* Fold change values (return in "FCh" column) together with log10 Fold change values (return in "log10FCh" column).
-  Fold change values are calculated for each gene by exponentiating ddCt values using 2^-ddCt formula.
-* Statistical testing of delta delta Ct values (differences between study group and reference group).
-  Student's t test and Mann-Whitney U test are implemented and resulted statistics (in column with "_test_stat" pattern) and p values (in column with "_test_p" pattern) are returned.
+This function performs:
+1. Calculation of means (returned in columns with the "_mean" pattern) and standard deviations (returned in columns with the "_sd" pattern)
+of delta Ct values for analyzed genes across compared groups.
+2. Normality tests (Shapiro_Wilk test) of delta Ct values of analyzed genes across compared groups and returned p values are
+stored in columns with the "_norm_p" pattern.
+3. Calculation of differences in mean delta Ct values of genes between compared groups, obtaining delta delta Ct values (returned  in"ddCt" column).
+4. Calculation of fold change values (returned in "FCh" column) for each gene by exponentiation of ddCt values using 2^-ddCt formula.
+5. Statistical testing of differences between study group and reference group using Student's t test and Mann-Whitney U test.
+Resulted statistics (in column with "_test_stat" pattern) and p values (in column with "_test_p" pattern) are returned.
 }
 \examples{
 library(tidyverse)

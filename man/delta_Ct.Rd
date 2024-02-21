@@ -7,19 +7,19 @@
 delta_Ct(data, ref, save.to.txt = FALSE, name.txt = "data_dCt")
 }
 \arguments{
-\item{data}{data object returned from make_Ct_ready function,}
+\item{data}{Data object returned from make_Ct_ready function,}
 
-\item{ref}{character: name of reference gene.}
+\item{ref}{Character: name of reference gene.}
 
-\item{save.to.txt}{logical: if TRUE, returned data will be saved to .txt file. Default to FALSE.}
+\item{save.to.txt}{Logical: if TRUE, returned data will be saved to .txt file. Default to FALSE.}
 
-\item{name.txt}{character: name of saved .txt file, without ".txt" name of extension. Default to "data_dCt".}
+\item{name.txt}{Character: name of saved .txt file, without ".txt" name of extension. Default to "data_dCt".}
 }
 \value{
-Data.frame with dCt values and printed information about number and percentage of missing values.
+Data frame with dCt values.
 }
 \description{
-This function calculates delta Ct (dCt) values by subtracting Ct values of reference gene from Ct values of other genes.
+This function calculates delta Ct (dCt) values by subtracting Ct values of reference gene from Ct values of remaining genes.
 }
 \examples{
 library(tidyverse)

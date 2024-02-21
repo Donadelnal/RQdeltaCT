@@ -19,14 +19,17 @@ Imports:
     tidyr,
     tidyselect,
     coin,
-    car,
     ctrlGene,
     ggsignif,
     Hmisc,
     corrplot,
     ggpmisc,
     pROC,
-    oddsratio
+    oddsratio,
+    stats,
+    graphics,
+    grDevices,
+    utils
 Suggests: 
     knitr,
     rmarkdown,

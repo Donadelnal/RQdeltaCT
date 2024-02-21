@@ -7,37 +7,42 @@
 read_Ct_wide(path.Ct.file, path.design.file, sep, dec)
 }
 \arguments{
-\item{path.Ct.file}{path to wide-format table in .txt format containing Ct values, gene names in the first column, and
-sample names in the first row. In other words, this table should contain genes by rows and samples by columns.}
+\item{path.Ct.file}{Path to wide-format table in .txt format with Ct values.
+This table must contain gene names in the first column, and sample names in the first row (genes by rows and samples by columns).}
 
-\item{path.design.file}{path to .txt file with two columns: column named "Sample" with names of samples
-and column named "Group" with names of groups assigned to samples. Names of samples in this file
-should correspond to the names of columns in file with Ct values.}
+\item{path.design.file}{Path to table in .txt file that contains two columns: column named "Sample" with names of samples
+and column named "Group" with names of groups assigned to samples. The names of samples in this file must
+correspond to the names of columns in the file with Ct values.}
 
-\item{sep}{character of a field separator in both imported files.}
+\item{sep}{Character of a field separator in both imported files.}
 
-\item{dec}{character used for decimal points in Ct values.}
+\item{dec}{Character used for decimal points in Ct values.}
 }
 \value{
 Data frame in long format ready to analysis.
 }
 \description{
-Enables to import Ct dataset in a wide-format table with sample names given in columns.
+This function imports Ct data in a wide-format table with sample names given in columns.
 }
 \details{
-This function needs two files to import: a wide-format table with Ct values and design file (see parameters path.Ct.file and path.design.file for further details regarding tables structure).
-Subsequently merges both files to return long-format table ready for analysis.
-All parameters must be specified, there is no default values.
+This function needs two files to import: a wide-format table with Ct values and an additional file with group names
+(see parameters path.Ct.file and path.design.file for further details on tables structure).
+Both files are merged to return a long-format table ready for analysis.
+All parameters must be specified; there are no default values.
 }
 \examples{
-path.Ct.file <- system.file("extdata", "data_Ct_wide.txt", package = "RQdeltaCT")
-path.design.file <- system.file("extdata", "data_design.txt", package = "RQdeltaCT")
+path.Ct.file <- system.file("extdata",
+                            "data_Ct_wide.txt",
+                            package = "RQdeltaCT")
+path.design.file <- system.file("extdata",
+                                "data_design.txt",
+                                package = "RQdeltaCT")
 
 library(tidyverse)
 data.Ct <- read_Ct_wide(path.Ct.file = path.Ct.file,
-                   path.design.file = path.design.file,
-                   sep ="\t",
-                   dec = ".")
+                        path.design.file = path.design.file,
+                        sep ="\t",
+                        dec = ".")
 str(data.Ct)
 
 }

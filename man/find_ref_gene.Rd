@@ -9,9 +9,8 @@ find_ref_gene(
   groups,
   candidates,
   colors,
-  vif.score = FALSE,
-  norm.finder.score = FALSE,
-  genorm.score = FALSE,
+  norm.finder.score = TRUE,
+  genorm.score = TRUE,
   line.width = 1,
   angle = 0,
   x.axis.title = "",
@@ -32,66 +31,62 @@ find_ref_gene(
 )
 }
 \arguments{
-\item{data}{object returned from make_Ct_ready() functions,}
+\item{data}{Object returned from make_Ct_ready() functions.}
 
-\item{groups}{character vector length of two with names of compared groups}
+\item{groups}{Character vector with names of groups used for analysis. If all groups should be included to the analysis, groups parameter should be set to "all".}
 
-\item{candidates}{character: vector of names of genes - candidates for gene reference.}
+\item{candidates}{Character: vector of names of genes - candidates for gene reference.}
 
-\item{colors}{character: vector of colors for genes, number of elements should be equal to number of candidate genes (elements in `candidates` vector).}
+\item{colors}{Character: vector of colors for genes, the number of colors should be equal to the number of candidate genes.}
 
-\item{vif.score}{logical: if TRUE, VIF colinearity coefficient will be calculated.}
+\item{norm.finder.score}{Logical: if TRUE, NormFinder stability score will be calculated. Default to TRUE.}
 
-\item{norm.finder.score}{logical: if TRUE, NormFinder stability score will be calculated.}
+\item{genorm.score}{Logical: if TRUE, geNorm stability score will be calculated. Default to TRUE.}
 
-\item{genorm.score}{logical: if TRUE, geNorm stability score will be calculated.}
+\item{line.width}{Numeric: width of lines drawn in the plot. Default to 1.}
 
-\item{line.width}{numeric: width of lines drawn in the plot. Default to 1.}
+\item{angle}{Integer: value of angle in which names of genes are displayed. Default to 0.}
 
-\item{angle}{integer: value of angle in which names of genes should be displayed. Default to 0.}
+\item{x.axis.title}{Character: title of x axis. Default to "".}
 
-\item{x.axis.title}{character: title of x axis. Default to "".}
+\item{y.axis.title}{Character: title of y axis.  Default to "Ct".}
 
-\item{y.axis.title}{character: title of y axis.  Default to "Ct".}
+\item{axis.title.size}{Integer: font size of axis titles. Default to 11.}
 
-\item{axis.title.size}{integer: font size of axis titles. Default to 12.}
+\item{axis.text.size}{Integer: font size of axis text. Default to 10.}
 
-\item{axis.text.size}{integer: font size of axis text. Default to 10.}
+\item{legend.title}{Character: title of legend. Default to "".}
 
-\item{legend.title}{character: title of legend. Default to "".}
+\item{legend.title.size}{Integer: font size of legend title. Default to 11.}
 
-\item{legend.title.size}{integer: font size of legend title. Default to 12.}
+\item{legend.text.size}{Integer: font size of legend text. Default to 11.}
 
-\item{legend.text.size}{integer: font size of legend text. Default to 12.}
-
-\item{legend.position}{position of the legend, one of "top" (default), "right", "bottom", "left", or "none" (no legend).
+\item{legend.position}{Position of the legend, can be "top" (default), "right", "bottom", "left", or "none" (no legend).
 See description for legend.position in ggplot2::theme() function.}
 
-\item{plot.title}{character: title of plot. Default to "".}
+\item{plot.title}{Character: title of plot. Default to "".}
 
-\item{plot.title.size}{integer: font size of plot title. Default to 14.}
+\item{plot.title.size}{Integer: font size of plot title. Default to 14.}
 
-\item{save.to.tiff}{logical: if TRUE, plot will be saved as .tiff file. Default to FALSE.}
+\item{save.to.tiff}{Logical: if TRUE, plot will be saved as .tiff file. Default to FALSE.}
 
-\item{dpi}{integer: resolution of saved .tiff file. Default to 600.}
+\item{dpi}{Integer: resolution of saved .tiff file. Default to 600.}
 
-\item{width}{numeric: width (in cm) of saved .tiff file. Default to 15.}
+\item{width}{Numeric: width (in cm) of saved .tiff file. Default to 15.}
 
-\item{height}{integer: height (in cm) of saved .tiff file. Default to 15.}
+\item{height}{Numeric: height (in cm) of saved .tiff file. Default to 15.}
 
-\item{name.tiff}{character: name of saved .tiff file, without ".tiff" name of extension. Default to "Ct_reference_gene_selection".}
+\item{name.tiff}{Character: name of saved .tiff file, without ".tiff" name of extension. Default to "Ct_reference_gene_selection".}
 }
 \value{
-List containing plot object and table with calculated parameters. Created plot is displayed on graphic device.
+List containing an object with plot and a table with calculated parameters. Created plot is also displayed on the graphic device.
 }
 \description{
-This function draw a line plot and calculate parameters useful to assess gene expression stability:
- minimum, maximum, standard deviation, variance, colinearity coefficient (VIF),
- and stability measures from NormFinder and geNorm algorithms. This function could be helpful to select the best
+This function assess gene expression stability by calculation the following parameters: minimum, maximum, standard deviation, variance,
+and stability measures from NormFinder and geNorm algorithms. It also presents C values graphically on a line plot. This function is helpful to select the best
 reference gene for normalization of Ct values.
 }
 \examples{
-library(car)
 library(ctrlGene)
 library(tidyverse)
 data(data.Ct)
@@ -103,7 +98,6 @@ ref <- find_ref_gene(data.CtF.ready,
                      groups = c("Disease","Control"),
                      candidates = c("Gene4", "Gene8","Gene10","Gene16","Gene17", "Gene18"),
                      col = c("#66c2a5", "#fc8d62","#6A6599", "#D62728", "#1F77B4", "black"),
-                     vif.score = TRUE,
                      norm.finder.score = TRUE,
                      genorm.score = TRUE)
 ref[[2]]

@@ -12,22 +12,24 @@ make_Ct_ready(
 )
 }
 \arguments{
-\item{data}{data object returned from read_Ct_long(), read_Ct_wide() or filter_Ct() function,
+\item{data}{Data object returned from read_Ct_long(), read_Ct_wide() or filter_Ct() function,
 or data frame containing column named "Sample" with sample names, column named "Gene" with gene names,
-column named "Ct" with raw Ct values (must be numeric), column named "Group" with group names. Any other columns could exist, but will not be used by this function.}
+column named "Ct" with raw Ct values (must be numeric), column named "Group" with group names. Presence of any other columns is allowed,
+but they will not be used by this function.}
 
-\item{imput.by.mean.within.groups}{logical: if TRUE, missing values will be imputed by means within groups. This parameter could influence results, thus to draw more user attention on this parameter, no default value was set.}
+\item{imput.by.mean.within.groups}{Logical: if TRUE, missing values will be imputed by means calculated separately for each group.
+This parameter can influence results, thus to draw more user attention on this parameter, no default value was set.}
 
-\item{save.to.txt}{logical: if TRUE, returned data will be saved to .txt file. Default to FALSE.}
+\item{save.to.txt}{Logical: if TRUE, returned data will be saved to .txt file. Default to FALSE.}
 
-\item{name.txt}{character: name of saved .txt file, without ".txt" name of extension. Default to "Ct_ready".}
+\item{name.txt}{Character: name of saved .txt file, without ".txt" name of extension. Default to "Ct_ready".}
 }
 \value{
-Data.frame with prepared data and printed information about number and percentage of missing values.
+Data frame with prepared data. Information about number and percentage of missing values is also printed.
 }
 \description{
-This function collapses technical replicates (if present in data) by means counts and imputes missing data by means within groups (if so indicated).
-These actions also prepare Ct data for control functions.
+This function collapses technical replicates (if present in data) by means and (optionally) imputes missing data by means calculated separately for each group.
+This function also prepares Ct data for further steps of analysis.
 }
 \examples{
 library(tidyverse)

@@ -11,7 +11,7 @@ control_cluster_sample(
   method.clust = "average",
   x.axis.title = "Samples",
   y.axis.title = "Height",
-  label.size = 1,
+  label.size = 0.8,
   plot.title = "",
   save.to.tiff = FALSE,
   dpi = 600,
@@ -21,37 +21,39 @@ control_cluster_sample(
 )
 }
 \arguments{
-\item{data}{object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.}
+\item{data}{Object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.}
 
-\item{sel.Gene}{character vector with names of genes to include, or "all" (default) to use all names of genes.}
+\item{sel.Gene}{Character vector with names of genes to include, or "all" (default) to use all genes.}
 
-\item{method.dist}{character: name of method used for calculation of distances, derived from stats::dist() function, should be one of "euclidean" (default) , "maximum", "manhattan", "canberra", "binary" or "minkowski".}
+\item{method.dist}{Character: name of method used for calculation of distances, derived from stats::dist() function,
+must be one of "euclidean" (default) , "maximum", "manhattan", "canberra", "binary" or "minkowski".}
 
-\item{method.clust}{character: name of used method for agglomeration, derived from stats::hclust() function, should be one of "ward.D", "ward.D2", "single", "complete", "average" (default), "mcquitty", "median" or "centroid".}
+\item{method.clust}{Character: name of used method for agglomeration, derived from stats::hclust() function,
+must be one of "ward.D", "ward.D2", "single", "complete", "average" (default), "mcquitty", "median" or "centroid".}
 
-\item{x.axis.title}{character: title of x axis. Default to "Samples".}
+\item{x.axis.title}{Character: title of x axis. Default to "Samples".}
 
-\item{y.axis.title}{character: title of y axis. Default to "Height".}
+\item{y.axis.title}{Character: title of y axis. Default to "Height".}
 
-\item{label.size}{numeric: size of text labels. Default to 1.}
+\item{label.size}{Numeric: size of text labels. Default to 0.8.}
 
-\item{plot.title}{character: title of plot. Default to "".}
+\item{plot.title}{Character: title of plot. Default to "".}
 
-\item{save.to.tiff}{logical: if TRUE, plot will be saved as .tiff file. Default to FALSE.}
+\item{save.to.tiff}{Logical: if TRUE, plot will be saved as .tiff file. Default to FALSE.}
 
-\item{dpi}{integer: resolution of saved .tiff file. Default to 600.}
+\item{dpi}{Integer: resolution of saved .tiff file. Default to 600.}
 
-\item{width}{numeric: width (in cm) of saved .tiff file. Default to 15.}
+\item{width}{Numeric: width (in cm) of saved .tiff file. Default to 15.}
 
-\item{height}{integer: height (in cm) of saved .tiff file. Default to 15.}
+\item{height}{Numeric: height (in cm) of saved .tiff file. Default to 15.}
 
-\item{name.tiff}{character: name of saved .tiff file, without ".tiff" name of extension. Default to "control_clust_samples".}
+\item{name.tiff}{Character: name of saved .tiff file, without ".tiff" name of extension. Default to "control_clust_samples".}
 }
 \value{
-Plot with hierarchical clustering of samples, displayed on graphic device.
+Plot with hierarchical clustering of samples, displayed on the graphic device.
 }
 \description{
-Performs hierarchical clustering of samples based on the data. Could be useful to identify outlier samples.
+This function performs hierarchical clustering of samples based on the data, useful to identify outlier samples.
 }
 \examples{
 library(tidyverse)

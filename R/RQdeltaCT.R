@@ -2,33 +2,38 @@
 #' @title read_Ct_wide
 #'
 #' @description
-#' Enables to import Ct dataset in a wide-format table with sample names given in columns.
+#' This function imports Ct data in a wide-format table with sample names given in columns.
 #'
 #' @details
-#' This function needs two files to import: a wide-format table with Ct values and design file (see parameters path.Ct.file and path.design.file for further details regarding tables structure).
-#' Subsequently merges both files to return long-format table ready for analysis.
-#' All parameters must be specified, there is no default values.
+#' This function needs two files to import: a wide-format table with Ct values and an additional file with group names
+#' (see parameters path.Ct.file and path.design.file for further details on tables structure).
+#' Both files are merged to return a long-format table ready for analysis.
+#' All parameters must be specified; there are no default values.
 #'
-#' @param path.Ct.file path to wide-format table in .txt format containing Ct values, gene names in the first column, and
-#' sample names in the first row. In other words, this table should contain genes by rows and samples by columns.
-#' @param path.design.file path to .txt file with two columns: column named "Sample" with names of samples
-#' and column named "Group" with names of groups assigned to samples. Names of samples in this file
-#' should correspond to the names of columns in file with Ct values.
-#' @param sep character of a field separator in both imported files.
-#' @param dec character used for decimal points in Ct values.
+#' @param path.Ct.file Path to wide-format table in .txt format with Ct values.
+#' This table must contain gene names in the first column, and sample names in the first row (genes by rows and samples by columns).
+#' @param path.design.file Path to table in .txt file that contains two columns: column named "Sample" with names of samples
+#' and column named "Group" with names of groups assigned to samples. The names of samples in this file must
+#' correspond to the names of columns in the file with Ct values.
+#' @param sep Character of a field separator in both imported files.
+#' @param dec Character used for decimal points in Ct values.
 #'
 #' @return Data frame in long format ready to analysis.
 #' @export
 #'
 #' @examples
-#' path.Ct.file <- system.file("extdata", "data_Ct_wide.txt", package = "RQdeltaCT")
-#' path.design.file <- system.file("extdata", "data_design.txt", package = "RQdeltaCT")
+#' path.Ct.file <- system.file("extdata",
+#'                             "data_Ct_wide.txt",
+#'                             package = "RQdeltaCT")
+#' path.design.file <- system.file("extdata",
+#'                                 "data_design.txt",
+#'                                 package = "RQdeltaCT")
 #'
 #' library(tidyverse)
 #' data.Ct <- read_Ct_wide(path.Ct.file = path.Ct.file,
-#'                    path.design.file = path.design.file,
-#'                    sep ="\t",
-#'                    dec = ".")
+#'                         path.design.file = path.design.file,
+#'                         sep ="\t",
+#'                         dec = ".")
 #' str(data.Ct)
 #'
 #' @importFrom utils read.csv
@@ -51,8 +56,13 @@ read_Ct_wide <- function(path.Ct.file,
                                sep = sep)
 
   colnames(data_wide)[1] <- "Gene"
-  data_wide <- mutate(data_wide, across(everything(), as.character))
-  data_slim <- pivot_longer(data_wide, -Gene, names_to = "Sample", values_to = "Ct")
+  data_wide <- mutate(data_wide,
+                      across(everything(),
+                             as.character))
+  data_slim <- pivot_longer(data_wide,
+                            -Gene,
+                            names_to = "Sample",
+                            values_to = "Ct")
   data_slim[ ,"Group"] <- NA
 
   for (x in 1:nrow(data_wide_design)) {
@@ -69,37 +79,49 @@ read_Ct_wide <- function(path.Ct.file,
 #' @title read_Ct_long
 #'
 #' @description
-#' Imports long-format table with Ct values.
+#' Imports a long-format table with Ct values.
 #'
-#' @param path path to a .txt file with long-type table of Ct values. This table should contain at least  4 columns, with
-#' sample names, gene names, Ct values and group names (those columns will be imported by this function).
-#' Imported table could also contain a column with flag information, which could be optionally imported (see add.col.Flag and col.Flag parameters).
+#' @param path Path to a .txt file with long-type table with Ct values. This table must contain at least 4 columns, separately for
+#' sample names, gene names, Ct values and group names (these columns will be imported by this function).
+#' Imported table could also contain a column with a flag information,
+#' which could be optionally imported (see add.col.Flag and col.Flag parameters).
+#' @param sep Character of a field separator in imported file.
+#' @param dec Character used for decimal points in Ct values.
+#' @param skip Integer: number of lines of the data file to skip before beginning to read data. Default to 0.
+#' @param column.Sample Integer: number of column with sample names.
+#' @param column.Gene Integer: number of column with gene names.
+#' @param column.Ct Integer: number of column with Ct values.
+#' @param column.Group Integer: number of column with group names.
+#' @param add.column.Flag Logical: if data contains a column with flag information which should also be imported,
+#' this parameter should be set to TRUE. Default to FALSE.
+#' @param column.Flag Integer: number of column with flag information. Should be specified if add.col.Flag = TRUE.
+#' This column should contain a character-type values (e.g. "Undetermined" and "OK"), however,
+#' other types of values are allowed (e.g. numeric), but must be converted to character or factor
+#' after importing data (see examples).
 #'
-#' @param sep character of a field separator in imported file.
-#' @param dec character used for decimal points in Ct values.
-#' @param skip integer: number of lines of the data file to skip before beginning to read data. Default to 0.
-#' @param column.Sample integer: number of column with sample names.
-#' @param column.Gene integer: number of column with gene names.
-#' @param column.Ct integer: number of column with Ct values.
-#' @param column.Group integer: number of column with group names.
-#' @param add.column.Flag logical: if data contains a column with flag information which should be also imported, this parameters should be set to TRUE. Default to FALSE.
-#' @param column.Flag integer: number of column with flag information. Should be specified if add.col.Flag = TRUE.
-#' This column should contain a character-type values (ex. "Undetermined" and "OK"), however,
-#' other types of values are allowed (ex. numeric), but must be converted to character or factor after importing data (see examples).
-#'
-#' @return Data.frame in long format ready to analysis.
+#' @return Data.frame in long format ready for analysis.
 #' @export
 #'
 #' @examples
-#' path <- system.file("extdata", "data_Ct_long.txt", package = "RQdeltaCT")
+#' path <- system.file("extdata",
+#'                     "data_Ct_long.txt",
+#'                     package = "RQdeltaCT")
 #'
 #' library(tidyverse)
-#' data.Ct <- read_Ct_long(path = path, sep = "\t",dec = ".",skip = 0,
-#'                         add.column.Flag = TRUE, column.Sample = 1, column.Gene = 2,
-#'                         column.Ct = 5, column.Group = 9, column.Flag = 4)
+#' data.Ct <- read_Ct_long(path = path,
+#'                         sep = "\t",
+#'                         dec = ".",
+#'                         skip = 0,
+#'                         add.column.Flag = TRUE,
+#'                         column.Sample = 1,
+#'                         column.Gene = 2,
+#'                         column.Ct = 5,
+#'                         column.Group = 9,
+#'                         column.Flag = 4)
 #' str(data.Ct)
 #'
-#' data.Ct <- mutate(data.Ct, Flag = ifelse(Flag < 1, "Undetermined", "OK"))
+#' data.Ct <- mutate(data.Ct,
+#'                   Flag = ifelse(Flag < 1, "Undetermined", "OK"))
 #' str(data.Ct)
 #'
 #' @importFrom utils read.csv
@@ -150,40 +172,41 @@ read_Ct_long <- function(path,
 #' @title control_Ct_barplot_sample
 #'
 #' @description
-#' Sample-wide control of raw Ct values by illustrating numbers of Ct values labeled as reliable or not by using reliability criteria (see function parameters).
+#' Sample-wide quality control of raw Ct values by illustrating the numbers of Ct values labelled as reliable or not by using reliability criteria (see function parameters).
 #'
 #' @details
-#' This function does not perform data filtering, but only numbers Ct values labeled as reliable or not and presents them graphically.
-#' Results could be useful to identify samples with low number of reliable Ct values.
+#' This function labels Ct values as reliable or not using given reliability criteria, counts them, and presents them graphically.
+#' Results are useful to identify samples with low numbers of reliable Ct values. This function does not perform data filtering.
 #'
-#' @param data object returned from read_Ct_long() or read_Ct_wide() function,
+#' @param data Object returned from read_Ct_long() or read_Ct_wide() function,
 #' or data frame containing column named "Sample" with sample names, column named "Gene" with gene names,
 #' column named "Ct" with raw Ct values, and column named "Group" with group names.
-#' Optionally, data frame could contain column named "Flag" with flag information (ex. "Undetermined" and "OK"), which will be used for reliability assessment.
-#' @param flag.Ct character of a flag used for undetermined Ct values. Default to "Undetermined".
-#' @param maxCt numeric, a maximum of Ct value allowed. Default to 35.
-#' @param flag character of a flag used in Flag column for values which are unreliable. Default to "Undetermined".
-#' @param colors character vector length of two, containing colors for Ct values which were labeled as reliable (first element of vector) or not (second element of vector).
-#' @param axis.title.size integer: font size of axis titles. Default to 12.
-#' @param axis.text.size integer: font size of axis text. Default to 10.
-#' @param x.axis.title character: title of x axis. Default to "".
-#' @param y.axis.title character: title of y axis. Default to "Number".
-#' @param legend.title character: title of legend. Default to "Reliable Ct value?".
-#' @param plot.title character: title of plot. Default to "".
-#' @param plot.title.size integer: font size of plot title. Default to 14.
-#' @param legend.title.size integer: font size of legend title.  Default to 12.
-#' @param legend.text.size integer: font size of legend text. Default to 12.
-#' @param legend.position position of the legend, one of "top" (default), "right", "bottom", "left", or "none" (no legend).
+#' Optionally, data frame could contain column named "Flag" with flag information
+#' (e.g. "Undetermined" and "OK"), which will be used for reliability assessment.
+#' @param flag.Ct Character of a flag used for undetermined Ct values. Default to "Undetermined".
+#' @param maxCt Numeric, a maximum of Ct value allowed. Default to 35.
+#' @param flag Character of a flag used in the Flag column for values which are unreliable. Default to "Undetermined".
+#' @param colors Character vector length of two, containing colors for Ct values that were labelled as reliable (first element of vector) or not (second element of vector).
+#' @param axis.title.size Integer: font size of axis titles. Default to 11.
+#' @param axis.text.size Integer: font size of axis text. Default to 10.
+#' @param x.axis.title Character: title of x axis. Default to "".
+#' @param y.axis.title Character: title of y axis. Default to "Number".
+#' @param legend.title Character: title of legend. Default to "Reliable Ct value?".
+#' @param plot.title Character: title of plot. Default to "".
+#' @param plot.title.size Integer: font size of plot title. Default to 14.
+#' @param legend.title.size Integer: font size of legend title.  Default to 12.
+#' @param legend.text.size Integer: font size of legend text. Default to 11.
+#' @param legend.position Position of the legend, can be set to "top" (default), "right", "bottom", "left", or "none" (no legend).
 #' See description for legend.position parameter in ggplot2::theme() function.
-#' @param save.to.tiff logical: if TRUE, plot will be saved as .tiff file.  Default to FALSE.
-#' @param dpi integer: resolution of saved .tiff file. Default to 600.
-#' @param width numeric: width (in cm) of saved .tiff file. Default to 15.
-#' @param height integer: height (in cm) of saved .tiff file. Default to 15.
-#' @param name.tiff character: name of saved .tiff file, without ".tiff" name of extension. Default to "Ct_control_barplot_for_samples".
+#' @param save.to.tiff Logical: if TRUE, plot will be saved as .tiff file. Default to FALSE.
+#' @param dpi Integer: resolution of saved .tiff file. Default to 600.
+#' @param width Numeric: width (in cm) of saved .tiff file. Default to 15.
+#' @param height Numeric: height (in cm) of saved .tiff file. Default to 15.
+#' @param name.tiff Character: name of saved .tiff file, without ".tiff" name of extension. Default to "Ct_control_barplot_for_samples".
 #'
-#' @return List containing plot and table with numbers of reliable and not reliable Ct values in samples.
-#' Additional information about returned table is also printed, it could help user to properly interpret returned table.
-#' Plot will be displayed on graphic device.
+#' @return List containing plot and table with counts of reliable and no reliable Ct values in samples.
+#' Additional information about returned table is also printed to help the user to properly interpret returned table.
+#' Plot is also displayed on the graphic device.
 #' @export
 #'
 #' @examples
@@ -251,7 +274,13 @@ control_Ct_barplot_sample <- function(data,
   print(barplot.samples)
 
     if (save.to.tiff == TRUE){
-      ggsave(paste(name.tiff, ".tiff", sep = ""), barplot.samples, dpi = dpi, width = width, height = height, units = "cm", compression = "lzw")
+      ggsave(paste(name.tiff, ".tiff", sep = ""),
+             barplot.samples,
+             dpi = dpi,
+             width = width,
+             height = height,
+             units = "cm",
+             compression = "lzw")
     } else {}
 
   tab <- table(data$Reliable, data$Sample)
@@ -274,41 +303,41 @@ control_Ct_barplot_sample <- function(data,
 #' @title control_Ct_barplot_gene
 #'
 #' @description
-#' Gene-wide control of raw Ct values across groups by illustrating numbers of Ct values labeled as reliable or not by using reliability criteria (see function parameters).
+#' Gene-wide quality control of raw Ct values across groups by illustrating numbers of Ct values labelled as reliable or not by using reliability criteria (see function parameters).
 #'
 #' @details
-#' This function does not perform data filtering, but only numbers Ct values labeled as reliable or not and presents them graphically.
+#' This function does not perform data filtering, but only counts Ct values labelled as reliable or not and presents them graphically.
 #' Could be useful to identify genes with low number of reliable Ct values.
 #'
-#' @param data object returned from read_Ct_long() or read_Ct_wide() function,
+#' @param data Object returned from read_Ct_long() or read_Ct_wide() function,
 #' or data frame containing column named "Sample" with sample names, column named "Gene" with gene names,
 #' column named "Ct" with raw Ct values, column named "Group" with group names.
-#' Optionally, data frame could contain column named "Flag" with flag information (ex. "Undetermined" and "OK"),
+#' Optionally, data frame can contain column named "Flag" with flag information (e.g. "Undetermined" and "OK"),
 #' which will be used for reliability assessment.
-#' @param flag.Ct character of a flag used for undetermined Ct values. Default to "Undetermined".
-#' @param maxCt numeric, a maximum of Ct value allowed. Default to 35.
-#' @param flag character of a flag used in Flag column for values which are unreliable. Default to "Undetermined".
-#' @param colors character vector length of two, containing colors for Ct values which were labeled as reliable (first element of vector) or not (second element of vector).
-#' @param axis.title.size integer: font size of axis titles. Default to 12.
-#' @param axis.text.size integer: font size of axis text. Default to 10.
-#' @param x.axis.title character: title of x axis. Default to "".
-#' @param y.axis.title character: title of y axis. Default to "Number".
-#' @param legend.title character: title of legend. Default to "Reliable Ct value?".
-#' @param plot.title character: title of plot. Default to "".
-#' @param plot.title.size integer: font size of plot title. Default to 14.
-#' @param legend.title.size integer: font size of legend title.  Default to 12.
-#' @param legend.text.size integer: font size of legend text. Default to 12.
-#' @param legend.position position of the legend, one of "top" (default), "right", "bottom", "left", or "none" (no legend).
+#' @param flag.Ct Character of a flag used for undetermined Ct values. Default to "Undetermined".
+#' @param maxCt Numeric, a maximum of Ct value allowed. Default to 35.
+#' @param flag Character of a flag used in the Flag column for values which are unreliable. Default to "Undetermined".
+#' @param colors Character vector length of two, containing colors for Ct values which are labelled as reliable (first element of vector) or not (second element of vector).
+#' @param axis.title.size Integer: font size of axis titles. Default to 11.
+#' @param axis.text.size Integer: font size of axis text. Default to 10.
+#' @param x.axis.title Character: title of x axis. Default to "".
+#' @param y.axis.title Character: title of y axis. Default to "Number".
+#' @param legend.title Character: title of legend. Default to "Reliable Ct value?".
+#' @param plot.title Character: title of plot. Default to "".
+#' @param plot.title.size Integer: font size of plot title. Default to 14.
+#' @param legend.title.size Integer: font size of legend title.  Default to 12.
+#' @param legend.text.size Integer: font size of legend text. Default to 11.
+#' @param legend.position Position of the legend, can be "top" (default), "right", "bottom", "left", or "none" (no legend).
 #' See description for legend.position parameter in ggplot2::theme() function.
-#' @param save.to.tiff logical: if TRUE, plot will be saved as .tiff file.  Default to FALSE.
-#' @param dpi integer: resolution of saved .tiff file. Default to 600.
-#' @param width numeric: width (in cm) of saved .tiff file. Default to 15.
-#' @param height integer: height (in cm) of saved .tiff file. Default to 15.
-#' @param name.tiff character: name of saved .tiff file, without ".tiff" name of extension.  Default to "Ct_control_barplot_for_genes".
+#' @param save.to.tiff Logical: if TRUE, plot will be saved as .tiff file.  Default to FALSE.
+#' @param dpi Integer: resolution of saved .tiff file. Default to 600.
+#' @param width Numeric: width (in cm) of saved .tiff file. Default to 15.
+#' @param height Numeric: height (in cm) of saved .tiff file. Default to 15.
+#' @param name.tiff Character: name of saved .tiff file, without ".tiff" name of extension. Default to "Ct_control_barplot_for_genes".
 #'
-#' @return List containing plot and table with numbers of reliable and not reliable Ct values in genes.
-#' Additional information about returned table is also printed, it could help user to properly interpret returned table.
-#' Plot will be displayed on graphic device.
+#' @return List containing plot and table with counts of reliable and non reliable Ct values in genes.
+#' Additional information about returned table is also printed to help the user to properly interpret returned table.
+#' Plot is also displayed on the graphic device.
 #' @export
 #'
 #' @examples
@@ -376,7 +405,13 @@ control_Ct_barplot_gene <- function(data,
     print(barplot.genes)
 
     if (save.to.tiff == TRUE){
-      ggsave(paste(name.tiff, ".tiff", sep = ""), barplot.genes, dpi = dpi, width = width, height = height, units = "cm", compression = "lzw")
+      ggsave(paste(name.tiff, ".tiff", sep = ""),
+             barplot.genes,
+             dpi = dpi,
+             width = width,
+             height = height,
+             units = "cm",
+             compression = "lzw")
     }
 
     tab <- table(data$Reliable, data$Gene, data$Group)
@@ -398,22 +433,21 @@ control_Ct_barplot_gene <- function(data,
 #' @title filter_Ct
 #'
 #' @description
-#' Filters Ct data according to the used filtering criteria (see parameters).
+#' This function filters Ct data according to the used filtering criteria (see parameters).
 #'
-#' @param data object returned from read_Ct_long() or read_Ct_wide() function,
+#' @param data Object returned from read_Ct_long() or read_Ct_wide() function,
 #' or data frame containing column named "Sample" with sample names, column named "Gene" with gene names,
 #' column named "Ct" with raw Ct values, column named "Group" with group names.
-#' Optionally, data frame could contain column named "Flag" with flag information (ex. "Undetermined" and "OK"),
+#' Optionally, data frame can contain column named "Flag" with flag information (e.g. "Undetermined" and "OK"),
 #' which will be used for filtering.
+#' @param flag.Ct Character of a flag used for undetermined Ct values, default to "Undetermined".
+#' @param maxCt Numeric, a maximum of Ct value allowed.
+#' @param flag Character: flag used in Flag column for values which should be filtered out, default to "Undetermined".
+#' @param remove.Gene Character: vector with names of genes to remove from data
+#' @param remove.Sample Character: vector with names of samples to remove from data
+#' @param remove.Group Character: vector with names of groups to remove from data
 #'
-#' @param flag.Ct character of a flag used for undetermined Ct values, default to "Undetermined".
-#' @param maxCt numeric, a maximum of Ct value allowed.
-#' @param flag character: flag used in Flag column for values which should be filtered out, default to "Undetermined".
-#' @param remove.Gene character: vector with names of genes which should be removed from data
-#' @param remove.Sample character: vector with names of samples which should be removed from data
-#' @param remove.Group character: vector with names of groups which should be removed from data
-#'
-#' @return Data.frame with filtered data.
+#' @return Data frame with filtered data.
 #' @export
 #'
 #' @examples
@@ -457,17 +491,19 @@ filter_Ct <- function(data,
 #' @title make_Ct_ready
 #'
 #' @description
-#' This function collapses technical replicates (if present in data) by means counts and imputes missing data by means within groups (if so indicated).
-#' These actions also prepare Ct data for control functions.
+#' This function collapses technical replicates (if present in data) by means and (optionally) imputes missing data by means calculated separately for each group.
+#' This function also prepares Ct data for further steps of analysis.
 #'
-#' @param data data object returned from read_Ct_long(), read_Ct_wide() or filter_Ct() function,
+#' @param data Data object returned from read_Ct_long(), read_Ct_wide() or filter_Ct() function,
 #' or data frame containing column named "Sample" with sample names, column named "Gene" with gene names,
-#' column named "Ct" with raw Ct values (must be numeric), column named "Group" with group names. Any other columns could exist, but will not be used by this function.
-#' @param imput.by.mean.within.groups logical: if TRUE, missing values will be imputed by means within groups. This parameter could influence results, thus to draw more user attention on this parameter, no default value was set.
-#' @param save.to.txt logical: if TRUE, returned data will be saved to .txt file. Default to FALSE.
-#' @param name.txt character: name of saved .txt file, without ".txt" name of extension. Default to "Ct_ready".
+#' column named "Ct" with raw Ct values (must be numeric), column named "Group" with group names. Presence of any other columns is allowed,
+#' but they will not be used by this function.
+#' @param imput.by.mean.within.groups Logical: if TRUE, missing values will be imputed by means calculated separately for each group.
+#' This parameter can influence results, thus to draw more user attention on this parameter, no default value was set.
+#' @param save.to.txt Logical: if TRUE, returned data will be saved to .txt file. Default to FALSE.
+#' @param name.txt Character: name of saved .txt file, without ".txt" name of extension. Default to "Ct_ready".
 #'
-#' @return Data.frame with prepared data and printed information about number and percentage of missing values.
+#' @return Data frame with prepared data. Information about number and percentage of missing values is also printed.
 #' @export
 #'
 #' @examples
@@ -531,11 +567,11 @@ make_Ct_ready <- function(data,
 #' @title exp_Ct_dCt
 #'
 #' @description
-#' This function exponentiates Ct or delta Ct (dCt) values by using formula 2^(-Ct) or 2^(-dCt), respectively.
+#' This function exponentiates Ct and delta Ct (dCt) values by using 2^-Ct and 2^-dCt formulas, respectively.
 #'
-#' @param data data object returned from make_Ct_ready() or delta_Ct() functions.
-#' @param save.to.txt logical: if TRUE, returned data will be saved to .txt file. Default to FALSE.
-#' @param name.txt character: name of saved .txt file, without ".txt" name of extension. Default to "data_exp_Ct_dCt".
+#' @param data Data object returned from make_Ct_ready() or delta_Ct() functions.
+#' @param save.to.txt Logical: if TRUE, returned data will be saved to .txt file. Default to FALSE.
+#' @param name.txt Character: name of saved .txt file, without ".txt" name of extension. Default to "data_exp_Ct_dCt".
 #'
 #' @return Data frame with exponentiated Ct or dCt values.
 #' @export
@@ -577,26 +613,26 @@ exp_Ct_dCt <- function(data,
 #' @title RQ_exp_Ct_dCt
 #'
 #' @description
-#' Performs relative quantification of gene expression using 2^(-Ct) and 2^(-dCt) methods.
+#' This function performs relative quantification of gene expression using 2^-Ct and 2^-dCt methods.
 #'
 #' @details
 #' This function calculates:
-#' * Means (returned in columns with "_mean" pattern) and standard deviations (returned in columns with "_sd" pattern) of exponentiated Ct or dCt values of analyzed genes across compared groups.
-#' * Normality tests (Shapiro_Wilk test) of exponentiated Ct or dCt values of analyzed genes across compared groups and returned p values in columns with "_norm_p" pattern.
-#' * Fold Change values (return in "FCh" column) together with log10 Fold change values (return in "log10FCh" column).
-#'   Fold change values were calculated for each gene by dividing  mean of exponentiated Ct od dCt values in study group by mean of exponentiated Ct or dCt values in reference group.
-#' * Statistical testing of differences in exponentiated Ct or dCt values between study group and reference group.
-#'   Student's t test and Mann-Whitney U test are implemented and resulted statistics (in column with "_test_stat" pattern) and p values (in column with "_test_p" pattern) are returned.
-#'
-#' @param data data object returned from exp_Ct_dCt() function.
-#' @param group.study character: name of study group (group of interest).
-#' @param group.ref character: name of reference group.
-#' @param do.tests logical: if TRUE, statistical significance of differences between compared groups will be calculated using Student's t test and Mann-Whitney U test. Default to TRUE.
-#' @param alternative character: alternative hypothesis, must be one of "two.sided" (default), "greater" or "less".
-#' @param save.to.txt logical: if TRUE, returned table with results will be saved to .txt file. Default to FALSE.
-#' @param name.txt character: name of saved .txt file, without ".txt" name of extension. Default to "RQ_exp_results".
+#' 1. Means (returned in columns with the "_mean" pattern) and standard deviations (returned in columns with the "_sd" pattern)
+#' of exponentiated Ct or dCt values of analyzed genes across compared groups.
+#' 2. P values of normality test (Shapiro_Wilk test) performed on exponentiated Ct or dCt values across compared groups (returned in columns with the "_norm_p" pattern).
+#' 3. Fold change values (returned in "FCh" column) calculated for each gene by dividing  mean of exponentiated Ct od dCt values in study group
+#' by mean of exponentiated Ct or dCt values in reference group.
+#' 4. Statistics (returned in column with the "_test_stat" pattern) and p values (returned in column with "_test_p" pattern) of
+#' differences in exponentiated Ct or dCt values between study group and reference group using Student's t test and Mann-Whitney U test.
+#' @param data Data object returned from exp_Ct_dCt() function.
+#' @param group.study Character: name of study group (group of interest).
+#' @param group.ref Character: name of reference group.
+#' @param do.tests Logical: if TRUE, statistical significance of differences between compared groups will be calculated using Student's t test and Mann-Whitney U test. Default to TRUE.
+#' @param alternative Character: alternative hypothesis, must be one of "two.sided" (default), "greater" or "less".
+#' @param save.to.txt Logical: if TRUE, returned table with results will be saved to .txt file. Default to FALSE.
+#' @param name.txt Character: name of saved .txt file, without ".txt" name of extension. Default to "RQ_exp_results".
 #
-#' @return Data frame with transformed Ct values and printed information about number and percentage of missing values.
+#' @return Data frame with results.
 #' @export
 #'
 #' @examples
@@ -608,7 +644,9 @@ exp_Ct_dCt <- function(data,
 #'                      remove.Sample = c("Control08","Control16","Control22"))
 #' data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
 #' data.Ct.exp <- exp_Ct_dCt(data.CtF.ready)
-#' RQ.Ct.exp <- RQ_exp_Ct_dCt(data.Ct.exp, group.study = "Disease", group.ref = "Control")
+#' RQ.Ct.exp <- RQ_exp_Ct_dCt(data.Ct.exp,
+#'                            group.study = "Disease",
+#'                            group.ref = "Control")
 #' head(RQ.Ct.exp)
 #'
 #' @importFrom stats sd shapiro.test t.test
@@ -690,15 +728,16 @@ RQ_exp_Ct_dCt <- function(data,
 #' @title norm_finder
 #'
 #' @description
-#' This function calculate stability scores using a code adapted from the [NormFinder algorithm](https://www.moma.dk/software/normfinder) published in [this article](https://aacrjournals.org/cancerres/article/64/15/5245/511517/Normalization-of-Real-Time-Quantitative-Reverse).
-#' This function is internally used by `RQdeltaCT::find_ref_gene()` function and do not need to be use separately.
+#' This function calculates stability scores using NormFinder algorithm (https://www.moma.dk/software/normfinder)
+#' published in https://aacrjournals.org/cancerres/article/64/15/5245/511517/Normalization-of-Real-Time-Quantitative-Reverse.
+#' This function is internally used by other RQdeltaCT package function, find_ref_gene(); therefore norm_finder() function does not need to be used separately.
 #'
-#' @param data object returned from make_Ct_ready() functions.
-#' @param candidates character: vector of names of genes - candidates for reference gene.
-#' @param save.to.txt logical: if TRUE, returned table with results will be saved to .txt file. Default to FALSE.
-#' @param name.txt character: name of saved .txt file, without ".txt" name of extension. Default to "RQ_exp_results".
+#' @param data Object returned from make_Ct_ready() functions.
+#' @param candidates Character: vector of names of genes - candidates for reference gene.
+#' @param save.to.txt Logical: if TRUE, returned table with results will be saved to .txt file. Default to FALSE.
+#' @param name.txt Character: name of saved .txt file, without ".txt" name of extension. Default to "norm_finder_results".
 #'
-#' @return Table with calculated stability scores, the lowest value the best candidate for reference gene.
+#' @return Table with calculated stability score; the lowest value the best candidate for reference gene.
 #' @export
 #'
 #' @examples
@@ -847,43 +886,40 @@ norm_finder <- function(data,
 #' @title find_ref_gene
 #'
 #' @description
-#' This function draw a line plot and calculate parameters useful to assess gene expression stability:
-#'  minimum, maximum, standard deviation, variance, colinearity coefficient (VIF),
-#'  and stability measures from NormFinder and geNorm algorithms. This function could be helpful to select the best
+#' This function assess gene expression stability by calculation the following parameters: minimum, maximum, standard deviation, variance,
+#' and stability measures from NormFinder and geNorm algorithms. It also presents C values graphically on a line plot. This function is helpful to select the best
 #' reference gene for normalization of Ct values.
 #'
-#' @param data object returned from make_Ct_ready() functions,
-#' @param candidates character: vector of names of genes - candidates for gene reference.
-#' @param groups character vector length of two with names of compared groups
-#' @param colors character: vector of colors for genes, number of elements should be equal to number of candidate genes (elements in `candidates` vector).
-#' @param vif.score logical: if TRUE, VIF colinearity coefficient will be calculated.
-#' @param norm.finder.score logical: if TRUE, NormFinder stability score will be calculated.
-#' @param genorm.score logical: if TRUE, geNorm stability score will be calculated.
-#' @param line.width numeric: width of lines drawn in the plot. Default to 1.
-#' @param angle integer: value of angle in which names of genes should be displayed. Default to 0.
-#' @param x.axis.title character: title of x axis. Default to "".
-#' @param y.axis.title character: title of y axis.  Default to "Ct".
-#' @param axis.title.size integer: font size of axis titles. Default to 12.
-#' @param axis.text.size integer: font size of axis text. Default to 10.
-#' @param legend.title character: title of legend. Default to "".
-#' @param legend.title.size integer: font size of legend title. Default to 12.
-#' @param legend.text.size integer: font size of legend text. Default to 12.
-#' @param legend.position position of the legend, one of "top" (default), "right", "bottom", "left", or "none" (no legend).
+#' @param data Object returned from make_Ct_ready() functions.
+#' @param groups Character vector with names of groups used for analysis. If all groups should be included to the analysis, groups parameter should be set to "all".
+#' @param candidates Character: vector of names of genes - candidates for gene reference.
+#' @param colors Character: vector of colors for genes, the number of colors should be equal to the number of candidate genes.
+#' @param norm.finder.score Logical: if TRUE, NormFinder stability score will be calculated. Default to TRUE.
+#' @param genorm.score Logical: if TRUE, geNorm stability score will be calculated. Default to TRUE.
+#' @param line.width Numeric: width of lines drawn in the plot. Default to 1.
+#' @param angle Integer: value of angle in which names of genes are displayed. Default to 0.
+#' @param x.axis.title Character: title of x axis. Default to "".
+#' @param y.axis.title Character: title of y axis.  Default to "Ct".
+#' @param axis.title.size Integer: font size of axis titles. Default to 11.
+#' @param axis.text.size Integer: font size of axis text. Default to 10.
+#' @param legend.title Character: title of legend. Default to "".
+#' @param legend.title.size Integer: font size of legend title. Default to 11.
+#' @param legend.text.size Integer: font size of legend text. Default to 11.
+#' @param legend.position Position of the legend, can be "top" (default), "right", "bottom", "left", or "none" (no legend).
 #' See description for legend.position in ggplot2::theme() function.
-#' @param plot.title character: title of plot. Default to "".
-#' @param plot.title.size integer: font size of plot title. Default to 14.
-#' @param save.to.tiff logical: if TRUE, plot will be saved as .tiff file. Default to FALSE.
-#' @param dpi integer: resolution of saved .tiff file. Default to 600.
-#' @param width numeric: width (in cm) of saved .tiff file. Default to 15.
-#' @param height integer: height (in cm) of saved .tiff file. Default to 15.
-#' @param name.tiff character: name of saved .tiff file, without ".tiff" name of extension. Default to "Ct_reference_gene_selection".
+#' @param plot.title Character: title of plot. Default to "".
+#' @param plot.title.size Integer: font size of plot title. Default to 14.
+#' @param save.to.tiff Logical: if TRUE, plot will be saved as .tiff file. Default to FALSE.
+#' @param dpi Integer: resolution of saved .tiff file. Default to 600.
+#' @param width Numeric: width (in cm) of saved .tiff file. Default to 15.
+#' @param height Numeric: height (in cm) of saved .tiff file. Default to 15.
+#' @param name.tiff Character: name of saved .tiff file, without ".tiff" name of extension. Default to "Ct_reference_gene_selection".
 #'
-#' @return List containing plot object and table with calculated parameters. Created plot is displayed on graphic device.
+#' @return List containing an object with plot and a table with calculated parameters. Created plot is also displayed on the graphic device.
 #'
 #' @export
 #'
 #' @examples
-#'library(car)
 #'library(ctrlGene)
 #'library(tidyverse)
 #' data(data.Ct)
@@ -895,7 +931,6 @@ norm_finder <- function(data,
 #'                      groups = c("Disease","Control"),
 #'                      candidates = c("Gene4", "Gene8","Gene10","Gene16","Gene17", "Gene18"),
 #'                      col = c("#66c2a5", "#fc8d62","#6A6599", "#D62728", "#1F77B4", "black"),
-#'                      vif.score = TRUE,
 #'                      norm.finder.score = TRUE,
 #'                      genorm.score = TRUE)
 #' ref[[2]]
@@ -904,8 +939,7 @@ norm_finder <- function(data,
 #' @importFrom tidyr pivot_wider pivot_longer
 #' @importFrom magrittr %>%
 #' @importFrom tidyselect any_of
-#' @importFrom stats reorder sd var lm
-#' @importFrom car vif
+#' @importFrom stats reorder sd var
 #' @importFrom ctrlGene geNorm
 #' @importFrom ggplot2 ggplot geom_line guides scale_color_manual xlab ylab labs theme_classic theme element_text scale_x_discrete facet_wrap ggsave
 #' @import ggplot2
@@ -915,9 +949,8 @@ find_ref_gene <- function(data,
                           groups,
                           candidates,
                           colors,
-                          vif.score = FALSE,
-                          norm.finder.score = FALSE,
-                          genorm.score = FALSE,
+                          norm.finder.score = TRUE,
+                          genorm.score = TRUE,
                           line.width = 1,
                           angle = 0,
                           x.axis.title = "",
@@ -934,8 +967,15 @@ find_ref_gene <- function(data,
                           dpi = 600, width = 15, height = 15,
                           name.tiff = "Ct_reference_gene_selection"){
 
+  if (groups[1] == "all"){
+    data <- data
+
+  } else {
+
+    data <- filter(data, Group %in% groups)
+  }
+
   ref <- data %>%
-      #filter(Group == groups[1] | Group == groups[2]) %>%
       pivot_longer(cols = -c(Group, Sample), names_to = "Gene", values_to = "Ct") %>%
       filter(Gene %in% candidates)
 
@@ -967,30 +1007,6 @@ find_ref_gene <- function(data,
               sd = sd(Ct, na.rm = TRUE),
               var = var(Ct, na.rm = TRUE), .groups = "keep") %>%
     as.data.frame()
-
-  if (vif.score == TRUE){
-  ref_lm <- data %>%
-    filter(Group %in% groups[1]) %>%
-    ungroup()
-
-  ref_lm$dum <- sample(1:nrow(ref_lm), nrow(ref_lm), replace = FALSE)
-  model <- lm(dum ~ ., data = select(ref_lm, -Sample, -Group))
-  vif <- vif(model)
-  vif_sel <- vif[names(vif) %in% candidates]
-  ref_var$VIF <- vif_sel
-  colnames(ref_var)[colnames(ref_var) == "VIF"] = paste(groups[1], "_VIF", sep = "")
-
-  ref_lm2 <- data %>%
-    filter(Group %in% groups[2]) %>%
-    ungroup()
-
-  ref_lm2$dum <- c(1:nrow(ref_lm2))
-  model2 <- lm(dum ~ ., data = select(ref_lm2, -Sample, -Group))
-  vif2 <- vif(model2)
-  vif_sel2 <- vif2[names(vif2) %in% candidates]
-  ref_var$VIF2 <- vif_sel2
-  colnames(ref_var)[colnames(ref_var) == "VIF2"] = paste(groups[2], "_VIF", sep = "")
-  }
 
 if (norm.finder.score == TRUE){
   reference.stability.nF <- norm_finder(data, candidates = candidates)
@@ -1031,14 +1047,14 @@ if (norm.finder.score == TRUE){
 #' @title delta_Ct
 #'
 #' @description
-#' This function calculates delta Ct (dCt) values by subtracting Ct values of reference gene from Ct values of other genes.
+#' This function calculates delta Ct (dCt) values by subtracting Ct values of reference gene from Ct values of remaining genes.
 #'
-#' @param data data object returned from make_Ct_ready function,
-#' @param ref character: name of reference gene.
-#' @param save.to.txt logical: if TRUE, returned data will be saved to .txt file. Default to FALSE.
-#' @param name.txt character: name of saved .txt file, without ".txt" name of extension. Default to "data_dCt".
+#' @param data Data object returned from make_Ct_ready function,
+#' @param ref Character: name of reference gene.
+#' @param save.to.txt Logical: if TRUE, returned data will be saved to .txt file. Default to FALSE.
+#' @param name.txt Character: name of saved .txt file, without ".txt" name of extension. Default to "data_dCt".
 #'
-#' @return Data.frame with dCt values and printed information about number and percentage of missing values.
+#' @return Data frame with dCt values.
 #' @export
 #'
 #' @examples
@@ -1083,30 +1099,30 @@ delta_Ct <- function(data,
 #' @title control_boxplot_sample
 #'
 #' @description
-#' Boxplot illustrating distribution of data in each sample. Could be useful to identify outlier samples.
+#' Boxplot that illustrate distribution of data in each sample. This function is helpful to identify outlier samples.
 #'
-#' @param data object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.
-#' @param sel.Sample character vector with names of samples to include, or "all" (default) to use all samples.
-#' @param coef numeric: how many times of interquartile range should be used to indicate the most extend data point for whiskers. Default to 1.5.
-#' @param colors character vector containing colors for compared groups. Numbers of colors must be equal to number of groups. Default to c("#66c2a5", "#fc8d62").
-#' @param x.axis.title character: title of x axis. Default to "Sample".
-#' @param y.axis.title character: title of y axis. Default to "value".
-#' @param axis.title.size integer: font size of axis titles. Default to 12.
-#' @param axis.text.size integer: font size of axis text. Default to 12.
-#' @param legend.title character: title of legend. Default to "Group".
-#' @param legend.title.size integer: font size of legend title. Default to 12.
-#' @param legend.text.size integer: font size of legend text. Default to 12.
-#' @param legend.position position of the legend, one of "top", "right" (default), "bottom", "left", or "none" (no legend).
+#' @param data Object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.
+#' @param sel.Sample Character vector with names of samples to include, or "all" (default) to use all samples.
+#' @param coef Numeric: how many times of interquartile range should be used to determine range point for whiskers. Default to 1.5.
+#' @param colors Character vector containing colors for compared groups. Numbers of colors must be equal to number of groups. Default to c("#66c2a5", "#fc8d62").
+#' @param x.axis.title Character: title of x axis. Default to "Sample".
+#' @param y.axis.title Character: title of y axis. Default to "value".
+#' @param axis.title.size Integer: font size of axis titles. Default to 11.
+#' @param axis.text.size Integer: font size of axis text. Default to 12.
+#' @param legend.title Character: title of legend. Default to "Group".
+#' @param legend.title.size Integer: font size of legend title. Default to 11.
+#' @param legend.text.size Integer: font size of legend text. Default to 11.
+#' @param legend.position Position of the legend, can be "top", "right" (default), "bottom", "left", or "none" (no legend).
 #' See description for legend.position in ggplot2::theme() function.
-#' @param plot.title character: title of plot. Default to "".
-#' @param plot.title.size integer: font size of plot title. Default to 14.
-#' @param save.to.tiff logical: if TRUE, plot will be saved as .tiff file. Default to FALSE.
-#' @param dpi integer: resolution of saved .tiff file. Default to 600.
-#' @param width numeric: width (in cm) of saved .tiff file. Default to 15.
-#' @param height integer: height (in cm) of saved .tiff file. Default to 15.
-#' @param name.tiff character: name of saved .tiff file, without ".tiff" name of extension. Default to "control_boxplot_samples".
+#' @param plot.title Character: title of plot. Default to "".
+#' @param plot.title.size Integer: font size of plot title. Default to 14.
+#' @param save.to.tiff Logical: if TRUE, plot will be saved as .tiff file. Default to FALSE.
+#' @param dpi Integer: resolution of saved .tiff file. Default to 600.
+#' @param width Numeric: width (in cm) of saved .tiff file. Default to 15.
+#' @param height Numeric: height (in cm) of saved .tiff file. Default to 15.
+#' @param name.tiff Character: name of saved .tiff file, without ".tiff" name of extension. Default to "control_boxplot_samples".
 #'
-#' @return Object with boxplot illustrating distribution of data in each sample. Created plot is also displayed on graphic device.
+#' @return Object with a boxplot illustrating distribution of data in each sample. Created plot is also displayed on the graphic device.
 #' @export
 #'
 #' @examples
@@ -1170,7 +1186,13 @@ control_boxplot_sample <- function(data,
     print(box_control_sample)
 
 	if (save.to.tiff == TRUE){
-      ggsave(paste(name.tiff,".tiff", sep = ""), box_control_sample, dpi = dpi, width = width, height = height, units = "cm", compression = "lzw")
+      ggsave(paste(name.tiff,".tiff", sep = ""),
+             box_control_sample,
+             dpi = dpi,
+             width = width,
+             height = height,
+             units = "cm",
+             compression = "lzw")
 	}
     return(box_control_sample)
 }
@@ -1183,32 +1205,31 @@ control_boxplot_sample <- function(data,
 #' @title control_boxplot_gene
 #'
 #' @description
-#' This function creates boxplot illustrating distribution of data in each gene. Could be useful to compare expression of analyzed genes.
+#' This function creates boxplot that illustrate distribution of data in each gene.
 #'
-#' @param data object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.
-#' @param sel.Gene character vector with names of genes to include, or "all" (default) to use all names of genes.
-#' @param by.group logical: if TRUE, distributions will be drawn by compared groups of samples.
-#' @param coef numeric: how many times of interquartile range should be used to indicate the most extend data point for whiskers.
-#' @param colors character vector containing colors for groups, length of one (when by.group = FALSE) or equal to number of groups (when by.group = TRUE).
-#' @param coef numeric: how many times of interquartile range should be used to indicate the most extend data point for whiskers. Default to 1.5.
-#' @param x.axis.title character: title of x axis. Default to "Gene".
-#' @param y.axis.title character: title of y axis. Default to "value".
-#' @param axis.title.size integer: font size of axis titles. Default to 12.
-#' @param axis.text.size integer: font size of axis text. Default to 12.
-#' @param legend.title character: title of legend. Default to "Group".
-#' @param legend.title.size integer: font size of legend title. Default to 12.
-#' @param legend.text.size integer: font size of legend text. Default to 12.
-#' @param legend.position position of the legend, one of "top", "right" (default), "bottom", "left", or "none" (no legend).
+#' @param data Object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.
+#' @param sel.Gene Character vector with names of genes to include, or "all" (default) to use all genes.
+#' @param by.group Logical: if TRUE, distributions will be drawn by compared groups of samples.
+#' @param coef Numeric: how many times of interquartile range should be used to determine range point for whiskers. Default to 1.5.
+#' @param colors Character vector containing colors for groups, length of one (when by.group = FALSE) or equal to the number of groups (when by.group = TRUE).
+#' @param x.axis.title Character: title of x axis. Default to "Gene".
+#' @param y.axis.title Character: title of y axis. Default to "value".
+#' @param axis.title.size Integer: font size of axis titles. Default to 11.
+#' @param axis.text.size Integer: font size of axis text. Default to 12.
+#' @param legend.title Character: title of legend. Default to "Group".
+#' @param legend.title.size Integer: font size of legend title. Default to 11.
+#' @param legend.text.size Integer: font size of legend text. Default to 11.
+#' @param legend.position Position of the legend, can be "top", "right" (default), "bottom", "left", or "none" (no legend).
 #' See description for legend.position in ggplot2::theme() function.
-#' @param plot.title character: title of plot. Default to "".
-#' @param plot.title.size integer: font size of plot title. Default to 14.
-#' @param save.to.tiff logical: if TRUE, plot will be saved as .tiff file. Default to FALSE.
-#' @param dpi integer: resolution of saved .tiff file. Default to 600.
-#' @param width numeric: width (in cm) of saved .tiff file. Default to 15.
-#' @param height integer: height (in cm) of saved .tiff file. Default to 15.
-#' @param name.tiff character: name of saved .tiff file, without ".tiff" name of extension. Default to "control_boxplot_genes".
+#' @param plot.title Character: title of plot. Default to "".
+#' @param plot.title.size Integer: font size of plot title. Default to 14.
+#' @param save.to.tiff Logical: if TRUE, plot will be saved as .tiff file. Default to FALSE.
+#' @param dpi Integer: resolution of saved .tiff file. Default to 600.
+#' @param width Numeric: width (in cm) of saved .tiff file. Default to 15.
+#' @param height Numeric: height (in cm) of saved .tiff file. Default to 15.
+#' @param name.tiff Character: name of saved .tiff file, without ".tiff" name of extension. Default to "control_boxplot_genes".
 #'
-#' @return Object with boxplot illustrating distribution of data for each gene. Created plot will be also displayed on graphic device.
+#' @return Object with boxplot illustrating distribution of data for each gene. Created plot is also displayed on the graphic device.
 #' @export
 #'
 #' @examples
@@ -1297,23 +1318,25 @@ control_boxplot_gene <- function(data,
 #' @title control_cluster_sample
 #'
 #' @description
-#' Performs hierarchical clustering of samples based on the data. Could be useful to identify outlier samples.
+#' This function performs hierarchical clustering of samples based on the data, useful to identify outlier samples.
 #'
-#' @param data object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.
-#' @param sel.Gene character vector with names of genes to include, or "all" (default) to use all names of genes.
-#' @param method.dist character: name of method used for calculation of distances, derived from stats::dist() function, should be one of "euclidean" (default) , "maximum", "manhattan", "canberra", "binary" or "minkowski".
-#' @param method.clust character: name of used method for agglomeration, derived from stats::hclust() function, should be one of "ward.D", "ward.D2", "single", "complete", "average" (default), "mcquitty", "median" or "centroid".
-#' @param x.axis.title character: title of x axis. Default to "Samples".
-#' @param y.axis.title character: title of y axis. Default to "Height".
-#' @param label.size numeric: size of text labels. Default to 1.
-#' @param plot.title character: title of plot. Default to "".
-#' @param save.to.tiff logical: if TRUE, plot will be saved as .tiff file. Default to FALSE.
-#' @param dpi integer: resolution of saved .tiff file. Default to 600.
-#' @param width numeric: width (in cm) of saved .tiff file. Default to 15.
-#' @param height integer: height (in cm) of saved .tiff file. Default to 15.
-#' @param name.tiff character: name of saved .tiff file, without ".tiff" name of extension. Default to "control_clust_samples".
+#' @param data Object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.
+#' @param sel.Gene Character vector with names of genes to include, or "all" (default) to use all genes.
+#' @param method.dist Character: name of method used for calculation of distances, derived from stats::dist() function,
+#' must be one of "euclidean" (default) , "maximum", "manhattan", "canberra", "binary" or "minkowski".
+#' @param method.clust Character: name of used method for agglomeration, derived from stats::hclust() function,
+#' must be one of "ward.D", "ward.D2", "single", "complete", "average" (default), "mcquitty", "median" or "centroid".
+#' @param x.axis.title Character: title of x axis. Default to "Samples".
+#' @param y.axis.title Character: title of y axis. Default to "Height".
+#' @param label.size Numeric: size of text labels. Default to 0.8.
+#' @param plot.title Character: title of plot. Default to "".
+#' @param save.to.tiff Logical: if TRUE, plot will be saved as .tiff file. Default to FALSE.
+#' @param dpi Integer: resolution of saved .tiff file. Default to 600.
+#' @param width Numeric: width (in cm) of saved .tiff file. Default to 15.
+#' @param height Numeric: height (in cm) of saved .tiff file. Default to 15.
+#' @param name.tiff Character: name of saved .tiff file, without ".tiff" name of extension. Default to "control_clust_samples".
 #'
-#' @return Plot with hierarchical clustering of samples, displayed on graphic device.
+#' @return Plot with hierarchical clustering of samples, displayed on the graphic device.
 #' @export
 #'
 #' @examples
@@ -1337,7 +1360,7 @@ control_cluster_sample <- function(data,
                                    method.clust = "average",
                                    x.axis.title = "Samples",
                                    y.axis.title = "Height",
-                                   label.size = 1,
+                                   label.size = 0.8,
                                    plot.title = "",
                                    save.to.tiff = FALSE,
                                    dpi = 600, width = 15, height = 15,
@@ -1351,13 +1374,29 @@ control_cluster_sample <- function(data,
   }
 
   data <- ungroup(data)
-  cluster <- hclust(dist(select(data, -Group, -Sample), method = method.dist), method = method.clust)
+  cluster <- hclust(dist(select(data, -Group, -Sample),
+                         method = method.dist),
+                    method = method.clust)
   cluster$labels <- data$Sample
-  plot(cluster, xlab = x.axis.title, ylab = y.axis.title, main = plot.title, cex = label.size)
+  plot(cluster,
+       xlab = x.axis.title,
+       ylab = y.axis.title,
+       main = plot.title,
+       cex = label.size)
 
   if (save.to.tiff == TRUE){
-    tiff(paste(name.tiff, ".tiff", sep = ""), res = dpi, width = width, height = height, units = "cm", compression = "lzw")
-    plot(cluster, xlab  = x.axis.title, ylab = y.axis.title, main = plot.title, cex = label.size)
+    tiff(paste(name.tiff, ".tiff", sep = ""),
+         res = dpi,
+         width = width,
+         height = height,
+         units = "cm",
+         compression = "lzw")
+
+    plot(cluster,
+         xlab  = x.axis.title,
+         ylab = y.axis.title,
+         main = plot.title,
+         cex = label.size)
     dev.off()
   }
 }
@@ -1370,23 +1409,25 @@ control_cluster_sample <- function(data,
 #' @title control_cluster_gene
 #'
 #' @description
-#' Performs hierarchical clustering of genes based on the data. Could be useful to gain insight into similarity in expression of analyzed genes.
+#' This function performs hierarchical clustering of genes based on the data, useful to gain insight into similarity in expression of analyzed genes.
 #'
-#' @param data object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.
-#' @param sel.Sample character vector with names of samples to include, or "all" (default) to use all samples.
-#' @param method.dist character: name of method used for calculation of distances, derived from stats::dist() function, should be one of "euclidean" (default) , "maximum", "manhattan", "canberra", "binary" or "minkowski".
-#' @param method.clust character: name of used method for agglomeration, derived from stats::hclust() function, should be one of "ward.D", "ward.D2", "single", "complete", "average" (default), "mcquitty", "median" or "centroid".
-#' @param x.axis.title character: title of x axis. Default to "Genes".
-#' @param y.axis.title character: title of y axis. Default to "Height".
-#' @param plot.title character: title of plot. Default to "".
-#' @param label.size numeric: size of text labels. Default to 1.
-#' @param save.to.tiff logical: if TRUE, plot will be saved as .tiff file. Default to FALSE.
-#' @param dpi integer: resolution of saved .tiff file. Default to 600.
-#' @param width numeric: width (in cm) of saved .tiff file. Default to 15.
-#' @param height integer: height (in cm) of saved .tiff file. Default to 15.
-#' @param name.tiff character: name of saved .tiff file, without ".tiff" name of extension. Default to "control_clust_genes".
+#' @param data Object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.
+#' @param sel.Sample Character vector with names of samples to include, or "all" (default) to use all samples.
+#' @param method.dist Character: name of method used for calculation of distances, derived from stats::dist() function,
+#' must be one of "euclidean" (default) , "maximum", "manhattan", "canberra", "binary" or "minkowski".
+#' @param method.clust Character: name of used method for agglomeration, derived from stats::hclust() function,
+#' must be one of "ward.D", "ward.D2", "single", "complete", "average" (default), "mcquitty", "median" or "centroid".
+#' @param x.axis.title Character: title of x axis. Default to "Genes".
+#' @param y.axis.title Character: title of y axis. Default to "Height".
+#' @param plot.title Character: title of plot. Default to "".
+#' @param label.size Numeric: size of text labels. Default to 0.8.
+#' @param save.to.tiff Logical: if TRUE, plot will be saved as .tiff file. Default to FALSE.
+#' @param dpi Integer: resolution of saved .tiff file. Default to 600.
+#' @param width Numeric: width (in cm) of saved .tiff file. Default to 15.
+#' @param height Numeric: height (in cm) of saved .tiff file. Default to 15.
+#' @param name.tiff Character: name of saved .tiff file, without ".tiff" name of extension. Default to "control_clust_genes".
 #'
-#' @return Plot with hierarchical clustering of genes, displayed on graphic device.
+#' @return Plot with hierarchical clustering of genes, displayed on the graphic device.
 #' @export
 #'
 #' @examples
@@ -1410,7 +1451,7 @@ control_cluster_gene <- function (data,
                                     method.clust = "average",
                                     x.axis.title = "Genes",
                                     y.axis.title = "Height",
-                                    label.size = 1,
+                                    label.size = 0.8,
                                     plot.title = "",
                                     save.to.tiff = FALSE,
                                     dpi = 600, width = 15, height = 15,
@@ -1427,14 +1468,27 @@ control_cluster_gene <- function (data,
   data_t <- ungroup(data)
   data_t <- t(select(data_t, -Group, -Sample))
   colnames(data_t) <- data$Sample
-  cluster <- hclust(dist(as.data.frame(data_t), method = method.dist), method = method.clust)
-  plot(cluster, xlab = x.axis.title, ylab = y.axis.title, main = plot.title, cex = label.size)
+  cluster <- hclust(dist(as.data.frame(data_t),
+                         method = method.dist),
+                    method = method.clust)
+  plot(cluster,
+       xlab = x.axis.title,
+       ylab = y.axis.title,
+       main = plot.title,
+       cex = label.size)
 
   if (save.to.tiff == TRUE) {
-    tiff(paste(name.tiff, ".tiff", sep = ""), res = dpi,
-         width = width, height = height, units = "cm", compression = "lzw")
-    plot(cluster, xlab = x.axis.title, ylab = y.axis.title,
-         main = plot.title, cex = label.size)
+    tiff(paste(name.tiff, ".tiff", sep = ""),
+         res = dpi,
+         width = width,
+         height = height,
+         units = "cm",
+         compression = "lzw")
+    plot(cluster,
+         xlab = x.axis.title,
+         ylab = y.axis.title,
+         main = plot.title,
+         cex = label.size)
     dev.off()
   }
 }
@@ -1446,34 +1500,35 @@ control_cluster_gene <- function (data,
 #' @title control_pca_sample
 #'
 #' @description
-#' Performs principal component analysis (PCA) for samples and generate plot illustrating spatial arrangement of samples using two first components. Could be useful to identify outlier samples.
-#'     IMPORTANT: PCA analysis can not deal with missing values, thus all samples with at least one missing value are removed from data before analysis. It is recommended to run this function on data after imputation of missing values.
+#' This function performs principal component analysis (PCA) for samples and generate plot that illustrate spatial arrangement
+#' of samples based on the two first components. This plot is useful to identify outlier samples.
+#' PCA analysis can not deal with missing values, thus all samples with at least one missing value are removed from data before analysis.
 #'
-#' @param data object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.
-#' @param sel.Gene character vector with names of genes to include, or "all" (default) to use all names of genes.
-#' @param point.size numeric: size of points. Default to 4.
-#' @param point.shape integer: shape of points. Default to 19.
-#' @param alpha numeric: transparency of points, a value between 0 and 1. Default to 0.7.
-#' @param label.size numeric: size of points labels (names of samples). Default to 3.
-#' @param hjust numeric: horizontal position of points labels. Default to 0.
-#' @param vjust numeric: vertical position of points labels.  Default to -1.
-#' @param colors character vector containing colors for compared groups. Numbers of colors must be equal to number of groups. Default to c("#66c2a5", "#fc8d62").
-#' @param axis.title.size integer: font size of axis titles. Default to 12.
-#' @param axis.text.size integer: font size of axis text. Default to 10.
-#' @param legend.title character: title of legend. Default to "Group".
-#' @param legend.title.size integer: font size of legend title. Default to 12.
-#' @param legend.text.size integer: font size of legend text. Default to 12.
-#' @param legend.position position of the legend, one of "top", "right" (default), "bottom", "left", or "none" (no legend).
+#' @param data Object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.
+#' @param sel.Gene Character vector with names of genes to include, or "all" (default) to use all genes.
+#' @param point.size Numeric: size of points. Default to 4.
+#' @param point.shape Integer: shape of points. Default to 19.
+#' @param alpha Numeric: transparency of points, a value between 0 and 1. Default to 0.7.
+#' @param label.size Numeric: size of points labels (names of samples). Default to 3.
+#' @param hjust Numeric: horizontal position of points labels. Default to 0.
+#' @param vjust Numeric: vertical position of points labels.  Default to -1.
+#' @param colors Character vector containing colors for compared groups. The number of colors must be equal to the number of groups. Default to c("#66c2a5", "#fc8d62").
+#' @param axis.title.size Integer: font size of axis titles. Default to 11.
+#' @param axis.text.size Integer: font size of axis text. Default to 10.
+#' @param legend.title Character: title of legend. Default to "Group".
+#' @param legend.title.size Integer: font size of legend title. Default to 11.
+#' @param legend.text.size Integer: font size of legend text. Default to 11.
+#' @param legend.position Position of the legend, can be "top", "right" (default), "bottom", "left", or "none" (no legend).
 #' See description for legend.position parameter in ggplot2::theme() function.
-#' @param plot.title character: title of plot. Default to "".
-#' @param plot.title.size integer: font size of plot title. Default to 14.
-#' @param save.to.tiff logical: if TRUE, plot will be saved as .tiff file. Default to FALSE.
-#' @param dpi integer: resolution of saved .tiff file. Default to 600.
-#' @param width numeric: width (in cm) of saved .tiff file. Default to 15.
-#' @param height integer: height (in cm) of saved .tiff file. Default to 15.
+#' @param plot.title Character: title of plot. Default to "".
+#' @param plot.title.size Integer: font size of plot title. Default to 14.
+#' @param save.to.tiff Logical: if TRUE, plot will be saved as .tiff file. Default to FALSE.
+#' @param dpi Integer: resolution of saved .tiff file. Default to 600.
+#' @param width Numeric: width (in cm) of saved .tiff file. Default to 15.
+#' @param height Numeric: height (in cm) of saved .tiff file. Default to 15.
 #' @param name.tiff character: name of saved .tiff file, without ".tiff" name of extension. Default to "control_pca_samples".
 #'
-#' @return Object with plot illustrating spatial arrangement of samples according to coordinates of two first components obtained from principal component analysis (PCA). The plot will be also displayed in graphic device.
+#' @return Object with plot. The plot is also displayed on the graphic device.
 #' @export
 #'
 #' @examples
@@ -1549,7 +1604,13 @@ control_pca_sample <- function(data,
   print(control_pca)
 
   if (save.to.tiff == TRUE){
-    ggsave(paste(name.tiff,".tiff", sep = ""), control_pca, dpi = dpi, width = width, height = height, units = "cm", compression = "lzw")
+    ggsave(paste(name.tiff,".tiff", sep = ""),
+           control_pca,
+           dpi = dpi,
+           width = width,
+           height = height,
+           units = "cm",
+           compression = "lzw")
   }
   return(control_pca)
 }
@@ -1565,34 +1626,35 @@ control_pca_sample <- function(data,
 #' @title control_pca_gene
 #'
 #' @description
-#' Performs principal component analysis (PCA) for genes and generate plot illustrating spatial arrangement of genes using 2 components. Could be useful to gain insight into similarity in expression of analyzed genes.
-#' IMPORTANT: PCA analysis can not deal with missing values, thus all genes with at least one missing value are removed from data before analysis. It is recommended to run this function on data after imputation of missing values.
+#' This function performs principal component analysis (PCA) for genes and generates plot illustrating spatial arrangement of genes using two first PCA components.
+#' This plot allows to gain insight into similarity in expression of analyzed genes. PCA analysis can not deal with missing values,
+#' thus all genes with at least one missing value are removed from data before analysis.
 #'
-#' @param data object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.
-#' @param sel.Sample character vector with names of samples to include, or "all" (default) to use all samples.
-#' @param point.size numeric: size of points. Default to 4.
-#' @param point.shape integer: shape of points. Default to 19.
-#' @param alpha numeric: transparency of points, a value between 0 and 1. Default to 0.7.
-#' @param label.size numeric: size of points labels (names of samples). Default to 3.
-#' @param hjust numeric: horizontal position of points labels. Default to 0.
-#' @param vjust numeric: vertical position of points labels.  Default to -1.
-#' @param color character: color used for points.
-#' @param axis.title.size integer: font size of axis titles. Default to 12.
-#' @param axis.text.size integer: font size of axis text. Default to 10.
-#' @param legend.title character: title of legend. Default to "Group".
-#' @param legend.title.size integer: font size of legend title. Default to 12.
-#' @param legend.text.size integer: font size of legend text. Default to 12.
-#' @param legend.position position of the legend, one of "top", "right" (default), "bottom", "left", or "none" (no legend).
+#' @param data Object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.
+#' @param sel.Sample Character vector with names of samples to include, or "all" (default) to use all samples.
+#' @param point.size Numeric: size of points. Default to 4.
+#' @param point.shape Integer: shape of points. Default to 19.
+#' @param alpha Numeric: transparency of points, a value between 0 and 1. Default to 0.7.
+#' @param label.size Numeric: size of points labels (names of samples). Default to 3.
+#' @param hjust Numeric: horizontal position of points labels. Default to 0.
+#' @param vjust Numeric: vertical position of points labels. Default to -1.
+#' @param color Character: color used for points.
+#' @param axis.title.size Integer: font size of axis titles. Default to 11.
+#' @param axis.text.size Integer: font size of axis text. Default to 10.
+#' @param legend.title Character: title of legend. Default to "Group".
+#' @param legend.title.size Integer: font size of legend title. Default to 11.
+#' @param legend.text.size Integer: font size of legend text. Default to 11.
+#' @param legend.position Position of the legend, can be "top", "right" (default), "bottom", "left", or "none" (no legend).
 #' See description for legend.position parameter in ggplot2::theme() function.
-#' @param plot.title character: title of plot. Default to "".
-#' @param plot.title.size integer: font size of plot title. Default to 14.
-#' @param save.to.tiff logical: if TRUE, plot will be saved as .tiff file. Default to FALSE.
-#' @param dpi integer: resolution of saved .tiff file. Default to 600.
-#' @param width numeric: width (in cm) of saved .tiff file. Default to 15.
-#' @param height integer: height (in cm) of saved .tiff file. Default to 15.
+#' @param plot.title Character: title of plot. Default to "".
+#' @param plot.title.size Integer: font size of plot title. Default to 14.
+#' @param save.to.tiff Logical: if TRUE, plot will be saved as .tiff file. Default to FALSE.
+#' @param dpi Integer: resolution of saved .tiff file. Default to 600.
+#' @param width Numeric: width (in cm) of saved .tiff file. Default to 15.
+#' @param height Numeric: height (in cm) of saved .tiff file. Default to 15.
 #' @param name.tiff character: name of saved .tiff file, without ".tiff" name of extension. Default to "control_pca_genes".
 #'
-#' @return Object with plot illustrating spatial arrangement of genes according to coordinates of 2 components obtained from principal component analysis (PCA). The plot will be also displayed in graphic device.
+#' @return Object with plot. The plot is also displayed on the graphic device.
 #' @export
 #'
 #' @examples
@@ -1663,7 +1725,13 @@ control_pca_gene <- function(data,
   print(control_pca)
 
   if (save.to.tiff == TRUE){
-    ggsave(paste(name.tiff,".tiff", sep = ""), control_pca, dpi = dpi, width = width, height = height, units = "cm", compression = "lzw")
+    ggsave(paste(name.tiff,".tiff", sep = ""),
+           control_pca,
+           dpi = dpi,
+           width = width,
+           height = height,
+           units = "cm",
+           compression = "lzw")
   }
   return(control_pca)
 }
@@ -1675,29 +1743,34 @@ control_pca_gene <- function(data,
 #' @title corr_gene
 #'
 #' @description
-#' Performs correlation analysis of genes based on the data. Could be useful to gain insight into relationships between analyzed genes.
+#' This function performs correlation analysis of genes based on the data, useful to gain insight into relationships between analyzed genes.
 #'
-#' @param data object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.
-#' @param sel.Gene character vector with names of genes to include, or "all" (default) to use all names of genes.
-#' @param add.coef if coefficients should be add to the plot, specify color of coefficients (default to "black"), otherwise set to NULL.
-#' @param method character: type of correlations to compute, specify "pearson" (default) for Pearson's correlation coefficients
+#' @param data Object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.
+#' @param sel.Gene Character vector with names of genes to include, or "all" (default) to use all genes.
+#' @param type Character: type of displayed matrix, must be one of the 'full' (full matrix), 'upper' (upper triangular, default) or 'lower' (lower triangular).
+#' @param add.coef If correlation coefficients should be add to the plot, specify color of coefficients (default to "black").
+#' If NULL, correlation coefficients will not be printed.
+#' @param method Character: type of correlations to compute, can be "pearson" (default) for Pearson's correlation coefficients
 #' or "spearman" for Spearman's rank correlation coefficients.
-#' @param order character: method used for ordering the correlation matrix (see documentation for corrplot::corrplot() function),
-#' one of the "original" (original order), "AOE" (angular order of the eigenvectors),
-#' "FPC" (first principal component order), "hclust" (hierarchical clustering order, default), or "alphabet" (alphabetical order).
-#' @param hclust.method character: name of used method for hclust agglomeration, should be one of "ward", ward.D", "ward.D2", "single", "complete", "average" (default), "mcquitty", "median" or "centroid".
-#' @param size numeric: size of variable names and numbers in legend. Default to 0.6.
-#' @param coef.size numeric: size of correlation coefficients. Default to 0.6.
-#' @param p.adjust.method character: p value correction method for multiple testing, one of "holm", "hochberg", "hommel", "bonferroni", "BH", "BY","fdr", or "none". See documentation for stats::p.adjust() function for details.
-#' @param save.to.tiff logical: if TRUE, plot will be saved as .tiff file. Default to FALSE.
-#' @param dpi integer: resolution of saved .tiff file. Default to 600.
-#' @param width numeric: width (in cm) of saved .tiff file. Default to 15.
-#' @param height integer: height (in cm) of saved .tiff file. Default to 15.
-#' @param name.tiff character: name of saved .tiff file, without ".tiff" name of extension. Default to "corr_genes".
-#' @param save.to.txt logical: if TRUE, correlation results (sorted by descending absolute values of correlation coefficients) will be saved to .txt file. Default to FALSE.
+#' @param order Character: method used for ordering the correlation matrix, inherited from corrplot::corrplot() function.
+#' Must be one of the "original" (original order), "AOE" (angular order of the eigenvectors), "FPC" (first principal component order),
+#' "hclust" (hierarchical clustering order, default), or "alphabet" (alphabetical order).
+#' @param hclust.method Character: name of method used for hclust agglomeration, must be one of "ward", ward.D",
+#' "ward.D2", "single", "complete", "average" (default), "mcquitty", "median" or "centroid".
+#' @param size Numeric: size of variable names and numbers in legend. Default to 0.6.
+#' @param coef.size Numeric: size of correlation coefficients. Default to 0.6.
+#' @param p.adjust.method Character: p value correction method for multiple testing, one of the "holm", "hochberg", "hommel",
+#' "bonferroni", "BH" (default), "BY","fdr", or "none". See documentation for stats::p.adjust() function for details.
+#' @param save.to.tiff Logical: if TRUE, plot will be saved as .tiff file. Default to FALSE.
+#' @param dpi Integer: resolution of saved .tiff file. Default to 600.
+#' @param width Numeric: width (in cm) of saved .tiff file. Default to 15.
+#' @param height Numeric: height (in cm) of saved .tiff file. Default to 15.
+#' @param name.tiff Character: name of saved .tiff file, without ".tiff" name of extension. Default to "corr_genes".
+#' @param save.to.txt Logical: if TRUE, correlation results (sorted by absolute values of correlation coefficients in descending order)
+#' will be saved to .txt file. Default to FALSE.
 #' @param name.txt character: name of saved .txt file, without ".txt" name of extension.. Default to "corr_genes".
 #'
-#' @return Plot illustrating correlation matrix (displayed in graphic device) and data.frame with computed correlation coefficients and p values.
+#' @return Plot illustrating correlation matrix (displayed on the graphic device) and data frame with computed correlation coefficients and p values.
 #' @export
 #'
 #' @examples
@@ -1724,6 +1797,7 @@ control_pca_gene <- function(data,
 #'
 corr_gene <- function(data,
                       sel.Gene = "all",
+                      type = "upper",
                       method = "pearson",
                       add.coef = "black",
                       order = "hclust",
@@ -1751,7 +1825,7 @@ corr_gene <- function(data,
 
   if (order == "hclust"){
     corrplot(res_cor$r,
-             type = "upper",
+             type = type,
              addCoef.col = add.coef,
              tl.cex = size,
              cl.cex = size,
@@ -1761,8 +1835,17 @@ corr_gene <- function(data,
              hclust.method = hclust.method)
 
     if (save.to.tiff == TRUE){
-      tiff(paste(name.tiff,".tiff", sep = ""), res = dpi, width = width, height = height, units = "cm", compression = "lzw")
-      corrplot(res_cor$r, type = "upper", tl.cex = size, tl.col = "black", cl.cex = size,
+      tiff(paste(name.tiff,".tiff", sep = ""),
+           res = dpi,
+           width = width,
+           height = height,
+           units = "cm",
+           compression = "lzw")
+      corrplot(res_cor$r,
+               type = type,
+               tl.cex = size,
+               tl.col = "black",
+               cl.cex = size,
                order = order,
                hclust.method = hclust.method,
                addCoef.col = add.coef,
@@ -1771,14 +1854,27 @@ corr_gene <- function(data,
     }
   } else {
 
-    corrplot(res_cor$r, type = "upper", tl.cex = size, tl.col = "black", cl.cex = size,
+    corrplot(res_cor$r,
+             type = type,
+             tl.cex = size,
+             tl.col = "black",
+             cl.cex = size,
              order = order,
              addCoef.col = add.coef,
              number.cex = coef.size)
 
     if (save.to.tiff == TRUE){
-      tiff(paste(name.tiff,".tiff", sep = ""), res = dpi, width = width, height = height, units = "cm", compression = "lzw")
-      corrplot(res_cor$r, type = "upper", tl.cex = size, tl.col = "black", cl.cex = size,
+      tiff(paste(name.tiff,".tiff", sep = ""),
+           res = dpi,
+           width = width,
+           height = height,
+           units = "cm",
+           compression = "lzw")
+      corrplot(res_cor$r,
+               type = type,
+               tl.cex = size,
+               tl.col = "black",
+               cl.cex = size,
                order = order,
                addCoef.col = "black",
                number.cex = coef.size)
@@ -1809,29 +1905,34 @@ corr_gene <- function(data,
 #' @title corr_sample
 #'
 #' @description
-#' Performs correlation analysis of samples based on the data. Could be useful to gain insight into relationships between analyzed samples.
+#' This function performs correlation analysis of samples based on the data. Results are useful to gain insight into relationships between analyzed samples.
 #'
-#' @param data object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.
-#' @param sel.Sample character vector with names of samples to include, or "all" (default) to use all samples.
-#' @param add.coef if coefficients should be add to the plot, specify color of coefficients (default to "black"), otherwise set to NULL.
-#' @param method character: type of correlations to compute, specify "pearson" (default) for Pearson's correlation coefficients
+#' @param data Object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.
+#' @param sel.Sample Character vector with names of samples to include, or "all" (default) to use all samples.
+#' @param type Character: type of displayed matrix, must be one of the 'full' (full matrix), 'upper' (upper triangular, default) or 'lower' (lower triangular).
+#' @param add.coef If correlation coefficients should be add to the plot, specify color of coefficients (default to "black").
+#' If NULL, correlation coefficients will not be printed.
+#' @param method Character: type of correlations to compute, can be "pearson" (default) for Pearson's correlation coefficients
 #' or "spearman" for Spearman's rank correlation coefficients.
-#' @param order character: method used for ordering the correlation matrix (see documentation for corrplot::corrplot() function),
-#' one of the "original" (original order), "AOE" (angular order of the eigenvectors),
-#' "FPC" (first principal component order), "hclust" (hierarchical clustering order, default), or "alphabet" (alphabetical order).
-#' @param hclust.method character: name of used method for hclust agglomeration, should be one of "ward", ward.D", "ward.D2", "single", "complete", "average" (default), "mcquitty", "median" or "centroid".
-#' @param size numeric: size of variable names and numbers in legend. Default to 0.6.
-#' @param coef.size numeric: size of correlation coefficients. Default to 0.6.
-#' @param p.adjust.method character: p value correction method for multiple testing, one of "holm", "hochberg", "hommel", "bonferroni", "BH", "BY","fdr", or "none". See documentation for stats::p.adjust() function for details.
-#' @param save.to.tiff logical: if TRUE, plot will be saved as .tiff file. Default to FALSE.
-#' @param dpi integer: resolution of saved .tiff file. Default to 600.
-#' @param width numeric: width (in cm) of saved .tiff file. Default to 15.
-#' @param height integer: height (in cm) of saved .tiff file. Default to 15.
-#' @param name.tiff character: name of saved .tiff file, without ".tiff" name of extension. Default to "corr_samples".
-#' @param save.to.txt logical: if TRUE, correlation results (sorted by descending absolute values of correlation coefficients) will be saved to .txt file. Default to FALSE.
+#' @param order Character: method used for ordering the correlation matrix, inherited from corrplot::corrplot() function.
+#' Must be one of the "original" (original order), "AOE" (angular order of the eigenvectors), "FPC" (first principal component order),
+#' "hclust" (hierarchical clustering order, default), or "alphabet" (alphabetical order).
+#' @param hclust.method Character: name of method used for hclust agglomeration, must be one of "ward", ward.D",
+#' "ward.D2", "single", "complete", "average" (default), "mcquitty", "median" or "centroid".
+#' @param size Numeric: size of variable names and numbers in legend. Default to 0.6.
+#' @param coef.size Numeric: size of correlation coefficients. Default to 0.6.
+#' @param p.adjust.method Character: p value correction method for multiple testing, one of the "holm", "hochberg", "hommel",
+#' "bonferroni", "BH" (default), "BY","fdr", or "none". See documentation for stats::p.adjust() function for details.
+#' @param save.to.tiff Logical: if TRUE, plot will be saved as .tiff file. Default to FALSE.
+#' @param dpi Integer: resolution of saved .tiff file. Default to 600.
+#' @param width Numeric: width (in cm) of saved .tiff file. Default to 15.
+#' @param height Numeric: height (in cm) of saved .tiff file. Default to 15.
+#' @param name.tiff Character: name of saved .tiff file, without ".tiff" name of extension. Default to "corr_samples".
+#' @param save.to.txt Logical: if TRUE, correlation results (sorted by absolute values of correlation coefficients in descending order)
+#' will be saved to .txt file. Default to FALSE.
 #' @param name.txt character: name of saved .txt file, without ".txt" name of extension.. Default to "corr_samples".
 #'
-#' @return Plot illustrating correlation matrix (displayed in graphic device) and data.frame with computed correlation coefficients and p values.
+#' @return Plot illustrating correlation matrix (displayed on the graphic device) and data.frame with computed correlation coefficients and p values.
 #' @export
 #'
 #' @examples
@@ -1857,18 +1958,20 @@ corr_gene <- function(data,
 #' @import tidyverse
 #'
 corr_sample <- function(data, sel.Sample = "all",
-                                method = "pearson",
-                                add.coef = "black",
-                                order = "hclust",
-                                hclust.method = "average",
-                                size = 0.6,
-                                coef.size = 0.6,
-                                p.adjust.method = "BH",
-                                save.to.tiff = FALSE,
-                                dpi = 600, width = 15, height = 15,
-                                name.tiff = "corr_samples",
-                                save.to.txt = FALSE,
-                                name.txt = "corr_samples"){
+                        type = "upper",
+                        method = "pearson",
+                        add.coef = "black",
+                        order = "hclust",
+                        hclust.method = "average",
+                        size = 0.6,
+                        coef.size = 0.6,
+                        p.adjust.method = "BH",
+                        save.to.tiff = FALSE,
+                        dpi = 600, width = 15, height = 15,
+                        name.tiff = "corr_samples",
+                        save.to.txt = FALSE,
+                        name.txt = "corr_samples"){
+
   if (sel.Sample[1] == "all"){
     data <- data
 
@@ -1883,7 +1986,7 @@ corr_sample <- function(data, sel.Sample = "all",
 
   if (order == "hclust"){
     corrplot(res_cor$r,
-             type = "upper",
+             type = type,
              addCoef.col = add.coef,
              tl.cex = size,
              cl.cex = size,
@@ -1893,8 +1996,16 @@ corr_sample <- function(data, sel.Sample = "all",
              hclust.method = hclust.method)
 
     if (save.to.tiff == TRUE){
-      tiff(paste(name.tiff,".tiff", sep = ""), res = dpi, width = width, height = height, units = "cm", compression = "lzw")
-      corrplot(res_cor$r, type = "upper", tl.cex = size, tl.col = "black", cl.cex = size,
+      tiff(paste(name.tiff,".tiff", sep = ""),
+           res = dpi,
+           width = width,
+           height = height,
+           units = "cm",
+           compression = "lzw")
+      corrplot(res_cor$r, type = type,
+               tl.cex = size,
+               tl.col = "black",
+               cl.cex = size,
                order = order,
                hclust.method = hclust.method,
                addCoef.col = add.coef,
@@ -1903,14 +2014,26 @@ corr_sample <- function(data, sel.Sample = "all",
     }
   } else {
 
-    corrplot(res_cor$r, type = "upper", tl.cex = size, tl.col = "black", cl.cex = size,
+    corrplot(res_cor$r,
+             type = type,
+             tl.cex = size,
+             tl.col = "black",
+             cl.cex = size,
              order = order,
              addCoef.col = add.coef,
              number.cex = coef.size)
 
     if (save.to.tiff == TRUE){
-      tiff(paste(name.tiff,".tiff", sep = ""), res = dpi, width = width, height = height, units = "cm", compression = "lzw")
-      corrplot(res_cor$r, type = "upper", tl.cex = size, tl.col = "black", cl.cex = size,
+      tiff(paste(name.tiff,".tiff", sep = ""),
+           res = dpi,
+           width = width,
+           height = height,
+           units = "cm",
+           compression = "lzw")
+      corrplot(res_cor$r, type = type,
+               tl.cex = size,
+               tl.col = "black",
+               cl.cex = size,
                order = order,
                addCoef.col = "black",
                number.cex = coef.size)
@@ -1944,36 +2067,40 @@ corr_sample <- function(data, sel.Sample = "all",
 #' @title single_pair_gene
 #'
 #' @description
-#' Generate scatter plot with linear regression line for two specified genes. Could be useful to assess linear relationship between these genes.
+#' This function generates scatter plot with linear regression line for two specified genes.
 #'
-#' @param data object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.
-#' @param x,y characters: names of genes to use.
-#' @param by.group logical: if TRUE (default), relationships will be shown separately for compared groups.
-#' @param point.size numeric: size of points. Default to 4.
-#' @param point.shape integer: shape of points. Default to 19.
-#' @param point.alpha numeric: transparency of points, a value between 0 and 1. Default to 0.7.
-#' @param colors character vector containing colors for compared groups. Numbers of colors must be equal to number of groups. Default to c("#66c2a5", "#fc8d62").
-#' @param axis.title.size integer: font size of axis titles. Default to 12.
-#' @param axis.text.size integer: font size of axis text. Default to 10.
-#' @param legend.title character: title of legend. Default to "Group".
-#' @param legend.title.size integer: font size of legend title. Default to 12.
-#' @param legend.text.size integer: font size of legend text. Default to 12.
-#' @param legend.position position of the legend, one of "top", "right" (default), "bottom", "left", or "none" (no legend).
+#' @param data Object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.
+#' @param x,y Characters: names of genes to use.
+#' @param by.group Logical: if TRUE (default), relationships will be shown separately for compared groups.
+#' @param point.size Numeric: size of points. Default to 4.
+#' @param point.shape Integer: shape of points. Default to 19.
+#' @param point.alpha Numeric: transparency of points, a value between 0 and 1. Default to 0.7.
+#' @param colors Character vector containing colors for compared groups. The number of colors must be equal to the number of groups.
+#' Default to c("#66c2a5", "#fc8d62").
+#' @param axis.title.size Integer: font size of axis titles. Default to 11.
+#' @param axis.text.size Integer: font size of axis text. Default to 10.
+#' @param legend.title Character: title of legend. Default to "Group".
+#' @param legend.title.size Integer: font size of legend title. Default to 11.
+#' @param legend.text.size Integer: font size of legend text. Default to 11.
+#' @param legend.position Position of the legend, can be "top", "right" (default), "bottom", "left", or "none" (no legend).
 #' See description for legend.position parameter in ggplot2::theme() function.
-#' @param plot.title character: title of plot. Default to "".
-#' @param plot.title.size integer: font size of plot title. Default to 14.
-#' @param labels logical: if TRUE (default), a regression statistics will be added to the plot using ggpimsc::stat_poly_eq() function.
-#' @param label character: which regression statistics should be drawn, use names specified by ggpimsc::stat_poly_eq() function. Default to c("eq", "R2", "p") for regression equation, coefficient of determination and p value, respectively.
-#' @param label.position.x,label.position.y  numeric: coordinates for position of regression statistics. If by.group = TRUE, two values could be provided for each of these parameters (for different regression lines). See description of label.x and label.y parameters from ggpimsc::stat_poly_eq() function.
-#' @param small.p,small.r logical, if TRUE, p in p value label and r in coefficient of determination label, will be lowercase. Default to FALSE.
-#' @param rr.digits,p.digits integer: number of digits after the decimal point in coefficient of determination and p value in labels. Default to 2 for rr.digits and 3 for p.digits.
-#' @param save.to.tiff logical: if TRUE, plot will be saved as .tiff file. Default to FALSE.
-#' @param dpi integer: resolution of saved .tiff file. Default to 600.
-#' @param width numeric: width (in cm) of saved .tiff file. Default to 15.
-#' @param height integer: height (in cm) of saved .tiff file. Default to 15.
-#' @param name.tiff character: name of saved .tiff file, without ".tiff" name of extension. Default to "samples_single_plot".
+#' @param plot.title Character: title of plot. Default to "".
+#' @param plot.title.size Integer: font size of plot title. Default to 14.
+#' @param labels Logical: if TRUE (default), a regression statistics will be added to the plot using ggpimsc::stat_poly_eq() function.
+#' @param label Character: specifies regression statistics to add, names specified by ggpimsc::stat_poly_eq() function must be used.
+#' Default to c("eq", "R2", "p") for regression equation, coefficient of determination and p value, respectively.
+#' @param label.position.x,label.position.y  Numeric: coordinates for position of regression statistics. If by.group = TRUE,
+#' a vector length of groups number can be provided to avoid overlapping. See description of label.x and label.y parameters from ggpimsc::stat_poly_eq() function.
+#' @param small.p,small.r Logical, if TRUE, p character in p value label and r character in coefficient of determination label will be lowercase. Default to FALSE.
+#' @param rr.digits,p.digits Integer: number of digits after the decimal point in coefficient of determination and p value in labels.
+#' Default to 2 for rr.digits and 3 for p.digits.
+#' @param save.to.tiff Logical: if TRUE, plot will be saved as .tiff file. Default to FALSE.
+#' @param dpi Integer: resolution of saved .tiff file. Default to 600.
+#' @param width Numeric: width (in cm) of saved .tiff file. Default to 15.
+#' @param height Numeric: height (in cm) of saved .tiff file. Default to 15.
+#' @param name.tiff Character: name of saved .tiff file, without ".tiff" name of extension. Default to "Gene1_Gene2_single_pair_plot".
 #'
-#' @return Object with plot illustrating spatial arrangement of samples according to coordinates of 2 components obtained from principal component analysis (PCA). Created plot will be also displayed on graphic device.
+#' @return Object with plot. Created plot is also displayed on the graphic device.
 #' @export
 #'
 #' @examples
@@ -1992,28 +2119,33 @@ corr_sample <- function(data, sel.Sample = "all",
 #' @import ggplot2
 #' @import ggpmisc
 #'
-single_pair_gene <- function(data, x, y, by.group = TRUE,
-                            point.size = 4, point.shape = 19, point.alpha = 0.7,
-                            colors = c("#66c2a5", "#fc8d62"),
-                            axis.title.size = 11,
-                            axis.text.size = 10,
-                            legend.title = "Group",
-                            legend.title.size = 11,
-                            legend.text.size = 11,
-                            legend.position = "right",
-                            plot.title = "",
-                            plot.title.size = 14,
-                            labels = TRUE,
-                            label = c("eq", "R2", "p"),
-                            label.position.x = c(1,1),
-                            label.position.y = c(1,0.95),
-                            small.p = FALSE,
-                            small.r = FALSE,
-                            p.digits = 3,
-                            rr.digits = 2,
-                            save.to.tiff = FALSE,
-                            dpi = 600, width = 15, height = 15,
-                            name.tiff = "genes_single_pair_plot"){
+single_pair_gene <- function(data,
+                             x,
+                             y,
+                             by.group = TRUE,
+                             point.size = 4,
+                             point.shape = 19,
+                             point.alpha = 0.7,
+                             colors = c("#66c2a5", "#fc8d62"),
+                             axis.title.size = 11,
+                             axis.text.size = 10,
+                             legend.title = "Group",
+                             legend.title.size = 11,
+                             legend.text.size = 11,
+                             legend.position = "right",
+                             plot.title = "",
+                             plot.title.size = 14,
+                             labels = TRUE,
+                             label = c("eq", "R2", "p"),
+                             label.position.x = c(1,1),
+                             label.position.y = c(1,0.95),
+                             small.p = FALSE,
+                             small.r = FALSE,
+                             p.digits = 3,
+                             rr.digits = 2,
+                             save.to.tiff = FALSE,
+                             dpi = 600, width = 15, height = 15,
+                             name.tiff = "_single_pair_plot"){
 
   if (by.group == TRUE){
     single_pair <- ggplot(data, aes(x = .data[[x]], y = .data[[y]], color = Group)) +
@@ -2071,7 +2203,13 @@ single_pair_gene <- function(data, x, y, by.group = TRUE,
   print(single_pair)
 
   if (save.to.tiff == TRUE){
-    ggsave(paste(name.tiff,".tiff", sep = ""), single_pair, dpi = dpi, width = width, height = height, units = "cm", compression = "lzw")
+    ggsave(paste(x, "_", y, name.tiff, ".tiff", sep = ""),
+           single_pair,
+           dpi = dpi,
+           width = width,
+           height = height,
+           units = "cm",
+           compression = "lzw")
   }
   return(single_pair)
 }
@@ -2084,30 +2222,33 @@ single_pair_gene <- function(data, x, y, by.group = TRUE,
 #' @title single_pair_sample
 #'
 #' @description
-#' Generate scatter plot with linear regression line for two specified samples Could be useful to assess linear relationship between these samples.
+#' This function generates scatter plot with linear regression line for two specified samples.
 #'
-#' @param data object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.
-#' @param x,y characters: names of genes to use.
-#' @param point.size numeric: size of points.
-#' @param point.shape integer: shape of points.
-#' @param point.alpha numeric: transparency of points, a value between 0 and 1.
-#' @param color character: color used for points.
-#' @param axis.title.size integer: font size of axis titles.
-#' @param axis.text.size integer: font size of axis text.
-#' @param plot.title character: title of plot.
-#' @param plot.title.size integer: font size of plot title.
-#' @param labels logical: if TRUE, a regression statistics will be added to the plot using ggpimsc::stat_poly_eq() function.
-#' @param label character: which regression statistics should be drawn, use names specified by ggpimsc::stat_poly_eq() function. Default to c("eq", "R2", "p") for regression equation, coefficient of determination and p value, respectively.
-#' @param label.position.x,label.position.y  numeric: coordinates for position of regression statistics. If by.group = TRUE, two values could be provided for each of these parameters (for different regression lines). See description of label.x and label.y parameters from ggpimsc::stat_poly_eq() function.
-#' @param small.p,small.r logical, if TRUE, p in p value label and r in coefficient of determination label, will be lowercase.
-#' @param rr.digits,p.digits integer: number of digits after the decimal point in coefficient of determination and p value in labels.
-#' @param save.to.tiff logical: if TRUE, plot will be saved as .tiff file.
-#' @param dpi integer: resolution of saved .tiff file.
-#' @param width numeric: width (in cm) of saved .tiff file.
-#' @param height integer: height (in cm) of saved .tiff file.
-#' @param name.tiff character: name of saved .tiff file, without ".tiff" name of extension.
+#' @param data Object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.
+#' @param x,y Characters: names of samples to use.
+#' @param point.size Numeric: size of points. Default to 4.
+#' @param point.shape Integer: shape of points. Default to 19.
+#' @param point.alpha Numeric: transparency of points, a value between 0 and 1. Default to 0.7.
+#' @param color Character: color for points. Default to "black".
+#' @param axis.title.size Integer: font size of axis titles. Default to 11.
+#' @param axis.text.size Integer: font size of axis text. Default to 10.
+#' @param plot.title Character: title of plot. Default to "".
+#' @param plot.title.size Integer: font size of plot title. Default to 14.
+#' @param labels Logical: if TRUE (default), a regression statistics will be added to the plot using ggpimsc::stat_poly_eq() function.
+#' @param label Character: specifies regression statistics to add, names specified by ggpimsc::stat_poly_eq() function must be used.
+#' Default to c("eq", "R2", "p") for regression equation, coefficient of determination and p value, respectively.
+#' @param label.position.x,label.position.y  Numeric: coordinates for position of regression statistics.
+#' See description of label.x and label.y parameters from ggpimsc::stat_poly_eq() function.
+#' @param small.p,small.r Logical, if TRUE, p character in p value label and r character in coefficient of determination label will be lowercase. Default to FALSE.
+#' @param rr.digits,p.digits Integer: number of digits after the decimal point in coefficient of determination and p value in labels.
+#' Default to 2 for rr.digits and 3 for p.digits.
+#' @param save.to.tiff Logical: if TRUE, plot will be saved as .tiff file. Default to FALSE.
+#' @param dpi Integer: resolution of saved .tiff file. Default to 600.
+#' @param width Numeric: width (in cm) of saved .tiff file. Default to 15.
+#' @param height Numeric: height (in cm) of saved .tiff file. Default to 15.
+#' @param name.tiff Character: name of saved .tiff file, without ".tiff" name of extension. Default to "Sample1_Sample2_single_pair_plot".
 #'
-#' @return Plot illustrating spatial arrangement of samples according to coordinates of 2 components obtained from principal component analysis (PCA).
+#' @return Object with plot. Created plot is also displayed on the graphic device.
 #' @export
 #'
 #' @examples
@@ -2127,24 +2268,28 @@ single_pair_gene <- function(data, x, y, by.group = TRUE,
 #' @import ggplot2
 #' @import ggpmisc
 #'
-single_pair_sample <- function(data, x, y,
-                                   point.size = 4, point.shape = 19, point.alpha = 0.7,
-                                   color = "black",
-                                   axis.title.size = 11,
-                                   axis.text.size = 10,
-                                   plot.title = "",
-                                   plot.title.size = 14,
-                                   labels = TRUE,
-                                   label = c("eq", "R2", "p"),
-                                   label.position.x = 1,
-                                   label.position.y = 1,
-                                   small.p = FALSE,
-                                   small.r = FALSE,
-                                   p.digits = 3,
-                                   rr.digits = 2,
-                                   save.to.tiff = FALSE,
-                                   dpi = 600, width = 15, height = 15,
-                                   name.tiff = "samples_single_pair_plot"){
+single_pair_sample <- function(data,
+                               x,
+                               y,
+                               point.size = 4,
+                               point.shape = 19,
+                               point.alpha = 0.7,
+                               color = "black",
+                               axis.title.size = 11,
+                               axis.text.size = 10,
+                               plot.title = "",
+                               plot.title.size = 14,
+                               labels = TRUE,
+                               label = c("eq", "R2", "p"),
+                               label.position.x = 1,
+                               label.position.y = 1,
+                               small.p = FALSE,
+                               small.r = FALSE,
+                               p.digits = 3,
+                               rr.digits = 2,
+                               save.to.tiff = FALSE,
+                               dpi = 600, width = 15, height = 15,
+                               name.tiff = "samples_single_pair_plot"){
 
   data <- as.data.frame(data)
   data_t <- t(select(data, -Group, -Sample))
@@ -2175,7 +2320,13 @@ single_pair_sample <- function(data, x, y,
   print(single_pair_t)
 
   if (save.to.tiff == TRUE){
-    ggsave(paste(name.tiff,".tiff", sep = ""), single_pair_t, dpi = dpi, width = width, height = height, units = "cm", compression = "lzw")
+    ggsave(paste(x, "_", y, name.tiff,".tiff", sep = ""),
+           single_pair_t,
+           dpi = dpi,
+           width = width,
+           height = height,
+           units = "cm",
+           compression = "lzw")
   }
   return(single_pair_t)
 }
@@ -2189,14 +2340,14 @@ single_pair_sample <- function(data, x, y,
 #' @title filter_transformed_data
 #'
 #' @description
-#' Filters transformed Ct data (2^(-Ct), delta Ct, and 2^(-dCt) data) according to the used filtering criteria (see parameters).
+#' This function filters transformed Ct data (2^-Ct, delta Ct, and 2^-dCt data) according to the used filtering criteria (see parameters).
 #'
-#' @param data object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.
-#' @param remove.Gene character: vector with names of genes which should be removed from data.
-#' @param remove.Sample character: vector with names of samples which should be removed from data.
-#' @param remove.Group character: vector with names of groups which should be removed from data.
+#' @param data Object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.
+#' @param remove.Gene Character: vector with names of genes to remove from data.
+#' @param remove.Sample Character: vector with names of samples to remove from data.
+#' @param remove.Group Character: vector with names of groups to remove from data.
 #'
-#' @return Data.frame with filtered data.
+#' @return Data frame with filtered data.
 #' @export
 #'
 #' @examples
@@ -2247,51 +2398,50 @@ filter_transformed_data <- function(data,
 #' @title results_boxplot
 #'
 #' @description
-#' This function creates boxplot illustrating distribution of data in selected genes.
-#'     It is similar to control_boxplot_gene() function; however, some new options are added,
-#'     including gene selection, faceting, and adding mean labels to boxes.
-#'     This, this function could be useful to present results for finally selected genes.
+#' This function creates boxplot that illustrate distribution of data for selected genes.
+#' It is similar to control_boxplot_gene() function; however, some new options are added,
+#' including gene selection, faceting, adding mean labels to boxes, and adding statistical significance labels.
+#' This function can be used to present results for finally selected genes.
 #'
-#' @param data object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.
-#' @param coef numeric: how many times of interquartile range should be used to indicate the most extend data point for whiskers. Default to 1.5.
-#' @param sel.Gene character vector with names of genes to include, or "all" (default) to use all names of genes.
-#' @param by.group logical: if TRUE (default), distributions will be drawn by compared groups of samples.
-#' @param signif.show logical: if TRUE, labels for statistical significance will be added to the plot.
-#' @param signif.labels character vector with statistical significance labels (ex. "ns.","***", etc.) with number
-#' of elements equal to nimber of genes used for plotting.
-#' The ggsignif package was used for convenient adding labels, but there is one tricky point:
-#' the same elements of labels can not be handled by used package and must be different.
-#' It could be achieved by adding symmetrically white spaces to repeated labels, ex. "ns.", " ns. ", "  ns.  ".
-#' @param signif.length numeric: length of horizontal bars, values from 0 to 1.
-#' @param signif.dist numeric: distance between errorbar and significance label.
-#' Could be in y axis units (if `faceting` = TRUE) or fraction of y axis value reached by errorbar (mean + sd value) (if `faceting` = TRUE).
-#' @param faceting logical: if TRUE (default), plot will be drawn with facets with free scales using ggplot2::facet_wrap() function (see its documentation for more details).
-#' @param facet.row,facet.col integer: number of rows and columns to arrange facets.
-#' @param angle integer: value of angle in which names of genes should be displayed. Default to 0.
-#' @param y.exp.low,y.exp.up numeric: space between data on the plot and lower or upper axis. Useful to add extra space for statistical significance labels when `faceting` = TRUE.
-#' @param rotate logical: if TRUE, boxplots will be arranged horizontally. Deafault to FALSE.
-#' @param add.mean logical: if TRUE, means will be added to boxes as squares. Default to TRUE.
-#' @param add.mean.size numeric: size of squares indicating means. Default to 2.
-#' @param add.mean.color character: color of squares indicating means. Default to "black".
-#' @param colors character vector length of one (when by.group = FALSE) or more (when by.group = TRUE), containing colors for groups. Numbers of colors must be equal to number of groups. Default to c("#66c2a5", "#fc8d62").
-#' @param x.axis.title character: title of x axis. Default to "Gene".
-#' @param y.axis.title character: title of y axis. Default to "value".
-#' @param axis.title.size integer: font size of axis titles. Default to 12.
-#' @param axis.text.size integer: font size of axis text. Default to 10.
-#' @param legend.title character: title of legend. Default to "Group".
-#' @param legend.title.size integer: font size of legend title. Default to 12.
-#' @param legend.text.size integer: font size of legend text. Default to 12.
-#' @param legend.position position of the legend, one of "top" (default), "right", "bottom", "left", or "none" (no legend).
+#' @param data Object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.
+#' @param coef Numeric: how many times of interquartile range should be used to determine range point for whiskers. Default to 1.5.
+#' @param sel.Gene Character vector with names of genes to include, or "all" (default) to use all genes.
+#' @param by.group Logical: if TRUE (default), distributions will be drawn by compared groups of samples.
+#' @param signif.show Logical: if TRUE, labels for statistical significance will be added to the plot.
+#' @param signif.labels Character vector with statistical significance labels (e.g. "ns.","***", etc.). The number
+#' of elements must be equal to the number of genes used for plotting. All elements in the vector must be different; therefore,
+#' symmetrically white spaces to repeated labels must be add to the same labels, e.g. "ns.", " ns. ", "  ns.  ".
+#' @param signif.length Numeric: length of horizontal bars under statistical significance labels, values from 0 to 1.
+#' @param signif.dist Numeric: distance between errorbar and statistical significance labels.
+#' Can be in y axis units (if faceting = FALSE) or fraction of y axis value reached by errorbar (mean + sd value) (if faceting = TRUE).
+#' @param faceting Logical: if TRUE (default), plot will be drawn with facets with free scales.
+#' @param facet.row,facet.col Integer: number of rows and columns to arrange facets.
+#' @param angle Integer: value of angle in which names of genes are displayed. Default to 0.
+#' @param y.exp.low,y.exp.up Numeric: space between data on the plot and lower and upper axis. Useful to add extra space for statistical significance labels when faceting = TRUE.
+#' @param rotate Logical: if TRUE, boxplots will be arranged horizontally. Default to FALSE.
+#' @param add.mean Logical: if TRUE, mean points will be added to boxes as squares. Default to TRUE.
+#' @param add.mean.size Numeric: size of squares indicating means. Default to 2.
+#' @param add.mean.color Character: color of squares indicating means. Default to "black".
+#' @param colors Character vector length of one (when by.group = FALSE) or more (when by.group = TRUE), containing colors for groups.
+#' The number of colors must be equal to the number of groups. Default to c("#66c2a5", "#fc8d62").
+#' @param x.axis.title Character: title of x axis. Default to "Gene".
+#' @param y.axis.title Character: title of y axis. Default to "value".
+#' @param axis.title.size Integer: font size of axis titles. Default to 11.
+#' @param axis.text.size Integer: font size of axis text. Default to 10.
+#' @param legend.title Character: title of legend. Default to "Group".
+#' @param legend.title.size Integer: font size of legend title. Default to 11.
+#' @param legend.text.size Integer: font size of legend text. Default to 11.
+#' @param legend.position Position of the legend, can be "top" (default), "right", "bottom", "left", or "none" (no legend).
 #' See description for legend.position in ggplot2::theme() function.
-#' @param plot.title character: title of plot. Default to "".
-#' @param plot.title.size integer: font size of plot title. Default to 14.
-#' @param save.to.tiff logical: if TRUE, plot will be saved as .tiff file. Default to FALSE.
-#' @param dpi integer: resolution of saved .tiff file. Default to 600.
-#' @param width numeric: width (in cm) of saved .tiff file. Default to 15.
-#' @param height integer: height (in cm) of saved .tiff file. Default to 15.
-#' @param name.tiff character: name of saved .tiff file, without ".tiff" name of extension. Default to "results_boxplot".
+#' @param plot.title Character: title of plot. Default to "".
+#' @param plot.title.size Integer: font size of plot title. Default to 14.
+#' @param save.to.tiff Logical: if TRUE, plot will be saved as .tiff file. Default to FALSE.
+#' @param dpi Integer: resolution of saved .tiff file. Default to 600.
+#' @param width Numeric: width (in cm) of saved .tiff file. Default to 15.
+#' @param height Numeric: height (in cm) of saved .tiff file. Default to 15.
+#' @param name.tiff Character: name of saved .tiff file, without ".tiff" name of extension. Default to "results_boxplot".
 #'
-#' @return Object with boxplot illustrating distribution of data for selected genes. Created plot will be also displayed on graphic device.
+#' @return Object with plot. Created plot will be also displayed on the graphic device.
 #' @export
 #'
 #' @examples
@@ -2473,7 +2623,13 @@ results_boxplot <- function(data,
   print(box_results)
 
   if (save.to.tiff == TRUE){
-    ggsave(paste(name.tiff,".tiff", sep = ""), box_results, dpi = dpi, width = width, height = height, units = "cm", compression = "lzw")
+    ggsave(paste(name.tiff,".tiff", sep = ""),
+           box_results,
+           dpi = dpi,
+           width = width,
+           height = height,
+           units = "cm",
+           compression = "lzw")
   }
   return(box_results)
 }
@@ -2487,46 +2643,45 @@ results_boxplot <- function(data,
 #' @title results_barplot
 #'
 #' @description
-#' This function creates a barplot illustrating mean and sd values of each gene.
-#' Faceting and adding custom labels of statistical significance is possible.
-#' This function could be useful to present results for finally selected genes.
+#' This function creates a barplot that illustrate mean and sd values of genes.
+#' Faceting and adding custom labels of statistical significance are available.
+#' This function is useful to present results for finally selected genes.
 #'
-#' @param data object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.
-#' @param sel.Gene character vector with names of genes to include, or "all" (default) to use all names of genes.
-#' @param bar.width numeric: width of bars.
-#' @param signif.show logical: if TRUE, labels for statistical significance will be added to the plot.
-#' @param signif.labels character vector with statistical significance labels (ex. "ns.","***", etc.) with number
-#' of elements equal to nimber of genes used for plotting.
-#' The ggsignif package was used for convenient adding labels, but there is one tricky point:
-#' the same elements of labels can not be handled by used package and must be different.
-#' It could be achieved by adding symmetrically white spaces to repeated labels, ex. "ns.", " ns. ", "  ns.  ".
-#' @param signif.length numeric: length of horizontal bars, values from 0 to 1.
-#' @param signif.dist numeric: distance between errorbar and significance label.
-#' Could be in y axis units (if `faceting` = TRUE) or fraction of y axis value reached by errorbar (mean + sd value) (if `faceting` = TRUE).
-#' @param faceting logical: if TRUE (default), plot will be drawn with facets with free scales using ggplot2::facet_wrap() function (see its documentation for more details).
-#' @param facet.row,facet.col integer: number of rows and columns to arrange facets.
-#' @param y.exp.low,y.exp.up numeric: space between data on the plot and lower or upper axis. Useful to add extra space for statistical significance labels when `faceting` = TRUE.
-#' @param angle integer: value of angle in which names of genes should be displayed. Default to 0.
-#' @param rotate logical: if TRUE, boxplots will be arranged horizontally. Deafault to FALSE.
-#' @param colors character vector length of one (when by.group = FALSE) or two (when by.group = TRUE), containing colors for groups. Numbers of colors must be equal to number of groups. Default to c("#66c2a5", "#fc8d62").
-#' @param x.axis.title character: title of x axis. Default to "Gene".
+#' @param data Object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.
+#' @param sel.Gene Character vector with names of genes to include, or "all" (default) to use all genes.
+#' @param bar.width Numeric: width of bars.
+#' @param signif.show Logical: if TRUE, labels for statistical significance will be added to the plot.
+#' @param signif.labels Character vector with statistical significance labels (e.g. "ns.","***", etc.). The number
+#' of elements must be equal to the number of genes used for plotting. All elements in the vector must be different; therefore,
+#' symmetrically white spaces to repeated labels must be add to the same labels, e.g. "ns.", " ns. ", "  ns.  ".
+#' @param signif.length Numeric: length of horizontal bars under statistical significance labels, values from 0 to 1.
+#' @param signif.dist Numeric: distance between errorbar and statistical significance labels.
+#' Can be in y axis units (if faceting = FALSE) or fraction of y axis value reached by errorbar (mean + sd value) (if faceting = TRUE).
+#' @param faceting Logical: if TRUE (default), plot will be drawn with facets with free scales.
+#' @param facet.row,facet.col Integer: number of rows and columns to arrange facets.
+#' @param y.exp.low,y.exp.up Numeric: space between data on the plot and lower or upper axis. Useful to add extra space for statistical significance labels when faceting = TRUE.
+#' @param angle Integer: value of angle in which names of genes are displayed. Default to 0.
+#' @param rotate Logical: if TRUE, boxplots will be arranged horizontally. Default to FALSE.
+#' @param colors Character vector length of one (when by.group = FALSE) or two (when by.group = TRUE), containing colors for groups.
+#' The numbers of colors must be equal to the number of groups. Default to c("#66c2a5", "#fc8d62").
+#' @param x.axis.title Character: title of x axis. Default to "Gene".
 #' @param y.axis.title character: title of y axis. Default to "value".
-#' @param axis.title.size integer: font size of axis titles. Default to 12.
-#' @param axis.text.size integer: font size of axis text. Default to 10.
-#' @param legend.title character: title of legend. Default to "Group".
-#' @param legend.title.size integer: font size of legend title. Default to 12.
-#' @param legend.text.size integer: font size of legend text. Default to 12.
-#' @param legend.position position of the legend, one of "top" (default), "right", "bottom", "left", or "none" (no legend).
+#' @param axis.title.size Integer: font size of axis titles. Default to 11.
+#' @param axis.text.size Integer: font size of axis text. Default to 10.
+#' @param legend.title Character: title of legend. Default to "Group".
+#' @param legend.title.size Integer: font size of legend title. Default to 11.
+#' @param legend.text.size Integer: font size of legend text. Default to 11.
+#' @param legend.position Position of the legend, can be "top" (default), "right", "bottom", "left", or "none" (no legend).
 #' See description for legend.position in ggplot2::theme() function.
-#' @param plot.title character: title of plot. Default to "".
-#' @param plot.title.size integer: font size of plot title. Default to 14.
-#' @param save.to.tiff logical: if TRUE, plot will be saved as .tiff file. Default to FALSE.
-#' @param dpi integer: resolution of saved .tiff file. Default to 600.
-#' @param width numeric: width (in cm) of saved .tiff file. Default to 15.
-#' @param height integer: height (in cm) of saved .tiff file. Default to 15.
-#' @param name.tiff character: name of saved .tiff file, without ".tiff" name of extension. Default to "results_boxplot".
+#' @param plot.title Character: title of plot. Default to "".
+#' @param plot.title.size Integer: font size of plot title. Default to 14.
+#' @param save.to.tiff Logical: if TRUE, plot will be saved as .tiff file. Default to FALSE.
+#' @param dpi Integer: resolution of saved .tiff file. Default to 600.
+#' @param width Numeric: width (in cm) of saved .tiff file. Default to 15.
+#' @param height Numeric: height (in cm) of saved .tiff file. Default to 15.
+#' @param name.tiff Character: name of saved .tiff file, without ".tiff" name of extension. Default to "results_barplot".
 #'
-#' @return Object with boxplot illustrating distribution of data for selected genes. Created plot will be also displayed on graphic device.
+#' @return Object with plot. Created plot will be also displayed on graphic device.
 #' @export
 #'
 #' @examples
@@ -2677,7 +2832,13 @@ results_barplot <- function(data,
   print(bar_results)
 
   if (save.to.tiff == TRUE){
-    ggsave(paste(name.tiff,".tiff", sep = ""), bar_results, dpi = dpi, width = width, height = height, units = "cm", compression = "lzw")
+    ggsave(paste(name.tiff,".tiff", sep = ""),
+           bar_results,
+           dpi = dpi,
+           width = width,
+           height = height,
+           units = "cm",
+           compression = "lzw")
   }
   return(bar_results)
 }
@@ -2690,27 +2851,29 @@ results_barplot <- function(data,
 #' @title RQ_ddCt
 #'
 #' @description
-#' Performs relative quantification of gene expression using 2^(-ddCt) method.
+#' This function performs relative quantification of gene expression using 2^-ddCt method.
 #'
 #' @details
-#' This function calculates:
-#' * Means (return in columns with "_mean" pattern) and standard deviations (return in columns with "_sd" pattern) of delta Ct values of analyzed genes across compared groups.
-#' * Normality tests (Shapiro_Wilk test) of delta Ct values of analyzed genes across compared groups and returned p values in columns with "_norm_p" pattern.
-#' * Differences in mean delta Ct values of genes between compared groups, obtaining delta delta Ct values (in returned "ddCt" column).
-#' * Fold change values (return in "FCh" column) together with log10 Fold change values (return in "log10FCh" column).
-#'   Fold change values are calculated for each gene by exponentiating ddCt values using 2^-ddCt formula.
-#' * Statistical testing of delta delta Ct values (differences between study group and reference group).
-#'   Student's t test and Mann-Whitney U test are implemented and resulted statistics (in column with "_test_stat" pattern) and p values (in column with "_test_p" pattern) are returned.
+#' This function performs:
+#' 1. Calculation of means (returned in columns with the "_mean" pattern) and standard deviations (returned in columns with the "_sd" pattern)
+#' of delta Ct values for analyzed genes across compared groups.
+#' 2. Normality tests (Shapiro_Wilk test) of delta Ct values of analyzed genes across compared groups and returned p values are
+#' stored in columns with the "_norm_p" pattern.
+#' 3. Calculation of differences in mean delta Ct values of genes between compared groups, obtaining delta delta Ct values (returned  in"ddCt" column).
+#' 4. Calculation of fold change values (returned in "FCh" column) for each gene by exponentiation of ddCt values using 2^-ddCt formula.
+#' 5. Statistical testing of differences between study group and reference group using Student's t test and Mann-Whitney U test.
+#' Resulted statistics (in column with "_test_stat" pattern) and p values (in column with "_test_p" pattern) are returned.
 #'
-#' @param data data object returned from delta_Ct() function.
-#' @param group.study character: name of study group (group of interest).
-#' @param group.ref character: name of reference group.
-#' @param do.tests logical: if TRUE, statistical significance of delta delta Ct values between compared groups will be calculated using Student's t test and Mann-Whitney U test. Default to TRUE.
-#' @param alternative character: alternative hypothesis, must be one of "two.sided" (default), "greater" or "less".
-#' @param save.to.txt logical: if TRUE, returned table with results will be saved to .txt file. Default to FALSE.
-#' @param name.txt character: name of saved .txt file, without ".txt" name of extension. Default to "RQ_expCt_results".
+#' @param data Data object returned from delta_Ct() function.
+#' @param group.study Character: name of study group (group of interest).
+#' @param group.ref Character: name of reference group.
+#' @param do.tests Logical: if TRUE, statistical significance of delta delta Ct values between compared groups
+#' is calculated using Student's t test and Mann-Whitney U test. Default to TRUE.
+#' @param alternative Character: alternative hypothesis, must be one of "two.sided" (default), "greater" or "less".
+#' @param save.to.txt Logical: if TRUE, returned table with results is saved to .txt file. Default to FALSE.
+#' @param name.txt Character: name of saved .txt file, without ".txt" name of extension. Default to "RQ_ddCt_results".
 #
-#' @return Data.frame with relative quantification results.
+#' @return Data frame with relative quantification results.
 #' @export
 #'
 #' @examples
@@ -2803,53 +2966,51 @@ RQ_ddCt <- function(data,
 #' @title RQ_plot
 #'
 #' @description
-#' This function creates barplot illustrating fold change (when 2^-Ct or 2^-dCt methods are used) or RQ (when 2^-ddCt method is used) values.
-#' with indicating of statistical significance.
+#' This function creates barplot that illustrate fold change values with indicating of significance by different colors of bars.
 #'
-#' @param data object returned from RQ_exp_Ct_dCt() or RQ_ddCt() functions.
-#' @param use.p logical: if TRUE, bars of statistically significant genes will be distinguished by colors.
-#' @param mode character: which p value should be used? One of the "t" (p values from Student's t test),
-#' "mw" (p values from Mann-Whitney U test), "depends" (if data in both compared groups were considered as derived from normal distribution (p value from Shapiro_Wilk test > 0.05) - p
-#' values from Student's t test will be used for significance assessment, otherwise p values from Mann-Whitney U test will be used for significance assessment).
-#' There is one more option, if user intend to use another p values, ex. obtained from other statistical test,
-#' a mode parameter could be set to "user". In this situation, before run RQ_plot function, user should to prepare
-#' data.frame object names "user"with two columns, one named "Gene" with Gene names and second with p values. The order of columns must be kept as described.
-#' @param p.threshold numeric: threshold of p values for statistical significance.
-#' @param use.log10FCh logical: if TRUE, the criterion of fold change will be also used for significance assessment of genes.
-#' @param log10FCh.threshold numeric: threshold of log10 fold change values used for significance assessment of genes.
-#' @param sel.Gene character vector with names of genes to include, or "all" (default) to use all names of genes.
+#' @param data Object returned from RQ_exp_Ct_dCt() or RQ_ddCt() functions.
+#' @param use.p Logical: if TRUE, p value threshold will be used to label gene as significant.
+#' @param mode Character: which p value should be used? One of the "t" (p values from Student's t test),
+#' "mw" (p values from Mann-Whitney U test), "depends" (if data in both compared groups were
+#' considered as derived from normal distribution (p value from Shapiro_Wilk test > 0.05) - p
+#' values from Student's t test will be used for significance assignment, otherwise p values from Mann-Whitney U test will be used), and "user" that can be used
+#' the user intend to use another p values, e.g. obtained from other statistical test. In such situation, before run RQ_plot function, the user should prepare
+#' data frame object named "user" that contains two columns, the first of them with Gene names and the second with p values.
+#' The order of columns must be kept as described.
+#' @param p.threshold Numeric: threshold of p values for statistical significance.
+#' @param use.log10FCh Logical: if TRUE, the criterion of fold change will be also used for significance assignment of genes.
+#' @param log10FCh.threshold Numeric: threshold of log10 fold change values used for significance assignment of genes.
+#' @param sel.Gene Character vector with names of genes to include, or "all" (default) to use all names of genes.
 #' @param bar.width numeric: width of bars.
-#' @param signif.show logical: if TRUE, labels for statistical significance will be added to the plot.
-#' @param signif.labels character vector with statistical significance labels (ex. "ns.","***", etc.) with number
-#' of elements equal to nimber of genes used for plotting.
-#' The ggsignif package was used for convenient adding labels, but there is one tricky point:
-#' the same elements of labels can not be handled by used package and must be different.
-#' It could be achieved by adding symmetrically white spaces to repeated labels, ex. "ns.", " ns. ", "  ns.  ".
-#' @param signif.length numeric: length of horizontal bars, values from 0 to 1.
-#' @param signif.dist numeric: distance between errorbar and significance label.
-#' Could be in y axis units (if `faceting` = TRUE) or fraction of y axis value reached by errorbar (mean + sd value) (if `faceting` = TRUE).
-#' @param y.exp.low,y.exp.up numeric: space between data on the plot and lower or upper axis. Useful to add extra space for statistical significance labels when `faceting` = TRUE.
-#' @param angle integer: value of angle in which names of genes should be displayed. Default to 0.
-#' @param rotate logical: if TRUE, bars will be arranged horizontally. Deafault to FALSE.
-#' @param colors character vector length of one (when use.p = FALSE) or two (when use.p = TRUE), containing colors for significant and no significant genes.
-#' @param x.axis.title character: title of x axis. Default to "Gene".
-#' @param y.axis.title character: title of y axis. Default to "value".
-#' @param axis.title.size integer: font size of axis titles. Default to 12.
-#' @param axis.text.size integer: font size of axis text. Default to 10.
-#' @param legend.title character: title of legend. Default to "Group".
-#' @param legend.title.size integer: font size of legend title. Default to 12.
-#' @param legend.text.size integer: font size of legend text. Default to 12.
-#' @param legend.position position of the legend, one of "top" (default), "right", "bottom", "left", or "none" (no legend).
+#' @param signif.show Logical: if TRUE, labels for statistical significance will be added to the plot.
+#' @param signif.labels Character vector with statistical significance labels (e.g. "ns.","***", etc.). The number
+#' of elements must be equal to the number of genes used for plotting. All elements in the vector must be different; therefore,
+#' symmetrically white spaces to repeated labels must be add to the same labels, e.g. "ns.", " ns. ", "  ns.  ".
+#' @param signif.length Numeric: length of horizontal bars under statistical significance labels, values from 0 to 1.
+#' @param signif.dist Numeric: distance between errorbar and statistical significance labels.
+#' Can be in y axis units (if faceting = FALSE) or fraction of y axis value reached by errorbar (mean + sd value) (if faceting = TRUE).
+#' @param y.exp.low,y.exp.up Numeric: space between data on the plot and lower or upper axis. Useful to add extra space for statistical significance labels when faceting = TRUE.
+#' @param angle Integer: value of angle in which names of genes are displayed. Default to 0.
+#' @param rotate Logical: if TRUE, bars will be arranged horizontally. Deafault to FALSE.
+#' @param colors Character vector length of one (when use.p = FALSE) or two (when use.p = TRUE), containing colors for significant and no significant genes.
+#' @param x.axis.title Character: title of x axis. Default to "Gene".
+#' @param y.axis.title Character: title of y axis. Default to "value".
+#' @param axis.title.size Integer: font size of axis titles. Default to 11.
+#' @param axis.text.size Integer: font size of axis text. Default to 10.
+#' @param legend.title Character: title of legend. Default to "Group".
+#' @param legend.title.size Integer: font size of legend title. Default to 11.
+#' @param legend.text.size Integer: font size of legend text. Default to 11.
+#' @param legend.position Position of the legend, can be one of "top" (default), "right", "bottom", "left", or "none" (no legend).
 #' See description for legend.position in ggplot2::theme() function.
-#' @param plot.title character: title of plot. Default to "".
-#' @param plot.title.size integer: font size of plot title. Default to 14.
-#' @param save.to.tiff logical: if TRUE, plot will be saved as .tiff file. Default to FALSE.
-#' @param dpi integer: resolution of saved .tiff file. Default to 600.
-#' @param width numeric: width (in cm) of saved .tiff file. Default to 15.
-#' @param height integer: height (in cm) of saved .tiff file. Default to 15.
-#' @param name.tiff character: name of saved .tiff file, without ".tiff" name of extension. Default to "results_boxplot".
+#' @param plot.title Character: title of plot. Default to "".
+#' @param plot.title.size Integer: font size of plot title. Default to 14.
+#' @param save.to.tiff Logical: if TRUE, plot will be saved as .tiff file. Default to FALSE.
+#' @param dpi Integer: resolution of saved .tiff file. Default to 600.
+#' @param width Numeric: width (in cm) of saved .tiff file. Default to 15.
+#' @param height Numeric: height (in cm) of saved .tiff file. Default to 15.
+#' @param name.tiff Character: name of saved .tiff file, without ".tiff" name of extension. Default to "RQ_plot".
 #'
-#' @return List containing object with barplot and dataframe with results. Created plot will be also displayed on graphic device.
+#' @return List containing object with barplot and data frame with results. Created plot is also displayed on graphic device.
 #' @export
 #'
 #' @examples
@@ -3036,9 +3197,14 @@ RQ_plot <- function(data,
   print(RQ)
 
   if (save.to.tiff == TRUE){
-    ggsave(paste(name.tiff,".tiff", sep = ""), RQ, dpi = dpi, width = width, height = height, units = "cm", compression = "lzw")
+    ggsave(paste(name.tiff,".tiff", sep = ""),
+           RQ,
+           dpi = dpi,
+           width = width,
+           height = height,
+           units = "cm",
+           compression = "lzw")
   }
-
   return(list(RQ, data))
 }
 
@@ -3051,27 +3217,27 @@ RQ_plot <- function(data,
 #' @title ROCh
 #'
 #' @description
-#' This function performs Receiver Operating Characteristic (ROC) analysis of samples of genes based on the expression data.
-#' This analysis could be useful to further examine performance of samples classification into groups using gene expression data.
+#' This function is designed to perform Receiver Operating Characteristic (ROC) analysis based on the gene expression data.
+#' This kind of analysis is useful to further examine performance of samples classification into two groups.
 #'
-#' @param data object returned from exp_Ct_dCt() or delta_Ct() functions.
-#' @param sel.Gene character vector with names of genes to include, or "all" (default) to use all names of genes.
-#' @param groups character vector length of two with names of compared groups
-#' @param panels.row,panels.col integer: number of rows and columns to arrange panels with plots.
-#' @param text.size numeric: size of text on the plot. Default to 1.1.
-#' @param print.auc logical: if TRUE, AUC values will be added to the plot. Default to TRUE.
-#' @param print.auc.size numeric: size of AUC text on the plot. Default to 0.8.
-#' @param save.to.tiff logical: if TRUE, plot will be saved as .tiff file. Default to FALSE.
-#' @param dpi integer: resolution of saved .tiff file. Default to 600.
-#' @param width numeric: width (in cm) of saved .tiff file. Default to 15.
-#' @param height integer: height (in cm) of saved .tiff file. Default to 15.
-#' @param name.tiff character: name of saved .tiff file, without ".tiff" name of extension. Default to "ROC_plot".
-#' @param save.to.txt logical: if TRUE, returned table with results will be saved to .txt file. Default to FALSE.
-#' @param name.txt character: name of saved .txt file, without ".txt" name of extension. Default to "ROC_results".
+#' @param data Object returned from exp_Ct_dCt() or delta_Ct() functions.
+#' @param sel.Gene Character vector with names of genes to include, or "all" (default) to use all genes.
+#' @param groups Character vector length of two with names of two compared groups.
+#' @param panels.row,panels.col Integer: number of rows and columns to arrange panels with plots.
+#' @param text.size Numeric: size of text on the plot. Default to 1.1.
+#' @param print.auc Logical: if TRUE, AUC values with confidence interval will be added to the plot. Default to TRUE.
+#' @param print.auc.size Numeric: size of AUC text on the plot. Default to 0.8.
+#' @param save.to.tiff Logical: if TRUE, plot will be saved as .tiff file. Default to FALSE.
+#' @param dpi Integer: resolution of saved .tiff file. Default to 600.
+#' @param width Numeric: width (in cm) of saved .tiff file. Default to 15.
+#' @param height Numeric: height (in cm) of saved .tiff file. Default to 15.
+#' @param name.tiff Character: name of saved .tiff file, without ".tiff" name of extension. Default to "ROC_plot".
+#' @param save.to.txt Logical: if TRUE, returned table with results will be saved to .txt file. Default to FALSE.
+#' @param name.txt Character: name of saved .txt file, without ".txt" name of extension. Default to "ROC_results".
 #'
 #' @return Data frame with ROC parameters including AUC, threshold, specificity, sensitivity, accuracy,
 #' positive predictive value, negative predictive value, and Youden's J statistic.
-#' Plot with ROC curves could be saved to .tiff file (will not be displayed on the graphic device).
+#' Plot with ROC curves can be saved to .tiff file and opened from the working directory (will not be displayed on the graphic device).
 #' @export
 #'
 #' @examples
@@ -3122,9 +3288,19 @@ ROCh <- function(data,
   roc_param$Gene <- colnames(data)[-c(1:2)]
 
   for (x in 1:nrow(roc_param)){
-    myproc <- roc(response = data$Group, predictor = as.data.frame(data)[ ,x+2], levels = c(groups),
-                  smooth = FALSE, auc = TRUE, plot=FALSE, ci=TRUE, of = "auc", quiet = TRUE)
-    parameters <- coords(myproc, "best", ret = c("threshold", "specificity", "sensitivity","accuracy", "ppv", "npv", "youden"))
+    myproc <- roc(response = data$Group,
+                  predictor = as.data.frame(data)[ ,x+2],
+                  levels = c(groups),
+                  smooth = FALSE,
+                  auc = TRUE,
+                  plot=FALSE,
+                  ci=TRUE,
+                  of = "auc",
+                  quiet = TRUE)
+
+    parameters <- coords(myproc,
+                         "best",
+                         ret = c("threshold", "specificity", "sensitivity","accuracy", "ppv", "npv", "youden"))
     roc_param[x,2:8] <- parameters
     roc_param[x,9] <- myproc$auc
     roc_param[x,1] <- colnames(data)[x+2]
@@ -3133,17 +3309,39 @@ ROCh <- function(data,
       cat('Warning: ',colnames(data)[x+2],'has more than 1 threshold value for calculated Youden J statistic.\n')
     } else {}
   }
-
   if (save.to.tiff == TRUE){
-    tiff(paste(name.tiff,".tiff", sep = ""), res = dpi, width = width, height = height, units = "cm", compression = "lzw")
+    tiff(paste(name.tiff,".tiff", sep = ""),
+         res = dpi,
+         width = width,
+         height = height,
+         units = "cm",
+         compression = "lzw")
+
     par(mfrow = c(panels.row, panels.col))
 
     for (x in 1:nrow(roc_param)){
-      myproc <- roc(response = data$Group, predictor = as.data.frame(data)[ ,x+2], levels = c(groups),
-                    smooth = FALSE, auc = TRUE, plot=FALSE, ci=TRUE, of = "auc", quiet = TRUE)
-      plot.roc(myproc, main = roc_param$Gene[x],
-               smooth = FALSE, cex.axis = text.size, cex.lab = text.size, identity.lwd = 2,
-               plot = TRUE, percent = TRUE, print.auc = print.auc, print.auc.x = 0.85, print.auc.y = 0.1, print.auc.cex = print.auc.size)
+      myproc <- roc(response = data$Group,
+                    predictor = as.data.frame(data)[ ,x+2],
+                    levels = c(groups),
+                    smooth = FALSE,
+                    auc = TRUE,
+                    plot=FALSE,
+                    ci=TRUE,
+                    of = "auc",
+                    quiet = TRUE)
+
+      plot.roc(myproc,
+               main = roc_param$Gene[x],
+               smooth = FALSE,
+               cex.axis = text.size,
+               cex.lab = text.size,
+               identity.lwd = 2,
+               plot = TRUE,
+               percent = TRUE,
+               print.auc = print.auc,
+               print.auc.x = 0.85,
+               print.auc.y = 0.1,
+               print.auc.cex = print.auc.size)
     }
     dev.off()
   }
@@ -3164,35 +3362,36 @@ ROCh <- function(data,
 #' @title log_reg
 #'
 #' @description
-#' This function performs logistic regression analysis, computes odd ratio values and presents them graphically.
+#' This function performs logistic regression analysis, computes odd ratio values, and presents them graphically.
 #'
-#' @param data object returned from exp_Ct_dCt() or delta_Ct() functions.
-#' @param sel.Gene character vector with names of genes to include, or "all" (default) to use all names of genes.
-#' @param group.study character: name of study group (group of interest).
-#' @param group.ref character: name of reference group.
-#' @param centerline numeric: position of vertical centerline on the plot, if logaxis = TRUE, centerline should be set to 0, otherwise to 1 (default).
-#' @param ci numeric: confidence level used for computation of confidence interval. Default to 0.95.
-#' @param log.axis logical: if TRUE, axis with odds ratio values will be in log10 scale. If axis is in logarithmic scale, centerline parameter should be set to 0. Default ot FALSE.
-#' @param x.axis.title character: title of x axis. Default to "Gene".
-#' @param y.axis.title character: title of y axis. Default to "value".
-#' @param axis.title.size integer: font size of axis titles. Default to 12.
-#' @param axis.text.size integer: font size of axis text. Default to 10.
-#' @param legend.title character: title of legend. Default to "Group".
-#' @param legend.title.size integer: font size of legend title. Default to 12.
-#' @param legend.text.size integer: font size of legend text. Default to 12.
-#' @param legend.position position of the legend, one of "top" (default), "right", "bottom", "left", or "none" (no legend).
+#' @param data Object returned from exp_Ct_dCt() or delta_Ct() functions.
+#' @param sel.Gene Character vector with names of genes to include, or "all" (default) to use all genes.
+#' @param group.study Character: name of study group (group of interest).
+#' @param group.ref Character: name of reference group.
+#' @param centerline Numeric: position of vertical centerline on the plot, if logaxis = TRUE, centerline should be set to 0, otherwise to 1 (default).
+#' @param ci Numeric: confidence level used for computation of confidence interval. Default to 0.95.
+#' @param log.axis Logical: if TRUE, axis with odds ratio values will be in log10 scale.
+#' If axis is in logarithmic scale, centerline parameter should be set to 0. Default to FALSE.
+#' @param x.axis.title Character: title of x axis. Default to "Gene".
+#' @param y.axis.title Character: title of y axis. Default to "value".
+#' @param axis.title.size Integer: font size of axis titles. Default to 11.
+#' @param axis.text.size Integer: font size of axis text. Default to 10.
+#' @param legend.title Character: title of legend. Default to "Group".
+#' @param legend.title.size Integer: font size of legend title. Default to 11.
+#' @param legend.text.size Integer: font size of legend text. Default to 11.
+#' @param legend.position Position of the legend, can be one of "top" (default), "right", "bottom", "left", or "none" (no legend).
 #' See description for legend.position in ggplot2::theme() function.
-#' @param plot.title character: title of plot. Default to "".
-#' @param plot.title.size integer: font size of plot title. Default to 14.
-#' @param save.to.tiff logical: if TRUE, plot will be saved as .tiff file. Default to FALSE.
-#' @param dpi integer: resolution of saved .tiff file. Default to 600.
-#' @param width numeric: width (in cm) of saved .tiff file. Default to 15.
-#' @param height integer: height (in cm) of saved .tiff file. Default to 15.
-#' @param name.tiff character: name of saved .tiff file, without ".tiff" name of extension. Default to "OR_plot".
-#' @param save.to.txt logical: if TRUE, returned table with results will be saved to .txt file. Default to FALSE.
-#' @param name.txt character: name of saved .txt file, without ".txt" name of extension. Default to "OR_results".
+#' @param plot.title Character: title of plot. Default to "".
+#' @param plot.title.size Integer: font size of plot title. Default to 14.
+#' @param save.to.tiff Logical: if TRUE, plot will be saved as .tiff file. Default to FALSE.
+#' @param dpi Integer: resolution of saved .tiff file. Default to 600.
+#' @param width Numeric: width (in cm) of saved .tiff file. Default to 15.
+#' @param height Numeric: height (in cm) of saved .tiff file. Default to 15.
+#' @param name.tiff Character: name of saved .tiff file, without ".tiff" name of extension. Default to "OR_plot".
+#' @param save.to.txt Logical: if TRUE, returned table with results will be saved to .txt file. Default to FALSE.
+#' @param name.txt Character: name of saved .txt file, without ".txt" name of extension. Default to "OR_results".
 #'
-#' @return List containing object with barplot and dataframe with results. Created plot will be also displayed on graphic device.
+#' @return A list that contains an object with plot and data frame with calculated results. Created plot is also displayed on the graphic device.
 #' @export
 #'
 #' @examples

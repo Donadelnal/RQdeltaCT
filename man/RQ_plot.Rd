@@ -40,85 +40,83 @@ RQ_plot(
 )
 }
 \arguments{
-\item{data}{object returned from RQ_exp_Ct_dCt() or RQ_ddCt() functions.}
+\item{data}{Object returned from RQ_exp_Ct_dCt() or RQ_ddCt() functions.}
 
-\item{use.p}{logical: if TRUE, bars of statistically significant genes will be distinguished by colors.}
+\item{use.p}{Logical: if TRUE, p value threshold will be used to label gene as significant.}
 
-\item{mode}{character: which p value should be used? One of the "t" (p values from Student's t test),
-"mw" (p values from Mann-Whitney U test), "depends" (if data in both compared groups were considered as derived from normal distribution (p value from Shapiro_Wilk test > 0.05) - p
-values from Student's t test will be used for significance assessment, otherwise p values from Mann-Whitney U test will be used for significance assessment).
-There is one more option, if user intend to use another p values, ex. obtained from other statistical test,
-a mode parameter could be set to "user". In this situation, before run RQ_plot function, user should to prepare
-data.frame object names "user"with two columns, one named "Gene" with Gene names and second with p values. The order of columns must be kept as described.}
+\item{mode}{Character: which p value should be used? One of the "t" (p values from Student's t test),
+"mw" (p values from Mann-Whitney U test), "depends" (if data in both compared groups were
+considered as derived from normal distribution (p value from Shapiro_Wilk test > 0.05) - p
+values from Student's t test will be used for significance assignment, otherwise p values from Mann-Whitney U test will be used), and "user" that can be used
+the user intend to use another p values, e.g. obtained from other statistical test. In such situation, before run RQ_plot function, the user should prepare
+data frame object named "user" that contains two columns, the first of them with Gene names and the second with p values.
+The order of columns must be kept as described.}
 
-\item{p.threshold}{numeric: threshold of p values for statistical significance.}
+\item{p.threshold}{Numeric: threshold of p values for statistical significance.}
 
-\item{use.log10FCh}{logical: if TRUE, the criterion of fold change will be also used for significance assessment of genes.}
+\item{use.log10FCh}{Logical: if TRUE, the criterion of fold change will be also used for significance assignment of genes.}
 
-\item{log10FCh.threshold}{numeric: threshold of log10 fold change values used for significance assessment of genes.}
+\item{log10FCh.threshold}{Numeric: threshold of log10 fold change values used for significance assignment of genes.}
 
-\item{sel.Gene}{character vector with names of genes to include, or "all" (default) to use all names of genes.}
+\item{sel.Gene}{Character vector with names of genes to include, or "all" (default) to use all names of genes.}
 
 \item{bar.width}{numeric: width of bars.}
 
-\item{signif.show}{logical: if TRUE, labels for statistical significance will be added to the plot.}
+\item{signif.show}{Logical: if TRUE, labels for statistical significance will be added to the plot.}
 
-\item{signif.labels}{character vector with statistical significance labels (ex. "ns.","***", etc.) with number
-of elements equal to nimber of genes used for plotting.
-The ggsignif package was used for convenient adding labels, but there is one tricky point:
-the same elements of labels can not be handled by used package and must be different.
-It could be achieved by adding symmetrically white spaces to repeated labels, ex. "ns.", " ns. ", "  ns.  ".}
+\item{signif.labels}{Character vector with statistical significance labels (e.g. "ns.","***", etc.). The number
+of elements must be equal to the number of genes used for plotting. All elements in the vector must be different; therefore,
+symmetrically white spaces to repeated labels must be add to the same labels, e.g. "ns.", " ns. ", "  ns.  ".}
 
-\item{signif.length}{numeric: length of horizontal bars, values from 0 to 1.}
+\item{signif.length}{Numeric: length of horizontal bars under statistical significance labels, values from 0 to 1.}
 
-\item{signif.dist}{numeric: distance between errorbar and significance label.
-Could be in y axis units (if `faceting` = TRUE) or fraction of y axis value reached by errorbar (mean + sd value) (if `faceting` = TRUE).}
+\item{signif.dist}{Numeric: distance between errorbar and statistical significance labels.
+Can be in y axis units (if faceting = FALSE) or fraction of y axis value reached by errorbar (mean + sd value) (if faceting = TRUE).}
 
-\item{y.exp.low, y.exp.up}{numeric: space between data on the plot and lower or upper axis. Useful to add extra space for statistical significance labels when `faceting` = TRUE.}
+\item{y.exp.low, y.exp.up}{Numeric: space between data on the plot and lower or upper axis. Useful to add extra space for statistical significance labels when faceting = TRUE.}
 
-\item{angle}{integer: value of angle in which names of genes should be displayed. Default to 0.}
+\item{angle}{Integer: value of angle in which names of genes are displayed. Default to 0.}
 
-\item{rotate}{logical: if TRUE, bars will be arranged horizontally. Deafault to FALSE.}
+\item{rotate}{Logical: if TRUE, bars will be arranged horizontally. Deafault to FALSE.}
 
-\item{colors}{character vector length of one (when use.p = FALSE) or two (when use.p = TRUE), containing colors for significant and no significant genes.}
+\item{colors}{Character vector length of one (when use.p = FALSE) or two (when use.p = TRUE), containing colors for significant and no significant genes.}
 
-\item{x.axis.title}{character: title of x axis. Default to "Gene".}
+\item{x.axis.title}{Character: title of x axis. Default to "Gene".}
 
-\item{y.axis.title}{character: title of y axis. Default to "value".}
+\item{y.axis.title}{Character: title of y axis. Default to "value".}
 
-\item{axis.title.size}{integer: font size of axis titles. Default to 12.}
+\item{axis.title.size}{Integer: font size of axis titles. Default to 11.}
 
-\item{axis.text.size}{integer: font size of axis text. Default to 10.}
+\item{axis.text.size}{Integer: font size of axis text. Default to 10.}
 
-\item{legend.text.size}{integer: font size of legend text. Default to 12.}
+\item{legend.text.size}{Integer: font size of legend text. Default to 11.}
 
-\item{legend.title}{character: title of legend. Default to "Group".}
+\item{legend.title}{Character: title of legend. Default to "Group".}
 
-\item{legend.title.size}{integer: font size of legend title. Default to 12.}
+\item{legend.title.size}{Integer: font size of legend title. Default to 11.}
 
-\item{legend.position}{position of the legend, one of "top" (default), "right", "bottom", "left", or "none" (no legend).
+\item{legend.position}{Position of the legend, can be one of "top" (default), "right", "bottom", "left", or "none" (no legend).
 See description for legend.position in ggplot2::theme() function.}
 
-\item{plot.title}{character: title of plot. Default to "".}
+\item{plot.title}{Character: title of plot. Default to "".}
 
-\item{plot.title.size}{integer: font size of plot title. Default to 14.}
+\item{plot.title.size}{Integer: font size of plot title. Default to 14.}
 
-\item{dpi}{integer: resolution of saved .tiff file. Default to 600.}
+\item{dpi}{Integer: resolution of saved .tiff file. Default to 600.}
 
-\item{width}{numeric: width (in cm) of saved .tiff file. Default to 15.}
+\item{width}{Numeric: width (in cm) of saved .tiff file. Default to 15.}
 
-\item{height}{integer: height (in cm) of saved .tiff file. Default to 15.}
+\item{height}{Numeric: height (in cm) of saved .tiff file. Default to 15.}
 
-\item{save.to.tiff}{logical: if TRUE, plot will be saved as .tiff file. Default to FALSE.}
+\item{save.to.tiff}{Logical: if TRUE, plot will be saved as .tiff file. Default to FALSE.}
 
-\item{name.tiff}{character: name of saved .tiff file, without ".tiff" name of extension. Default to "results_boxplot".}
+\item{name.tiff}{Character: name of saved .tiff file, without ".tiff" name of extension. Default to "RQ_plot".}
 }
 \value{
-List containing object with barplot and dataframe with results. Created plot will be also displayed on graphic device.
+List containing object with barplot and data frame with results. Created plot is also displayed on graphic device.
 }
 \description{
-This function creates barplot illustrating fold change (when 2^-Ct or 2^-dCt methods are used) or RQ (when 2^-ddCt method is used) values.
-with indicating of statistical significance.
+This function creates barplot that illustrate fold change values with indicating of significance by different colors of bars.
 }
 \examples{
 library(ggsignif)

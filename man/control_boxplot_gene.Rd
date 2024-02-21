@@ -28,52 +28,52 @@ control_boxplot_gene(
 )
 }
 \arguments{
-\item{data}{object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.}
+\item{data}{Object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.}
 
-\item{sel.Gene}{character vector with names of genes to include, or "all" (default) to use all names of genes.}
+\item{sel.Gene}{Character vector with names of genes to include, or "all" (default) to use all genes.}
 
-\item{coef}{numeric: how many times of interquartile range should be used to indicate the most extend data point for whiskers. Default to 1.5.}
+\item{coef}{Numeric: how many times of interquartile range should be used to determine range point for whiskers. Default to 1.5.}
 
-\item{by.group}{logical: if TRUE, distributions will be drawn by compared groups of samples.}
+\item{by.group}{Logical: if TRUE, distributions will be drawn by compared groups of samples.}
 
-\item{colors}{character vector containing colors for groups, length of one (when by.group = FALSE) or equal to number of groups (when by.group = TRUE).}
+\item{colors}{Character vector containing colors for groups, length of one (when by.group = FALSE) or equal to the number of groups (when by.group = TRUE).}
 
-\item{axis.title.size}{integer: font size of axis titles. Default to 12.}
+\item{axis.title.size}{Integer: font size of axis titles. Default to 11.}
 
-\item{axis.text.size}{integer: font size of axis text. Default to 12.}
+\item{axis.text.size}{Integer: font size of axis text. Default to 12.}
 
-\item{x.axis.title}{character: title of x axis. Default to "Gene".}
+\item{x.axis.title}{Character: title of x axis. Default to "Gene".}
 
-\item{y.axis.title}{character: title of y axis. Default to "value".}
+\item{y.axis.title}{Character: title of y axis. Default to "value".}
 
-\item{legend.title}{character: title of legend. Default to "Group".}
+\item{legend.title}{Character: title of legend. Default to "Group".}
 
-\item{legend.title.size}{integer: font size of legend title. Default to 12.}
+\item{legend.title.size}{Integer: font size of legend title. Default to 11.}
 
-\item{legend.text.size}{integer: font size of legend text. Default to 12.}
+\item{legend.text.size}{Integer: font size of legend text. Default to 11.}
 
-\item{legend.position}{position of the legend, one of "top", "right" (default), "bottom", "left", or "none" (no legend).
+\item{legend.position}{Position of the legend, can be "top", "right" (default), "bottom", "left", or "none" (no legend).
 See description for legend.position in ggplot2::theme() function.}
 
-\item{plot.title}{character: title of plot. Default to "".}
+\item{plot.title}{Character: title of plot. Default to "".}
 
-\item{plot.title.size}{integer: font size of plot title. Default to 14.}
+\item{plot.title.size}{Integer: font size of plot title. Default to 14.}
 
-\item{save.to.tiff}{logical: if TRUE, plot will be saved as .tiff file. Default to FALSE.}
+\item{save.to.tiff}{Logical: if TRUE, plot will be saved as .tiff file. Default to FALSE.}
 
-\item{dpi}{integer: resolution of saved .tiff file. Default to 600.}
+\item{dpi}{Integer: resolution of saved .tiff file. Default to 600.}
 
-\item{width}{numeric: width (in cm) of saved .tiff file. Default to 15.}
+\item{width}{Numeric: width (in cm) of saved .tiff file. Default to 15.}
 
-\item{height}{integer: height (in cm) of saved .tiff file. Default to 15.}
+\item{height}{Numeric: height (in cm) of saved .tiff file. Default to 15.}
 
-\item{name.tiff}{character: name of saved .tiff file, without ".tiff" name of extension. Default to "control_boxplot_genes".}
+\item{name.tiff}{Character: name of saved .tiff file, without ".tiff" name of extension. Default to "control_boxplot_genes".}
 }
 \value{
-Object with boxplot illustrating distribution of data for each gene. Created plot will be also displayed on graphic device.
+Object with boxplot illustrating distribution of data for each gene. Created plot is also displayed on the graphic device.
 }
 \description{
-This function creates boxplot illustrating distribution of data in each gene. Could be useful to compare expression of analyzed genes.
+This function creates boxplot that illustrate distribution of data in each gene.
 }
 \examples{
 library(tidyverse)

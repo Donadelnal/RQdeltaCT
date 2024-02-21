@@ -7,17 +7,17 @@
 exp_Ct_dCt(data, save.to.txt = FALSE, name.txt = "data_exp_Ct_dCt")
 }
 \arguments{
-\item{data}{data object returned from make_Ct_ready() or delta_Ct() functions.}
+\item{data}{Data object returned from make_Ct_ready() or delta_Ct() functions.}
 
-\item{save.to.txt}{logical: if TRUE, returned data will be saved to .txt file. Default to FALSE.}
+\item{save.to.txt}{Logical: if TRUE, returned data will be saved to .txt file. Default to FALSE.}
 
-\item{name.txt}{character: name of saved .txt file, without ".txt" name of extension. Default to "data_exp_Ct_dCt".}
+\item{name.txt}{Character: name of saved .txt file, without ".txt" name of extension. Default to "data_exp_Ct_dCt".}
 }
 \value{
 Data frame with exponentiated Ct or dCt values.
 }
 \description{
-This function exponentiates Ct or delta Ct (dCt) values by using formula 2^(-Ct) or 2^(-dCt), respectively.
+This function exponentiates Ct and delta Ct (dCt) values by using 2^-Ct and 2^-dCt formulas, respectively.
 }
 \examples{
 library(tidyverse)

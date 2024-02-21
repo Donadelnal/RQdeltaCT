@@ -15,34 +15,35 @@ RQ_exp_Ct_dCt(
 )
 }
 \arguments{
-\item{data}{data object returned from exp_Ct_dCt() function.}
+\item{data}{Data object returned from exp_Ct_dCt() function.}
 
-\item{group.study}{character: name of study group (group of interest).}
+\item{group.study}{Character: name of study group (group of interest).}
 
-\item{group.ref}{character: name of reference group.}
+\item{group.ref}{Character: name of reference group.}
 
-\item{do.tests}{logical: if TRUE, statistical significance of differences between compared groups will be calculated using Student's t test and Mann-Whitney U test. Default to TRUE.}
+\item{do.tests}{Logical: if TRUE, statistical significance of differences between compared groups will be calculated using Student's t test and Mann-Whitney U test. Default to TRUE.}
 
-\item{alternative}{character: alternative hypothesis, must be one of "two.sided" (default), "greater" or "less".}
+\item{alternative}{Character: alternative hypothesis, must be one of "two.sided" (default), "greater" or "less".}
 
-\item{save.to.txt}{logical: if TRUE, returned table with results will be saved to .txt file. Default to FALSE.}
+\item{save.to.txt}{Logical: if TRUE, returned table with results will be saved to .txt file. Default to FALSE.}
 
-\item{name.txt}{character: name of saved .txt file, without ".txt" name of extension. Default to "RQ_exp_results".}
+\item{name.txt}{Character: name of saved .txt file, without ".txt" name of extension. Default to "RQ_exp_results".}
 }
 \value{
-Data frame with transformed Ct values and printed information about number and percentage of missing values.
+Data frame with results.
 }
 \description{
-Performs relative quantification of gene expression using 2^(-Ct) and 2^(-dCt) methods.
+This function performs relative quantification of gene expression using 2^-Ct and 2^-dCt methods.
 }
 \details{
 This function calculates:
-* Means (returned in columns with "_mean" pattern) and standard deviations (returned in columns with "_sd" pattern) of exponentiated Ct or dCt values of analyzed genes across compared groups.
-* Normality tests (Shapiro_Wilk test) of exponentiated Ct or dCt values of analyzed genes across compared groups and returned p values in columns with "_norm_p" pattern.
-* Fold Change values (return in "FCh" column) together with log10 Fold change values (return in "log10FCh" column).
-  Fold change values were calculated for each gene by dividing  mean of exponentiated Ct od dCt values in study group by mean of exponentiated Ct or dCt values in reference group.
-* Statistical testing of differences in exponentiated Ct or dCt values between study group and reference group.
-  Student's t test and Mann-Whitney U test are implemented and resulted statistics (in column with "_test_stat" pattern) and p values (in column with "_test_p" pattern) are returned.
+1. Means (returned in columns with the "_mean" pattern) and standard deviations (returned in columns with the "_sd" pattern)
+of exponentiated Ct or dCt values of analyzed genes across compared groups.
+2. P values of normality test (Shapiro_Wilk test) performed on exponentiated Ct or dCt values across compared groups (returned in columns with the "_norm_p" pattern).
+3. Fold change values (returned in "FCh" column) calculated for each gene by dividing  mean of exponentiated Ct od dCt values in study group
+by mean of exponentiated Ct or dCt values in reference group.
+4. Statistics (returned in column with the "_test_stat" pattern) and p values (returned in column with "_test_p" pattern) of
+differences in exponentiated Ct or dCt values between study group and reference group using Student's t test and Mann-Whitney U test.
 }
 \examples{
 library(tidyverse)
@@ -53,7 +54,9 @@ data.CtF <- filter_Ct(data.Ct,
                      remove.Sample = c("Control08","Control16","Control22"))
 data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
 data.Ct.exp <- exp_Ct_dCt(data.CtF.ready)
-RQ.Ct.exp <- RQ_exp_Ct_dCt(data.Ct.exp, group.study = "Disease", group.ref = "Control")
+RQ.Ct.exp <- RQ_exp_Ct_dCt(data.Ct.exp,
+                           group.study = "Disease",
+                           group.ref = "Control")
 head(RQ.Ct.exp)
 
 }

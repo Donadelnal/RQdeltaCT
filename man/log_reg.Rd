@@ -32,60 +32,61 @@ log_reg(
 )
 }
 \arguments{
-\item{data}{object returned from exp_Ct_dCt() or delta_Ct() functions.}
+\item{data}{Object returned from exp_Ct_dCt() or delta_Ct() functions.}
 
-\item{sel.Gene}{character vector with names of genes to include, or "all" (default) to use all names of genes.}
+\item{sel.Gene}{Character vector with names of genes to include, or "all" (default) to use all genes.}
 
-\item{group.study}{character: name of study group (group of interest).}
+\item{group.study}{Character: name of study group (group of interest).}
 
-\item{group.ref}{character: name of reference group.}
+\item{group.ref}{Character: name of reference group.}
 
-\item{centerline}{numeric: position of vertical centerline on the plot, if logaxis = TRUE, centerline should be set to 0, otherwise to 1 (default).}
+\item{centerline}{Numeric: position of vertical centerline on the plot, if logaxis = TRUE, centerline should be set to 0, otherwise to 1 (default).}
 
-\item{ci}{numeric: confidence level used for computation of confidence interval. Default to 0.95.}
+\item{ci}{Numeric: confidence level used for computation of confidence interval. Default to 0.95.}
 
-\item{log.axis}{logical: if TRUE, axis with odds ratio values will be in log10 scale. If axis is in logarithmic scale, centerline parameter should be set to 0. Default ot FALSE.}
+\item{log.axis}{Logical: if TRUE, axis with odds ratio values will be in log10 scale.
+If axis is in logarithmic scale, centerline parameter should be set to 0. Default to FALSE.}
 
-\item{x.axis.title}{character: title of x axis. Default to "Gene".}
+\item{x.axis.title}{Character: title of x axis. Default to "Gene".}
 
-\item{y.axis.title}{character: title of y axis. Default to "value".}
+\item{y.axis.title}{Character: title of y axis. Default to "value".}
 
-\item{axis.title.size}{integer: font size of axis titles. Default to 12.}
+\item{axis.title.size}{Integer: font size of axis titles. Default to 11.}
 
-\item{axis.text.size}{integer: font size of axis text. Default to 10.}
+\item{axis.text.size}{Integer: font size of axis text. Default to 10.}
 
-\item{legend.title}{character: title of legend. Default to "Group".}
+\item{legend.title}{Character: title of legend. Default to "Group".}
 
-\item{legend.text.size}{integer: font size of legend text. Default to 12.}
+\item{legend.text.size}{Integer: font size of legend text. Default to 11.}
 
-\item{legend.title.size}{integer: font size of legend title. Default to 12.}
+\item{legend.title.size}{Integer: font size of legend title. Default to 11.}
 
-\item{legend.position}{position of the legend, one of "top" (default), "right", "bottom", "left", or "none" (no legend).
+\item{legend.position}{Position of the legend, can be one of "top" (default), "right", "bottom", "left", or "none" (no legend).
 See description for legend.position in ggplot2::theme() function.}
 
-\item{plot.title}{character: title of plot. Default to "".}
+\item{plot.title}{Character: title of plot. Default to "".}
 
-\item{plot.title.size}{integer: font size of plot title. Default to 14.}
+\item{plot.title.size}{Integer: font size of plot title. Default to 14.}
 
-\item{save.to.tiff}{logical: if TRUE, plot will be saved as .tiff file. Default to FALSE.}
+\item{save.to.tiff}{Logical: if TRUE, plot will be saved as .tiff file. Default to FALSE.}
 
-\item{dpi}{integer: resolution of saved .tiff file. Default to 600.}
+\item{dpi}{Integer: resolution of saved .tiff file. Default to 600.}
 
-\item{width}{numeric: width (in cm) of saved .tiff file. Default to 15.}
+\item{width}{Numeric: width (in cm) of saved .tiff file. Default to 15.}
 
-\item{height}{integer: height (in cm) of saved .tiff file. Default to 15.}
+\item{height}{Numeric: height (in cm) of saved .tiff file. Default to 15.}
 
-\item{name.tiff}{character: name of saved .tiff file, without ".tiff" name of extension. Default to "OR_plot".}
+\item{name.tiff}{Character: name of saved .tiff file, without ".tiff" name of extension. Default to "OR_plot".}
 
-\item{save.to.txt}{logical: if TRUE, returned table with results will be saved to .txt file. Default to FALSE.}
+\item{save.to.txt}{Logical: if TRUE, returned table with results will be saved to .txt file. Default to FALSE.}
 
-\item{name.txt}{character: name of saved .txt file, without ".txt" name of extension. Default to "OR_results".}
+\item{name.txt}{Character: name of saved .txt file, without ".txt" name of extension. Default to "OR_results".}
 }
 \value{
-List containing object with barplot and dataframe with results. Created plot will be also displayed on graphic device.
+A list that contains an object with plot and data frame with calculated results. Created plot is also displayed on the graphic device.
 }
 \description{
-This function performs logistic regression analysis, computes odd ratio values and presents them graphically.
+This function performs logistic regression analysis, computes odd ratio values, and presents them graphically.
 }
 \examples{
 library(tidyverse)

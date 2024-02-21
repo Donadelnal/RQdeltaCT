@@ -46,7 +46,6 @@ The entire standard workflow of analysis performed using the `RQdeltaCT` package
 
 * `tidyverse` - main package for data processing (`dplyr`, `tidyr`) and visualisation (`ggplot2`),
 * `coin` - used to perform the Mann-Whitney U test (`wilcox_test()` function),
-* `car` - used to compute VIF coefficients (`vif()` function),
 * `ctrlGene` - used to calculate gene expression stability score using geNorm algorithm,
 * `ggsignif` - used to add significance labels to plots,
 * `Hmisc` - used to perform correlation analysis (`rcor()` function),
@@ -367,20 +366,13 @@ head(as.data.frame(arrange(RQ.Ct.exp, MW_test_p)))
 
 Ideally, the reference gene should have an identical expression level in all samples, but in many situations it is not possible to achieve this, especially when biological replicates are analysed. Therefore, differences between samples are allowed, but the variance should be as low as possible, and it is also recommended that Ct values would not be very low (below 15) or very high (above 30) [Kozera and Rapacz 2013](https://link.springer.com/article/10.1007/s13353-013-0173-x).  
 
-The `RQdeltaCT` package includes `find_ref_gene()` function that can be used to select the best reference gene for normalisation. This function calculates descriptive statistics such as minimum, maximum, standard deviation, and variance, as well as more advanced parameters including the colinearity coefficient VIF (separately for each group) and stability scores calculated using the [NormFinder](https://www.moma.dk/software/normfinder) ([Article](https://aacrjournals.org/cancerres/article/64/15/5245/511517/Normalization-of-Real-Time-Quantitative-Reverse)) and [geNorm](https://genorm.cmgg.be/) ([Article](https://genomebiology.biomedcentral.com/articles/10.1186/gb-2002-3-7-research0034)) algorithms. Ct values are also presented on a line plot.  
+The `RQdeltaCT` package includes `find_ref_gene()` function that can be used to select the best reference gene for normalisation. This function calculates descriptive statistics such as minimum, maximum, standard deviation, and variance, as well as stability scores calculated using the [NormFinder](https://www.moma.dk/software/normfinder) ([Article](https://aacrjournals.org/cancerres/article/64/15/5245/511517/Normalization-of-Real-Time-Quantitative-Reverse)) and [geNorm](https://genorm.cmgg.be/) ([Article](https://genomebiology.biomedcentral.com/articles/10.1186/gb-2002-3-7-research0034)) algorithms. Ct values are also presented on a line plot.  
 
-The VIF colinearity coefficient is calculated using the `car::vif()` function running on multiple linear regression models with all genes as predictory variables and a random dummy response variable. NormFinder scores are computed using internal `RQdeltaCT::norm_finder()` function working on the code adapted from the original NormFinder code. For the geNorm score, the `geNorm()` function of the `ctrlGene` package is used.
-
-Due to different resistance to data properties, the `find_ref_gene()` function allows one to choose which of these algorithms should be done by setting the logical parameters: `vif.score`, `norm.finder.score`, and `genorm.score`. 
-
-* The VIF score is the most sensitive: it could be calculated for only two groups of samples, missing data could interfere eith the correlation results (e.g., warning "In cov2cor(v) : diag(.) had 0 or NA entries; non-finite result is doubtful" can appear), and in the case of perfect correlation between genes, the error "Error in vif.default(model) : there are aliased coefficients in the model" will be displayed and the process will stop (it could especially occur when a low number of samples is analysed). In such a situation, `vif.score` should be set to FALSE.
-* The NormFinder algorithm is calculated on data with missing values and more than three groups, but at least two samples must be in each group.
-* geNorm is free from the above limitations.
+NormFinder scores are computed using internal `RQdeltaCT::norm_finder()` function working on the code adapted from the original NormFinder code. To calculate NormFinder scores, at least two samples must be present in each group. For the geNorm score, the `geNorm()` function of the `ctrlGene` package is used. The `find_ref_gene()` function allows one to choose which of these algorithms should be done by setting the logical parameters: `norm.finder.score` and `genorm.score`.
 
 The created plot is displayed on the graphic device. The returned object is a list that contains two elements: an object with plot and a table with results. In the example below, six genes are tested for suitability to be a reference gene: 
 
 ```{r fig.dim=c(7.1,4), cache=FALSE}
-library(car)
 library(ctrlGene)
 # Remember that the number of colors in col parameter should be equal to the number of tested genes:
 ref <- find_ref_gene(data = data.CtF.ready,
@@ -389,15 +381,12 @@ ref <- find_ref_gene(data = data.CtF.ready,
                      col = c("#66c2a5", "#fc8d62","#6A6599", "#D62728", "#1F77B4", "black"),
                      angle = 60,
                      axis.text.size = 7,
-                     vif.score = TRUE,
                      norm.finder.score = TRUE,
                      genorm.score = TRUE)
 ref[[2]]
 ```
 
 Among tested genes, Gene8, Gene16, Gene17, and Gene18 seem to have the best characteristics to be a reference gene (they have low variance, high VIF values, and low NormFinder and geNorm scores).
-
-**NOTE:** Missing data can be present in the data, but it could generate a warning: "diag(.) had 0 or NA entries; non-finite result is doubtful" returned from the `vif()` function.  
 
 ---
 

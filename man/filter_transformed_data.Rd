@@ -12,19 +12,19 @@ filter_transformed_data(
 )
 }
 \arguments{
-\item{data}{object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.}
+\item{data}{Object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.}
 
-\item{remove.Gene}{character: vector with names of genes which should be removed from data.}
+\item{remove.Gene}{Character: vector with names of genes to remove from data.}
 
-\item{remove.Sample}{character: vector with names of samples which should be removed from data.}
+\item{remove.Sample}{Character: vector with names of samples to remove from data.}
 
-\item{remove.Group}{character: vector with names of groups which should be removed from data.}
+\item{remove.Group}{Character: vector with names of groups to remove from data.}
 }
 \value{
-Data.frame with filtered data.
+Data frame with filtered data.
 }
 \description{
-Filters transformed Ct data (2^(-Ct), delta Ct, and 2^(-dCt) data) according to the used filtering criteria (see parameters).
+This function filters transformed Ct data (2^-Ct, delta Ct, and 2^-dCt data) according to the used filtering criteria (see parameters).
 }
 \examples{
 library(tidyverse)

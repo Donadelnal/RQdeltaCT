@@ -18,46 +18,59 @@ read_Ct_long(
 )
 }
 \arguments{
-\item{path}{path to a .txt file with long-type table of Ct values. This table should contain at least  4 columns, with
-sample names, gene names, Ct values and group names (those columns will be imported by this function).
-Imported table could also contain a column with flag information, which could be optionally imported (see add.col.Flag and col.Flag parameters).}
+\item{path}{Path to a .txt file with long-type table with Ct values. This table must contain at least 4 columns, separately for
+sample names, gene names, Ct values and group names (these columns will be imported by this function).
+Imported table could also contain a column with a flag information,
+which could be optionally imported (see add.col.Flag and col.Flag parameters).}
 
-\item{sep}{character of a field separator in imported file.}
+\item{sep}{Character of a field separator in imported file.}
 
-\item{dec}{character used for decimal points in Ct values.}
+\item{dec}{Character used for decimal points in Ct values.}
 
-\item{skip}{integer: number of lines of the data file to skip before beginning to read data. Default to 0.}
+\item{skip}{Integer: number of lines of the data file to skip before beginning to read data. Default to 0.}
 
-\item{column.Sample}{integer: number of column with sample names.}
+\item{column.Sample}{Integer: number of column with sample names.}
 
-\item{column.Gene}{integer: number of column with gene names.}
+\item{column.Gene}{Integer: number of column with gene names.}
 
-\item{column.Ct}{integer: number of column with Ct values.}
+\item{column.Ct}{Integer: number of column with Ct values.}
 
-\item{column.Group}{integer: number of column with group names.}
+\item{column.Group}{Integer: number of column with group names.}
 
-\item{add.column.Flag}{logical: if data contains a column with flag information which should be also imported, this parameters should be set to TRUE. Default to FALSE.}
+\item{add.column.Flag}{Logical: if data contains a column with flag information which should also be imported,
+this parameter should be set to TRUE. Default to FALSE.}
 
-\item{column.Flag}{integer: number of column with flag information. Should be specified if add.col.Flag = TRUE.
-This column should contain a character-type values (ex. "Undetermined" and "OK"), however,
-other types of values are allowed (ex. numeric), but must be converted to character or factor after importing data (see examples).}
+\item{column.Flag}{Integer: number of column with flag information. Should be specified if add.col.Flag = TRUE.
+This column should contain a character-type values (e.g. "Undetermined" and "OK"), however,
+other types of values are allowed (e.g. numeric), but must be converted to character or factor
+after importing data (see examples).}
 }
 \value{
-Data.frame in long format ready to analysis.
+Data.frame in long format ready for analysis.
 }
 \description{
-Imports long-format table with Ct values.
+Imports a long-format table with Ct values.
 }
 \examples{
-path <- system.file("extdata", "data_Ct_long.txt", package = "RQdeltaCT")
+path <- system.file("extdata",
+                    "data_Ct_long.txt",
+                    package = "RQdeltaCT")
 
 library(tidyverse)
-data.Ct <- read_Ct_long(path = path, sep = "\t",dec = ".",skip = 0,
-                        add.column.Flag = TRUE, column.Sample = 1, column.Gene = 2,
-                        column.Ct = 5, column.Group = 9, column.Flag = 4)
+data.Ct <- read_Ct_long(path = path,
+                        sep = "\t",
+                        dec = ".",
+                        skip = 0,
+                        add.column.Flag = TRUE,
+                        column.Sample = 1,
+                        column.Gene = 2,
+                        column.Ct = 5,
+                        column.Group = 9,
+                        column.Flag = 4)
 str(data.Ct)
 
-data.Ct <- mutate(data.Ct, Flag = ifelse(Flag < 1, "Undetermined", "OK"))
+data.Ct <- mutate(data.Ct,
+                  Flag = ifelse(Flag < 1, "Undetermined", "OK"))
 str(data.Ct)
 
 }

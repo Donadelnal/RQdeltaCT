@@ -7,6 +7,7 @@
 corr_sample(
   data,
   sel.Sample = "all",
+  type = "upper",
   method = "pearson",
   add.coef = "black",
   order = "hclust",
@@ -24,46 +25,52 @@ corr_sample(
 )
 }
 \arguments{
-\item{data}{object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.}
+\item{data}{Object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.}
 
-\item{sel.Sample}{character vector with names of samples to include, or "all" (default) to use all samples.}
+\item{sel.Sample}{Character vector with names of samples to include, or "all" (default) to use all samples.}
 
-\item{method}{character: type of correlations to compute, specify "pearson" (default) for Pearson's correlation coefficients
+\item{type}{Character: type of displayed matrix, must be one of the 'full' (full matrix), 'upper' (upper triangular, default) or 'lower' (lower triangular).}
+
+\item{method}{Character: type of correlations to compute, can be "pearson" (default) for Pearson's correlation coefficients
 or "spearman" for Spearman's rank correlation coefficients.}
 
-\item{add.coef}{if coefficients should be add to the plot, specify color of coefficients (default to "black"), otherwise set to NULL.}
+\item{add.coef}{If correlation coefficients should be add to the plot, specify color of coefficients (default to "black").
+If NULL, correlation coefficients will not be printed.}
 
-\item{order}{character: method used for ordering the correlation matrix (see documentation for corrplot::corrplot() function),
-one of the "original" (original order), "AOE" (angular order of the eigenvectors),
-"FPC" (first principal component order), "hclust" (hierarchical clustering order, default), or "alphabet" (alphabetical order).}
+\item{order}{Character: method used for ordering the correlation matrix, inherited from corrplot::corrplot() function.
+Must be one of the "original" (original order), "AOE" (angular order of the eigenvectors), "FPC" (first principal component order),
+"hclust" (hierarchical clustering order, default), or "alphabet" (alphabetical order).}
 
-\item{hclust.method}{character: name of used method for hclust agglomeration, should be one of "ward", ward.D", "ward.D2", "single", "complete", "average" (default), "mcquitty", "median" or "centroid".}
+\item{hclust.method}{Character: name of method used for hclust agglomeration, must be one of "ward", ward.D",
+"ward.D2", "single", "complete", "average" (default), "mcquitty", "median" or "centroid".}
 
-\item{size}{numeric: size of variable names and numbers in legend. Default to 0.6.}
+\item{size}{Numeric: size of variable names and numbers in legend. Default to 0.6.}
 
-\item{coef.size}{numeric: size of correlation coefficients. Default to 0.6.}
+\item{coef.size}{Numeric: size of correlation coefficients. Default to 0.6.}
 
-\item{p.adjust.method}{character: p value correction method for multiple testing, one of "holm", "hochberg", "hommel", "bonferroni", "BH", "BY","fdr", or "none". See documentation for stats::p.adjust() function for details.}
+\item{p.adjust.method}{Character: p value correction method for multiple testing, one of the "holm", "hochberg", "hommel",
+"bonferroni", "BH" (default), "BY","fdr", or "none". See documentation for stats::p.adjust() function for details.}
 
-\item{save.to.tiff}{logical: if TRUE, plot will be saved as .tiff file. Default to FALSE.}
+\item{save.to.tiff}{Logical: if TRUE, plot will be saved as .tiff file. Default to FALSE.}
 
-\item{dpi}{integer: resolution of saved .tiff file. Default to 600.}
+\item{dpi}{Integer: resolution of saved .tiff file. Default to 600.}
 
-\item{width}{numeric: width (in cm) of saved .tiff file. Default to 15.}
+\item{width}{Numeric: width (in cm) of saved .tiff file. Default to 15.}
 
-\item{height}{integer: height (in cm) of saved .tiff file. Default to 15.}
+\item{height}{Numeric: height (in cm) of saved .tiff file. Default to 15.}
 
-\item{name.tiff}{character: name of saved .tiff file, without ".tiff" name of extension. Default to "corr_samples".}
+\item{name.tiff}{Character: name of saved .tiff file, without ".tiff" name of extension. Default to "corr_samples".}
 
-\item{save.to.txt}{logical: if TRUE, correlation results (sorted by descending absolute values of correlation coefficients) will be saved to .txt file. Default to FALSE.}
+\item{save.to.txt}{Logical: if TRUE, correlation results (sorted by absolute values of correlation coefficients in descending order)
+will be saved to .txt file. Default to FALSE.}
 
 \item{name.txt}{character: name of saved .txt file, without ".txt" name of extension.. Default to "corr_samples".}
 }
 \value{
-Plot illustrating correlation matrix (displayed in graphic device) and data.frame with computed correlation coefficients and p values.
+Plot illustrating correlation matrix (displayed on the graphic device) and data.frame with computed correlation coefficients and p values.
 }
 \description{
-Performs correlation analysis of samples based on the data. Could be useful to gain insight into relationships between analyzed samples.
+This function performs correlation analysis of samples based on the data. Results are useful to gain insight into relationships between analyzed samples.
 }
 \examples{
 library(tidyverse)

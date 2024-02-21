@@ -23,42 +23,42 @@ ROCh(
 )
 }
 \arguments{
-\item{data}{object returned from exp_Ct_dCt() or delta_Ct() functions.}
+\item{data}{Object returned from exp_Ct_dCt() or delta_Ct() functions.}
 
-\item{sel.Gene}{character vector with names of genes to include, or "all" (default) to use all names of genes.}
+\item{sel.Gene}{Character vector with names of genes to include, or "all" (default) to use all genes.}
 
-\item{groups}{character vector length of two with names of compared groups}
+\item{groups}{Character vector length of two with names of two compared groups.}
 
-\item{panels.row, panels.col}{integer: number of rows and columns to arrange panels with plots.}
+\item{panels.row, panels.col}{Integer: number of rows and columns to arrange panels with plots.}
 
-\item{text.size}{numeric: size of text on the plot. Default to 1.1.}
+\item{text.size}{Numeric: size of text on the plot. Default to 1.1.}
 
-\item{print.auc}{logical: if TRUE, AUC values will be added to the plot. Default to TRUE.}
+\item{print.auc}{Logical: if TRUE, AUC values with confidence interval will be added to the plot. Default to TRUE.}
 
-\item{print.auc.size}{numeric: size of AUC text on the plot. Default to 0.8.}
+\item{print.auc.size}{Numeric: size of AUC text on the plot. Default to 0.8.}
 
-\item{save.to.tiff}{logical: if TRUE, plot will be saved as .tiff file. Default to FALSE.}
+\item{save.to.tiff}{Logical: if TRUE, plot will be saved as .tiff file. Default to FALSE.}
 
-\item{dpi}{integer: resolution of saved .tiff file. Default to 600.}
+\item{dpi}{Integer: resolution of saved .tiff file. Default to 600.}
 
-\item{width}{numeric: width (in cm) of saved .tiff file. Default to 15.}
+\item{width}{Numeric: width (in cm) of saved .tiff file. Default to 15.}
 
-\item{height}{integer: height (in cm) of saved .tiff file. Default to 15.}
+\item{height}{Numeric: height (in cm) of saved .tiff file. Default to 15.}
 
-\item{name.tiff}{character: name of saved .tiff file, without ".tiff" name of extension. Default to "ROC_plot".}
+\item{name.tiff}{Character: name of saved .tiff file, without ".tiff" name of extension. Default to "ROC_plot".}
 
-\item{save.to.txt}{logical: if TRUE, returned table with results will be saved to .txt file. Default to FALSE.}
+\item{save.to.txt}{Logical: if TRUE, returned table with results will be saved to .txt file. Default to FALSE.}
 
-\item{name.txt}{character: name of saved .txt file, without ".txt" name of extension. Default to "ROC_results".}
+\item{name.txt}{Character: name of saved .txt file, without ".txt" name of extension. Default to "ROC_results".}
 }
 \value{
 Data frame with ROC parameters including AUC, threshold, specificity, sensitivity, accuracy,
 positive predictive value, negative predictive value, and Youden's J statistic.
-Plot with ROC curves could be saved to .tiff file (will not be displayed on the graphic device).
+Plot with ROC curves can be saved to .tiff file and opened from the working directory (will not be displayed on the graphic device).
 }
 \description{
-This function performs Receiver Operating Characteristic (ROC) analysis of samples of genes based on the expression data.
-This analysis could be useful to further examine performance of samples classification into groups using gene expression data.
+This function is designed to perform Receiver Operating Characteristic (ROC) analysis based on the gene expression data.
+This kind of analysis is useful to further examine performance of samples classification into two groups.
 }
 \examples{
 library(tidyverse)

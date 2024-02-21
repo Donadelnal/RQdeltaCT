@@ -15,29 +15,29 @@ filter_Ct(
 )
 }
 \arguments{
-\item{data}{object returned from read_Ct_long() or read_Ct_wide() function,
+\item{data}{Object returned from read_Ct_long() or read_Ct_wide() function,
 or data frame containing column named "Sample" with sample names, column named "Gene" with gene names,
 column named "Ct" with raw Ct values, column named "Group" with group names.
-Optionally, data frame could contain column named "Flag" with flag information (ex. "Undetermined" and "OK"),
+Optionally, data frame can contain column named "Flag" with flag information (e.g. "Undetermined" and "OK"),
 which will be used for filtering.}
 
-\item{flag.Ct}{character of a flag used for undetermined Ct values, default to "Undetermined".}
+\item{flag.Ct}{Character of a flag used for undetermined Ct values, default to "Undetermined".}
 
-\item{maxCt}{numeric, a maximum of Ct value allowed.}
+\item{maxCt}{Numeric, a maximum of Ct value allowed.}
 
-\item{flag}{character: flag used in Flag column for values which should be filtered out, default to "Undetermined".}
+\item{flag}{Character: flag used in Flag column for values which should be filtered out, default to "Undetermined".}
 
-\item{remove.Gene}{character: vector with names of genes which should be removed from data}
+\item{remove.Gene}{Character: vector with names of genes to remove from data}
 
-\item{remove.Sample}{character: vector with names of samples which should be removed from data}
+\item{remove.Sample}{Character: vector with names of samples to remove from data}
 
-\item{remove.Group}{character: vector with names of groups which should be removed from data}
+\item{remove.Group}{Character: vector with names of groups to remove from data}
 }
 \value{
-Data.frame with filtered data.
+Data frame with filtered data.
 }
 \description{
-Filters Ct data according to the used filtering criteria (see parameters).
+This function filters Ct data according to the used filtering criteria (see parameters).
 }
 \examples{
 library(tidyverse)

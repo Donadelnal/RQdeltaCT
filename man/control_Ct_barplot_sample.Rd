@@ -28,61 +28,62 @@ control_Ct_barplot_sample(
 )
 }
 \arguments{
-\item{data}{object returned from read_Ct_long() or read_Ct_wide() function,
+\item{data}{Object returned from read_Ct_long() or read_Ct_wide() function,
 or data frame containing column named "Sample" with sample names, column named "Gene" with gene names,
 column named "Ct" with raw Ct values, and column named "Group" with group names.
-Optionally, data frame could contain column named "Flag" with flag information (ex. "Undetermined" and "OK"), which will be used for reliability assessment.}
+Optionally, data frame could contain column named "Flag" with flag information
+(e.g. "Undetermined" and "OK"), which will be used for reliability assessment.}
 
-\item{flag.Ct}{character of a flag used for undetermined Ct values. Default to "Undetermined".}
+\item{flag.Ct}{Character of a flag used for undetermined Ct values. Default to "Undetermined".}
 
-\item{maxCt}{numeric, a maximum of Ct value allowed. Default to 35.}
+\item{maxCt}{Numeric, a maximum of Ct value allowed. Default to 35.}
 
-\item{flag}{character of a flag used in Flag column for values which are unreliable. Default to "Undetermined".}
+\item{flag}{Character of a flag used in the Flag column for values which are unreliable. Default to "Undetermined".}
 
-\item{colors}{character vector length of two, containing colors for Ct values which were labeled as reliable (first element of vector) or not (second element of vector).}
+\item{colors}{Character vector length of two, containing colors for Ct values that were labelled as reliable (first element of vector) or not (second element of vector).}
 
-\item{x.axis.title}{character: title of x axis. Default to "".}
+\item{x.axis.title}{Character: title of x axis. Default to "".}
 
-\item{y.axis.title}{character: title of y axis. Default to "Number".}
+\item{y.axis.title}{Character: title of y axis. Default to "Number".}
 
-\item{axis.title.size}{integer: font size of axis titles. Default to 12.}
+\item{axis.title.size}{Integer: font size of axis titles. Default to 11.}
 
-\item{axis.text.size}{integer: font size of axis text. Default to 10.}
+\item{axis.text.size}{Integer: font size of axis text. Default to 10.}
 
-\item{plot.title}{character: title of plot. Default to "".}
+\item{plot.title}{Character: title of plot. Default to "".}
 
-\item{plot.title.size}{integer: font size of plot title. Default to 14.}
+\item{plot.title.size}{Integer: font size of plot title. Default to 14.}
 
-\item{legend.title}{character: title of legend. Default to "Reliable Ct value?".}
+\item{legend.title}{Character: title of legend. Default to "Reliable Ct value?".}
 
-\item{legend.title.size}{integer: font size of legend title.  Default to 12.}
+\item{legend.title.size}{Integer: font size of legend title.  Default to 12.}
 
-\item{legend.text.size}{integer: font size of legend text. Default to 12.}
+\item{legend.text.size}{Integer: font size of legend text. Default to 11.}
 
-\item{legend.position}{position of the legend, one of "top" (default), "right", "bottom", "left", or "none" (no legend).
+\item{legend.position}{Position of the legend, can be set to "top" (default), "right", "bottom", "left", or "none" (no legend).
 See description for legend.position parameter in ggplot2::theme() function.}
 
-\item{save.to.tiff}{logical: if TRUE, plot will be saved as .tiff file.  Default to FALSE.}
+\item{save.to.tiff}{Logical: if TRUE, plot will be saved as .tiff file. Default to FALSE.}
 
-\item{dpi}{integer: resolution of saved .tiff file. Default to 600.}
+\item{dpi}{Integer: resolution of saved .tiff file. Default to 600.}
 
-\item{width}{numeric: width (in cm) of saved .tiff file. Default to 15.}
+\item{width}{Numeric: width (in cm) of saved .tiff file. Default to 15.}
 
-\item{height}{integer: height (in cm) of saved .tiff file. Default to 15.}
+\item{height}{Numeric: height (in cm) of saved .tiff file. Default to 15.}
 
-\item{name.tiff}{character: name of saved .tiff file, without ".tiff" name of extension. Default to "Ct_control_barplot_for_samples".}
+\item{name.tiff}{Character: name of saved .tiff file, without ".tiff" name of extension. Default to "Ct_control_barplot_for_samples".}
 }
 \value{
-List containing plot and table with numbers of reliable and not reliable Ct values in samples.
-Additional information about returned table is also printed, it could help user to properly interpret returned table.
-Plot will be displayed on graphic device.
+List containing plot and table with counts of reliable and no reliable Ct values in samples.
+Additional information about returned table is also printed to help the user to properly interpret returned table.
+Plot is also displayed on the graphic device.
 }
 \description{
-Sample-wide control of raw Ct values by illustrating numbers of Ct values labeled as reliable or not by using reliability criteria (see function parameters).
+Sample-wide quality control of raw Ct values by illustrating the numbers of Ct values labelled as reliable or not by using reliability criteria (see function parameters).
 }
 \details{
-This function does not perform data filtering, but only numbers Ct values labeled as reliable or not and presents them graphically.
-Results could be useful to identify samples with low number of reliable Ct values.
+This function labels Ct values as reliable or not using given reliability criteria, counts them, and presents them graphically.
+Results are useful to identify samples with low numbers of reliable Ct values. This function does not perform data filtering.
 }
 \examples{
 library(tidyverse)

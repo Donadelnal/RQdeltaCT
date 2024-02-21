@@ -12,20 +12,21 @@ norm_finder(
 )
 }
 \arguments{
-\item{data}{object returned from make_Ct_ready() functions.}
+\item{data}{Object returned from make_Ct_ready() functions.}
 
-\item{candidates}{character: vector of names of genes - candidates for reference gene.}
+\item{candidates}{Character: vector of names of genes - candidates for reference gene.}
 
-\item{save.to.txt}{logical: if TRUE, returned table with results will be saved to .txt file. Default to FALSE.}
+\item{save.to.txt}{Logical: if TRUE, returned table with results will be saved to .txt file. Default to FALSE.}
 
-\item{name.txt}{character: name of saved .txt file, without ".txt" name of extension. Default to "RQ_exp_results".}
+\item{name.txt}{Character: name of saved .txt file, without ".txt" name of extension. Default to "norm_finder_results".}
 }
 \value{
-Table with calculated stability scores, the lowest value the best candidate for reference gene.
+Table with calculated stability score; the lowest value the best candidate for reference gene.
 }
 \description{
-This function calculate stability scores using a code adapted from the [NormFinder algorithm](https://www.moma.dk/software/normfinder) published in [this article](https://aacrjournals.org/cancerres/article/64/15/5245/511517/Normalization-of-Real-Time-Quantitative-Reverse).
-This function is internally used by `RQdeltaCT::find_ref_gene()` function and do not need to be use separately.
+This function calculates stability scores using NormFinder algorithm (https://www.moma.dk/software/normfinder)
+published in https://aacrjournals.org/cancerres/article/64/15/5245/511517/Normalization-of-Real-Time-Quantitative-Reverse.
+This function is internally used by other RQdeltaCT package function, find_ref_gene(); therefore norm_finder() function does not need to be used separately.
 }
 \examples{
 library(tidyverse)

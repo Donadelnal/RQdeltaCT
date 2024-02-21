@@ -42,84 +42,83 @@ results_boxplot(
 )
 }
 \arguments{
-\item{data}{object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.}
+\item{data}{Object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.}
 
-\item{coef}{numeric: how many times of interquartile range should be used to indicate the most extend data point for whiskers. Default to 1.5.}
+\item{coef}{Numeric: how many times of interquartile range should be used to determine range point for whiskers. Default to 1.5.}
 
-\item{sel.Gene}{character vector with names of genes to include, or "all" (default) to use all names of genes.}
+\item{sel.Gene}{Character vector with names of genes to include, or "all" (default) to use all genes.}
 
-\item{by.group}{logical: if TRUE (default), distributions will be drawn by compared groups of samples.}
+\item{by.group}{Logical: if TRUE (default), distributions will be drawn by compared groups of samples.}
 
-\item{signif.show}{logical: if TRUE, labels for statistical significance will be added to the plot.}
+\item{signif.show}{Logical: if TRUE, labels for statistical significance will be added to the plot.}
 
-\item{signif.labels}{character vector with statistical significance labels (ex. "ns.","***", etc.) with number
-of elements equal to nimber of genes used for plotting.
-The ggsignif package was used for convenient adding labels, but there is one tricky point:
-the same elements of labels can not be handled by used package and must be different.
-It could be achieved by adding symmetrically white spaces to repeated labels, ex. "ns.", " ns. ", "  ns.  ".}
+\item{signif.labels}{Character vector with statistical significance labels (e.g. "ns.","***", etc.). The number
+of elements must be equal to the number of genes used for plotting. All elements in the vector must be different; therefore,
+symmetrically white spaces to repeated labels must be add to the same labels, e.g. "ns.", " ns. ", "  ns.  ".}
 
-\item{signif.length}{numeric: length of horizontal bars, values from 0 to 1.}
+\item{signif.length}{Numeric: length of horizontal bars under statistical significance labels, values from 0 to 1.}
 
-\item{signif.dist}{numeric: distance between errorbar and significance label.
-Could be in y axis units (if `faceting` = TRUE) or fraction of y axis value reached by errorbar (mean + sd value) (if `faceting` = TRUE).}
+\item{signif.dist}{Numeric: distance between errorbar and statistical significance labels.
+Can be in y axis units (if faceting = FALSE) or fraction of y axis value reached by errorbar (mean + sd value) (if faceting = TRUE).}
 
-\item{faceting}{logical: if TRUE (default), plot will be drawn with facets with free scales using ggplot2::facet_wrap() function (see its documentation for more details).}
+\item{faceting}{Logical: if TRUE (default), plot will be drawn with facets with free scales.}
 
-\item{facet.row, facet.col}{integer: number of rows and columns to arrange facets.}
+\item{facet.row, facet.col}{Integer: number of rows and columns to arrange facets.}
 
-\item{y.exp.low, y.exp.up}{numeric: space between data on the plot and lower or upper axis. Useful to add extra space for statistical significance labels when `faceting` = TRUE.}
+\item{y.exp.low, y.exp.up}{Numeric: space between data on the plot and lower and upper axis. Useful to add extra space for statistical significance labels when faceting = TRUE.}
 
-\item{angle}{integer: value of angle in which names of genes should be displayed. Default to 0.}
+\item{angle}{Integer: value of angle in which names of genes are displayed. Default to 0.}
 
-\item{rotate}{logical: if TRUE, boxplots will be arranged horizontally. Deafault to FALSE.}
+\item{rotate}{Logical: if TRUE, boxplots will be arranged horizontally. Default to FALSE.}
 
-\item{add.mean}{logical: if TRUE, means will be added to boxes as squares. Default to TRUE.}
+\item{add.mean}{Logical: if TRUE, mean points will be added to boxes as squares. Default to TRUE.}
 
-\item{add.mean.size}{numeric: size of squares indicating means. Default to 2.}
+\item{add.mean.size}{Numeric: size of squares indicating means. Default to 2.}
 
-\item{add.mean.color}{character: color of squares indicating means. Default to "black".}
+\item{add.mean.color}{Character: color of squares indicating means. Default to "black".}
 
-\item{colors}{character vector length of one (when by.group = FALSE) or more (when by.group = TRUE), containing colors for groups. Numbers of colors must be equal to number of groups. Default to c("#66c2a5", "#fc8d62").}
+\item{colors}{Character vector length of one (when by.group = FALSE) or more (when by.group = TRUE), containing colors for groups.
+The number of colors must be equal to the number of groups. Default to c("#66c2a5", "#fc8d62").}
 
-\item{x.axis.title}{character: title of x axis. Default to "Gene".}
+\item{x.axis.title}{Character: title of x axis. Default to "Gene".}
 
-\item{y.axis.title}{character: title of y axis. Default to "value".}
+\item{y.axis.title}{Character: title of y axis. Default to "value".}
 
-\item{axis.title.size}{integer: font size of axis titles. Default to 12.}
+\item{axis.title.size}{Integer: font size of axis titles. Default to 11.}
 
-\item{axis.text.size}{integer: font size of axis text. Default to 10.}
+\item{axis.text.size}{Integer: font size of axis text. Default to 10.}
 
-\item{legend.text.size}{integer: font size of legend text. Default to 12.}
+\item{legend.text.size}{Integer: font size of legend text. Default to 11.}
 
-\item{legend.title}{character: title of legend. Default to "Group".}
+\item{legend.title}{Character: title of legend. Default to "Group".}
 
-\item{legend.title.size}{integer: font size of legend title. Default to 12.}
+\item{legend.title.size}{Integer: font size of legend title. Default to 11.}
 
-\item{legend.position}{position of the legend, one of "top" (default), "right", "bottom", "left", or "none" (no legend).
+\item{legend.position}{Position of the legend, can be "top" (default), "right", "bottom", "left", or "none" (no legend).
 See description for legend.position in ggplot2::theme() function.}
 
-\item{plot.title}{character: title of plot. Default to "".}
+\item{plot.title}{Character: title of plot. Default to "".}
 
-\item{plot.title.size}{integer: font size of plot title. Default to 14.}
+\item{plot.title.size}{Integer: font size of plot title. Default to 14.}
 
-\item{save.to.tiff}{logical: if TRUE, plot will be saved as .tiff file. Default to FALSE.}
+\item{save.to.tiff}{Logical: if TRUE, plot will be saved as .tiff file. Default to FALSE.}
 
-\item{dpi}{integer: resolution of saved .tiff file. Default to 600.}
+\item{dpi}{Integer: resolution of saved .tiff file. Default to 600.}
 
-\item{width}{numeric: width (in cm) of saved .tiff file. Default to 15.}
+\item{width}{Numeric: width (in cm) of saved .tiff file. Default to 15.}
 
-\item{height}{integer: height (in cm) of saved .tiff file. Default to 15.}
+\item{height}{Numeric: height (in cm) of saved .tiff file. Default to 15.}
 
-\item{name.tiff}{character: name of saved .tiff file, without ".tiff" name of extension. Default to "results_boxplot".}
+\item{name.tiff}{Character: name of saved .tiff file, without ".tiff" name of extension. Default to "results_boxplot".}
 }
 \value{
-Object with boxplot illustrating distribution of data for selected genes. Created plot will be also displayed on graphic device.
+Object with plot. Created plot will be also displayed on the graphic device.
 }
 \description{
-This function creates boxplot illustrating distribution of data in selected genes.
-    It is similar to control_boxplot_gene() function; however, some new options are added,
-    including gene selection, faceting, and adding mean labels to boxes.
-    This, this function could be useful to present results for finally selected genes.
+This function creates boxplot that illustrate distribution of data for selected genes.
+It is similar to control_boxplot_gene() function; however, some new options are added,
+including gene selection, faceting, adding mean labels to boxes, and adding statistical significance labels.
+This function can be used to present results for finally selected genes.
 }
 \examples{
 library(ggsignif)

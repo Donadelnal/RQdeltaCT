@@ -30,57 +30,58 @@ control_pca_gene(
 )
 }
 \arguments{
-\item{data}{object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.}
+\item{data}{Object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.}
 
-\item{sel.Sample}{character vector with names of samples to include, or "all" (default) to use all samples.}
+\item{sel.Sample}{Character vector with names of samples to include, or "all" (default) to use all samples.}
 
-\item{point.size}{numeric: size of points. Default to 4.}
+\item{point.size}{Numeric: size of points. Default to 4.}
 
-\item{point.shape}{integer: shape of points. Default to 19.}
+\item{point.shape}{Integer: shape of points. Default to 19.}
 
-\item{alpha}{numeric: transparency of points, a value between 0 and 1. Default to 0.7.}
+\item{alpha}{Numeric: transparency of points, a value between 0 and 1. Default to 0.7.}
 
-\item{label.size}{numeric: size of points labels (names of samples). Default to 3.}
+\item{label.size}{Numeric: size of points labels (names of samples). Default to 3.}
 
-\item{hjust}{numeric: horizontal position of points labels. Default to 0.}
+\item{hjust}{Numeric: horizontal position of points labels. Default to 0.}
 
-\item{vjust}{numeric: vertical position of points labels.  Default to -1.}
+\item{vjust}{Numeric: vertical position of points labels. Default to -1.}
 
-\item{color}{character: color used for points.}
+\item{color}{Character: color used for points.}
 
-\item{axis.title.size}{integer: font size of axis titles. Default to 12.}
+\item{axis.title.size}{Integer: font size of axis titles. Default to 11.}
 
-\item{axis.text.size}{integer: font size of axis text. Default to 10.}
+\item{axis.text.size}{Integer: font size of axis text. Default to 10.}
 
-\item{legend.text.size}{integer: font size of legend text. Default to 12.}
+\item{legend.text.size}{Integer: font size of legend text. Default to 11.}
 
-\item{legend.title}{character: title of legend. Default to "Group".}
+\item{legend.title}{Character: title of legend. Default to "Group".}
 
-\item{legend.title.size}{integer: font size of legend title. Default to 12.}
+\item{legend.title.size}{Integer: font size of legend title. Default to 11.}
 
-\item{legend.position}{position of the legend, one of "top", "right" (default), "bottom", "left", or "none" (no legend).
+\item{legend.position}{Position of the legend, can be "top", "right" (default), "bottom", "left", or "none" (no legend).
 See description for legend.position parameter in ggplot2::theme() function.}
 
-\item{plot.title}{character: title of plot. Default to "".}
+\item{plot.title}{Character: title of plot. Default to "".}
 
-\item{plot.title.size}{integer: font size of plot title. Default to 14.}
+\item{plot.title.size}{Integer: font size of plot title. Default to 14.}
 
-\item{save.to.tiff}{logical: if TRUE, plot will be saved as .tiff file. Default to FALSE.}
+\item{save.to.tiff}{Logical: if TRUE, plot will be saved as .tiff file. Default to FALSE.}
 
-\item{dpi}{integer: resolution of saved .tiff file. Default to 600.}
+\item{dpi}{Integer: resolution of saved .tiff file. Default to 600.}
 
-\item{width}{numeric: width (in cm) of saved .tiff file. Default to 15.}
+\item{width}{Numeric: width (in cm) of saved .tiff file. Default to 15.}
 
-\item{height}{integer: height (in cm) of saved .tiff file. Default to 15.}
+\item{height}{Numeric: height (in cm) of saved .tiff file. Default to 15.}
 
 \item{name.tiff}{character: name of saved .tiff file, without ".tiff" name of extension. Default to "control_pca_genes".}
 }
 \value{
-Object with plot illustrating spatial arrangement of genes according to coordinates of 2 components obtained from principal component analysis (PCA). The plot will be also displayed in graphic device.
+Object with plot. The plot is also displayed on the graphic device.
 }
 \description{
-Performs principal component analysis (PCA) for genes and generate plot illustrating spatial arrangement of genes using 2 components. Could be useful to gain insight into similarity in expression of analyzed genes.
-IMPORTANT: PCA analysis can not deal with missing values, thus all genes with at least one missing value are removed from data before analysis. It is recommended to run this function on data after imputation of missing values.
+This function performs principal component analysis (PCA) for genes and generates plot illustrating spatial arrangement of genes using two first PCA components.
+This plot allows to gain insight into similarity in expression of analyzed genes. PCA analysis can not deal with missing values,
+thus all genes with at least one missing value are removed from data before analysis.
 }
 \examples{
 library(tidyverse)

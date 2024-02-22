@@ -15,7 +15,7 @@ A data frame with 1288 rows and 5 variables:
 }
 }
 \source{
-\url{Dataset is available in a package directory}
+Dataset is attached to the `RQdeltaCT` package and can be loaded using `data(data.Ct)` command.
 }
 \usage{
 data.Ct

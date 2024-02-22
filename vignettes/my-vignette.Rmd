@@ -34,6 +34,12 @@ There are three main delta Ct methods used for relative quantification. The choi
 
 Presented `RQdeltaCT` package includes functions that encompass all of these methods. The selection of a suitable method for analysis is up to the user.  
 
+To install `RQdeltaCT` package simply run:
+```{r eval=FALSE}
+remotes::install_github("Donadelnal/RQdeltaCT")
+```
+
+
 The functions developed within the `RQdeltaCT` package are designed to be maximally easy to use, even for the users who are beginners to R. The parameters of functions were prepared to sufficiently range all essential tasks and options, and no additional, extensive coding steps are necessary in standard workflow. The package was developed with the intention to provide an opportunity to perform relative quantification analysis of gene expression using `RQdeltaCT` package by non-experts in R programming (only a very basic skills are required).   
 
 ###### The summary of standard workflow, including function names and data flow  

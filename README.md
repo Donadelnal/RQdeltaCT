@@ -9,7 +9,7 @@ These methods have been designed to analyse gene expression data (Ct values) obt
 * present gene expression levels in linear form by using the 2^-(value) transformation,
 * calculate differences in gene expression levels between groups of samples (or technical replicates of a single sample).  
 
-The 'RQdeltaCT' package offers functions that encompass all of these steps, together with:
+The `RQdeltaCT` package offers functions that encompass all of these steps, together with:
 * importing qPCR datasets, 
 * performing multi-step quality control of data,
 * enabling numerous data visualisations,

@@ -10,5 +10,5 @@
 #'   \item{\code{Group}}{character COLUMN_DESCRIPTION}
 #'   \item{\code{Flag}}{character COLUMN_DESCRIPTION}
 #'}
-#' @source \url{Dataset is available in a package directory}
+#' @source Dataset is attached to the `RQdeltaCT` package and can be loaded using `data(data.Ct)` command.
 "data.Ct"

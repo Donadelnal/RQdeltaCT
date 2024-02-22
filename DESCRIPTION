@@ -1,6 +1,6 @@
 Package: RQdeltaCT
 Type: Package
-Title: Relative quantification of gene expression using delta Ct methods
+Title: Relative Quantification of Gene Expression using Delta Ct Methods
 Version: 1.0.0
 Author: Daniel Zalewski <daniel.piotr.zalewski@gmail.com>
 Maintainer: Daniel Zalewski <daniel.piotr.zalewski@gmail.com>

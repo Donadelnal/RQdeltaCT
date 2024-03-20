@@ -9,7 +9,7 @@ delta_Ct(data, ref, save.to.txt = FALSE, name.txt = "data_dCt")
 \arguments{
 \item{data}{Data object returned from make_Ct_ready function,}
 
-\item{ref}{Character: name of reference gene.}
+\item{ref}{Character vector with name of one or more reference genes.}
 
 \item{save.to.txt}{Logical: if TRUE, returned data will be saved to .txt file. Default to FALSE.}
 
@@ -19,7 +19,7 @@ delta_Ct(data, ref, save.to.txt = FALSE, name.txt = "data_dCt")
 Data frame with dCt values.
 }
 \description{
-This function calculates delta Ct (dCt) values by subtracting Ct values of reference gene from Ct values of remaining genes.
+This function calculates delta Ct (dCt) values by subtracting Ct values of reference gene or genes from Ct values of remaining genes.
 }
 \examples{
 library(tidyverse)

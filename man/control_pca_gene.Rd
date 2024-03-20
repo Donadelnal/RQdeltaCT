@@ -7,11 +7,12 @@
 control_pca_gene(
   data,
   sel.Sample = "all",
+  pairwise.FCh = FALSE,
   point.size = 4,
   point.shape = 19,
   alpha = 0.7,
   label.size = 3,
-  hjust = 0,
+  hjust = 0.5,
   vjust = -1,
   color = "black",
   axis.title.size = 11,
@@ -30,9 +31,14 @@ control_pca_gene(
 )
 }
 \arguments{
-\item{data}{Object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.}
+\item{data}{Object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.
+Also, table with fold change values returned from RQ_exp_Ct_dCt() and RQ_ddCt() functions can be used,
+but in such situation a pairwise.FCh parameter must be set to TRUE.}
 
 \item{sel.Sample}{Character vector with names of samples to include, or "all" (default) to use all samples.}
+
+\item{pairwise.FCh}{Logical: If fold change values returned from RQ_exp_Ct_dCt() and RQ_ddCt() functions
+in a pairwise approach are used as data, this parameter should be set to TRUE, otherwise to FALSE (default).}
 
 \item{point.size}{Numeric: size of points. Default to 4.}
 

@@ -7,6 +7,7 @@
 control_boxplot_sample(
   data,
   sel.Sample = "all",
+  pairwise.FCh = FALSE,
   coef = 1.5,
   colors = c("#66c2a5", "#fc8d62"),
   x.axis.title = "Sample",
@@ -31,9 +32,13 @@ control_boxplot_sample(
 
 \item{sel.Sample}{Character vector with names of samples to include, or "all" (default) to use all samples.}
 
+\item{pairwise.FCh}{Logical: If fold change values returned from RQ_exp_Ct_dCt() and RQ_ddCt() functions
+in a pairwise approach are used as data, this parameter should be set to TRUE, otherwise to FALSE (default).}
+
 \item{coef}{Numeric: how many times of interquartile range should be used to determine range point for whiskers. Default to 1.5.}
 
-\item{colors}{Character vector containing colors for compared groups. Numbers of colors must be equal to number of groups. Default to c("#66c2a5", "#fc8d62").}
+\item{colors}{Character vector containing colors for compared groups. Numbers of colors must be equal to number of groups. Default to c("#66c2a5", "#fc8d62").
+If pairwise.FCh parameter is set to TRUE, one color is required (data contain no groups).}
 
 \item{x.axis.title}{Character: title of x axis. Default to "Sample".}
 

@@ -9,7 +9,9 @@ RQ_exp_Ct_dCt(
   group.study,
   group.ref,
   do.tests = TRUE,
+  pairwise = FALSE,
   alternative = "two.sided",
+  p.adjust.method = "BH",
   save.to.txt = FALSE,
   name.txt = "RQ_exp_results"
 )
@@ -23,14 +25,20 @@ RQ_exp_Ct_dCt(
 
 \item{do.tests}{Logical: if TRUE, statistical significance of differences between compared groups will be calculated using Student's t test and Mann-Whitney U test. Default to TRUE.}
 
+\item{pairwise}{Logical: if TRUE, a pairwise analysis will be performed (see details). Default to FALSE.}
+
 \item{alternative}{Character: alternative hypothesis, must be one of "two.sided" (default), "greater" or "less".}
+
+\item{p.adjust.method}{Character: p value correction method for multiple testing, one of the "holm", "hochberg", "hommel",
+"bonferroni", "BH" (default), "BY","fdr", or "none". See documentation for stats::p.adjust() function for details.}
 
 \item{save.to.txt}{Logical: if TRUE, returned table with results will be saved to .txt file. Default to FALSE.}
 
 \item{name.txt}{Character: name of saved .txt file, without ".txt" name of extension. Default to "RQ_exp_results".}
 }
 \value{
-Data frame with results.
+Data frame with results (if pairwise = FALSE) or, if pairwise = TRUE, the list object
+with two elements: a table with the results and the second table with fold change values calculated individually for each sample.
 }
 \description{
 This function performs relative quantification of gene expression using 2^-Ct and 2^-dCt methods.

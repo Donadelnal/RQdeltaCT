@@ -18,7 +18,7 @@ read_Ct_long(
 )
 }
 \arguments{
-\item{path}{Path to a .txt file with long-type table with Ct values. This table must contain at least 4 columns, separately for
+\item{path}{Path to a .txt or csv. file with long-type table with Ct values. This table must contain at least 4 columns, separately for
 sample names, gene names, Ct values and group names (these columns will be imported by this function).
 Imported table could also contain a column with a flag information,
 which could be optionally imported (see add.col.Flag and col.Flag parameters).}

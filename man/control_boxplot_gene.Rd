@@ -7,6 +7,7 @@
 control_boxplot_gene(
   data,
   sel.Gene = "all",
+  pairwise.FCh = FALSE,
   coef = 1.5,
   by.group = TRUE,
   colors = c("#66c2a5", "#fc8d62"),
@@ -31,6 +32,9 @@ control_boxplot_gene(
 \item{data}{Object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.}
 
 \item{sel.Gene}{Character vector with names of genes to include, or "all" (default) to use all genes.}
+
+\item{pairwise.FCh}{Logical: If fold change values returned from RQ_exp_Ct_dCt() and RQ_ddCt() functions
+in a pairwise approach are used as data, this parameter should be set to TRUE, otherwise to FALSE (default).}
 
 \item{coef}{Numeric: how many times of interquartile range should be used to determine range point for whiskers. Default to 1.5.}
 

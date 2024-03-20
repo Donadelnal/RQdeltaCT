@@ -9,6 +9,7 @@ log_reg(
   sel.Gene = "all",
   group.study,
   group.ref,
+  increment,
   centerline = 1,
   ci = 0.95,
   log.axis = FALSE,
@@ -40,12 +41,17 @@ log_reg(
 
 \item{group.ref}{Character: name of reference group.}
 
-\item{centerline}{Numeric: position of vertical centerline on the plot, if logaxis = TRUE, centerline should be set to 0, otherwise to 1 (default).}
+\item{increment}{Numeric or "mean": the change of expression for which odds ratio values are calculated.
+If increment = 1, odds ratio values regards for a one-unit increase in gene expression
+(more suitable where data are not transformed using 2^-value formula). If increment = "mean", odds ratio values are
+calculated for the situation where gene expression increases by mean of gene expression levels in all samples
+(more suitable where data were transformed using 2^-value formula).}
+
+\item{centerline}{Numeric: position of vertical centerline on the plot. Default to 1.}
 
 \item{ci}{Numeric: confidence level used for computation of confidence interval. Default to 0.95.}
 
-\item{log.axis}{Logical: if TRUE, axis with odds ratio values will be in log10 scale.
-If axis is in logarithmic scale, centerline parameter should be set to 0. Default to FALSE.}
+\item{log.axis}{Logical: if TRUE, axis with odds ratio values will be in log10 scale. Default to FALSE.}
 
 \item{x.axis.title}{Character: title of x axis. Default to "Gene".}
 
@@ -101,6 +107,7 @@ data.dCt <- delta_Ct(data.CtF.ready,
 log.reg.results <- log_reg(data.dCt,
                            sel.Gene = c("Gene1","Gene16","Gene19","Gene20"),
                            group.study = "Disease",
-                           group.ref = "Control")
+                           group.ref = "Control",
+                           increment = 1)
 
 }

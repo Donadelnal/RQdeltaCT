@@ -9,7 +9,9 @@ RQ_ddCt(
   group.study,
   group.ref,
   do.tests = TRUE,
+  pairwise = FALSE,
   alternative = "two.sided",
+  p.adjust.method = "BH",
   save.to.txt = FALSE,
   name.txt = "ddCt_RQ_results"
 )
@@ -24,7 +26,12 @@ RQ_ddCt(
 \item{do.tests}{Logical: if TRUE, statistical significance of delta delta Ct values between compared groups
 is calculated using Student's t test and Mann-Whitney U test. Default to TRUE.}
 
+\item{pairwise}{Logical: set to TRUE if a pairwise analysis should be done.}
+
 \item{alternative}{Character: alternative hypothesis, must be one of "two.sided" (default), "greater" or "less".}
+
+\item{p.adjust.method}{Character: p value correction method for multiple testing, one of the "holm", "hochberg", "hommel",
+"bonferroni", "BH" (default), "BY","fdr", or "none". See documentation for stats::p.adjust() function for details.}
 
 \item{save.to.txt}{Logical: if TRUE, returned table with results is saved to .txt file. Default to FALSE.}
 

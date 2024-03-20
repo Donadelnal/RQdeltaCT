@@ -9,19 +9,21 @@ RQ_plot(
   use.p = TRUE,
   mode,
   p.threshold = 0.05,
-  use.log10FCh = FALSE,
-  log10FCh.threshold = 0,
+  use.FCh = FALSE,
+  FCh.threshold = 2,
+  use.sd = FALSE,
   sel.Gene = "all",
   bar.width = 0.8,
-  signif.show = TRUE,
+  signif.show = FALSE,
   signif.labels,
   signif.length = 0.2,
-  signif.dist = 0.1,
+  signif.dist = 0.5,
   y.exp.low = 0.1,
   y.exp.up = 0.1,
   angle = 0,
   rotate = FALSE,
   colors = c("#66c2a5", "#fc8d62"),
+  border.color = "black",
   x.axis.title = "",
   y.axis.title = "log10(Fold change)",
   axis.title.size = 11,
@@ -44,19 +46,26 @@ RQ_plot(
 
 \item{use.p}{Logical: if TRUE, p value threshold will be used to label gene as significant.}
 
-\item{mode}{Character: which p value should be used? One of the "t" (p values from Student's t test),
-"mw" (p values from Mann-Whitney U test), "depends" (if data in both compared groups were
-considered as derived from normal distribution (p value from Shapiro_Wilk test > 0.05) - p
-values from Student's t test will be used for significance assignment, otherwise p values from Mann-Whitney U test will be used), and "user" that can be used
+\item{mode}{Character: which p value should be used? One of the "t" (p values from Student's t test), "t.adj" (adjusted p values from Student's t test),
+"mw" (p values from Mann-Whitney U test),"mw.adj" (adjusted p values from Mann-Whitney U test),
+"depends" (if data in both compared groups were considered as derived from normal distribution
+(p value from Shapiro_Wilk test > 0.05) - p values from Student's t test will be used for significance assignment,
+otherwise p values from Mann-Whitney U test will be used), "depends.adj"
+(if data in both compared groups were considered as derived from normal distribution
+(p value from Shapiro_Wilk test > 0.05) - adjusted p values from Student's t test will be used for significance assignment,
+otherwise adjusted p values from Mann-Whitney U test will be used), and "user" that can be used
 the user intend to use another p values, e.g. obtained from other statistical test. In such situation, before run RQ_plot function, the user should prepare
 data frame object named "user" that contains two columns, the first of them with Gene names and the second with p values.
 The order of columns must be kept as described.}
 
-\item{p.threshold}{Numeric: threshold of p values for statistical significance.}
+\item{p.threshold}{Numeric: threshold of p values for statistical significance. Default to 0.05.}
 
-\item{use.log10FCh}{Logical: if TRUE, the criterion of fold change will be also used for significance assignment of genes.}
+\item{use.FCh}{Logical: if TRUE, the criterion of fold change will be also used for significance assignment of genes.}
 
-\item{log10FCh.threshold}{Numeric: threshold of log10 fold change values used for significance assignment of genes.}
+\item{FCh.threshold}{Numeric: threshold of fold change values used for significance assignment of genes.
+If is set to 2 (default), genes with 2-fold changed expression (increased or decreased) between groups will be assigned as significant.}
+
+\item{use.sd}{Logical: if TRUE, errorbars with standard deviations will be added to the plot.}
 
 \item{sel.Gene}{Character vector with names of genes to include, or "all" (default) to use all names of genes.}
 
@@ -70,8 +79,7 @@ symmetrically white spaces to repeated labels must be add to the same labels, e.
 
 \item{signif.length}{Numeric: length of horizontal bars under statistical significance labels, values from 0 to 1.}
 
-\item{signif.dist}{Numeric: distance between errorbar and statistical significance labels.
-Can be in y axis units (if faceting = FALSE) or fraction of y axis value reached by errorbar (mean + sd value) (if faceting = TRUE).}
+\item{signif.dist}{Numeric: distance between errorbar and statistical significance labels.}
 
 \item{y.exp.low, y.exp.up}{Numeric: space between data on the plot and lower or upper axis. Useful to add extra space for statistical significance labels when faceting = TRUE.}
 
@@ -80,6 +88,8 @@ Can be in y axis units (if faceting = FALSE) or fraction of y axis value reached
 \item{rotate}{Logical: if TRUE, bars will be arranged horizontally. Deafault to FALSE.}
 
 \item{colors}{Character vector length of one (when use.p = FALSE) or two (when use.p = TRUE), containing colors for significant and no significant genes.}
+
+\item{border.color}{Character: color for borders of bars.}
 
 \item{x.axis.title}{Character: title of x axis. Default to "Gene".}
 
@@ -147,8 +157,8 @@ signif.labels <- c("****",
                    "***")
 RQ.plot <- RQ_plot(RQ.ddCt,
                    mode = "depends",
-                   use.log10FCh = TRUE,
-                   log10FCh.threshold = 0.30103,
+                   use.FCh = TRUE,
+                   FCh.threshold = 2.5,
                    signif.labels = signif.labels,
                    angle = 30)
 head(RQ.plot[[2]])
@@ -161,8 +171,8 @@ pivot_longer(cols = -c(Group, Sample), names_to = "Gene", values_to = "dCt") \%>
 
 RQ.plot <- RQ_plot(RQ.ddCt,
                    mode = "user",
-                   use.log10FCh = TRUE,
-                   log10FCh.threshold = 0.30103,
+                   use.FCh = TRUE,
+                   FCh.threshold = 2,
                    signif.labels = signif.labels,
                    angle = 30)
 head(RQ.plot[[2]])

@@ -2,7 +2,7 @@
 title: "RQdeltaCT - relative quantification of gene expression using delta Ct methods"
 output: rmarkdown::html_vignette
 author: "Daniel Zalewski daniel.piotr.zalewski@gmail.com"
-date: "19 February 2024"
+date: "28 February 2024"
 vignette: >
   %\VignetteIndexEntry{RQdeltaCT - relative quantification of gene expression using delta Ct methods}
   %\VignetteEngine{knitr::rmarkdown}
@@ -19,7 +19,73 @@ knitr::opts_chunk$set(
 )
 ```
 
-## Introduction
+## Table of contents
+
+* [**Introduction**]
+  + [The summary of standard workflow]
+* [**Data import**]
+  + [Reading long-format data using the `read_Ct_long()` function]
+  + [Reading wide-format data using the `read_Ct_wide()` function]
+  + [Other methods]
+  
+* [**Part A: The workflow for analysis of independent groups of samples**]
+
+* [Quality control of raw Ct data]
+* [Filtering of raw Ct data]
+* [Collapsing technical replicates and imputation of missing data - `make_Ct_ready()` function]
+* [Relative quantification: 2^-Ct^ method]
+* [Reference gene selection]
+* [Relative quantification: 2^-dCt^ method]
+* [Relative quantification: 2^-ddCt^ method]
+* [Quality control and filtering of transformed Ct data]
+  + [Analysis of data distribution]
+  + [Hierarchical clustering]
+  + [PCA analysis]
+  + [Data filtering after quality control]
+* [Final visualisations]
+  + [The `RQ_plot()` function]
+  + [The `RQ_volcano()` function]
+  + [The `results_boxplot()` function]
+  + [The `results_barplot()` function]
+  + [The `results_heatmap()` function]
+* [Further analyses]
+  + [PCA and k means clustering]
+  + [Correlation analysis]
+  + [Simple linear regression analysis]
+  + [Receiver Operating Characteristic (ROC) analysis]
+  + [Simple logistic regression]
+
+* [**Part B: A pairwise analysis**]
+
+* [Quality control of raw Ct data (a pairwise approach)]
+* [Filtering of raw Ct data (a pairwise approach)]
+* [Collapsing technical replicates and imputation of missing data - `make_Ct_ready()` function (a pairwise approach)]
+* [Relative quantification: 2^-Ct^ method (a pairwise approach)]
+* [Reference gene selection (a pairwise approach)]
+* [Relative quantification: 2^-dCt^ method (a pairwise approach)]
+* [Relative quantification: 2^-ddCt^ method (a pairwise approach)]
+* [Quality control and filtering of transformed Ct data (a pairwise approach)]
+  + [Analysis of data distribution (a pairwise approach)]
+  + [Hierarchical clustering (a pairwise approach)]
+  + [PCA analysis (a pairwise approach)]
+  + [Data filtering after quality control (a pairwise approach)]
+* [Final visualisations (a pairwise approach)]
+  + [The `RQ_plot()` function (a pairwise approach)]
+  + [The `RQ_volcano()` function (a pairwise approach)]
+  + [The `results_boxplot()` function (a pairwise approach)]
+  + [The `results_barplot()` function (a pairwise approach)]
+  + [The `results_heatmap()` function (a pairwise approach)]
+  + [The `parallel_plot()` function (a pairwise approach)]
+* [Further analyses (a pairwise approach)]
+  + [PCA and k means clustering (a pairwise approach)]
+  + [Correlation analysis (a pairwise approach)]
+  + [Simple linear regression analysis (a pairwise approach)]
+  + [Receiver Operating Characteristic (ROC) analysis (a pairwise approach)]
+  + [Simple logistic regression (a pairwise approach)]
+
+* [**Session info**]
+
+## **Introduction**
 `RQdeltaCT` is an R package developed to perform relative quantification of gene expression using delta Ct methods, proposed by Kenneth J. Livak and Thomas D. Schmittgen in [Article1](https://www.sciencedirect.com/science/article/pii/S1046202301912629?via%3Dihub) and [Article2](https://www.nature.com/articles/nprot.2008.73).
 
 These methods were designed to analyse gene expression data (Ct values) obtained from real-time PCR experiments. The main idea is to normalise gene expression values using endogenous control gene, present gene expression levels in linear form by using the 2^-(value)^ transformation, and calculate differences in gene expression levels between groups of samples (or technical replicates of a single sample).
@@ -32,17 +98,20 @@ There are three main delta Ct methods used for relative quantification. The choi
 
 3. 2^-ddCt^ method. Similarly to the 2^-dCt^ method, Ct values are normalised by endogenous control gene, but the obtained delta Ct (dCt) values are not exponentially transformed, but summarised by means in the compared study groups, and the mean dCt in a control group is subtracted from the mean dCt in a study group, giving the delta delta Ct (ddCt) value. Subsequently, the ddCt values are transformed using the 2^-ddCt^ formula to obtain the fold change value (also called the RQ value). This method is useful where a compared groups contain rather technical than biological replicates, e.g. where samples of cell line before adding stimulant are compared to samples of the same cell line after stimulation. See examples no. 1 and 2 in [Article2](https://www.nature.com/articles/nprot.2008.73).  
 
-Presented `RQdeltaCT` package includes functions that encompass all of these methods. The selection of a suitable method for analysis is up to the user.  
+**Presented `RQdeltaCT` package includes functions that encompass all of these methods for comparison of independent groups of samples (implementation of the pairwise analysis is scheduled to be available with forthcoming updates). The selection of a suitable method for analysis is up to the user.**  
 
-To install `RQdeltaCT` package simply run:
+---
+
+To install and load `RQdeltaCT` package simply run:
 ```{r eval=FALSE}
 remotes::install_github("Donadelnal/RQdeltaCT")
+library(RQdeltaCT)
 ```
 
 
-The functions developed within the `RQdeltaCT` package are designed to be maximally easy to use, even for the users who are beginners to R. The parameters of functions were prepared to sufficiently range all essential tasks and options, and no additional, extensive coding steps are necessary in standard workflow. The package was developed with the intention to provide an opportunity to perform relative quantification analysis of gene expression using `RQdeltaCT` package by non-experts in R programming (only a very basic skills are required).   
+The functions developed within the `RQdeltaCT` package are designed to be maximally easy to use, even for the users who are beginners to R. The parameters of functions were prepared to sufficiently range all essential tasks and options, and no additional, extensive coding steps are necessary in standard workflow. The package was developed with the intention to be user-friendly and provide an opportunity to perform relative quantification analysis of gene expression using `RQdeltaCT` package by non-experts in R programming (only a very basic programming skills are required).   
 
-###### The summary of standard workflow, including function names and data flow  
+###### The summary of standard workflow
 
 ```{r echo=FALSE, out.width="650px", dpi = 600, fig.align="center", warning=FALSE, message=FALSE, cache=FALSE}
 knitr::include_graphics("figure1ok.png")
@@ -58,7 +127,8 @@ The entire standard workflow of analysis performed using the `RQdeltaCT` package
 * `corrplot` - used to visualise results of correlation analysis (`corrplot()` function),
 * `ggpmisc` - used to add linear regression results to the plot (`stat_poly_eq()` function),
 * `pROC` - used to perform analysis (`roc()` function),
-* `oddsratio` - used to compute odds ratio values (`or_glm()` function).  
+* `oddsratio` - used to compute odds ratio values (`or_glm()` function),
+* `GGally` - used to illustrate a pairwise changes in gene expression (`ggparcoord()` function). 
 
 All plots created by functions of the `RQdeltaCT` package can be saved as a .tiff files in the working directory (if `save.to.tiff` parameter is set to TRUE). Image resolution, dimensions, and name can be specified by the user. Also, all generated tables can be saved as .txt files (if `save.to.txt` parameter is set to TRUE) with name specified by the user.
 
@@ -66,18 +136,18 @@ This vignette includes instructions and examples of usage of main parameters of 
 
 ---
 
-## Data import
+## **Data import**
 Data analysed with the `RQdeltaCT` package should be in tabular form and contain the following information: group names, sample names, gene names, and Ct values. Flag information can also be included for data filtering purposes. Any other information could exist in the data (user do not have to remove them), but will not be used for analysis.
 
 Files with such tables typically can be exported from software coupled with PCR devices and used to analyse raw data files generated during real-time PCR experiments. Such files are also returned by external software, such as [SDS](https://www.thermofisher.com/de/de/home/technical-resources/software-downloads/applied-biosystems-7900ht-fast-real-timespcr-system.html), or even R packages, e.g. [qpcR](https://academic.oup.com/bioinformatics/article/24/13/1549/238435)   
 
-For user convenience, the `RQdeltaCT` package provides two functions useful to import tables in .txt format:
+For user convenience, the `RQdeltaCT` package provides two functions useful to import tables in .txt or csv. format:
 * `read_Ct_long()` - to import tables with long-format structure (each information in columns),
 * `read_Ct_wide()` - to import tables with wide-format structure (samples by columns, genes by rows).  
 
 **NOTE:** Imported tables must be free of empty lines.  
 
-#### 1. Reading long-format data using the `read_Ct_long()` function.
+#### Reading long-format data using the `read_Ct_long()` function
 
 Example of a long-format table with a structure suitable for the `read_Ct_long()` function:
 
@@ -129,7 +199,7 @@ str(data.Ct)
 
 In this transformation, all AmpScore values in the Flag column that are below 1 were changed to "Undetermined", otherwise to "OK". The Flag variable now is character, as required, and the data are ready for further steps of analysis.
 
-#### 2. Reading wide-format data using the `read_Ct_wide()` function.
+#### Reading wide-format data using the `read_Ct_wide()` function
 
 The `read_Ct_wide()` function was designed to import data with gene expression results in the form of a wide-format table (with sample names in the first row and gene names in the first column). Because such a structure does not include names of groups, an additional file is required, containing group names and assigned samples. This second file must contain two columns: column named "Sample" with the names of the samples and column named "Group" with the names of the groups assigned to the samples. The names of the samples in this file must be the same as the names of the columns in the file with Ct values (the order does not have to be kept).
 
@@ -177,7 +247,7 @@ str(data.Ct)
 
 The table imported from the package data object can be directly subjected to further steps of analysis. 
 
----
+#### Other methods
 
 It also can be a situation, in which an imported wide-format table has samples by rows and genes by columns. There is no need to develop separate function to import file with such a table, we can do:
 
@@ -203,14 +273,23 @@ str(data.Ct)
 
 ---
 
-For package testing purposes, there is also a convenient possibility to use the data object included in the `RQdeltaCT` package, named `data.Ct`:
+For package testing purposes, there is also a convenient possibility to use the data objects included in the `RQdeltaCT` package, named `data.Ct` (the data with independent groups of samples) and `data.Ct.pairwise` (with dependent groups of samples, can be used for a pairwise analysis):
 
 ```{r cache=FALSE}
 data(data.Ct)
 str(data.Ct)
+
+data(data.Ct.pairwise)
+str(data.Ct.pairwise)
 ```
 
+The `data.Ct.pairwise` data are a part of the `data.Ct` data, with a structure transformed to fit a pairwise analysis: the number of samples in the study group (named "Before") has been equated with the number of the reference group (named "After"). This data are used in this vignette to demonstrate a pairwise approach to the relative quantification of gene expression. 
+
 ---
+
+# **Part A: The workflow for analysis of independent groups of samples**
+
+The `RQdeltaCT` package allows to perform analysis in two variants: a comparison of independent groups of samples and a pairwise comparison of dependent groups of samples. Independent groups contain different samples without inter-group relations. The example of such analysis is the comparison of patients with disease vs. healthy controls. In the pairwise approach, the groups contain either the same set of subjects or different, but paired subjects. The example of pairwise analysis is the comparison between the same patients before and after medical intervention. This part of the vignette contains instruction for analysis of independent groups, for the pairwise variant of the workflow refer to [Part B: A pairwise analysis]. 
 
 ## Quality control of raw Ct data
 
@@ -250,8 +329,7 @@ gene.Ct.control <- control_Ct_barplot_gene(data = data.Ct,
                                                legend.text.size = 9)
 ```
 
-
-Created plots are displayed on the graphic device, and short information about the returned tables appears. Returned objects are lists that contain two elements: an object with plot and a table with numbers of Ct values labelled as reliable (Yes) and unreliable (No), as well as fraction of unreliable Ct values in each gene. To easily identify low quality samples or genes, tables are sorted by descending numbers of unreliable values. To access returned tables, the second element of returned objects should be called:
+Created plots are displayed on the graphic device, and short information about the returned tables appears. Returned objects are lists that contain two elements: an object with plot and a table with numbers of Ct values labelled as reliable (Yes) and unreliable (No), as well as fraction of unreliable Ct values in each gene. To easily identify samples or genes with high number of unreliable values, tables are sorted to show them at the top. To access returned tables, the second element of returned objects should be called:
 
 ```{r cache=FALSE}
 head(sample.Ct.control[[2]])
@@ -265,7 +343,6 @@ Visual inspection of returned plots and obtained tables gives a clear image of d
 
 Regarding genes, Gene6 and Gene8 were investigated in duplicates, other genes have single Ct values. Furthermore, Gene6 was analysed only in the Control group and has all values labeled as unreliable; therefore, it is obvious that this gene should be excluded from the analysis. Some other genes also have many unreliable Ct values (e.g. Gene2, Gene9) and maybe should be considered to be removed from the data.  
 
-
 In some situations, a unified fraction of unreliable data need to be established and used to make decision which samples or genes should be excluded from the analysis. It can be done using the following code, in which the second element of object returned by the `control_Ct_barplot_sample()` and `control_Ct_barplot_gene()` functions can be used directly, and a vector with samples or genes for which the fraction of unreliable Ct values is higher than a specified threshold is received: 
 
 ```{r cache=FALSE}
@@ -273,10 +350,12 @@ In some situations, a unified fraction of unreliable data need to be established
 low.quality.samples <- filter(sample.Ct.control[[2]], Not.reliable.fraction > 0.5)$Sample
 low.quality.samples <- as.vector(low.quality.samples)                        
 low.quality.samples
+```
 
+```{r}
 # Finding genes with more than half of the unreliable Ct values in given group.
-low.quality.genes <- filter(gene.Ct.control[[2]], Not.reliable.fraction > 0.5 & Group == "Disease")$Gene
-low.quality.genes <- as.vector(low.quality.genes)                        
+low.quality.genes <- filter(gene.Ct.control[[2]], Not.reliable.fraction > 0.5)$Gene
+low.quality.genes <- unique(as.vector(low.quality.genes))                        
 low.quality.genes
 ```
 
@@ -330,7 +409,7 @@ as.data.frame(data.CtF.ready)[19:25,]
 
 **NOTE:** The data imputation process can significantly influence data; therefore, no default value was set to the `imput.by.mean.within.groups` parameter to force the specification by the user. If there are missing data for a certain gene in the entire group, they will not be imputed and will remain NA.
 
-In general, a majority of functions in `RQdeltaCT` package can deal with missing data; however, some used methods are sensitive to missing data, including VIF calculating in `find_ref_gene()` (see [Reference gene selection] section) and PCA analysis (see [PCA analysis] section).
+In general, a majority of functions in `RQdeltaCT` package can deal with missing data; however, some used methods (e.g. PCA) are sensitive to missing data (see [PCA analysis] section).
 
 **NOTE:** The `make_Ct_ready()` function should be used even if the collapsing of technical replicates and data imputation is not required, because this function also prepares the data structure to fit to further functions.  
 
@@ -346,9 +425,8 @@ In this method, raw Ct values are transformed using thw 2^-Ct^ formula, summaris
 * `RQ_exp_Ct_dCt()` - this function performs relative quantification by:  
   + calculation of means (returned in columns with the "_mean" pattern) and standard deviations (returned in columns with the "_sd" pattern) of transformed Ct values of genes analysed in the compared groups.
   + normality testing (Shapiro_Wilk test) of transformed Ct values of analysed genes within compared groups, and returned p values are stored in columns with the "_norm_p" pattern.
-  + calculation of the fold change values for each gene by dividing the mean of transformed Ct values in the study group by the mean of transformed Ct values in the reference group. Fold change values are returned in the "FCh" column.
-  + statistical testing of differences in transformed Ct values between the study group and the reference group. Student's t test and Mann-Whitney U test are implemented and resulting statistics (in column with the "_test_stat" pattern) and p values (in column with the "_test_p" pattern) are returned.
-
+  + calculation of the fold change values for each gene. When independent groups of samples are analysed (`pairwise` is set to FALSE), for each gene, the mean of transformed Ct values in the study group is divided the by the mean of transformed Ct values in the reference group (Fold change values are returned in the "FCh" column).
+  + statistical testing of differences in transformed Ct values between the study group and the reference group. Student's t test and Mann-Whitney U test are implemented and resulting statistics (in column with the "_test_stat" pattern), p values (in column with the "_test_p" pattern), and adjusted p values (in column with the "_test_p_adj" pattern) are returned. The Benjamini-Hochberg method for adjustment of p values is used in default.
 
 The `RQ_exp_Ct_dCt()` function gives a choice if normality and statistical tests should be done (`do.tests` parameter). In the situations where compared groups contain less than three samples (at least three samples are required for testing), `do.test` should be set to FALSE to avoid error. 
 
@@ -357,6 +435,7 @@ data.Ct.exp <- exp_Ct_dCt(data = data.CtF.ready)
 library(coin)
 RQ.Ct.exp <- RQ_exp_Ct_dCt(data = data.Ct.exp,
                            do.tests = TRUE,
+                           pairwise = FALSE,
                            group.study = "Disease",
                            group.ref = "Control")
 
@@ -392,7 +471,8 @@ ref <- find_ref_gene(data = data.CtF.ready,
 ref[[2]]
 ```
 
-Among tested genes, Gene8, Gene16, Gene17, and Gene18 seem to have the best characteristics to be a reference gene (they have low variance, high VIF values, and low NormFinder and geNorm scores).
+NA values are caused because geNorm method returns a pair of genes with the highest stability.  
+Among tested genes, Gene8, Gene16, Gene17, and Gene18 seem to have the best characteristics to be a reference gene (they have low variance, low NormFinder and low geNorm scores).
 
 ---
 
@@ -402,13 +482,13 @@ This method is used in studies where samples should be analysed as individual da
 
 The whole process can be done using three functions:   
 
-* `delta_Ct` - this function calculates delta Ct (dCt) values by subtracting Ct values of reference gene from Ct values of gene of interest across all samples.
+* `delta_Ct` - this function calculates delta Ct (dCt) values by subtracting Ct values of reference gene (or mean of the Ct values of reference genes, if more than one reference gene is used) from Ct values of gene of interest across all samples.
 * `exp_Ct_dCt()` - this function performs a transformation of dCt data using the 2^-dCt^ formula. Before further processing, transformed dCt data should be subjected to quality control using functions and methods described in [Quality control and filtering of transformed Ct data] section.  
 * `RQ_exp_Ct_dCt()` - this function performs:  
   + calculation of means (returned in columns with the "_mean" pattern) and standard deviations (returned in columns with the "_sd" pattern) of transformed dCt values of genes analysed in the compared groups.
   + normality testing (Shapiro_Wilk test) of transformed dCt values of analysed genes in compared groups and returned p values are stored in columns with the "_norm_p" pattern.
   + calculation of fold change values for each gene by dividing the mean of transformed dCt values in the study group by the mean of transformed dCt values in the reference group. Fold change values are returned in the "FCh" column.
-  + statistical testing of differences in transformed Ct values between the study group and the reference group. Student's t test and Mann-Whitney U test are implemented and the resulting statistics (in column with the "_test_stat" pattern) and p values (in column with the "_test_p" pattern) are returned. If compared groups contain less than three samples, normality and statistical tests are not possible to perform (the `do.test` parameter should be set to FALSE to avoid error). 
+  + statistical testing of differences in transformed Ct values between the study group and the reference group. Student's t test and Mann-Whitney U test are implemented and the resulting statistics (in column with the "_test_stat" pattern), p values (in column with the "_test_p" pattern), and adjusted p values (in column with the "_test_p_adj" pattern) are returned. The Benjamini-Hochberg method for adjustment of p values is used in default. If compared groups contain less than three samples, normality and statistical tests are not possible to perform (the `do.test` parameter should be set to FALSE to avoid error). 
 
 ```{r cache=FALSE}
 data.dCt <- delta_Ct(data = data.CtF.ready,
@@ -459,7 +539,7 @@ head(as.data.frame(arrange(RQ.ddCt, MW_test_p)))
 
 Data intended for relative quantification should be subjected to quality assessment. The main purpose is to identify outlier samples that could introduce bias into the results. The `RQdeltaCT` package offers several functions which facilitate finding outlier samples in data by implementing distribution analysis (`control_boxplot_sample()` function), hierarchical clustering (`control_cluster_sample()` function) and principal component analysis PCA (`control_pca_sample()` function). However, corresponding functions for genes are also provided to evaluate similarities and differences between expression of analysed genes (`control_boxplot_gene()`, `control_cluster_gene()` and `control_pca_gene()` functions).
 
-The abovementioned data quality control functions are designed to be directly applied to data objects returned from the `make_Ct_ready()`, `exp_Ct_dCt()` and `delta_Ct()` functions (see [The summary of standard workflow, including function names and data flow]).
+The abovementioned data quality control functions are designed to be directly applied to data objects returned from the `make_Ct_ready()`, `exp_Ct_dCt()` and `delta_Ct()` functions (see [The summary of standard workflow]).
 
 #### Analysis of data distribution
 
@@ -518,7 +598,7 @@ control.pca.gene <- control_pca_gene(data = data.dCt)
 
 #### Data filtering after quality control
 
-If any sample or gene was decided to be removed from the data, the `filter_transformed_data()` function can be used for filtering. Similarly to quality control functions, this function can be directly applied to data objects returned from the `make_Ct_ready()`, `exp_Ct_dCt()` and `delta_Ct()` functions (see [The summary of standard workflow, including function names and data flow]). 
+If any sample or gene was decided to be removed from the data, the `filter_transformed_data()` function can be used for filtering. Similarly to quality control functions, this function can be directly applied to data objects returned from the `make_Ct_ready()`, `exp_Ct_dCt()` and `delta_Ct()` functions (see [The summary of standard workflow]). 
 
 ```{r cache=FALSE}
 data.dCtF <- filter_transformed_data(data = data.dCt,
@@ -529,22 +609,24 @@ data.dCtF <- filter_transformed_data(data = data.dCt,
 
 ## Final visualisations
 
-For visualisation of final results, three functions can be used:
+For visualisation of final results, these five functions can be used:
 
 * `RQ_plot()` that allows to illustrate fold change values of genes,
-* `results_barplot` that show mean and standard deviation values of genes across the compared groups,
-* `results_boxplot()` that illustrate the data distribution of genes across the compared groups.  
+* `RQ_volcano()` that allows to create volcano plot presenting the arrangement of fold change values and p values,
+* `results_barplot()` that show mean and standard deviation values of genes across the compared groups,
+* `results_boxplot()` that illustrate the data distribution of genes across the compared groups,
+* `results_heatmap()` that allows to create heatmap with hierarchical clustering,
 
-All these functions can be run on all data or on finally selected genes (see `sel.Gene` parameter), and also allow to add customised statistical significance labels to plots using `ggsignif` package. These functions have a large number of parameters, and the user should familiarise with all of them to properly adjust created plots to the user needs.
+All these functions can be run on all data or on finally selected genes (see `sel.Gene` parameter). These functions have a large number of parameters, and the user should familiarise with all of them to properly adjust created plots to the user needs.
 
-**NOTE:** If statistical significance labels should be added to the plot, a vector with labels (e.g., "ns", "*", "p = 0.03") should be provided in the `signif.labels` parameter. There are two important points that must be taking into account when preparing this vector:
+**NOTE:** The functions `RQ_plot()`, `results_barplot()`, and `results_boxplot()` also allow to add customised statistical significance labels to plots using `ggsignif` package. If statistical significance labels should be added to the plot, a vector with labels (e.g., "ns", "*", "p = 0.03") should be provided in the `signif.labels` parameter. There are two important points that must be taking into account when preparing this vector:
 
 * The order of labels should correspond to the order of genes presented on the plot, not the order of genes in the data, which can be different.
 * In this vector, due to restrictions of the `ggsignif` package, all values must be different (the same values are not allowed). Thus, if the same labels are needed, they should be distinguishable by adding symmetrically a different number of white spaces, e.g., "ns.", " ns. ", "  ns.  ", "   ns.   ", etc. (see the examples below). 
 
 #### The `RQ_plot()` function
 
-This function creates a barplot that illustrates fold change values obtained from the analysis, together with an indication of statistical significance. Data returned from the `RQ_exp_Ct_dCt()` and `RQ_ddCt()` functions can be directly applied to this function (see [The summary of standard workflow, including function names and data flow]).  
+This function creates a barplot that illustrates fold change values obtained from the analysis, together with an indication of statistical significance. Data returned from the `RQ_exp_Ct_dCt()` and `RQ_ddCt()` functions can be directly applied to this function (see [The summary of standard workflow]).  
 
 On the barplot, bars of significant genes are distinguished by colors and/or significance labels. The significance of genes can be established by two criteria: p values and (optionally) fold change values. Thresholds for both criteria can be specified. The `RQ_plot()` function offers various options of which p values are used on the plot:
 
@@ -553,20 +635,20 @@ On the barplot, bars of significant genes are distinguished by colors and/or sig
 * p values depend on the normality of data (if `mode` = "depends"). If the data in both compared groups were considered derived from normal distribution (p value of Shapiro_Wilk test > 0.05) - p values of Student's t test will be used, otherwise p values of Mann-Whitney U test will be used.
 * external p values provided by the user (if `mode` = "user"). If the user intends to use the p values obtained from the other statistical test, the `mode` parameter should be set to "user". In this scenario, before running the `RQ_plot()` function, the user should prepare a data.frame object named "user" containing two columns: the first column with gene names and the second column with p values (see example below).
 
-The created plots are displayed on the graphic device. The returned objects are a lists that contain two elements: an object with plot and a table with results. 
+The created plot is displayed on the graphic device. The returned object is a lists that contain two elements: an object with plot and a table with results. 
 
 ```{r fig.dim=c(7.1,4), cache=FALSE}
 # Variant with p values depending on the normality of the data:
 library(ggsignif)
 # Specifying vector with significance labels: 
-signif.labels <- c("****","**","ns."," ns. ","  ns.  ","   ns.   ","    ns.    ","     ns.     ","      ns.      ","       ns.       ","        ns.        ","         ns.         ","          ns.          ","           ns.           ","***")
+signif.labels <- c("****","**","ns."," ns. ","  ns.  ","   ns.   ","    ns.    ","     ns.     ","      ns.      ","       ns.       ","        ns.        ","         ns.         ","          ns.          ","***")
 # Genes with p < 0.05 and 2-fold changed expression between compared groups are considered significant: 
 RQ.plot <- RQ_plot(data = RQ.ddCt,
                    use.p = TRUE,
                    mode = "depends",
                    p.threshold = 0.05,
-                   use.log10FCh = TRUE,
-                   log10FCh.threshold = 0.30103,
+                   use.FCh = TRUE,
+                   FCh.threshold = 2,
                    signif.show = TRUE,
                    signif.labels = signif.labels,
                    angle = 20)
@@ -574,8 +656,9 @@ RQ.plot <- RQ_plot(data = RQ.ddCt,
 head(as.data.frame(RQ.plot[[2]]))
 ```
 
+A variant with user p values - the used p values are calculated using the stats::wilcox.test() function:
+
 ```{r fig.dim=c(7.1,4), cache=FALSE}
-# Variant with user p values - the used p values are calculated using the stats::wilcox.test() function:
 user <- data.dCt %>%
           pivot_longer(cols = -c(Group, Sample),
                        names_to = "Gene",
@@ -589,8 +672,8 @@ RQ.plot <- RQ_plot(data = RQ.ddCt,
                    use.p = TRUE,
                    mode = "user",
                    p.threshold = 0.05,
-                   use.log10FCh = TRUE,
-                   log10FCh.threshold = 0.30103,
+                   use.FCh = TRUE,
+                   FCh.threshold = 2,
                    signif.show = TRUE,
                    signif.labels = signif.labels,
                    angle = 30)
@@ -602,11 +685,27 @@ Three genes (Gene1, Gene12, and Gene19) are shown to meet the used significance 
 
 **NOTE:** If p values were not calculated due to the low number of samples, or they are not intended to be used to create a plot, the `use.p` parameter should be set to FALSE.
 
+#### The `RQ_volcano()` function
+
+This function creates a volcano plot that illustrates the arrangement of genes based on fold change values and p values. Significant genes can be pointed out using specified p value and fold change thresholds, and highlighted on the plot by color and (optionally) isolated by thresholds lines. Similarly to `RQ_plot()` function, data returned from the `RQ_exp_Ct_dCt()` and `RQ_ddCt()` functions can be directly applied (see [The summary of standard workflow]) and various sources of used p values are available (from the Student's t test, the Mann-Whitney U test, depended on the normality of data, or provided by the user).  
+
+The created plot is displayed on the graphic device. The returned object is a lists that contain two elements: an object with plot and a table with results. 
+
+```{r fig.dim=c(5,5.5), fig.align='center', cache=FALSE}
+# Genes with p < 0.05 and 2-fold changed expression between compared groups are considered significant: 
+RQ.volcano <- RQ_volcano(data = RQ.ddCt,
+                         mode = "depends",
+                         p.threshold = 0.05,
+                         FCh.threshold = 2)
+# Access the table with results:
+head(as.data.frame(RQ.volcano[[2]]))
+```
+
 #### The `results_boxplot()` function
 
 This function creates a boxplot that illustrates the distribution of the data for the genes. It is similar to `control_boxplot_gene()` function; however, some new options are added, including gene selection, faceting, addition of mean points to boxes, and statistical significance labels.
 
-Data objects returned from the `make_Ct_ready()`, `exp_Ct_dCt()` and `delta_Ct() functions` can be directly applied to this function (see [The summary of standard workflow, including function names and data flow]).
+Data objects returned from the `make_Ct_ready()`, `exp_Ct_dCt()` and `delta_Ct() functions` can be directly applied to this function (see [The summary of standard workflow]).
 
 ```{r fig.dim=c(5,4.5), fig.align='center', cache=FALSE}
 final_boxplot <- results_boxplot(data = data.dCtF,
@@ -629,7 +728,7 @@ final_boxplot <- results_boxplot(data = data.dCtF,
 
 This function creates a barplot that illustrates mean and standard deviation values of the data for all or selected genes.
 
-Data objects returned from the `make_Ct_ready()`, `exp_Ct_dCt()` and `delta_Ct() functions` can be directly applied to this function (see [The summary of standard workflow, including function names and data flow]).
+Data objects returned from the `make_Ct_ready()`, `exp_Ct_dCt()` and `delta_Ct() functions` can be directly applied to this function (see [The summary of standard workflow]).
 
 ```{r fig.dim=c(5,4.5), fig.align='center', cache=FALSE}
 final_barplot <- results_barplot(data = data.dCtF,
@@ -647,18 +746,66 @@ final_barplot <- results_barplot(data = data.dCtF,
 
 **NOTE:** At least two samples in each group are required to calculate the standard deviation and properly generate the plot.
 
+#### The `results_heatmap()` function
+
+This function allows to draw heatmap with hierarchical clustering. Various methods of distance calculation (e.g. euclidean, canberra) and agglomeration (e.g. complete, average, single) can be used.  
+
+**NOTE:** Remember to create named list with colors for groups annotation and pass it in `col.groups` parameter.
+
+```{r fig.dim=c(7.1,5), cache=FALSE}
+# Create named list with colors for groups annotation:
+colors.for.groups = list("Group" = c("Disease"="firebrick1","Control"="green3"))
+# Vector of colors for heatmap can be also specified to fit the user needings:
+colors <- c("navy","navy","#313695","#4575B4","#74ADD1","#ABD9E9",
+            "#E0F3F8","#FFFFBF","#FEE090","#FDAE61","#F46D43",
+            "#D73027","#C32B23","#A50026","#8B0000", 
+            "#7E0202","#000000")
+results_heatmap(data.dCt,
+                sel.Gene = "all",
+                col.groups = colors.for.groups,
+                colors = colors,
+                show.colnames = FALSE,
+                show.rownames = TRUE,
+                fontsize = 11,
+                fontsize.row = 11,
+                cellwidth = 4)
+# Cellwidth parameter was set to 4 to avoid cropping the image on the right side.
+```
+
+The created plot is displayed on the graphic device(if save.to.tiff = FALSE) or saved to .tiff file (if save.to.tiff = TRUE).
+
 ---
 
 ## Further analyses
 
 Gene expression levels and differences between groups can be further analysed using the following methods and corresponding functions of the `RQdeltaCT` package:
 
+* principal component analysis (PCA) and k means clustering - used to assess samples clustering based on the gene expression data (`pca_kmeans()` function)
 * correlation analysis - used to generate and visualise the correlation matrix of samples (`corr_sample()` function) and genes (`corr_gene()` function).
 * simple linear regression - used to analysis and visualisation of relationships between pair of samples (`single_pair_sample()` function) and genes (`single_pair_gene()` function).
 * Receiver Operating Characteristic (ROC) analysis - used to evaluate performance of sample classification by gene expression data (`ROCh()` function).
 * simple logistic regression analysis - used to calculate odds ratio values for genes (`log_reg()` function).  
 
-Data objects returned from the `make_Ct_ready()`, `exp_Ct_dCt()`, and `delta_Ct() functions` can be directly applied to all of these functions (see [The summary of standard workflow, including function names and data flow]). Moreover, all functions can be run on the entire data or only on selected samples/genes.
+Data objects returned from the `make_Ct_ready()`, `exp_Ct_dCt()`, and `delta_Ct() functions` can be directly applied to all of these functions (see [The summary of standard workflow]). Moreover, all functions can be run on the entire data or only on selected samples/genes.
+
+#### PCA and k means clustering
+
+This function allows to simultaneously perform principal component analysis (PCA) and (if do.k.means = TRUE) samples classification using k means method. Number of clusters can be set using `k.clust` parameter. Results obtained from both methods can be presented on one plot. Obtained clusters are distinguishable by point shapes. Confusion matrix of sample classification is returned as the second element of the returned object and can be used for calculation further parameters of classification performance like precision, accuracy, recall, and others.
+
+```{r fig.dim=c(5,5.5), fig.align='center', cache=FALSE}
+pca.kmeans <- pca_kmeans(data.dCt, 
+                           sel.Gene = c("Gene1","Gene16","Gene19","Gene20"), 
+                           legend.position = "top")
+# Access to the confusion matrix:
+pca.kmeans[[2]]
+```
+
+If the legend is to wide and is cropped, setting a vertical position of legend should solve this problem:
+
+```{r fig.dim=c(5,6), fig.align='center', cache=FALSE}
+pca.kmeans[[1]] + theme(legend.box = "vertical")
+```
+
 
 #### Correlation analysis
 
@@ -733,47 +880,878 @@ roc_parameters
 ```
 
 ```{r echo=FALSE, out.width="500px", fig.align="center", warning=FALSE, message=FALSE, cache=FALSE}
-knitr::include_graphics("ROC_plot.png")
+knitr::include_graphics("ROC_plot_ind.png")
 ```
 
 #### Simple logistic regression
 
-Logistic regression is a useful method to investigate the impact of the analysed variable on the odds of the occurrence of the studied experimental condition. In the `RQdeltaCT` package, `log_reg()` function allows to calculate for each gene a chances (odds ratio, OR) of being included in the study group when gene expression level increases by one unit. This function returns a plot and table with the calculated parameters (OR, confidence interval, intercept, coefficient, and p values).
+Logistic regression is a useful method to investigate the impact of the analysed variable on the odds of the occurrence of the studied experimental condition. In the `RQdeltaCT` package, `log_reg()` function allows to calculate for each gene a chances (odds ratio, OR) of being included in the study group when gene expression level increases by one unit (suitable for non-transformed data) or by mean of expression levels (more suitable for transformed data). This function returns a plot and table with the calculated parameters (OR, confidence interval, intercept, coefficient, and p values).
 
 ```{r fig.dim=c(5,4), fig.align='center', cache=FALSE}
 library(oddsratio)
+
+# Remember to set the increment parameter.
 log.reg.results <- log_reg(data = data.dCt,
+                           increment = 1,
                            sel.Gene = c("Gene1","Gene12","Gene16","Gene19"),
                            group.study = "Disease",
                            group.ref = "Control")
 log.reg.results[[2]]
 ```
 
-#### Hierarchical clustering and PCA
+---
 
-For final visualisation of results, quality control methods used earlier, including hierarchical clustering and PCA analysis, can be used to show the efficiency of the separation of the compared groups by the expression of finally selected genes. For this purpose, hierarchical clustering and PCA analysis can be run on samples using previously used `control_cluster_sample()` and `control_pca_sample()` functions, respectively, but for selected genes:
+# **Part B: A pairwise analysis**
+
+A pairwise analysis regards situations when samples are grouped in pairs. In general, a pairwise analysis is quite similar to the workflow for comparison of independent groups; however, some crucial points are different. Therefore, for the users convenience, a separate part of this vignette was prepared to demonstrate in detail a pairwise variant of analysis using `RQdeltaCT` workflow.  
+
+For a demonstration purposes, the data object named `data.Ct.pairwise` from `RQdeltaCT` package is used:
+
+```{r cache=FALSE}
+data(data.Ct.pairwise)
+str(data.Ct.pairwise)
+```
+
+This dataset contains 21 paired samples analyzed before ("Before" group) and after ("After" group) after the effect of the experimental factor. Total 18 genes were analyzed in these samples.  
+
+## Quality control of raw Ct data (a pairwise approach)
+
+The crucial step of each data analysis is an assessment of the quality and usefulness of the data used to investigate the studied problem. The `RQdeltaCT` package offers two functions for quality control of raw Ct data: `control_Ct_barplot_sample()` (for quality control of samples) and  `control_Ct_barplot_gene()` (for quality control of genes). Both functions require specifying quality control criteria to be applied to Ct values, in order to label each Ct value as reliable or not. These functions return numbers of reliable and unreliable Ct values in each sample or each gene, as well as total number of Ct values obtained from each sample and each gene. These results are presented graphically on barplots. The obtained results are useful for inspecting the analysed data in order to identify samples and genes that should be considered to be removed from the data (based on applied reliability criteria).  
+
+Three selection criteria can be set for these functions:  
+
+* a flag used for undetermined Ct values. Default to "Undetermined".
+* a maximum of Ct value allowed. Default to 35.
+* a flag used in the Flag column for values which are unreliable. Default to "Undetermined".
+
+**NOTE:** This function does not perform data filtering, but only report numbers of Ct values labelled as reliable or not and presents them graphically.  
+
+An example of using these functions is provided below:
+
+```{r fig.dim=c(7.1,5), cache=FALSE}
+library(tidyverse)
+sample.Ct.control.pairwise <- control_Ct_barplot_sample(data = data.Ct.pairwise,
+                                               flag.Ct = "Undetermined",
+                                               maxCt = 35,
+                                               flag = c("Undetermined"),
+                                               axis.title.size = 9,
+                                               axis.text.size = 9,
+                                               plot.title.size = 9,
+                                               legend.title.size = 9,
+                                               legend.text.size = 9)
+
+```
+```{r fig.dim=c(7.1,5.5), cache=FALSE}
+gene.Ct.control.pairwise <- control_Ct_barplot_gene(data = data.Ct.pairwise,
+                                               flag.Ct = "Undetermined",
+                                               maxCt = 35,
+                                               flag = c("Undetermined"),
+                                               axis.title.size = 9,
+                                               axis.text.size = 9,
+                                               plot.title.size = 9,
+                                               legend.title.size = 9,
+                                               legend.text.size = 9)
+```
+
+Created plots are displayed on the graphic device, and short information about the returned tables appears. Returned objects are lists that contain two elements: an object with plot and a table with numbers of Ct values labelled as reliable (in column "Reliable") and unreliable (in column "Not.reliable"), as well as fraction of unreliable Ct values in each gene. To easily identify samples or genes with high number of unreliable values, tables are sorted to show them at the top. To access returned tables, the second element of returned objects should be called:
+
+```{r cache=FALSE}
+head(sample.Ct.control.pairwise[[2]])
+```
+
+```{r cache=FALSE}
+head(gene.Ct.control.pairwise[[2]], 10)
+```
+
+Visual inspection of returned plots and obtained tables gives a clear, preliminary image of data quality. The results obtained in the examples show that the Before group contains the same number of samples as the After group. In all samples, the majority of Ct values are reliable.  
+
+Regarding genes, Gene9 has all unreliable Ct values in the After group. Other genes that can be considered to remove from the data are Gene2, Gene5, Gene11, and Gene1.    
+
+In some situations, a unified fraction of unreliable data need to be established and used to make decision which samples or genes should be excluded from the analysis. It can be done using the following code, in which the table returned by the `control_Ct_barplot_sample()` and `control_Ct_barplot_gene()` functions can be used to identify samples or genes for which the fraction of unreliable Ct values is higher than a specified threshold: 
+
+```{r cache=FALSE}
+# Finding samples with more than half of the unreliable Ct values.
+low.quality.samples.pairwise <- filter(sample.Ct.control.pairwise[[2]],
+                                       Not.reliable.fraction > 0.5)$Sample
+low.quality.samples.pairwise <- as.vector(low.quality.samples.pairwise)                        
+low.quality.samples.pairwise
+```
+
+In the above example, there is no sample with more than half of the unreliable data. 
+
+```{r}
+# Finding genes with more than half of the unreliable Ct values in at least one group.
+low.quality.genes.pairwise <- filter(gene.Ct.control.pairwise[[2]],
+                                     Not.reliable.fraction > 0.5)$Gene
+low.quality.genes.pairwise <- unique(as.vector(low.quality.genes.pairwise))                        
+low.quality.genes.pairwise
+```
+
+Five genes (Gene1, Gene2, Gene5, Gene9, and Gene11) have more than half of the unreliable Ct values in at least one group. In this example, these genes will be removed from the data in the next step of analysis. 
+
+---
+
+## Filtering of raw Ct data (a pairwise approach)
+
+When reliability criteria are finally established for Ct values, and some samples or genes are decided to be excluded from the analysis after quality control of the data, the data with raw Ct values can be filtered using the `filter_Ct()` function.  
+
+As a filtering criteria, a flag used for undetermined Ct values, a maximum of Ct threshold, and a flag used in Flag column can be applied. Furthermore, vectors with samples, genes, and groups to be removed can also be specified:
+
+```{r cache=FALSE}
+# Objects returned from the `low_quality_samples()` and 
+# `low_quality_genes()`functions can be used directly:
+data.Ct.pairwiseF <- filter_Ct(data = data.Ct.pairwise,
+                      flag.Ct = "Undetermined",
+                      maxCt = 35,
+                      flag = c("Undetermined"),
+                      remove.Gene = low.quality.genes.pairwise,
+                      remove.Sample = low.quality.samples.pairwise)
+
+# Check dimensions of data before and after filtering:
+dim(data.Ct.pairwise)
+dim(data.Ct.pairwiseF)
+```
+**NOTE:** If data contain more than two groups, it is good practice to remove groups that are out of comparison; however, a majority of other functions can deal with more groups unless only two groups are indicated to be given in function's parameters.
+
+---
+
+## Collapsing technical replicates and imputation of missing data - `make_Ct_ready()` function (a pairwise approach)
+
+In the next step, filtered Ct data can be subjected to collapsing of technical replicates and (optional) data imputation by means within groups using the `make_Ct_ready()` function. The term 'technical replicates' means observations with the same group name, gene name, and sample name. In the scenario when data contain technical replicates but they should not be collapsed, these technical replicates must be distinguished by different sample names, e.g. SampleA_1, SampleA_2, SampleA_3, etc.  
+
+The parameter `imput.by.mean.within.groups` can be used to control data imputation. If it is set to TRUE, imputation will be done, otherwise missing values will be left in the data. For a better view of the amount of missing values in the data, the information about the number and percentage of missing values is displayed automatically:  
+
+```{r cache=FALSE}
+# Without imputation:
+data.Ct.pairwiseF.ready <- make_Ct_ready(data = data.Ct.pairwiseF,
+                                         imput.by.mean.within.groups = FALSE)
+# A part of the data with missing values:
+as.data.frame(data.Ct.pairwiseF.ready)[9:19,10:15]
+
+# With imputation:
+data.Ct.pairwiseF.ready <- make_Ct_ready(data = data.Ct.pairwiseF,
+                                         imput.by.mean.within.groups = TRUE)
+# Missing values were imputed:
+as.data.frame(data.Ct.pairwiseF.ready)[9:19,10:15]
+```
+
+**NOTE:** The data imputation process can significantly influence data; therefore, no default value was set to the `imput.by.mean.within.groups` parameter to force the specification by the user. If there are missing data for a certain gene in the entire group, they will not be imputed and will remain NA.
+
+In general, a majority of functions in `RQdeltaCT` package can deal with missing data; however, some methods (e.g. PCA) are sensitive to missing data (see [PCA analysis] section).
+
+**NOTE:** The `make_Ct_ready()` function should be used even if the collapsing of technical replicates and data imputation is not required, because this function also prepares the data structure to fit to further functions.  
+
+---
+
+## Relative quantification: 2^-Ct^ method (a pairwise approach)
+
+This method is useful for testing genes for their suitability to be an endogenous control by investigating whether the studied experimental condition significantly influences their expression (see the [Introduction] section).  
+
+In this method, raw Ct values are transformed using thw 2^-Ct^ formula, fold change values are calculated individually for each pair of samples, and summarised for each gene by means. All these processes are carried out by two functions:   
+
+* `exp_Ct_dCt()` - this function performs a Ct data transformation using the 2^-Ct^ formula. **Before further processing, transformed Ct data should be subjected to quality control using functions and methods described in [Quality control and filtering of transformed Ct data - a pairwise approach] section.**  
+* `RQ_exp_Ct_dCt()` - this function performs relative quantification by:  
+  + calculation of means (returned in columns with the "_mean" pattern) and standard deviations (returned in columns with the "_sd" pattern) of transformed Ct values of genes analysed in the compared groups.
+  + normality testing (Shapiro_Wilk test) of transformed Ct values of analysed genes within compared groups, and returned p values are stored in columns with the "_norm_p" pattern.
+  + calculation of the fold change values for each gene. In this pairwise approach (when parameter `pairwise` = TRUE), individual fold change values are firstly calculated for each sample by dividing transformed Ct value obtained for particular gene in the study group by transformed Ct value obtained for the same gene in the reference group. Subsequently, mean and standard deviation values of individual fold changes are calculated within each group (returned in FCh_mean and FCh_sd columns, respectively). 
+  + statistical testing of differences in transformed Ct values between the study group and the reference group. Student's t test and Mann-Whitney U test are implemented and resulting statistics (in column with the "_test_stat" pattern), p values (in column with the "_test_p" pattern), and adjusted p values (in column with the "_test_p_adj" pattern) are returned. The Benjamini-Hochberg method for adjustment of p values is used in default.
+
+**NOTE:** In a pairwise approach (if `pairwise` = TRUE), the abovementioned results can be found in the first element of a list object returned by `RQ_exp_Ct_dCt()` function. For the results transparency, fold change values calculated individually for each sample pair are also returned as the second element of this object, and can be used to assess the homogeneity of individual fold change values within each analysed gene using methods described in [Quality control and filtering of transformed Ct data - a pairwise approach] section.
+
+**NOTE:** Both functions also can be used to 2^-dCt^ method (see [Relative quantification: 2^-dCt^ method]).
+
+The `RQ_exp_Ct_dCt()` function gives a choice if normality and statistical tests should be done (`do.tests` parameter). In the situations where compared groups contain less than three samples (at least three samples are required for testing), `do.test` should be set to FALSE to avoid error. 
+
+```{r cache=FALSE}
+data.Ct.exp.pairwise <- exp_Ct_dCt(data = data.Ct.pairwiseF.ready)
+library(coin)
+# Remember to set pairwise to TRUE:
+RQ.Ct.exp.pairwise <- RQ_exp_Ct_dCt(data = data.Ct.exp.pairwise,
+                           do.tests = TRUE,
+                           pairwise = TRUE,
+                           group.study = "After",
+                           group.ref = "Before")
+
+# Obtained table can be sorted by, e.g. p values from the Mann-Whitney U test:
+results <- as.data.frame(arrange(RQ.Ct.exp.pairwise[[1]], MW_test_p))
+head(results)
+# Access to the table with fold change values calculated individually for each pair of sampleS:
+FCh <- RQ.Ct.exp.pairwise[[2]]
+head(FCh)
+```
+
+---
+
+## Reference gene selection (a pairwise approach)
+
+Ideally, the reference gene should have an identical expression level in all samples, but in many situations it is not possible to achieve this, especially when biological replicates are analysed. Therefore, differences between samples are allowed, but the variance should be as low as possible, and it is also recommended that Ct values would not be very low (below 15) or very high (above 30) [Kozera and Rapacz 2013](https://link.springer.com/article/10.1007/s13353-013-0173-x).  
+
+The `RQdeltaCT` package includes `find_ref_gene()` function that can be used to select the best reference gene for normalisation. This function calculates descriptive statistics such as minimum, maximum, standard deviation, and variance, as well as stability scores calculated using the [NormFinder](https://www.moma.dk/software/normfinder) ([Article](https://aacrjournals.org/cancerres/article/64/15/5245/511517/Normalization-of-Real-Time-Quantitative-Reverse)) and [geNorm](https://genorm.cmgg.be/) ([Article](https://genomebiology.biomedcentral.com/articles/10.1186/gb-2002-3-7-research0034)) algorithms. Ct values are also presented on a line plot.  
+
+NormFinder scores are computed using internal `RQdeltaCT::norm_finder()` function working on the code adapted from the original NormFinder code. To calculate NormFinder scores, at least two samples must be present in each group. For the geNorm score, the `geNorm()` function of the `ctrlGene` package is used. The `find_ref_gene()` function allows one to choose which of these algorithms should be done by setting the logical parameters: `norm.finder.score` and `genorm.score`.
+
+The created plot is displayed on the graphic device. The returned object is a list that contains two elements: an object with plot and a table with results. In the example below, six genes are tested for suitability to be a reference gene: 
 
 ```{r fig.dim=c(7.1,4), cache=FALSE}
-control_cluster_sample(data = data.dCt,
-                       sel.Gene = c("Gene1","Gene12","Gene16","Gene19"),
+library(ctrlGene)
+# Remember that the number of colors in col parameter should be equal to the number of tested genes:
+ref.pairwise <- find_ref_gene(data = data.Ct.pairwiseF.ready,
+                     groups = c("After","Before"),
+                     candidates = c("Gene4","Gene13","Gene20"),
+                     col = c("#66c2a5", "#fc8d62","#6A6599"),
+                     angle = 90,
+                     axis.text.size = 7,
+                     norm.finder.score = TRUE,
+                     genorm.score = TRUE)
+ref.pairwise[[2]]
+```
+
+NA values are caused because geNorm method returns a pair of genes with the highest stability.  
+Among tested genes, Gene4 seems to have the best characteristics to be a reference gene (it has Ct values below 30, relatively low standard deviation, variance, NormFinder score, and geNorm score).
+
+---
+
+## Relative quantification: 2^-dCt^ method (a pairwise approach)
+
+This method is used in studies where samples should be analysed as individual data points, e.g. in analysis of biological replicates (see [Introduction] section). In the pairwise variant of this method, Ct values are normalised by the endogenous control gene by subtracting the Ct value of the endogenous control from the Ct value of the gene of interest, in the same sample. Obtained delta Ct (dCt) values are subsequently transformed using the 2^-dCt^ formula, and a ratio (fold change) of transformed Ct values is calculated individually for each pair of samples, and summarised by mean for each gene.  
+
+The whole process can be done using three functions:   
+
+* `delta_Ct` - this function calculates delta Ct (dCt) values by subtracting Ct values of reference gene (or mean of the Ct values of reference genes, if more than one reference gene is used) from Ct values of gene of interest across all samples.
+* `exp_Ct_dCt()` - this function performs a transformation of dCt data using the 2^-dCt^ formula. **Before further processing, transformed dCt data should be subjected to quality control using functions and methods described in [Quality control and filtering of transformed Ct data] section.**    
+* `RQ_exp_Ct_dCt()` - this function performs:  
+  + calculation of means (returned in columns with the "_mean" pattern) and standard deviations (returned in columns with the "_sd" pattern) of transformed dCt values of genes analysed in the compared groups.
+  + normality testing (Shapiro_Wilk test) of transformed dCt values of analysed genes in compared groups and returned p values are stored in columns with the "_norm_p" pattern.
+  + calculation of the fold change values. In this pairwise approach (when `pairwise` = TRUE), individual fold change values are firstly calculated for each sample by dividing transformed Ct value obtained for particular gene in the study group by transformed Ct value obtained for the same gene in the reference group. Subsequently, mean and standard deviation values of individual fold changes are calculated within each group (returned in FCh_mean and FCh_sd columns, respectively).
+  + statistical testing of differences in transformed Ct values between the study group and the reference group. Student's t test and Mann-Whitney U test are implemented and the resulting statistics (in column with the "_test_stat" pattern), p values (in column with the "_test_p" pattern), and adjusted p values (in column with the "_test_p_adj" pattern) are returned. The Benjamini-Hochberg method for adjustment of p values is used in default. If compared groups contain less than three samples, normality and statistical tests are not possible to perform (the `do.test` parameter should be set to FALSE to avoid error).  
+  
+**NOTE:** In a pairwise approach (if `pairwise` = TRUE), the abovementioned results can be found in the first element of a list object returned by `RQ_exp_Ct_dCt()` function. For the results transparency, fold change values calculated individually for each sample pair are also returned as the second element of this object, and can be used to assess the homogeneity of individual fold change values within each analysed gene using methods described in [Quality control and filtering of transformed Ct data - a pairwise approach] section.
+
+```{r cache=FALSE}
+data.dCt.pairwise <- delta_Ct(data = data.Ct.pairwiseF.ready, ref = "Gene4")
+data.dCt.exp.pairwise <- exp_Ct_dCt(data = data.dCt.pairwise)
+library(coin)
+RQ.dCt.exp.pairwise <- RQ_exp_Ct_dCt(data = data.dCt.exp.pairwise,
+                            do.tests = TRUE,
+                            pairwise = TRUE,
+                            group.study = "After",
+                            group.ref = "Before")
+
+# Obtained table can be sorted by, e.g. p values from the Mann-Whitney U test:
+results <- as.data.frame(arrange(RQ.dCt.exp.pairwise[[1]], MW_test_p))
+head(results)
+# Access to the table with fold change values calculated individually for each pair of sampleS:
+FCh <- RQ.dCt.exp.pairwise[[2]]
+head(FCh)
+```
+
+---
+
+## Relative quantification: 2^-ddCt^ method (a pairwise approach)
+
+Similarly to the 2^-dCt^ method, in the 2^-ddCt^ method Ct values are normalised by the endogenous control gene, obtaining dCt values. Subsequently, individually for each pair of samples, dCt values obtained in the control group are subtracted from the dCt values in the study group, giving individual delta delta Ct (ddCt) values. Finally, the ddCt values are transformed using the 2^-ddCt^ formula to obtain the fold change values, which then are summarised by mean across analysed genes.
+
+The whole process can be done using the following functions:   
+
+* `delta_Ct` - this function calculates delta Ct (dCt) values by subtracting the Ct values of the reference gene from the Ct values of gene of interest across all samples. **Before further processing, obtained dCt data can be subjected to the quality control using functions and methods described in [Quality control and filtering of transformed Ct data] section.**  
+* `RQ_ddCt()` - this function performs:  
+   + calculation of means (returned in columns with the "_mean" pattern) and standard deviations (returned in columns with the "_sd" pattern) of delta Ct values of the analyzed genes in the compared groups.
+   + normality testing (Shapiro_Wilk test) of delta Ct values of the analyzed genes in the compared groups and returned p values are stored in columns with the "_norm_p" pattern.
+   + calculation of differences (delta delta Ct, ddCt values) in the delta Ct values between paired samples by subtracting dCt values obtained in the control group from the dCt values in the study group.
+   + calculation of fold change values using 2^-ddCt^ formula. Fold change values are returned in a separated table (see NOTE below). Subsequently, means (returned in "FCh" column) and standard deviations (returned in "FCh_sd" column) of fold change values are calculated for each gene.
+   + a pairwise statistical testing of differences between the compared groups. A pairwise Student's t test and Mann-Whitney U test are implemented and the resulted statistics (in column with the "_test_stat" pattern) and p values (in column with the "_test_p" pattern) are returned. If compared groups contain less than three samples, normality and statistical tests are not possible to perform and `do.test` parameter should be set to FALSE to avoid error. 
+   
+**NOTE:** In a pairwise approach (if `pairwise` = TRUE), the results can be found in the first element of a list object returned by `RQ_ddCt()` function. For the results transparency, fold change values calculated individually for each sample pair can be found in the second element of this object, and can be assessed using methods described in the [Quality control and filtering of transformed Ct data - a pairwise approach] section.
+
+```{r cache=FALSE}
+data.dCt.pairwise <- delta_Ct(data = data.Ct.pairwiseF.ready, ref = "Gene4")
+library(coin)
+# Remember to set pairwise = TRUE:
+RQ.ddCt.pairwise <- RQ_ddCt(data = data.dCt.pairwise,
+                   group.study = "After",
+                   group.ref = "Before",
+                   pairwise = TRUE,
+                   do.tests = TRUE)
+
+# Obtained table can be sorted by, e.g. p values from the Mann-Whitney U test:
+results <- as.data.frame(arrange(RQ.ddCt.pairwise[[1]], MW_test_p))
+head(results)
+# Access to the table with fold change values calculated individually for each pair of sampleS:
+FCh <- RQ.ddCt.pairwise[[2]]
+head(FCh)
+```
+
+---
+
+## Quality control and filtering of transformed Ct data (a pairwise approach)
+
+Data intended for relative quantification should be subjected to quality assessment. The main purpose is to identify outlier samples that could introduce bias into the results. The `RQdeltaCT` package offers several functions which facilitate finding outlier samples in data by implementing distribution analysis (`control_boxplot_sample()` function), hierarchical clustering (`control_cluster_sample()` function) and principal component analysis PCA (`control_pca_sample()` function). However, corresponding functions for genes are also provided to evaluate similarities and differences between expression of analysed genes (`control_boxplot_gene()`, `control_cluster_gene()` and `control_pca_gene()` functions).
+
+The abovementioned data quality control functions are designed to be directly applied to data objects returned from the `make_Ct_ready()`, `exp_Ct_dCt()` and `delta_Ct()` functions (see [The summary of standard workflow]). Moreover, in a pairwise approach, a tables with fold change values obtained from individual pairs of samples (the second element of list returned from `RQ_exp_Ct_dCt()` and `RQ_ddCt()` functions) can be also passed directly, but the `pairwise.FCh` parameter of control functions must be set to TRUE. 
+
+#### Analysis of data distribution (a pairwise approach)
+
+One of the ways to gain insight into data distribution is drawing boxplot that show several statistics, such as median (labelled inside box), first and third quartiles (ranged by box), extreme point in interquartile range (ranged by whiskers), and more distant data as separated points. In the `RQdeltaCT` package, the `control_boxplot_sample()` and `control_boxplot_gene()` functions are included to draw boxplots that present the distribution of samples and genes, respectively.
+
+These functions return objects with a plot. The created plots are also displayed on the graphic device.
+
+Boxplots for samples:
+
+```{r fig.dim=c(7.1,6), cache=FALSE}
+control_boxplot_sample <- control_boxplot_sample(data = data.dCt.pairwise,
+                                                 axis.text.size = 9,
+                                                 y.axis.title = "dCt")
+```
+And boxplots for genes:
+
+```{r fig.dim=c(7.1,4)}
+control_boxplot_gene <- control_boxplot_gene(data = data.dCt.pairwise,
+                                             by.group = TRUE,
+                                             axis.text.size = 10,
+                                             y.axis.title = "dCt")
+```
+
+Similar plots can be created for fold change values data returned from `RQ_exp_Ct_dCt()` and `RQ_ddCt()` functions: 
+
+```{r fig.dim=c(7.1,6), cache=FALSE}
+# Remember to set pairwise.FCh to TRUE:
+FCh <- RQ.dCt.exp.pairwise[[2]]
+control.boxplot.sample.pairwise <- control_boxplot_sample(data = FCh,
+                                                          pairwise.FCh = TRUE,
+                                                          axis.text.size = 9,
+                                                          y.axis.title = "Fold change")
+# There are some very high values, we can identify them using:
+head(arrange(FCh, -FCh))
+```
+
+Similar visualisation can be done for genes:
+
+```{r fig.dim=c(7.1,4)}
+control.boxplot.gene.pairwise <- control_boxplot_gene(data = FCh,
+                                                 by.group = FALSE,
+                                                 pairwise.FCh = TRUE,
+                                                 axis.text.size = 10,
+                                                 y.axis.title = "Fold change")
+```
+
+**NOTE:** If missing values are present in the data, they will be automatically removed with warning.
+
+#### Hierarchical clustering (a pairwise approach)
+
+Hierarchical clustering is a convenient method to investigate similarities between variables. Hierarchical clustering of samples and genes can be done using the `control_cluster_sample()` and `control_cluster_gene()` functions, respectively. These functions allow to draw dendrograms using various methods of distance calculation (e.g. euclidean, canberra) and agglomeration (e.g. complete, average, single). For more details, refer to the functions documentation.
+
+```{r fig.dim=c(7.1,4), cache=FALSE}
+# Hierarchical clustering of samples:
+control_cluster_sample(data = data.dCt.pairwise,
                        method.dist = "euclidean",
                        method.clust = "average",
                        label.size = 0.6)
+# Hierarchical clustering of genes:
+control_cluster_gene(data = data.dCt.pairwise,
+                     method.dist = "euclidean",
+                     method.clust = "average",
+                     label.size = 0.8)
 ```
 
-```{r fig.dim=c(5,5.5), fig.align='center', cache=FALSE}
-control.pca.sample <- control_pca_sample(data = data.dCt,
-                                         sel.Gene = c("Gene1","Gene12","Gene16","Gene19"),
-                                         point.size = 3,
-                                         label.size = 2.5,
-                                         legend.position = "top")
+Similar plots can be created for fold change values data returned from `RQ_exp_Ct_dCt()` and `RQ_ddCt()` functions:
+
+```{r fig.dim=c(7.1,4), cache=FALSE}
+# Remember to set pairwise.FCh = TRUE:
+control_cluster_sample(data = FCh,
+                       pairwise.FCh = TRUE,
+                       method.dist = "euclidean",
+                       method.clust = "average",
+                       label.size = 0.7)
+control_cluster_gene(data = FCh,
+                     pairwise.FCh = TRUE,
+                     method.dist = "euclidean",
+                     method.clust = "average",
+                     label.size = 0.8)
 ```
 
 The created plots are displayed on the graphic device.
 
-**NOTE:** Minimum of three samples or genes in the data is required for these analyses. In PCA analysis, samples with missing values will be removed before computation.
+**NOTE:** Minimum three samples or genes in data is required for clustering analysis.
 
-#### Session info
+#### PCA analysis (a pairwise approach)
+
+Principal component analysis (PCA) is a data exploratory method, that is commonly used to investigate similarities between variables based on the first principal components that contain the most information about variance. In the `RQdeltaCT` package, the `control_pca_sample()` and `control_pca_gene()` functions are developed to perform PCA analysis for samples and genes, respectively. These functions return objects with a plot. Created plots are also displayed on the graphic device.
+
+```{r fig.dim=c(5,5.5), fig.align='center', cache=FALSE}
+control.pca.sample.pairwise <- control_pca_sample(data = data.dCt.pairwise,
+                                         point.size = 3,
+                                         label.size = 2.5,
+                                         hjust = 0.5,
+                                         legend.position = "top")
+```
+```{r fig.dim=c(5,5), fig.align='center', cache=FALSE}
+control.pca.gene.pairwise <- control_pca_gene(data = data.dCt.pairwise,
+                                              hjust = 0.5)
+```
+Similar plots can be created for fold change values data returned from `RQ_exp_Ct_dCt()` and `RQ_ddCt()` functions:
+
+```{r fig.dim=c(5,5.5), fig.align='center', cache=FALSE}
+control.pca.sample.pairwise <- control_pca_sample(data = FCh,
+                                         pairwise.FCh = TRUE,
+                                         colors = "black",
+                                         point.size = 3,
+                                         label.size = 2.5,
+                                         hjust = 0.5)
+```
+
+```{r fig.dim=c(5,5), fig.align='center', cache=FALSE}
+control.pca.gene.pairwise <- control_pca_gene(data = FCh,
+                                     pairwise.FCh = TRUE,
+                                     color = "black",
+                                     hjust = 0.5)
+```
+
+**NOTE:** PCA algorithm can not deal with missing data (NAs); therefore, variables with NA values are removed before analysis. If at least one NA value occurs in all variables in at least one of the compared group, the analysis can not be done. Imputation of missing data will avoid this issue. Also, a minimum of three samples or genes in the data are required for analysis.
+
+---
+
+#### Data filtering after quality control (a pairwise approach)
+
+If any sample or gene was decided to be removed from the data, the `filter_transformed_data()` function can be used for filtering. Similarly to quality control functions, this function can be directly applied to data objects returned from the `make_Ct_ready()`, `exp_Ct_dCt()` and `delta_Ct()` functions (see [The summary of standard workflow]). 
+
+```{r cache=FALSE}
+data.dCt.pairwise.F <- filter_transformed_data(data = data.dCt.pairwise,
+                                     remove.Sample = c("Sample22", "Sample23", "Sample15","Sample03"))
+dim(data.dCt.pairwise)
+dim(data.dCt.pairwise.F)
+```
+
+**NOTE:** Remember, there must be a good objective reason to remove specific samples. It must be done with caution to avoid tuning the data to better match the user expectations. 
+
+---
+
+## Final visualisations (a pairwise approach)
+
+For visualisation of final results, these five functions can be used:
+
+* `RQ_plot()` that allows to illustrate fold change values of genes,
+* `RQ_volcano()` that allows to create volcano plot presenting the arrangement of fold change values and p values,
+* `results_barplot()` that show mean and standard deviation values of genes across the compared groups,
+* `results_boxplot()` that illustrate the data distribution of genes across the compared groups,
+* `results_heatmap()` that allows to create heatmap with hierarchical clustering,
+* `parallel_plot()` that allows to present a pairwise changes in genes expression.
+
+All these functions can be run on all data or on finally selected genes (see `sel.Gene` parameter). These functions have a large number of parameters, and the user should familiarise with all of them to properly adjust created plots to the user needs.
+
+**NOTE:** The functions `RQ_plot()`, `results_barplot()`, and `results_boxplot()` also allow to add customised statistical significance labels to plots using `ggsignif` package. If statistical significance labels should be added to the plot, a vector with labels (e.g., "ns", "*", "p = 0.03") should be provided in the `signif.labels` parameter. There are two important points that must be taking into account when preparing this vector:
+
+* The order of labels should correspond to the order of genes presented on the plot, not the order of genes in the data, which can be different.
+* In this vector, due to restrictions of the `ggsignif` package, all values must be different (the same values are not allowed). Thus, if the same labels are needed, they should be distinguishable by adding symmetrically a different number of white spaces, e.g., "ns.", " ns. ", "  ns.  ", "   ns.   ", etc. (see the examples below). 
+
+Before
+
+```{r}
+# Remember to set pairwise = TRUE:
+RQ.ddCt.pairwise <- RQ_ddCt(data = data.dCt.pairwise.F,
+                   group.study = "After",
+                   group.ref = "Before",
+                   pairwise = TRUE,
+                   do.tests = TRUE)
+
+# Obtained table can be sorted by, e.g. p values from the Mann-Whitney U test:
+results <- as.data.frame(arrange(RQ.ddCt.pairwise[[1]], MW_test_p))
+head(results)
+```
+
+Three genes (Gene8, Gene16, and Gene19) seem to have statistically significant differences in expression between Before and After groups 
+
+#### The `RQ_plot()` function (a pairwise approach)
+
+This function creates a barplot that illustrates fold change values obtained from the analysis, together with an indication of statistical significance. The first element of the object returned from the `RQ_exp_Ct_dCt()` and `RQ_ddCt()` functions worked in a pairwise mode (when `pairwise` = TRUE,) can be directly applied to this function (see [The summary of standard workflow]).  
+
+On the barplot, bars of significant genes are distinguished by colors and/or significance labels. The significance of genes can be established by two criteria: p values and (optionally) fold change values. Thresholds for both criteria can be specified. The `RQ_plot()` function offers various options of which p values are used on the plot:
+
+* p values from the Student's t test (if `mode` = "t") or adjusted p values from the Student's t test (if `mode` = "t.adj").
+* p values from the Mann-Whitney U test (if `mode` = "mw") or adjusted p values from the Mann-Whitney U test (if `mode` = "mw.adj")
+* p values depend on the normality of data (if `mode` = "depends"). If the data in both compared groups were considered derived from normal distribution (p value of Shapiro_Wilk test > 0.05) - p values of Student's t test will be used, otherwise p values of Mann-Whitney U test will be used. For adjusted p values, use `mode` = "depends.adj".
+* external p values provided by the user (if `mode` = "user"). If the user intends to use the p values obtained from the other statistical test, the `mode` parameter should be set to "user". In this scenario, before running the `RQ_plot()` function, the user should prepare a data.frame object named "user" containing two columns: the first column with gene names and the second column with p values (see example below).
+
+The created plot is displayed on the graphic device. The returned object is a lists that contain two elements: an object with plot and a table with results. 
+
+Below, a variant with p values depending on the normality of the data is presented. furthermore, genes with p < 0.05 and with at least 1.5-fold changed expression between groups are considered significant.
+
+```{r fig.dim=c(7.1,4), cache=FALSE}
+library(ggsignif)
+#  Remember to use the first element of list object returned by `RQ_exp_Ct_dCt()` or RQ_ddCt() function:
+RQ.plot.pairwise <- RQ_plot(data = RQ.ddCt.pairwise[[1]],
+                   use.p = TRUE,
+                   mode = "depends.adj",
+                   p.threshold = 0.05,
+                   use.FCh = TRUE,
+                   FCh.threshold = 1.5,
+                   angle = 20)
+# Access the table with results:
+head(as.data.frame(RQ.plot.pairwise[[2]]))
+```
+
+Two genes (Gene8 and Gene19) met the significance criteria. Standard deviation bars and statistical significance annotations can be  added to the plot:
+
+```{r fig.dim=c(7.1,4), cache=FALSE}
+# Firstly prepare a vector with significance labels specified according to the user needings:
+
+signif.labels <- c("ns.",
+                   " ns. ",
+                   "  ns.  ",
+                   "   ns.   ",
+                   "    ns.    ",
+                   "     ns.     ",
+                   "      ns.      ",
+                   "       ns.       ",
+                   "        ns.        ",
+                   "         ns.         ",
+                   "**",
+                   "***")
+# Remember to set signif.show = TRUE:
+RQ.plot.pairwise <- RQ_plot(data = RQ.ddCt.pairwise[[1]],
+                   use.p = TRUE,
+                   mode = "depends.adj",
+                   p.threshold = 0.05,
+                   use.FCh = TRUE,
+                   FCh.threshold = 1.5,
+                   use.sd = TRUE,
+                   signif.show = TRUE,
+                   signif.labels = signif.labels,
+                   signif.dist = 0.2,
+                   angle = 20)
+```
+
+
+```{r fig.dim=c(7.1,4), cache=FALSE}
+# Variant with user p values - the used p values are calculated using the stats::wilcox.test() function:
+user <- data.dCt.pairwise %>%
+          pivot_longer(cols = -c(Group, Sample),
+                       names_to = "Gene",
+                       values_to = "dCt") %>%
+          group_by(Gene) %>%
+          summarise(MW_test_p = wilcox.test(dCt ~ Group)$p.value,
+                    .groups = "keep")
+# The stats::wilcox.test() functions is limited to cases without ties; therefore, 
+# a warning "cannot compute exact p-value with ties" will appear when ties occur.
+signif.labels <- c("ns.",
+                   " ns. ",
+                   "  ns.  ",
+                   "   ns.   ",
+                   "    ns.    ",
+                   "     ns.     ",
+                   "      ns.      ",
+                   "       ns.       ",
+                   "        ns.        ",
+                   "         ns.         ",
+                   " * ",
+                   "***")
+RQ.plot <- RQ_plot(data = RQ.ddCt.pairwise[[1]],
+                   use.p = TRUE,
+                   mode = "user",
+                   p.threshold = 0.05,
+                   use.FCh = TRUE,
+                   FCh.threshold = 1.5,
+                   use.sd = TRUE,
+                   signif.show = TRUE,
+                   signif.labels = signif.labels,
+                   signif.dist = 0.4,
+                   angle = 30)
+```
+
+**NOTE:** If p values were not calculated due to the low number of samples, or they are not intended to be used to create a plot, the `use.p` parameter should be set to FALSE.
+
+#### The `RQ_volcano()` function (a pairwise approach)
+
+This function creates a volcano plot that illustrates the arrangement of genes based on fold change values and p values. Significant genes can be pointed out using specified p value and fold change thresholds, and highlighted on the plot by color and (optionally) isolated by thresholds lines. Similarly to `RQ_plot()` function, data returned from the `RQ_exp_Ct_dCt()` and `RQ_ddCt()` functions can be directly applied (see [The summary of standard workflow]) and various sources of used p values are available (from the Student's t test, the Mann-Whitney U test, depended on the normality of data, or provided by the user).  
+
+The created plot is displayed on the graphic device. The returned object is a lists that contain two elements: an object with plot and a table with results. 
+
+```{r fig.dim=c(6,4.5), fig.align='center', cache=FALSE}
+# Genes with p < 0.05 and 2-fold changed expression between compared groups 
+# are considered significant. Remember to use the first element of list object 
+# returned by RQ_ddCt() function: 
+RQ.volcano.pairwise <- RQ_volcano(data = RQ.ddCt.pairwise[[1]],
+                         mode = "depends.adj",
+                         p.threshold = 0.05,
+                         FCh.threshold = 1.5)
+# Access the table with results:
+head(as.data.frame(RQ.volcano.pairwise[[2]]))
+```
+
+#### The `results_boxplot()` function (a pairwise approach)
+
+This function creates a boxplot that illustrates the distribution of the data for the genes. It is similar to `control_boxplot_gene()` function; however, some new options are added, including gene selection, faceting, addition of mean points to boxes, and statistical significance labels.
+
+Data objects returned from the `make_Ct_ready()`, `exp_Ct_dCt()` and `delta_Ct() functions` can be directly applied to this function (see [The summary of standard workflow]).
+
+```{r fig.dim=c(5,4.5), fig.align='center', cache=FALSE}
+final.boxplot.pairwise <- results_boxplot(data = data.dCt.pairwise.F,
+                                 sel.Gene = c("Gene8","Gene19"),
+                                 by.group = TRUE,
+                                 signif.show = TRUE,
+                                 signif.labels = c("***","*"),
+                                 signif.dist = 1.2,
+                                 faceting = TRUE,
+                                 facet.row = 1,
+                                 facet.col = 2,
+                                 y.exp.up = 0.1,
+                                 y.axis.title = "dCt")
+```
+
+If the order of groups in the legend should be changes (to put Before group as first), the levels of the variable with group names should be reordered:
+
+```{r fig.dim=c(5,4.5), fig.align='center', cache=FALSE}
+data.dCt.pairwise.F$Group <- factor(data.dCt.pairwise.F$Group, levels = c("Before", "After"))
+
+final.boxplot.pairwise <- results_boxplot(data = data.dCt.pairwise.F,
+                                 sel.Gene = c("Gene8","Gene19"),
+                                 by.group = TRUE,
+                                 signif.show = TRUE,
+                                 signif.labels = c("***","*"),
+                                 signif.dist = 1.2,
+                                 faceting = TRUE,
+                                 facet.row = 1,
+                                 facet.col = 2,
+                                 y.exp.up = 0.1,
+                                 y.axis.title = "dCt")
+```
+
+
+**NOTE:** If missing values are present in the data, they will be automatically removed, and a warning will appear.
+
+#### The `results_barplot()` function (a pairwise approach)
+
+This function creates a barplot that illustrates mean and standard deviation values of the data for all or selected genes.
+
+Data objects returned from the `make_Ct_ready()`, `exp_Ct_dCt()` and `delta_Ct() functions` can be directly applied to this function (see [The summary of standard workflow]).
+
+```{r fig.dim=c(5,4.5), fig.align='center', cache=FALSE}
+final.barplot.pairwise <- results_barplot(data = data.dCt.pairwise.F,
+                                 sel.Gene = c("Gene8","Gene19"),
+                                 signif.show = TRUE,
+                                 signif.labels = c("***","*"),
+                                 angle = 30,
+                                 signif.dist = 1.05,
+                                 faceting = TRUE,
+                                 facet.row = 1,
+                                 facet.col = 4,
+                                 y.exp.up = 0.1,
+                                 y.axis.title = "dCt")
+```
+
+**NOTE:** At least two samples in each group are required to calculate the standard deviation and properly generate the plot.
+
+#### The `results_heatmap()` function (a pairwise approach)
+
+This function allows to draw heatmap with hierarchical clustering. Various methods of distance calculation (e.g. euclidean, canberra) and agglomeration (e.g. complete, average, single) can be used.  
+
+**NOTE:** Remember to create named list with colors for groups annotation and pass it in `col.groups` parameter.
+
+```{r fig.dim=c(7.1,5), cache=FALSE}
+# Create named list with colors for groups annotation:
+colors.for.groups = list("Group" = c("After"="firebrick1", "Before"="green3"))
+# Vector of colors for heatmap can be also specified to fit the user needings:
+colors <- c("navy","navy","#313695","#313695","#4575B4","#4575B4","#74ADD1","#74ADD1",
+            "#ABD9E9","#E0F3F8","#FFFFBF","#FEE090","#FDAE61","#F46D43",
+            "#D73027","#C32B23","#A50026","#8B0000", 
+            "#7E0202","#000000")
+library(pheatmap)
+results_heatmap(data.dCt.pairwise.F,
+                sel.Gene = "all",
+                col.groups = colors.for.groups,
+                colors = colors,
+                show.colnames = TRUE,
+                show.rownames = TRUE,
+                fontsize = 11,
+                fontsize.row = 10,
+                cellwidth = 8,
+                angle.col = 90)
+# Cellwidth parameter was set to 4 to avoid cropping the image on the right side.
+```
+
+The created plot is displayed on the graphic device(if save.to.tiff = FALSE) or saved to .tiff file (if save.to.tiff = TRUE).
+
+#### The `parallel_plot()` function (a pairwise approach)
+
+This function can be used to illustrate a pairwise changes in genes expression.
+
+```{r fig.dim=c(5,4.5), fig.align='center', cache=FALSE}
+parallel.plot <- parallel_plot(data = data.dCt.pairwise.F,
+                                sel.Gene = c("Gene19","Gene8"),
+                               order = c(4,3))
+```
+
+---
+
+## Further analyses (a pairwise approach)
+
+Gene expression levels and differences between groups can be further analysed using the following methods and corresponding functions of the `RQdeltaCT` package:
+
+* principal component analysis (PCA) and k means clustering - used to assess samples clustering based on the gene expression data (`pca_kmeans()` function)
+* correlation analysis - used to generate and visualise the correlation matrix of samples (`corr_sample()` function) and genes (`corr_gene()` function).
+* simple linear regression - used to analysis and visualisation of relationships between pair of samples (`single_pair_sample()` function) and genes (`single_pair_gene()` function).
+* Receiver Operating Characteristic (ROC) analysis - used to evaluate performance of sample classification by gene expression data (`ROCh()` function).
+* simple logistic regression analysis - used to calculate odds ratio values for genes (`log_reg()` function).  
+
+Data objects returned from the `make_Ct_ready()`, `exp_Ct_dCt()`, and `delta_Ct() functions` can be directly applied to all of these functions (see [The summary of standard workflow]). Moreover, all functions can be run on the entire data or only on selected samples/genes.
+
+#### PCA and k means clustering (a pairwise approach)
+
+This function allows to simultaneously perform principal component analysis (PCA) and (if do.k.means = TRUE) samples classification using k means method. Number of clusters can be set using `k.clust` parameter. Results obtained from both methods can be presented on one plot. Obtained clusters are distinguishable by point shapes. Confusion matrix of sample classification is returned as the second element of the returned object and can be used for calculation further parameters of classification performance like precision, accuracy, recall, and others.
+
+```{r fig.dim=c(5,5.5), fig.align='center', cache=FALSE}
+pca.kmeans <- pca_kmeans(data.dCt.pairwise.F, 
+                           sel.Gene = c("Gene8","Gene19"), 
+                           legend.position = "top")
+```
+
+If the legend is cropped, using a vertical position of legend should solve this problem:
+
+```{r fig.dim=c(5,6), fig.align='center', cache=FALSE}
+pca.kmeans[[1]] + theme(legend.box = "vertical")
+```
+
+Access to the confusion matrix:
+
+```{r}
+pca.kmeans[[2]]
+```
+
+#### Correlation analysis (a pairwise approach)
+
+Correlation analysis is a very useful method to explore linear relationships between variables. The `RQdeltaCT` package offers `corr_sample()` and `corr_gene()` functions to generate and plot correlation matrices of samples and genes, respectively. The correlation coefficients can be calculated using either the Pearson or Spearman algorithm. To facilitate plot interpretation, these functions also have possibilities to order samples or genes according to several methods, e.g. hierarchical clustering or PCA first component (see `order` parameter).
+
+```{r fig.dim=c(6.5,6.5), fig.align='center', cache=FALSE}
+library(Hmisc)
+library(corrplot)
+# To make the plot more readable, only part of the data was used:
+corr.samples <- corr_sample(data = data.dCt.pairwise.F[1:10, ],
+                            method = "pearson",
+                            order = "hclust",
+                            size = 0.7,
+                            p.adjust.method = "BH",
+                            add.coef = "white")
+```
+```{r fig.dim=c(6.5,6.5), fig.align='center', cache=FALSE}
+library(Hmisc)
+library(corrplot)
+corr.genes <- corr_gene(data = data.dCt.pairwise.F,
+                            method = "pearson",
+                            order = "FPC",
+                            size = 0.7,
+                            p.adjust.method = "BH")
+```
+
+The created plots are displayed on the graphic device. The returned objects are tables with computed correlation coefficients, p values, and p values adjusted by Benjamini-Hochberg correction (by default). Tables are sorted by the absolute values of correlation coefficients in descending order.
+
+**NOTE:** A minimum of 5 samples/target are required for correlation analysis.
+
+#### Simple linear regression analysis (a pairwise approach)
+
+Linear relationships between pairs of samples or genes can be further analysed using simple linear regression models using the `single_pair_sample()` function (for analysis of samples) and the `single_pair_gene()` function for analysis of genes. These functions draw a scatter plot with a simple linear regression line. Regression results such as regression equation, coefficient of determination, F value, or p value can be optionally added to the plot. 
+
+```{r fig.dim=c(7.1,5), fig.align='center', cache=FALSE}
+library(ggpmisc)
+Sample08_Sample26 <- single_pair_sample(data = data.dCt.pairwise,
+                                        pairwise.data = TRUE,
+                                        by.group = TRUE,
+                                         x = "Sample08",
+                                         y = "Sample26",
+                                         point.size = 3,
+                                         labels = TRUE,
+                                         label = c("eq", "R2", "p"),
+                                         label.position.x = 0.05,
+                                        label.position.y = c(1, 0.95))
+```
+```{r fig.dim=c(7.1,5), fig.align='center', cache=FALSE}
+library(ggpmisc)
+Gene16_Gene17 <- single_pair_gene(data.dCt.pairwise.F,
+                                    x = "Gene16",
+                                    y = "Gene17",
+                                    by.group = TRUE,
+                                    point.size = 3,
+                                    labels = TRUE,
+                                    label = c("eq", "R2", "p"),
+                                    label.position.x = c(0.05),
+                                    label.position.y = c(1,0.95))
+```
+
+#### Receiver Operating Characteristic (ROC) analysis (a pairwise approach)
+
+The Receiver Operating Characteristic (ROC) analysis is useful for assessing the performance of sample classification to the particular group, based on gene expression data. In this analysis, ROC curves together with parameters such as the area under curve (AUC), specificity, sensitivity, accuracy, positive and negative predictive value are received. The `ROCh()` function was designed to perform all of these tasks. This function returns a table with calculated parameters and a plot with multiple panels, each with ROC curve for one gene.  
+
+**NOTE:** The created plot is not displayed on the graphic device, but should be saved as .tiff image (`save.to.txt` = TRUE) and can be opened directly from that file in the working directory.
+
+```{r cache=FALSE}
+library(pROC)
+# Remember to specify the numbers of rows (panels.row parameter) and columns (panels.col parameter) to provide sufficient place to arrange panels: 
+roc_parameters <- ROCh(data = data.dCt.pairwise.F,
+                       sel.Gene = c("Gene8","Gene19"),
+                       groups = c("After","Before"),
+                       panels.row = 1,
+                       panels.col = 2)
+# Access to calculated parameters:
+roc_parameters
+```
+
+```{r echo=FALSE, out.width="500px", fig.align="center", warning=FALSE, message=FALSE, cache=FALSE}
+knitr::include_graphics("ROC_plot.png")
+```
+
+Obtained warning informed us that analyzed genes have more than 1 threshold value for calculated Youden J statistic. To get all thresholds, ROC analysis should be performed separately for each gene:
+
+```{r}
+# Filter data:
+data <- data.dCt.pairwise.F[, colnames(data.dCt.pairwise.F) %in% c("Group", "Sample", "Gene19")]
+# Perform analysis:
+data_roc <- roc(response = data$Group,
+            predictor = as.data.frame(data)$Gene19,
+            levels = c("Before","After"),
+            smooth = FALSE,
+            auc = TRUE,
+            plot = FALSE,
+            ci = TRUE,
+            of = "auc",
+            quiet = TRUE)
+# Gain parameters:
+parameters <- coords(data_roc,
+                    "best",
+                    ret = c("threshold",
+                            "specificity",
+                            "sensitivity",
+                            "accuracy",
+                            "ppv",
+                            "npv",
+                            "youden"))
+parameters
+# Gain AUC
+data_roc$auc
+```
+
+
+#### Simple logistic regression (a pairwise approach)
+
+Logistic regression is a useful method to investigate the impact of the analysed variable on the odds of the occurrence of the studied experimental condition. In the `RQdeltaCT` package, `log_reg()` function allows to calculate for each gene a chances (odds ratio, OR) of being included in the study group when gene expression level increases by one unit (suitable for non-transformed data) or by mean of expression levels (more suitable for transformed data). This function returns a plot and table with the calculated parameters (OR, confidence interval, intercept, coefficient, and p values).
+
+```{r fig.dim=c(5,4), fig.align='center', cache=FALSE}
+library(oddsratio)
+
+# Remember to set the increment parameter.
+log.reg.results <- log_reg(data = data.dCt.pairwise.F,
+                           increment = 1,
+                           sel.Gene = c("Gene8","Gene19"),
+                           group.study = "After",
+                           group.ref = "Before",
+                           log.axis = TRUE)
+log.reg.results[[2]]
+```
+
+Increase in dCt values by 1 (two-fold decrease in expression) gives the higher chance to be in the "After" group. 
+
+---
+
+
+
+## **Session info**
 
 ```{r}
 sessionInfo()

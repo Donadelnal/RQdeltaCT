@@ -7,12 +7,13 @@
 control_pca_sample(
   data,
   sel.Gene = "all",
+  pairwise.FCh = FALSE,
   point.size = 4,
   point.shape = 19,
   alpha = 0.7,
   colors = c("#66c2a5", "#fc8d62"),
   label.size = 3,
-  hjust = 0,
+  hjust = 0.5,
   vjust = -1,
   axis.title.size = 11,
   axis.text.size = 10,
@@ -30,9 +31,14 @@ control_pca_sample(
 )
 }
 \arguments{
-\item{data}{Object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.}
+\item{data}{Object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.
+Also, table with fold change values returned from RQ_exp_Ct_dCt() and RQ_ddCt() functions can be used,
+but in such situation a pairwise.FCh parameter must be set to TRUE.}
 
 \item{sel.Gene}{Character vector with names of genes to include, or "all" (default) to use all genes.}
+
+\item{pairwise.FCh}{Logical: If fold change values returned from RQ_exp_Ct_dCt() and RQ_ddCt() functions
+in a pairwise approach are used as data, this parameter should be set to TRUE, otherwise to FALSE (default).}
 
 \item{point.size}{Numeric: size of points. Default to 4.}
 
@@ -40,7 +46,8 @@ control_pca_sample(
 
 \item{alpha}{Numeric: transparency of points, a value between 0 and 1. Default to 0.7.}
 
-\item{colors}{Character vector containing colors for compared groups. The number of colors must be equal to the number of groups. Default to c("#66c2a5", "#fc8d62").}
+\item{colors}{Character vector containing colors for compared groups. The number of colors must be equal to the number of groups.
+Default to c("#66c2a5", "#fc8d62").}
 
 \item{label.size}{Numeric: size of points labels (names of samples). Default to 3.}
 

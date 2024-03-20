@@ -8,12 +8,18 @@ single_pair_sample(
   data,
   x,
   y,
+  pairwise.data = FALSE,
+  by.group = FALSE,
   point.size = 4,
   point.shape = 19,
   point.alpha = 0.7,
-  color = "black",
+  colors = c("#66c2a5", "#fc8d62"),
   axis.title.size = 11,
   axis.text.size = 10,
+  legend.title = "Group",
+  legend.title.size = 11,
+  legend.text.size = 11,
+  legend.position = "right",
   plot.title = "",
   plot.title.size = 14,
   labels = TRUE,
@@ -36,17 +42,32 @@ single_pair_sample(
 
 \item{x, y}{Characters: names of samples to use.}
 
+\item{pairwise.data}{Logical: set to TRUE if a pairwise data is used, default to FALSE.}
+
+\item{by.group}{Logical: If TRUE (only for pairwise analysis), relationships will be shown separately for groups.
+Default to FALSE.}
+
 \item{point.size}{Numeric: size of points. Default to 4.}
 
 \item{point.shape}{Integer: shape of points. Default to 19.}
 
 \item{point.alpha}{Numeric: transparency of points, a value between 0 and 1. Default to 0.7.}
 
-\item{color}{Character: color for points. Default to "black".}
+\item{colors}{Character vector containing colors for compared groups. Use only if pairwise.data = TRUE.
+The number of colors must be equal to the number of groups. Default to c("#66c2a5", "#fc8d62").}
 
 \item{axis.title.size}{Integer: font size of axis titles. Default to 11.}
 
 \item{axis.text.size}{Integer: font size of axis text. Default to 10.}
+
+\item{legend.title}{Character: title of legend. Default to "Group".}
+
+\item{legend.title.size}{Integer: font size of legend title. Default to 11.}
+
+\item{legend.text.size}{Integer: font size of legend text. Default to 11.}
+
+\item{legend.position}{Position of the legend, can be "top", "right" (default), "bottom", "left", or "none" (no legend).
+See description for legend.position parameter in ggplot2::theme() function.}
 
 \item{plot.title}{Character: title of plot. Default to "".}
 

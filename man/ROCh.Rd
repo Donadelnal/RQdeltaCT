@@ -71,9 +71,9 @@ data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
 data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
 data.dCt.exp <- exp_Ct_dCt(data.dCt)
 data.dCt.expF <- filter_transformed_data(data.dCt.exp, remove.Sample = c("Control11"))
-roc_parameters <- ROCh(data.dCt, sel.Gene = c("Gene1","Gene16","Gene19","Gene20"),
-                       groups = c("Disease","Control"),
-                       panels.row = 2,
-                       panels.col = 2)
+ roc_parameters <- ROCh(data.dCt, sel.Gene = c("Gene1","Gene16","Gene19","Gene20"),
+                        groups = c("Disease","Control"),
+                        panels.row = 2,
+                        panels.col = 2)
 
 }

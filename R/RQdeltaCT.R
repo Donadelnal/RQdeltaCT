@@ -258,9 +258,6 @@ control_Ct_barplot_sample <- function(data,
 
   bar <- as.data.frame(table(data$Reliable, data$Sample))
   order <- arrange(filter(bar, Var1 == "Yes"), Freq)$Var2
-  cat(
-    "Returned table contains the numbers of Ct values labelled as reliable or not in each sample, as well as the fraction of unreliable Ct values in each sample.\n"
-  )
 
   barplot.samples <-
     ggplot(bar, aes(
@@ -313,7 +310,6 @@ control_Ct_barplot_sample <- function(data,
 
   return(list(barplot.samples, tab))
 }
-
 
 
 
@@ -409,9 +405,6 @@ control_Ct_barplot_gene <- function(data,
   bar <-
     as.data.frame(table(data$Reliable, data$Gene, data$Group))
   order <- arrange(filter(bar, Var1 == "Yes"), Freq)$Var2
-  cat(
-    "Returned table contains the numbers of Ct values labelled as reliable or not in each gene, as well as the fraction of unreliable Ct values in each gene.\n"
-  )
 
   barplot.genes <-
     ggplot(bar, aes(
@@ -587,12 +580,12 @@ make_Ct_ready <- function(data,
       group_by(Group) %>%
       mutate(across(where(is.numeric), ~ replace(., is.na(.), mean(., na.rm = TRUE))))
 
-    cat(
-      "The data contain",
+    message(
+      "The data contain ",
       nas,
-      "missing values that constitute",
+      " missing values that constitute ",
       round(percentage * 100, 5),
-      "percent of the total data.\n Missing values were imputed using means within compared groups.\n"
+      " percent of the total data.\nMissing values were imputed using means within compared groups.\n"
     )
 
     if (save.to.txt == TRUE) {
@@ -602,12 +595,12 @@ make_Ct_ready <- function(data,
     return(data_wide_imp)
 
   } else {
-    cat(
-      "The data contain",
+    message(
+      "The data contain ",
       nas,
-      "missing values that constitute",
+      " missing values that constitute ",
       round(percentage * 100, 5),
-      "percent of the total data."
+      " percent of the total data."
     )
 
     if (save.to.txt == TRUE) {
@@ -4061,10 +4054,10 @@ RQ_plot <- function(data,
 #' data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
 #' data.dCt.exp <- exp_Ct_dCt(data.dCt)
 #' data.dCt.expF <- filter_transformed_data(data.dCt.exp, remove.Sample = c("Control11"))
-#' roc_parameters <- ROCh(data.dCt, sel.Gene = c("Gene1","Gene16","Gene19","Gene20"),
-#'                        groups = c("Disease","Control"),
-#'                        panels.row = 2,
-#'                        panels.col = 2)
+#'  roc_parameters <- ROCh(data.dCt, sel.Gene = c("Gene1","Gene16","Gene19","Gene20"),
+#'                         groups = c("Disease","Control"),
+#'                         panels.row = 2,
+#'                         panels.col = 2)
 #'
 #' @importFrom dplyr select filter
 #' @importFrom utils write.table
@@ -4088,6 +4081,10 @@ ROCh <- function(data,
                  name.tiff = "ROC_plot",
                  save.to.txt = FALSE,
                  name.txt = "ROC_results") {
+
+  oldpar <- par(no.readonly = TRUE)
+  on.exit(par(oldpar))
+
   data <- filter(data, Group %in% groups)
 
   if (sel.Gene[1] != "all") {
@@ -4140,10 +4137,10 @@ ROCh <- function(data,
     roc_param[x, 1] <- colnames(data)[x + 2]
 
     if (nrow(parameters) > 1) {
-      cat(
-        '\nWarning: ',
+      message(
+        '\nImportant: ',
         colnames(data)[x + 2],
-        'has more than 1 threshold value for calculated Youden J statistic.\n'
+        ' has more than 1 threshold value for calculated Youden J statistic.\n'
       )
     } else {
     }
@@ -4197,7 +4194,6 @@ ROCh <- function(data,
 
   return(roc_param)
 }
-
 
 
 
@@ -5054,9 +5050,10 @@ pca_kmeans <- function(data,
 #' @param sel.Gene Character vector with names of genes to include, or "all" (default) to use all genes.
 #' @param scale Character: a scale used for data presentation, one of the passed to ggparcoord() function.
 #' Generally, scaling is not required since variables are the same units. Default to "globalminmax (no scaling).
-#' @param order Character: method for variables ordering, one of the used in the ggparcoord() function. Default to "anyClass".
-#' must either be a vector of column indices (starting from 3, e.g., for two genes it can be c(3,4) or c(4,3)) or one of 'skewness', 'allClass', 'anyClass', 'Outlying',
-#' 'Skewed', 'Clumpy', 'Sparse', 'Striated', 'Convex', 'Skinny', 'Stringy', 'Monotonic'
+#' @param order Character: method for groups ordering, one of the used in the ggparcoord() function. Default to 'anyClass'.
+#' Must either be a vector of column indices (obligatory if only one gene is plotted), starting from 3 (e.g., for two groups it can be c(3,4) or c(4,3)),
+#' or one of 'skewness', 'allClass', 'anyClass' (default), as well as scagnostic measures available in the 'scagnostics'
+#' package (must be loaded): 'Outlying', `Skewed', 'Clumpy', 'Sparse', 'Striated', 'Convex', 'Skinny', 'Stringy', 'Monotonic'.
 #' @param alpha Numeric: transparency of lines, a value between 0 and 1. Default to 0.7.
 #' @param custom.colors Logical: if custom vector colors for genes is provided (and passed to the colors parameter),
 #' it should be set to TRUE. For default colors, use custom.colors = FALSE (default).

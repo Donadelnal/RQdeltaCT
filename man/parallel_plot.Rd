@@ -44,9 +44,10 @@ Generally, scaling is not required since variables are the same units. Default t
 \item{custom.colors}{Logical: if custom vector colors for genes is provided (and passed to the colors parameter),
 it should be set to TRUE. For default colors, use custom.colors = FALSE (default).}
 
-\item{order}{Character: method for variables ordering, one of the used in the ggparcoord() function. Default to "anyClass".
-must either be a vector of column indices (starting from 3, e.g., for two genes it can be c(3,4) or c(4,3)) or one of 'skewness', 'allClass', 'anyClass', 'Outlying',
-'Skewed', 'Clumpy', 'Sparse', 'Striated', 'Convex', 'Skinny', 'Stringy', 'Monotonic'}
+\item{order}{Character: method for groups ordering, one of the used in the ggparcoord() function. Default to 'anyClass'.
+Must either be a vector of column indices (obligatory if only one gene is plotted), starting from 3 (e.g., for two groups it can be c(3,4) or c(4,3)),
+or one of 'skewness', 'allClass', 'anyClass' (default), as well as scagnostic measures available in the 'scagnostics'
+package (must be loaded): 'Outlying', `Skewed', 'Clumpy', 'Sparse', 'Striated', 'Convex', 'Skinny', 'Stringy', 'Monotonic'.}
 
 \item{colors}{Character vector containing custom colors for genes.
 The number of colors must be equal to the number of presented genes. Must be provided if custom.colors = TRUE.}

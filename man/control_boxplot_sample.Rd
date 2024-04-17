@@ -28,11 +28,12 @@ control_boxplot_sample(
 )
 }
 \arguments{
-\item{data}{Object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.}
+\item{data}{Object returned from make_Ct_ready() or delta_Ct() functions. Also, a data frame with
+fold change values returned from RQ_dCt() and RQ_ddCt() functions run in a pairwise mode can be used.}
 
 \item{sel.Sample}{Character vector with names of samples to include, or "all" (default) to use all samples.}
 
-\item{pairwise.FCh}{Logical: If fold change values returned from RQ_exp_Ct_dCt() and RQ_ddCt() functions
+\item{pairwise.FCh}{Logical: If fold change values returned from RQ_dCt() and RQ_ddCt() functions
 in a pairwise approach are used as data, this parameter should be set to TRUE, otherwise to FALSE (default).}
 
 \item{coef}{Numeric: how many times of interquartile range should be used to determine range point for whiskers. Default to 1.5.}

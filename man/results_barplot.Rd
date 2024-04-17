@@ -38,13 +38,13 @@ results_barplot(
 )
 }
 \arguments{
-\item{data}{Object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.}
+\item{data}{Object returned from make_Ct_ready() or delta_Ct() functions.}
 
 \item{sel.Gene}{Character vector with names of genes to include, or "all" (default) to use all genes.}
 
 \item{bar.width}{Numeric: width of bars.}
 
-\item{signif.show}{Logical: if TRUE, labels for statistical significance will be added to the plot.}
+\item{signif.show}{Logical: if TRUE, labels for statistical significance will be added to the plot. Default to FALSE.}
 
 \item{signif.labels}{Character vector with statistical significance labels (e.g. "ns.","***", etc.). The number
 of elements must be equal to the number of genes used for plotting. All elements in the vector must be different; therefore,
@@ -116,9 +116,8 @@ data.CtF <- filter_Ct(data.Ct,
                       remove.Sample = c("Control08","Control16","Control22"))
 data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
 data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
-data.dCt.exp <- exp_Ct_dCt(data.dCt)
-data.dCt.expF <- filter_transformed_data(data.dCt.exp, remove.Sample = c("Control11"))
-results_barplot(data.dCt.exp,
+data.dCtF <- filter_transformed_data(data.dCt, remove.Sample = c("Control11"))
+results_barplot(data.dCtF,
                 sel.Gene = c("Gene1","Gene16","Gene19","Gene20"),
                 signif.labels = c("****","*","***"," * "),
                 angle = 30,

@@ -25,7 +25,7 @@ corr_gene(
 )
 }
 \arguments{
-\item{data}{Object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.}
+\item{data}{Object returned from make_Ct_ready() or delta_Ct() functions.}
 
 \item{sel.Gene}{Character vector with names of genes to include, or "all" (default) to use all genes.}
 
@@ -67,7 +67,8 @@ will be saved to .txt file. Default to FALSE.}
 \item{name.txt}{character: name of saved .txt file, without ".txt" name of extension.. Default to "corr_genes".}
 }
 \value{
-Plot illustrating correlation matrix (displayed on the graphic device) and data frame with computed correlation coefficients and p values.
+Plot illustrating correlation matrix (displayed on the graphic device) and
+data frame with computed correlation coefficients and p values.
 }
 \description{
 This function performs correlation analysis of genes based on the data, useful to gain insight into relationships between analyzed genes.

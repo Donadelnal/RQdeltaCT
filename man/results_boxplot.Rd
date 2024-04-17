@@ -9,7 +9,7 @@ results_boxplot(
   coef = 1.5,
   sel.Gene = "all",
   by.group = TRUE,
-  signif.show = TRUE,
+  signif.show = FALSE,
   signif.labels,
   signif.length = 0.2,
   signif.dist = 0.2,
@@ -42,7 +42,7 @@ results_boxplot(
 )
 }
 \arguments{
-\item{data}{Object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.}
+\item{data}{Object returned from make_Ct_ready() or delta_Ct() functions.}
 
 \item{coef}{Numeric: how many times of interquartile range should be used to determine range point for whiskers. Default to 1.5.}
 
@@ -50,7 +50,7 @@ results_boxplot(
 
 \item{by.group}{Logical: if TRUE (default), distributions will be drawn by compared groups of samples.}
 
-\item{signif.show}{Logical: if TRUE, labels for statistical significance will be added to the plot.}
+\item{signif.show}{Logical: if TRUE, labels for statistical significance will be added to the plot. Default to FALSE.}
 
 \item{signif.labels}{Character vector with statistical significance labels (e.g. "ns.","***", etc.). The number
 of elements must be equal to the number of genes used for plotting. All elements in the vector must be different; therefore,
@@ -58,8 +58,8 @@ symmetrically white spaces to repeated labels must be add to the same labels, e.
 
 \item{signif.length}{Numeric: length of horizontal bars under statistical significance labels, values from 0 to 1.}
 
-\item{signif.dist}{Numeric: distance between errorbar and statistical significance labels.
-Can be in y axis units (if faceting = FALSE) or fraction of y axis value reached by errorbar (mean + sd value) (if faceting = TRUE).}
+\item{signif.dist}{Numeric: distance between the highest value and statistical significance labels.
+Can be in y axis units (if faceting = FALSE) or fraction of y axis value reached by the highest value (if faceting = TRUE).}
 
 \item{faceting}{Logical: if TRUE (default), plot will be drawn with facets with free scales.}
 
@@ -129,9 +129,8 @@ data.CtF <- filter_Ct(data.Ct,
                       remove.Sample = c("Control08","Control16","Control22"))
 data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
 data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
-data.dCt.exp <- exp_Ct_dCt(data.dCt)
-data.dCt.expF <- filter_transformed_data(data.dCt.exp, remove.Sample = c("Control11"))
-results_boxplot(data.dCt.exp,
+data.dCtF <- filter_transformed_data(data.dCt, remove.Sample = c("Control11"))
+results_boxplot(data.dCtF,
                 sel.Gene = c("Gene1","Gene16","Gene19","Gene20"),
                 signif.labels = c("****","*","***"," * "),
                 angle = 30,

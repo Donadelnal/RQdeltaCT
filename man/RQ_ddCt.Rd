@@ -35,7 +35,7 @@ is calculated using Student's t test and Mann-Whitney U test. Default to TRUE.}
 
 \item{save.to.txt}{Logical: if TRUE, returned table with results is saved to .txt file. Default to FALSE.}
 
-\item{name.txt}{Character: name of saved .txt file, without ".txt" name of extension. Default to "RQ_ddCt_results".}
+\item{name.txt}{Character: name of saved .txt file, without ".txt" name of extension. Default to "results_ddCt".}
 }
 \value{
 Data frame with relative quantification results.
@@ -45,14 +45,15 @@ This function performs relative quantification of gene expression using 2^-ddCt 
 }
 \details{
 This function performs:
-1. Calculation of means (returned in columns with the "_mean" pattern) and standard deviations (returned in columns with the "_sd" pattern)
-of delta Ct values for analyzed genes across compared groups.
+1. Calculation of means (returned in columns with the "_mean" pattern) and standard deviations (returned
+in columns with the "_sd" pattern) of delta Ct values for analyzed genes across compared groups.
 2. Normality tests (Shapiro_Wilk test) of delta Ct values of analyzed genes across compared groups and returned p values are
 stored in columns with the "_norm_p" pattern.
 3. Calculation of differences in mean delta Ct values of genes between compared groups, obtaining delta delta Ct values (returned  in"ddCt" column).
 4. Calculation of fold change values (returned in "FCh" column) for each gene by exponentiation of ddCt values using 2^-ddCt formula.
 5. Statistical testing of differences between study group and reference group using Student's t test and Mann-Whitney U test.
 Resulted statistics (in column with "_test_stat" pattern) and p values (in column with "_test_p" pattern) are returned.
+6. P values adjusted for multiple testing using a selected method.
 }
 \examples{
 library(tidyverse)
@@ -63,7 +64,7 @@ data.CtF <- filter_Ct(data.Ct,
                       remove.Sample = c("Control08","Control16","Control22"))
 data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
 data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
-RQ.ddCt <- RQ_ddCt(data.dCt, "Disease", "Control")
-head(RQ.ddCt)
+results.ddCt <- RQ_ddCt(data.dCt, "Disease", "Control")
+head(results.ddCt)
 
 }

@@ -31,13 +31,13 @@ control_pca_sample(
 )
 }
 \arguments{
-\item{data}{Object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.
-Also, table with fold change values returned from RQ_exp_Ct_dCt() and RQ_ddCt() functions can be used,
+\item{data}{Object returned from make_Ct_ready() or delta_Ct() functions.
+Also, table with fold change values returned from RQ_dCt() and RQ_ddCt() functions can be used,
 but in such situation a pairwise.FCh parameter must be set to TRUE.}
 
 \item{sel.Gene}{Character vector with names of genes to include, or "all" (default) to use all genes.}
 
-\item{pairwise.FCh}{Logical: If fold change values returned from RQ_exp_Ct_dCt() and RQ_ddCt() functions
+\item{pairwise.FCh}{Logical: If fold change values returned from RQ_dCt() and RQ_ddCt() functions
 in a pairwise approach are used as data, this parameter should be set to TRUE, otherwise to FALSE (default).}
 
 \item{point.size}{Numeric: size of points. Default to 4.}

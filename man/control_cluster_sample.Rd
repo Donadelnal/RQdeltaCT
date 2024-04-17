@@ -22,8 +22,8 @@ control_cluster_sample(
 )
 }
 \arguments{
-\item{data}{Object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.
-Also, table with fold change values returned from RQ_exp_Ct_dCt() and RQ_ddCt() functions can be used,
+\item{data}{Object returned from make_Ct_ready() or delta_Ct() functions.
+Also, table with fold change values returned from RQ_dCt() and RQ_ddCt() functions can be used,
 but in such situation a pairwise.FCh parameter must be set to TRUE.}
 
 \item{sel.Gene}{Character vector with names of genes to include, or "all" (default) to use all genes.}
@@ -34,7 +34,7 @@ must be one of "euclidean" (default) , "maximum", "manhattan", "canberra", "bina
 \item{method.clust}{Character: name of used method for agglomeration, derived from stats::hclust() function,
 must be one of "ward.D", "ward.D2", "single", "complete", "average" (default), "mcquitty", "median" or "centroid".}
 
-\item{pairwise.FCh}{Logical: If fold change values returned from RQ_exp_Ct_dCt() and RQ_ddCt() functions
+\item{pairwise.FCh}{Logical: If fold change values returned from RQ_dCt() and RQ_ddCt() functions
 in a pairwise approach are used as data, this parameter should be set to TRUE, otherwise to FALSE (default).}
 
 \item{x.axis.title}{Character: title of x axis. Default to "Samples".}

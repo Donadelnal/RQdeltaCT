@@ -4,12 +4,24 @@
 \alias{delta_Ct}
 \title{delta_Ct}
 \usage{
-delta_Ct(data, ref, save.to.txt = FALSE, name.txt = "data_dCt")
+delta_Ct(
+  data,
+  ref,
+  normalise = TRUE,
+  transform = FALSE,
+  save.to.txt = FALSE,
+  name.txt = "data_dCt"
+)
 }
 \arguments{
-\item{data}{Data object returned from make_Ct_ready function,}
+\item{data}{Data object returned from make_Ct_ready function.}
 
 \item{ref}{Character vector with name of one or more reference genes.}
+
+\item{normalise}{Logical: if TRUE, data normalisation will be done using reference gene/genes
+(provided in ref parameter).}
+
+\item{transform}{Logical: if TRUE, calculated dCt values will be transformed using 2^-dCt formula. Default to FALSE.}
 
 \item{save.to.txt}{Logical: if TRUE, returned data will be saved to .txt file. Default to FALSE.}
 
@@ -19,7 +31,9 @@ delta_Ct(data, ref, save.to.txt = FALSE, name.txt = "data_dCt")
 Data frame with dCt values.
 }
 \description{
-This function calculates delta Ct (dCt) values by subtracting Ct values of reference gene or genes from Ct values of remaining genes.
+This function calculates delta Ct (dCt) values by subtracting Ct values of reference
+gene or genes from Ct values of remaining genes. Obtained dCt values can be further
+transformed by using 2^-dCt formula (if transform == TRUE).
 }
 \examples{
 library(tidyverse)
@@ -30,5 +44,7 @@ data.CtF <- filter_Ct(data.Ct,
 data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
 data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
 head(data.dCt)
+data.dCt.exp <- delta_Ct(data.CtF.ready, ref = "Gene8", transform = TRUE)
+head(data.dCt.exp)
 
 }

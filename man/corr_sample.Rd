@@ -25,7 +25,7 @@ corr_sample(
 )
 }
 \arguments{
-\item{data}{Object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.}
+\item{data}{Object returned from make_Ct_ready() or delta_Ct() functions.}
 
 \item{sel.Sample}{Character vector with names of samples to include, or "all" (default) to use all samples.}
 

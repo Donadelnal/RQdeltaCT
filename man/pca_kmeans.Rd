@@ -35,7 +35,7 @@ pca_kmeans(
 )
 }
 \arguments{
-\item{data}{Object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.}
+\item{data}{Object returned from make_Ct_ready() or delta_Ct() functions.}
 
 \item{do.k.means}{Logical: if TRUE (default), k means analysis will be performed.}
 

@@ -32,7 +32,7 @@ parallel_plot(
 )
 }
 \arguments{
-\item{data}{Object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.}
+\item{data}{Object returned from make_Ct_ready() or delta_Ct() functions.}
 
 \item{sel.Gene}{Character vector with names of genes to include, or "all" (default) to use all genes.}
 

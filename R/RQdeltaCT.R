@@ -243,7 +243,7 @@ control_Ct_barplot_sample <- function(data,
                                       width = 15,
                                       height = 15,
                                       name.tiff = "Ct_control_barplot_for_samples") {
-  data$Ct[data$Ct == flag.Ct] <- 100
+  data$Ct[data$Ct == flag.Ct] <- 40
   data$Ct <- as.numeric(data$Ct)
 
   if (sum(colnames(data) %in% "Flag") > 0) {
@@ -390,7 +390,7 @@ control_Ct_barplot_gene <- function(data,
                                     width = 15,
                                     height = 15,
                                     name.tiff = "Ct_control_barplot_for_genes") {
-  data$Ct[data$Ct == flag.Ct] <- 100
+  data$Ct[data$Ct == flag.Ct] <- 40
   data$Ct <- as.numeric(data$Ct)
 
   if (sum(colnames(data) %in% "Flag") > 0) {
@@ -615,260 +615,7 @@ make_Ct_ready <- function(data,
 
 
 
-#' @title exp_Ct_dCt
-#'
-#' @description
-#' This function exponentiates Ct and delta Ct (dCt) values by using 2^-Ct and 2^-dCt formulas, respectively.
-#'
-#' @param data Data object returned from make_Ct_ready() or delta_Ct() functions.
-#' @param save.to.txt Logical: if TRUE, returned data will be saved to .txt file. Default to FALSE.
-#' @param name.txt Character: name of saved .txt file, without ".txt" name of extension. Default to "data_exp_Ct_dCt".
-#'
-#' @return Data frame with exponentiated Ct or dCt values.
-#' @export
-#'
-#' @examples
-#' library(tidyverse)
-#' data(data.Ct)
-#' data.CtF <- filter_Ct(data.Ct,
-#'                       remove.Gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
-#'                       remove.Sample = c("Control08","Control16","Control22"))
-#' data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
-#' data.Ct.exp <- exp_Ct_dCt(data.CtF.ready)
-#' head(data.Ct.exp)
-#'
-#' @importFrom utils write.table
-#' @importFrom dplyr mutate_at
-#' @import tidyverse
-#'
-exp_Ct_dCt <- function(data,
-                       save.to.txt = FALSE,
-                       name.txt = "data_exp_Ct_dCt") {
-  exp <- function(x) {
-    x <- 2 ^ -x
-  }
 
-  data_exp <- data %>%
-    mutate_at(vars(-c("Group", "Sample")), exp)
-
-  if (save.to.txt == TRUE) {
-    write.table(as.data.frame(data_exp), paste(name.txt, ".txt", sep = ""))
-  }
-  return(data_exp)
-}
-
-
-
-
-
-
-#' @title RQ_exp_Ct_dCt
-#'
-#' @description
-#' This function performs relative quantification of gene expression using 2^-Ct and 2^-dCt methods.
-#'
-#' @details
-#' This function calculates:
-#' 1. Means (returned in columns with the "_mean" pattern) and standard deviations (returned in columns with the "_sd" pattern)
-#' of exponentiated Ct or dCt values of analyzed genes across compared groups.
-#' 2. P values of normality test (Shapiro_Wilk test) performed on exponentiated Ct or dCt values across compared groups (returned in columns with the "_norm_p" pattern).
-#' 3. Fold change values (returned in "FCh" column) calculated for each gene by dividing  mean of exponentiated Ct od dCt values in study group
-#' by mean of exponentiated Ct or dCt values in reference group.
-#' 4. Statistics (returned in column with the "_test_stat" pattern) and p values (returned in column with "_test_p" pattern) of
-#' differences in exponentiated Ct or dCt values between study group and reference group using Student's t test and Mann-Whitney U test.
-#' @param data Data object returned from exp_Ct_dCt() function.
-#' @param group.study Character: name of study group (group of interest).
-#' @param group.ref Character: name of reference group.
-#' @param do.tests Logical: if TRUE, statistical significance of differences between compared groups will be calculated using Student's t test and Mann-Whitney U test. Default to TRUE.
-#' @param pairwise Logical: if TRUE, a pairwise analysis will be performed (see details). Default to FALSE.
-#' @param alternative Character: alternative hypothesis, must be one of "two.sided" (default), "greater" or "less".
-#' @param p.adjust.method Character: p value correction method for multiple testing, one of the "holm", "hochberg", "hommel",
-#' "bonferroni", "BH" (default), "BY","fdr", or "none". See documentation for stats::p.adjust() function for details.
-#' @param save.to.txt Logical: if TRUE, returned table with results will be saved to .txt file. Default to FALSE.
-#' @param name.txt Character: name of saved .txt file, without ".txt" name of extension. Default to "RQ_exp_results".
-#
-#' @return Data frame with results (if pairwise = FALSE) or, if pairwise = TRUE, the list object
-#' with two elements: a table with the results and the second table with fold change values calculated individually for each sample.
-#' @export
-#'
-#' @examples
-#' library(tidyverse)
-#' library(coin)
-#' data(data.Ct)
-#' data.CtF <- filter_Ct(data.Ct,
-#'                      remove.Gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
-#'                      remove.Sample = c("Control08","Control16","Control22"))
-#' data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
-#' data.Ct.exp <- exp_Ct_dCt(data.CtF.ready)
-#' RQ.Ct.exp <- RQ_exp_Ct_dCt(data.Ct.exp,
-#'                            group.study = "Disease",
-#'                            group.ref = "Control")
-#' head(RQ.Ct.exp)
-#'
-#' @importFrom stats sd shapiro.test t.test p.adjust
-#' @importFrom coin wilcox_test wilcoxsign_test pvalue statistic
-#' @importFrom utils write.table
-#' @importFrom dplyr filter select rename_with full_join group_by summarise mutate
-#' @importFrom tidyr pivot_longer pivot_wider
-#' @importFrom tidyselect all_of ends_with everything
-#' @importFrom magrittr %>%
-#' @import tidyverse
-#'
-RQ_exp_Ct_dCt <- function(data,
-                          group.study,
-                          group.ref,
-                          do.tests = TRUE,
-                          pairwise = FALSE,
-                          alternative = "two.sided",
-                          p.adjust.method = "BH",
-                          save.to.txt = FALSE,
-                          name.txt = "RQ_exp_results") {
-  data_slim <- data %>%
-    filter(Group == group.study | Group == group.ref) %>%
-    pivot_longer(
-      cols = -c(Group, Sample),
-      names_to = "Gene",
-      values_to = "value"
-    )
-
-  data_mean <- data_slim %>%
-    group_by(Group, Gene) %>%
-    summarise(value = mean(value, na.rm = TRUE), .groups = "keep") %>%
-    pivot_wider(names_from = Group, values_from = value) %>%
-    rename_with(~ paste0(.x, "_mean", recycle0 = TRUE), all_of(c(group.study, group.ref)))
-
-
-  data_sd <- data_slim %>%
-    group_by(Group, Gene) %>%
-    summarise(value_sd = sd(value, na.rm = TRUE), .groups = "keep") %>%
-    pivot_wider(names_from = Group, values_from = value_sd) %>%
-    rename_with(~ paste0(.x, "_sd", recycle0 = TRUE), all_of(c(group.study, group.ref)))
-
-  data_mean_sd <- full_join(data_mean, data_sd, by = c("Gene"))
-
-
-  if (pairwise == FALSE) {
-    data_FCh <- data_slim %>%
-      group_by(Group, Gene) %>%
-      summarise(value = mean(value, na.rm = TRUE), .groups = "keep") %>%
-      pivot_wider(names_from = Group, values_from = value) %>%
-      mutate(FCh = .data[[group.study]] / .data[[group.ref]]) %>%
-      mutate(log10FCh = log10(FCh)) %>%
-      select(Gene, FCh, log10FCh)
-
-  } else {
-    data_FCh <- data %>%
-      filter(Group == group.study | Group == group.ref) %>%
-      pivot_longer(
-        cols = -c(Group, Sample),
-        names_to = "Gene",
-        values_to = "value"
-      ) %>%
-      pivot_wider(names_from = Group, values_from = value) %>%
-      mutate(FCh = .data[[group.study]] / .data[[group.ref]])
-
-    data_FCh_mean <- data_FCh %>%
-      group_by(Gene) %>%
-      summarise(FCh = mean(FCh, na.rm = TRUE), .groups = "keep") %>%
-      mutate(log10FCh = log10(FCh))
-
-    data_FCh_sd <- data_FCh %>%
-      group_by(Gene) %>%
-      summarise(FCh_sd = sd(FCh, na.rm = TRUE), .groups = "keep")
-  }
-
-  if (do.tests == TRUE) {
-    data_norm <- data_slim %>%
-      group_by(Group, Gene) %>%
-      summarise(shap_wilka_p = shapiro.test(value)$p.value,
-                .groups = "keep") %>%
-      pivot_wider(names_from = Group, values_from = shap_wilka_p) %>%
-      rename_with(~ paste0(.x, "_norm_p", recycle0 = TRUE), all_of(c(group.study, group.ref)))
-
-    data_mean_sd_norm <-
-      full_join(data_mean_sd, data_norm, by = c("Gene"))
-
-    data_slim$Group <- as.factor(data_slim$Group)
-
-    if (pairwise == FALSE) {
-      data_tests <- data_slim %>%
-        group_by(Gene) %>%
-        summarise(
-          t_test_p = t.test(value ~ Group, alternative = alternative)$p.value,
-          t_test_stat = t.test(value ~ Group, alternative = alternative)$statistic,
-          MW_test_p = coin::pvalue(wilcox_test(value ~ Group, alternative = alternative)),
-          MW_test_stat = coin::statistic(wilcox_test(value ~ Group, alternative = alternative)),
-          .groups = "keep"
-        )
-
-    } else {
-      data_tests <- data_slim %>%
-        pivot_wider(names_from = "Group", values_from = "value") %>%
-        group_by(Gene) %>%
-        summarise(
-          t_test_p = t.test(
-            .data[[group.study]],
-            .data[[group.ref]],
-            alternative = alternative,
-            paired = TRUE
-          )$p.value,
-          t_test_stat = t.test(
-            .data[[group.study]],
-            .data[[group.ref]],
-            alternative = alternative,
-            paired = TRUE
-          )$statistic,
-          MW_test_p = coin::pvalue(
-            wilcoxsign_test(.data[[group.study]] ~ .data[[group.ref]], alternative = alternative)
-          ),
-          MW_test_stat = coin::statistic(
-            wilcoxsign_test(.data[[group.study]] ~ .data[[group.ref]], alternative = alternative)
-          ),
-          .groups = "keep"
-        )
-    }
-    data_tests$t_test_p_adj <-
-      p.adjust(data_tests$t_test_p, method = p.adjust.method)
-    data_tests$MW_test_p_adj <-
-      p.adjust(data_tests$MW_test_p, method = p.adjust.method)
-
-    if (pairwise == TRUE) {
-      data_mean_sd_norm_FChmean <-
-        full_join(data_mean_sd_norm, data_FCh_mean, by = c("Gene"))
-      data_mean_sd_norm_FChmean_FChsd <-
-        full_join(data_mean_sd_norm_FChmean, data_FCh_sd, by = c("Gene"))
-      data_results <-
-        full_join(data_mean_sd_norm_FChmean_FChsd,
-                  data_tests,
-                  by = c("Gene"))
-      return(list(data_results, data_FCh))
-
-    } else {
-      data_mean_sd_FCh <-
-        full_join(data_mean_sd_norm, data_FCh, by = c("Gene"))
-      data_results <-
-        full_join(data_mean_sd_FCh, data_tests, by = c("Gene"))
-      return(data_results)
-    }
-
-  } else {
-    if (pairwise == TRUE) {
-      data_mean_sd_FChmean <-
-        full_join(data_mean_sd, data_FCh_mean, by = c("Gene"))
-      data_results <-
-        full_join(data_mean_sd_FChmean, data_FCh_sd, by = c("Gene"))
-      return(list(data_results, data_FCh))
-
-    } else {
-      data_results <- full_join(data_mean_sd, data_FCh, by = c("Gene"))
-      return(data_results)
-    }
-  }
-
-  if (save.to.txt == TRUE) {
-    write.table(data_results, paste(name.txt, ".txt", sep = ""))
-  }
-}
 
 
 
@@ -1043,7 +790,7 @@ norm_finder <- function(data,
                         row.names = genenames[ord])
 
   if (save.to.txt == TRUE) {
-    write.table(FinalRes, paste(name.txt, ".txt", sep = ""))
+    write.table(as.data.frame(FinalRes), paste(name.txt, ".txt", sep = ""))
   }
 
   return(FinalRes)
@@ -1242,13 +989,19 @@ find_ref_gene <- function(data,
 
 
 
+
 #' @title delta_Ct
 #'
 #' @description
-#' This function calculates delta Ct (dCt) values by subtracting Ct values of reference gene or genes from Ct values of remaining genes.
+#' This function calculates delta Ct (dCt) values by subtracting Ct values of reference
+#' gene or genes from Ct values of remaining genes. Obtained dCt values can be further
+#' transformed by using 2^-dCt formula (if transform == TRUE).
 #'
-#' @param data Data object returned from make_Ct_ready function,
+#' @param data Data object returned from make_Ct_ready function.
 #' @param ref Character vector with name of one or more reference genes.
+#' @param normalise Logical: if TRUE, data normalisation will be done using reference gene/genes
+#' (provided in ref parameter).
+#' @param transform Logical: if TRUE, calculated dCt values will be transformed using 2^-dCt formula. Default to FALSE.
 #' @param save.to.txt Logical: if TRUE, returned data will be saved to .txt file. Default to FALSE.
 #' @param name.txt Character: name of saved .txt file, without ".txt" name of extension. Default to "data_dCt".
 #'
@@ -1264,6 +1017,8 @@ find_ref_gene <- function(data,
 #' data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
 #' data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
 #' head(data.dCt)
+#' data.dCt.exp <- delta_Ct(data.CtF.ready, ref = "Gene8", transform = TRUE)
+#' head(data.dCt.exp)
 #'
 #' @importFrom utils write.table
 #' @importFrom tidyselect all_of
@@ -1272,8 +1027,12 @@ find_ref_gene <- function(data,
 #'
 delta_Ct <- function(data,
                      ref,
+                     normalise = TRUE,
+                     transform = FALSE,
                      save.to.txt = FALSE,
                      name.txt = "data_dCt") {
+  if (normalise == TRUE) {
+
   if (length(ref) > 1) {
     data$calibrator <- rowMeans(data[, colnames(data) %in% ref])
     dCt <-  mutate_at(data,
@@ -1289,6 +1048,16 @@ delta_Ct <- function(data,
 
   dCt <- select(dCt, Group, Sample, ends_with("dCt"))
   colnames(dCt) <- sub("_dCt*", "", colnames(dCt))
+  }
+
+  if (transform == TRUE) {
+  exp <- function(x) {
+    x <- 2 ^ -x
+  }
+
+  dCt <- dCt %>%
+    mutate_at(vars(-c("Group", "Sample")), exp)
+  }
 
   if (save.to.txt == TRUE) {
     write.table(as.data.frame(dCt), paste(name.txt, ".txt", sep = ""))
@@ -1301,14 +1070,19 @@ delta_Ct <- function(data,
 
 
 
+
+
+
+
 #' @title control_boxplot_sample
 #'
 #' @description
 #' Boxplot that illustrate distribution of data in each sample. This function is helpful to identify outlier samples.
 #'
-#' @param data Object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.
+#' @param data Object returned from make_Ct_ready() or delta_Ct() functions. Also, a data frame with
+#' fold change values returned from RQ_dCt() and RQ_ddCt() functions run in a pairwise mode can be used.
 #' @param sel.Sample Character vector with names of samples to include, or "all" (default) to use all samples.
-#' @param pairwise.FCh Logical: If fold change values returned from RQ_exp_Ct_dCt() and RQ_ddCt() functions
+#' @param pairwise.FCh Logical: If fold change values returned from RQ_dCt() and RQ_ddCt() functions
 #' in a pairwise approach are used as data, this parameter should be set to TRUE, otherwise to FALSE (default).
 #' @param coef Numeric: how many times of interquartile range should be used to determine range point for whiskers. Default to 1.5.
 #' @param colors Character vector containing colors for compared groups. Numbers of colors must be equal to number of groups. Default to c("#66c2a5", "#fc8d62").
@@ -1439,9 +1213,10 @@ control_boxplot_sample <- function(data,
 #' @description
 #' This function creates boxplot that illustrate distribution of data in each gene.
 #'
-#' @param data Object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.
+#' @param data Object returned from make_Ct_ready() or delta_Ct() functions. Also, a data frame with
+#' fold change values returned from RQ_dCt() and RQ_ddCt() functions run in a pairwise mode can be used.
 #' @param sel.Gene Character vector with names of genes to include, or "all" (default) to use all genes.
-#' @param pairwise.FCh Logical: If fold change values returned from RQ_exp_Ct_dCt() and RQ_ddCt() functions
+#' @param pairwise.FCh Logical: If fold change values returned from RQ_dCt() and RQ_ddCt() functions
 #' in a pairwise approach are used as data, this parameter should be set to TRUE, otherwise to FALSE (default).
 #' @param by.group Logical: if TRUE, distributions will be drawn by compared groups of samples.
 #' @param coef Numeric: how many times of interquartile range should be used to determine range point for whiskers. Default to 1.5.
@@ -1590,15 +1365,15 @@ control_boxplot_gene <- function(data,
 #' @description
 #' This function performs hierarchical clustering of samples based on the data, useful to identify outlier samples.
 #'
-#' @param data Object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.
-#' Also, table with fold change values returned from RQ_exp_Ct_dCt() and RQ_ddCt() functions can be used,
+#' @param data Object returned from make_Ct_ready() or delta_Ct() functions.
+#' Also, table with fold change values returned from RQ_dCt() and RQ_ddCt() functions can be used,
 #' but in such situation a pairwise.FCh parameter must be set to TRUE.
 #' @param sel.Gene Character vector with names of genes to include, or "all" (default) to use all genes.
 #' @param method.dist Character: name of method used for calculation of distances, derived from stats::dist() function,
 #' must be one of "euclidean" (default) , "maximum", "manhattan", "canberra", "binary" or "minkowski".
 #' @param method.clust Character: name of used method for agglomeration, derived from stats::hclust() function,
 #' must be one of "ward.D", "ward.D2", "single", "complete", "average" (default), "mcquitty", "median" or "centroid".
-#' @param pairwise.FCh Logical: If fold change values returned from RQ_exp_Ct_dCt() and RQ_ddCt() functions
+#' @param pairwise.FCh Logical: If fold change values returned from RQ_dCt() and RQ_ddCt() functions
 #' in a pairwise approach are used as data, this parameter should be set to TRUE, otherwise to FALSE (default).
 #' @param x.axis.title Character: title of x axis. Default to "Samples".
 #' @param y.axis.title Character: title of y axis. Default to "Height".
@@ -1711,14 +1486,15 @@ control_cluster_sample <- function(data,
 #' @description
 #' This function performs hierarchical clustering of genes based on the data, useful to gain insight into similarity in expression of analyzed genes.
 #'
-#' @param data Object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions. Also, table with fold change values returned from RQ_exp_Ct_dCt() and RQ_ddCt() functions can be used,
+#' @param data Object returned from make_Ct_ready() or delta_Ct() functions.
+#' Also, table with fold change values returned from RQ_dCt() and RQ_ddCt() functions can be used,
 #' but in such situation a pairwise.FCh parameter must be set to TRUE.
 #' @param sel.Sample Character vector with names of samples to include, or "all" (default) to use all samples.
 #' @param method.dist Character: name of method used for calculation of distances, derived from stats::dist() function,
 #' must be one of "euclidean" (default) , "maximum", "manhattan", "canberra", "binary" or "minkowski".
 #' @param method.clust Character: name of used method for agglomeration, derived from stats::hclust() function,
 #' must be one of "ward.D", "ward.D2", "single", "complete", "average" (default), "mcquitty", "median" or "centroid".
-#' @param pairwise.FCh Logical: If fold change values returned from RQ_exp_Ct_dCt() and RQ_ddCt() functions
+#' @param pairwise.FCh Logical: If fold change values returned from RQ_dCt() and RQ_ddCt() functions
 #' in a pairwise approach are used as data, this parameter should be set to TRUE, otherwise to FALSE (default).
 #' @param x.axis.title Character: title of x axis. Default to "Genes".
 #' @param y.axis.title Character: title of y axis. Default to "Height".
@@ -1829,11 +1605,11 @@ control_cluster_gene <- function (data,
 #' of samples based on the two first components. This plot is useful to identify outlier samples.
 #' PCA analysis can not deal with missing values, thus all samples with at least one missing value are removed from data before analysis.
 #'
-#' @param data Object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.
-#' Also, table with fold change values returned from RQ_exp_Ct_dCt() and RQ_ddCt() functions can be used,
+#' @param data Object returned from make_Ct_ready() or delta_Ct() functions.
+#' Also, table with fold change values returned from RQ_dCt() and RQ_ddCt() functions can be used,
 #' but in such situation a pairwise.FCh parameter must be set to TRUE.
 #' @param sel.Gene Character vector with names of genes to include, or "all" (default) to use all genes.
-#' @param pairwise.FCh Logical: If fold change values returned from RQ_exp_Ct_dCt() and RQ_ddCt() functions
+#' @param pairwise.FCh Logical: If fold change values returned from RQ_dCt() and RQ_ddCt() functions
 #' in a pairwise approach are used as data, this parameter should be set to TRUE, otherwise to FALSE (default).
 #' @param point.size Numeric: size of points. Default to 4.
 #' @param point.shape Integer: shape of points. Default to 19.
@@ -2026,11 +1802,11 @@ control_pca_sample <- function(data,
 #' This plot allows to gain insight into similarity in expression of analyzed genes. PCA analysis can not deal with missing values,
 #' thus all genes with at least one missing value are removed from data before analysis.
 #'
-#' @param data Object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.
-#' Also, table with fold change values returned from RQ_exp_Ct_dCt() and RQ_ddCt() functions can be used,
+#' @param data Object returned from make_Ct_ready() or delta_Ct() functions.
+#' Also, table with fold change values returned from RQ_dCt() and RQ_ddCt() functions can be used,
 #' but in such situation a pairwise.FCh parameter must be set to TRUE.
 #' @param sel.Sample Character vector with names of samples to include, or "all" (default) to use all samples.
-#' @param pairwise.FCh Logical: If fold change values returned from RQ_exp_Ct_dCt() and RQ_ddCt() functions
+#' @param pairwise.FCh Logical: If fold change values returned from RQ_dCt() and RQ_ddCt() functions
 #' in a pairwise approach are used as data, this parameter should be set to TRUE, otherwise to FALSE (default).
 #' @param point.size Numeric: size of points. Default to 4.
 #' @param point.shape Integer: shape of points. Default to 19.
@@ -2203,7 +1979,7 @@ control_pca_gene <- function(data,
 #' @description
 #' This function performs correlation analysis of genes based on the data, useful to gain insight into relationships between analyzed genes.
 #'
-#' @param data Object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.
+#' @param data Object returned from make_Ct_ready() or delta_Ct() functions.
 #' @param sel.Gene Character vector with names of genes to include, or "all" (default) to use all genes.
 #' @param type Character: type of displayed matrix, must be one of the 'full' (full matrix), 'upper' (upper triangular, default) or 'lower' (lower triangular).
 #' @param add.coef If correlation coefficients should be add to the plot, specify color of coefficients (default to "black").
@@ -2228,7 +2004,8 @@ control_pca_gene <- function(data,
 #' will be saved to .txt file. Default to FALSE.
 #' @param name.txt character: name of saved .txt file, without ".txt" name of extension.. Default to "corr_genes".
 #'
-#' @return Plot illustrating correlation matrix (displayed on the graphic device) and data frame with computed correlation coefficients and p values.
+#' @return Plot illustrating correlation matrix (displayed on the graphic device) and
+#' data frame with computed correlation coefficients and p values.
 #' @export
 #'
 #' @examples
@@ -2362,7 +2139,7 @@ corr_gene <- function(data,
   corr.data.sort <- arrange(corr.data,-abs(cor))
 
   if (save.to.txt == TRUE) {
-    write.table(corr.data.sort, paste(name.txt, ".txt", sep = ""))
+    write.table(as.data.frame(corr.data.sort), paste(name.txt, ".txt", sep = ""))
   }
   return(as.data.frame(corr.data.sort))
 }
@@ -2376,7 +2153,7 @@ corr_gene <- function(data,
 #' @description
 #' This function performs correlation analysis of samples based on the data. Results are useful to gain insight into relationships between analyzed samples.
 #'
-#' @param data Object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.
+#' @param data Object returned from make_Ct_ready() or delta_Ct() functions.
 #' @param sel.Sample Character vector with names of samples to include, or "all" (default) to use all samples.
 #' @param type Character: type of displayed matrix, must be one of the 'full' (full matrix), 'upper' (upper triangular, default) or 'lower' (lower triangular).
 #' @param add.coef If correlation coefficients should be add to the plot, specify color of coefficients (default to "black").
@@ -2537,7 +2314,7 @@ corr_sample <- function(data,
   corr.data.sort <- arrange(corr.data,-abs(cor))
 
   if (save.to.txt == TRUE) {
-    write.table(corr.data.sort, paste(name.txt, ".txt", sep = ""))
+    write.table(as.data.frame(corr.data.sort), paste(name.txt, ".txt", sep = ""))
   }
 
   return(as.data.frame(corr.data.sort))
@@ -2554,7 +2331,7 @@ corr_sample <- function(data,
 #' @description
 #' This function generates scatter plot with linear regression line for two specified genes.
 #'
-#' @param data Object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.
+#' @param data Object returned from make_Ct_ready() or delta_Ct() functions.
 #' @param x,y Characters: names of genes to use.
 #' @param by.group Logical: if TRUE (default), relationships will be shown separately for compared groups.
 #' @param point.size Numeric: size of points. Default to 4.
@@ -2710,7 +2487,7 @@ single_pair_gene <- function(data,
 #' @description
 #' This function generates scatter plot with linear regression line for two specified samples.
 #'
-#' @param data Object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.
+#' @param data Object returned from make_Ct_ready() or delta_Ct() functions.
 #' @param pairwise.data Logical: set to TRUE if a pairwise data is used, default to FALSE.
 #' @param by.group Logical: If TRUE (only for pairwise analysis), relationships will be shown separately for groups.
 #' Default to FALSE.
@@ -2885,9 +2662,10 @@ single_pair_sample <- function(data,
 #' @title filter_transformed_data
 #'
 #' @description
-#' This function filters transformed Ct data (2^-Ct, delta Ct, and 2^-dCt data) according to the used filtering criteria (see parameters).
+#' This function filters transformed Ct data (filtered Ct, delta Ct, and 2^-dCt data)
+#' according to the used filtering criteria (see parameters).
 #'
-#' @param data Object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.
+#' @param data Object returned from make_Ct_ready() or delta_Ct() functions.
 #' @param remove.Gene Character: vector with names of genes to remove from data.
 #' @param remove.Sample Character: vector with names of samples to remove from data.
 #' @param remove.Group Character: vector with names of groups to remove from data.
@@ -2903,11 +2681,10 @@ single_pair_sample <- function(data,
 #'                       remove.Sample = c("Control08","Control16","Control22"))
 #' data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
 #' data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
-#' data.dCt.exp <- exp_Ct_dCt(data.dCt)
-#' data.dCt.expF <- filter_transformed_data(data.dCt.exp, remove.Sample = c("Control11"))
+#' data.dCtF <- filter_transformed_data(data.dCt, remove.Sample = c("Control11"))
 #'
-#' dim(data.dCt.exp)
-#' dim(data.dCt.expF)
+#' dim(data.dCt)
+#' dim(data.dCtF)
 #'
 #'
 #' @importFrom dplyr filter select
@@ -2930,6 +2707,218 @@ filter_transformed_data <- function(data,
 
 
 
+#' @title RQ_dCt
+#'
+#' @description
+#' This function performs relative quantification of gene expression using 2^-dCt method.
+#'
+#' @details
+#' This function calculates:
+#' 1. Means (returned in columns with the "_mean" pattern) and standard deviations (returned in columns with the "_sd" pattern)
+#' of 2^-dCt transformed dCt values for each analyzed gene across compared groups.
+#' 2. P values of normality test (Shapiro_Wilk test) performed on 2^-dCt values across compared groups (returned in
+#' columns with the "_norm_p" pattern).
+#' 3. Fold change values (returned in "FCh" column) calculated for each gene by dividing  mean of 2^-dCt values in study group
+#' by mean of 2^-dCt values in reference group.
+#' 4. Statistics (returned in column with the "_test_stat" pattern) and p values (returned in column with "_test_p" pattern) of
+#' differences in 2^-dCt values between study group and reference group using Student's t test and Mann-Whitney U test.
+#' 5. P values adjusted for multiple testing using a selected method.
+#' @param data Data object returned from delta_Ct() or filter_transformed_data() function.
+#' @param group.study Character: name of study group (group of interest).
+#' @param group.ref Character: name of reference group.
+#' @param do.tests Logical: if TRUE, statistical significance of differences between compared groups will be calculated using Student's t test and Mann-Whitney U test. Default to TRUE.
+#' @param pairwise Logical: if TRUE, a pairwise analysis will be performed (see details). Default to FALSE.
+#' @param alternative Character: alternative hypothesis, must be one of "two.sided" (default), "greater" or "less".
+#' @param p.adjust.method Character: p value correction method for multiple testing, one of the "holm", "hochberg", "hommel",
+#' "bonferroni", "BH" (default), "BY","fdr", or "none". See documentation for stats::p.adjust() function for details.
+#' @param save.to.txt Logical: if TRUE, returned table with results will be saved to .txt file. Default to FALSE.
+#' @param name.txt Character: name of saved .txt file, without ".txt" name of extension. Default to "results_dCt".
+#
+#' @return Data frame with results (if pairwise = FALSE) or, if pairwise = TRUE, the list object
+#' with two elements: a table with the results and the second table with fold change values calculated individually for each sample.
+#' @export
+#'
+#' @examples
+#' library(tidyverse)
+#' library(coin)
+#' data(data.Ct)
+#' data.CtF <- filter_Ct(data.Ct,
+#'                      remove.Gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+#'                      remove.Sample = c("Control08","Control16","Control22"))
+#' data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
+#' data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8", transform = TRUE)
+#' results.dCt <- RQ_dCt(data.dCt,
+#'                            group.study = "Disease",
+#'                            group.ref = "Control")
+#' head(results.dCt)
+#'
+#' @importFrom stats sd shapiro.test t.test p.adjust
+#' @importFrom coin wilcox_test wilcoxsign_test pvalue statistic
+#' @importFrom utils write.table
+#' @importFrom dplyr filter select rename_with full_join group_by summarise mutate
+#' @importFrom tidyr pivot_longer pivot_wider
+#' @importFrom tidyselect all_of ends_with everything
+#' @importFrom magrittr %>%
+#' @import tidyverse
+#'
+RQ_dCt <- function(data,
+                          group.study,
+                          group.ref,
+                          do.tests = TRUE,
+                          pairwise = FALSE,
+                          alternative = "two.sided",
+                          p.adjust.method = "BH",
+                          save.to.txt = FALSE,
+                          name.txt = "results_dCt") {
+  data_slim <- data %>%
+    filter(Group == group.study | Group == group.ref) %>%
+    pivot_longer(
+      cols = -c(Group, Sample),
+      names_to = "Gene",
+      values_to = "value"
+    )
+
+  data_mean <- data_slim %>%
+    group_by(Group, Gene) %>%
+    summarise(value = mean(value, na.rm = TRUE), .groups = "keep") %>%
+    pivot_wider(names_from = Group, values_from = value) %>%
+    rename_with(~ paste0(.x, "_mean", recycle0 = TRUE), all_of(c(group.study, group.ref)))
+
+
+  data_sd <- data_slim %>%
+    group_by(Group, Gene) %>%
+    summarise(value_sd = sd(value, na.rm = TRUE), .groups = "keep") %>%
+    pivot_wider(names_from = Group, values_from = value_sd) %>%
+    rename_with(~ paste0(.x, "_sd", recycle0 = TRUE), all_of(c(group.study, group.ref)))
+
+  data_mean_sd <- full_join(data_mean, data_sd, by = c("Gene"))
+
+
+  if (pairwise == FALSE) {
+    data_FCh <- data_slim %>%
+      group_by(Group, Gene) %>%
+      summarise(value = mean(value, na.rm = TRUE), .groups = "keep") %>%
+      pivot_wider(names_from = Group, values_from = value) %>%
+      mutate(FCh = .data[[group.study]] / .data[[group.ref]]) %>%
+      mutate(log10FCh = log10(FCh)) %>%
+      select(Gene, FCh, log10FCh)
+
+  } else {
+    data_FCh <- data %>%
+      filter(Group == group.study | Group == group.ref) %>%
+      pivot_longer(
+        cols = -c(Group, Sample),
+        names_to = "Gene",
+        values_to = "value"
+      ) %>%
+      pivot_wider(names_from = Group, values_from = value) %>%
+      mutate(FCh = .data[[group.study]] / .data[[group.ref]])
+
+    data_FCh_mean <- data_FCh %>%
+      group_by(Gene) %>%
+      summarise(FCh = mean(FCh, na.rm = TRUE), .groups = "keep") %>%
+      mutate(log10FCh = log10(FCh))
+
+    data_FCh_sd <- data_FCh %>%
+      group_by(Gene) %>%
+      summarise(FCh_sd = sd(FCh, na.rm = TRUE), .groups = "keep")
+  }
+
+  if (do.tests == TRUE) {
+    data_norm <- data_slim %>%
+      group_by(Group, Gene) %>%
+      summarise(shap_wilka_p = shapiro.test(value)$p.value,
+                .groups = "keep") %>%
+      pivot_wider(names_from = Group, values_from = shap_wilka_p) %>%
+      rename_with(~ paste0(.x, "_norm_p", recycle0 = TRUE), all_of(c(group.study, group.ref)))
+
+    data_mean_sd_norm <-
+      full_join(data_mean_sd, data_norm, by = c("Gene"))
+
+    data_slim$Group <- as.factor(data_slim$Group)
+
+    if (pairwise == FALSE) {
+      data_tests <- data_slim %>%
+        group_by(Gene) %>%
+        summarise(
+          t_test_p = t.test(value ~ Group, alternative = alternative)$p.value,
+          t_test_stat = t.test(value ~ Group, alternative = alternative)$statistic,
+          MW_test_p = coin::pvalue(wilcox_test(value ~ Group, alternative = alternative)),
+          MW_test_stat = coin::statistic(wilcox_test(value ~ Group, alternative = alternative)),
+          .groups = "keep"
+        )
+
+    } else {
+      data_tests <- data_slim %>%
+        pivot_wider(names_from = "Group", values_from = "value") %>%
+        group_by(Gene) %>%
+        summarise(
+          t_test_p = t.test(
+            .data[[group.study]],
+            .data[[group.ref]],
+            alternative = alternative,
+            paired = TRUE
+          )$p.value,
+          t_test_stat = t.test(
+            .data[[group.study]],
+            .data[[group.ref]],
+            alternative = alternative,
+            paired = TRUE
+          )$statistic,
+          MW_test_p = coin::pvalue(
+            wilcoxsign_test(.data[[group.study]] ~ .data[[group.ref]], alternative = alternative)
+          ),
+          MW_test_stat = coin::statistic(
+            wilcoxsign_test(.data[[group.study]] ~ .data[[group.ref]], alternative = alternative)
+          ),
+          .groups = "keep"
+        )
+    }
+    data_tests$t_test_p_adj <-
+      p.adjust(data_tests$t_test_p, method = p.adjust.method)
+    data_tests$MW_test_p_adj <-
+      p.adjust(data_tests$MW_test_p, method = p.adjust.method)
+
+    if (pairwise == TRUE) {
+      data_mean_sd_norm_FChmean <-
+        full_join(data_mean_sd_norm, data_FCh_mean, by = c("Gene"))
+      data_mean_sd_norm_FChmean_FChsd <-
+        full_join(data_mean_sd_norm_FChmean, data_FCh_sd, by = c("Gene"))
+      data_results <-
+        full_join(data_mean_sd_norm_FChmean_FChsd,
+                  data_tests,
+                  by = c("Gene"))
+      return(list(data_results, data_FCh))
+
+    } else {
+      data_mean_sd_FCh <-
+        full_join(data_mean_sd_norm, data_FCh, by = c("Gene"))
+      data_results <-
+        full_join(data_mean_sd_FCh, data_tests, by = c("Gene"))
+      return(data_results)
+    }
+
+  } else {
+    if (pairwise == TRUE) {
+      data_mean_sd_FChmean <-
+        full_join(data_mean_sd, data_FCh_mean, by = c("Gene"))
+      data_results <-
+        full_join(data_mean_sd_FChmean, data_FCh_sd, by = c("Gene"))
+      return(list(data_results, data_FCh))
+
+    } else {
+      data_results <- full_join(data_mean_sd, data_FCh, by = c("Gene"))
+      return(data_results)
+    }
+  }
+
+  if (save.to.txt == TRUE) {
+    write.table(as.data.frame(data_results), paste(name.txt, ".txt", sep = ""))
+  }
+}
+
+
+
 
 
 
@@ -2945,17 +2934,17 @@ filter_transformed_data <- function(data,
 #' including gene selection, faceting, adding mean labels to boxes, and adding statistical significance labels.
 #' This function can be used to present results for finally selected genes.
 #'
-#' @param data Object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.
+#' @param data Object returned from make_Ct_ready() or delta_Ct() functions.
 #' @param coef Numeric: how many times of interquartile range should be used to determine range point for whiskers. Default to 1.5.
 #' @param sel.Gene Character vector with names of genes to include, or "all" (default) to use all genes.
 #' @param by.group Logical: if TRUE (default), distributions will be drawn by compared groups of samples.
-#' @param signif.show Logical: if TRUE, labels for statistical significance will be added to the plot.
+#' @param signif.show Logical: if TRUE, labels for statistical significance will be added to the plot. Default to FALSE.
 #' @param signif.labels Character vector with statistical significance labels (e.g. "ns.","***", etc.). The number
 #' of elements must be equal to the number of genes used for plotting. All elements in the vector must be different; therefore,
 #' symmetrically white spaces to repeated labels must be add to the same labels, e.g. "ns.", " ns. ", "  ns.  ".
 #' @param signif.length Numeric: length of horizontal bars under statistical significance labels, values from 0 to 1.
-#' @param signif.dist Numeric: distance between errorbar and statistical significance labels.
-#' Can be in y axis units (if faceting = FALSE) or fraction of y axis value reached by errorbar (mean + sd value) (if faceting = TRUE).
+#' @param signif.dist Numeric: distance between the highest value and statistical significance labels.
+#' Can be in y axis units (if faceting = FALSE) or fraction of y axis value reached by the highest value (if faceting = TRUE).
 #' @param faceting Logical: if TRUE (default), plot will be drawn with facets with free scales.
 #' @param facet.row,facet.col Integer: number of rows and columns to arrange facets.
 #' @param angle Integer: value of angle in which names of genes are displayed. Default to 0.
@@ -2995,9 +2984,8 @@ filter_transformed_data <- function(data,
 #'                       remove.Sample = c("Control08","Control16","Control22"))
 #' data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
 #' data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
-#' data.dCt.exp <- exp_Ct_dCt(data.dCt)
-#' data.dCt.expF <- filter_transformed_data(data.dCt.exp, remove.Sample = c("Control11"))
-#' results_boxplot(data.dCt.exp,
+#' data.dCtF <- filter_transformed_data(data.dCt, remove.Sample = c("Control11"))
+#' results_boxplot(data.dCtF,
 #'                 sel.Gene = c("Gene1","Gene16","Gene19","Gene20"),
 #'                 signif.labels = c("****","*","***"," * "),
 #'                 angle = 30,
@@ -3019,7 +3007,7 @@ results_boxplot <- function(data,
                             coef = 1.5,
                             sel.Gene = "all",
                             by.group = TRUE,
-                            signif.show = TRUE,
+                            signif.show = FALSE,
                             signif.labels,
                             signif.length = 0.2,
                             signif.dist = 0.2,
@@ -3213,10 +3201,10 @@ results_boxplot <- function(data,
 #' Faceting and adding custom labels of statistical significance are available.
 #' This function is useful to present results for finally selected genes.
 #'
-#' @param data Object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.
+#' @param data Object returned from make_Ct_ready() or delta_Ct() functions.
 #' @param sel.Gene Character vector with names of genes to include, or "all" (default) to use all genes.
 #' @param bar.width Numeric: width of bars.
-#' @param signif.show Logical: if TRUE, labels for statistical significance will be added to the plot.
+#' @param signif.show Logical: if TRUE, labels for statistical significance will be added to the plot. Default to FALSE.
 #' @param signif.labels Character vector with statistical significance labels (e.g. "ns.","***", etc.). The number
 #' of elements must be equal to the number of genes used for plotting. All elements in the vector must be different; therefore,
 #' symmetrically white spaces to repeated labels must be add to the same labels, e.g. "ns.", " ns. ", "  ns.  ".
@@ -3259,9 +3247,8 @@ results_boxplot <- function(data,
 #'                       remove.Sample = c("Control08","Control16","Control22"))
 #' data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
 #' data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
-#' data.dCt.exp <- exp_Ct_dCt(data.dCt)
-#' data.dCt.expF <- filter_transformed_data(data.dCt.exp, remove.Sample = c("Control11"))
-#' results_barplot(data.dCt.exp,
+#' data.dCtF <- filter_transformed_data(data.dCt, remove.Sample = c("Control11"))
+#' results_barplot(data.dCtF,
 #'                 sel.Gene = c("Gene1","Gene16","Gene19","Gene20"),
 #'                 signif.labels = c("****","*","***"," * "),
 #'                 angle = 30,
@@ -3450,15 +3437,15 @@ results_barplot <- function(data,
 #'
 #' @details
 #' This function performs:
-#' 1. Calculation of means (returned in columns with the "_mean" pattern) and standard deviations (returned in columns with the "_sd" pattern)
-#' of delta Ct values for analyzed genes across compared groups.
+#' 1. Calculation of means (returned in columns with the "_mean" pattern) and standard deviations (returned
+#' in columns with the "_sd" pattern) of delta Ct values for analyzed genes across compared groups.
 #' 2. Normality tests (Shapiro_Wilk test) of delta Ct values of analyzed genes across compared groups and returned p values are
 #' stored in columns with the "_norm_p" pattern.
 #' 3. Calculation of differences in mean delta Ct values of genes between compared groups, obtaining delta delta Ct values (returned  in"ddCt" column).
 #' 4. Calculation of fold change values (returned in "FCh" column) for each gene by exponentiation of ddCt values using 2^-ddCt formula.
 #' 5. Statistical testing of differences between study group and reference group using Student's t test and Mann-Whitney U test.
 #' Resulted statistics (in column with "_test_stat" pattern) and p values (in column with "_test_p" pattern) are returned.
-#'
+#' 6. P values adjusted for multiple testing using a selected method.
 #' @param data Data object returned from delta_Ct() function.
 #' @param group.study Character: name of study group (group of interest).
 #' @param group.ref Character: name of reference group.
@@ -3469,7 +3456,7 @@ results_barplot <- function(data,
 #' @param p.adjust.method Character: p value correction method for multiple testing, one of the "holm", "hochberg", "hommel",
 #' "bonferroni", "BH" (default), "BY","fdr", or "none". See documentation for stats::p.adjust() function for details.
 #' @param save.to.txt Logical: if TRUE, returned table with results is saved to .txt file. Default to FALSE.
-#' @param name.txt Character: name of saved .txt file, without ".txt" name of extension. Default to "RQ_ddCt_results".
+#' @param name.txt Character: name of saved .txt file, without ".txt" name of extension. Default to "results_ddCt".
 #
 #' @return Data frame with relative quantification results.
 #' @export
@@ -3483,8 +3470,8 @@ results_barplot <- function(data,
 #'                       remove.Sample = c("Control08","Control16","Control22"))
 #' data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
 #' data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
-#' RQ.ddCt <- RQ_ddCt(data.dCt, "Disease", "Control")
-#' head(RQ.ddCt)
+#' results.ddCt <- RQ_ddCt(data.dCt, "Disease", "Control")
+#' head(results.ddCt)
 #'
 #' @importFrom stats sd shapiro.test t.test p.adjust Pair
 #' @importFrom coin wilcox_test wilcoxsign_test pvalue statistic
@@ -3657,7 +3644,7 @@ RQ_ddCt <- function(data,
     }
   }
   if (save.to.txt == TRUE) {
-    write.table(data_results, paste(name.txt, ".txt", sep = ""))
+    write.table(as.data.frame(data_results), paste(name.txt, ".txt", sep = ""))
   }
 }
 
@@ -3665,12 +3652,12 @@ RQ_ddCt <- function(data,
 
 
 
-#' @title RQ_plot
+#' @title FCh_plot
 #'
 #' @description
 #' This function creates barplot that illustrate fold change values with indicating of significance by different colors of bars.
 #'
-#' @param data Object returned from RQ_exp_Ct_dCt() or RQ_ddCt() functions.
+#' @param data Object returned from RQ_dCt() or RQ_ddCt() functions.
 #' @param use.p Logical: if TRUE, p value threshold will be used to label gene as significant.
 #' @param mode Character: which p value should be used? One of the "t" (p values from Student's t test), "t.adj" (adjusted p values from Student's t test),
 #' "mw" (p values from Mann-Whitney U test),"mw.adj" (adjusted p values from Mann-Whitney U test),
@@ -3680,7 +3667,7 @@ RQ_ddCt <- function(data,
 #' (if data in both compared groups were considered as derived from normal distribution
 #' (p value from Shapiro_Wilk test > 0.05) - adjusted p values from Student's t test will be used for significance assignment,
 #' otherwise adjusted p values from Mann-Whitney U test will be used), and "user" that can be used
-#' the user intend to use another p values, e.g. obtained from other statistical test. In such situation, before run RQ_plot function, the user should prepare
+#' the user intend to use another p values, e.g. obtained from other statistical test. In such situation, before run FCh_plot function, the user should prepare
 #' data frame object named "user" that contains two columns, the first of them with Gene names and the second with p values.
 #' The order of columns must be kept as described.
 #' @param p.threshold Numeric: threshold of p values for statistical significance. Default to 0.05.
@@ -3690,7 +3677,7 @@ RQ_ddCt <- function(data,
 #' @param use.sd Logical: if TRUE, errorbars with standard deviations will be added to the plot.
 #' @param sel.Gene Character vector with names of genes to include, or "all" (default) to use all names of genes.
 #' @param bar.width numeric: width of bars.
-#' @param signif.show Logical: if TRUE, labels for statistical significance will be added to the plot.
+#' @param signif.show Logical: if TRUE, labels for statistical significance will be added to the plot. Default to FALSE.
 #' @param signif.labels Character vector with statistical significance labels (e.g. "ns.","***", etc.). The number
 #' of elements must be equal to the number of genes used for plotting. All elements in the vector must be different; therefore,
 #' symmetrically white spaces to repeated labels must be add to the same labels, e.g. "ns.", " ns. ", "  ns.  ".
@@ -3716,7 +3703,7 @@ RQ_ddCt <- function(data,
 #' @param dpi Integer: resolution of saved .tiff file. Default to 600.
 #' @param width Numeric: width (in cm) of saved .tiff file. Default to 15.
 #' @param height Numeric: height (in cm) of saved .tiff file. Default to 15.
-#' @param name.tiff Character: name of saved .tiff file, without ".tiff" name of extension. Default to "RQ_plot".
+#' @param name.tiff Character: name of saved .tiff file, without ".tiff" name of extension. Default to "FCh_plot".
 #'
 #' @return List containing object with barplot and data frame with results. Created plot is also displayed on graphic device.
 #' @export
@@ -3730,9 +3717,8 @@ RQ_ddCt <- function(data,
 #'                       remove.Sample = c("Control08","Control16","Control22"))
 #' data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
 #' data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
-#' data.dCt.exp <- exp_Ct_dCt(data.dCt)
-#' data.dCt.expF <- filter_transformed_data(data.dCt.exp, remove.Sample = c("Control11"))
-#' RQ.ddCt <- RQ_ddCt(data.dCt.expF, "Disease", "Control")
+#' data.dCtF <- filter_transformed_data(data.dCt, remove.Sample = c("Control11"))
+#' results.ddCt <- RQ_ddCt(data.dCtF, "Disease", "Control")
 #'
 #' signif.labels <- c("****",
 #'                    "**",
@@ -3748,13 +3734,13 @@ RQ_ddCt <- function(data,
 #'                    "         ns.         ",
 #'                    "          ns.          ",
 #'                    "***")
-#' RQ.plot <- RQ_plot(RQ.ddCt,
+#' FCh.plot <- FCh_plot(results.ddCt,
 #'                    mode = "depends",
 #'                    use.FCh = TRUE,
 #'                    FCh.threshold = 2.5,
 #'                    signif.labels = signif.labels,
 #'                    angle = 30)
-#' head(RQ.plot[[2]])
+#' head(FCh.plot[[2]])
 #'
 #' # with user p values - calculated using stats::wilcox.test() function:
 #' user <- data.dCt %>%
@@ -3762,13 +3748,13 @@ RQ_ddCt <- function(data,
 #'   group_by(Gene) %>%
 #'   summarise(MW_test_p = wilcox.test(dCt ~ Group)$p.value, .groups = "keep")
 #'
-#' RQ.plot <- RQ_plot(RQ.ddCt,
+#' FCh.plot <- FCh_plot(results.ddCt,
 #'                    mode = "user",
 #'                    use.FCh = TRUE,
 #'                    FCh.threshold = 2,
 #'                    signif.labels = signif.labels,
 #'                    angle = 30)
-#' head(RQ.plot[[2]])
+#' head(FCh.plot[[2]])
 #
 #' @importFrom dplyr select filter group_by summarise mutate ungroup desc
 #' @importFrom tidyr pivot_longer
@@ -3778,7 +3764,7 @@ RQ_ddCt <- function(data,
 #' @import ggplot2
 #' @import tidyverse
 #'
-RQ_plot <- function(data,
+FCh_plot <- function(data,
                     use.p = TRUE,
                     mode,
                     p.threshold = 0.05,
@@ -3811,7 +3797,7 @@ RQ_plot <- function(data,
                     width = 15,
                     height = 15,
                     save.to.tiff = FALSE,
-                    name.tiff = "RQ_plot") {
+                    name.tiff = "FCh_plot") {
   if (sel.Gene[1] != "all") {
     data <- filter(data, Gene %in% sel.Gene)
   }
@@ -4023,7 +4009,7 @@ RQ_plot <- function(data,
 #' This function is designed to perform Receiver Operating Characteristic (ROC) analysis based on the gene expression data.
 #' This kind of analysis is useful to further examine performance of samples classification into two groups.
 #'
-#' @param data Object returned from exp_Ct_dCt() or delta_Ct() functions.
+#' @param data Object returned from make_Ct_ready() or delta_Ct() functions.
 #' @param sel.Gene Character vector with names of genes to include, or "all" (default) to use all genes.
 #' @param groups Character vector length of two with names of two compared groups.
 #' @param panels.row,panels.col Integer: number of rows and columns to arrange panels with plots.
@@ -4052,9 +4038,8 @@ RQ_plot <- function(data,
 #'                       remove.Sample = c("Control08","Control16","Control22"))
 #' data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
 #' data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
-#' data.dCt.exp <- exp_Ct_dCt(data.dCt)
-#' data.dCt.expF <- filter_transformed_data(data.dCt.exp, remove.Sample = c("Control11"))
-#'  roc_parameters <- ROCh(data.dCt, sel.Gene = c("Gene1","Gene16","Gene19","Gene20"),
+#' data.dCtF <- filter_transformed_data(data.dCt, remove.Sample = c("Control11"))
+#' roc_parameters <- ROCh(data.dCtF, sel.Gene = c("Gene1","Gene16","Gene19","Gene20"),
 #'                         groups = c("Disease","Control"),
 #'                         panels.row = 2,
 #'                         panels.col = 2)
@@ -4189,7 +4174,7 @@ ROCh <- function(data,
   }
 
   if (save.to.txt == TRUE) {
-    write.table(roc_param, paste(name.txt, ".txt", sep = ""))
+    write.table(as.data.frame(roc_param), paste(name.txt, ".txt", sep = ""))
   }
 
   return(roc_param)
@@ -4205,7 +4190,7 @@ ROCh <- function(data,
 #' @description
 #' This function performs logistic regression analysis, computes odd ratio values, and presents them graphically.
 #'
-#' @param data Object returned from exp_Ct_dCt() or delta_Ct() functions.
+#' @param data Object returned from make_Ct_ready() or delta_Ct() functions.
 #' @param sel.Gene Character vector with names of genes to include, or "all" (default) to use all genes.
 #' @param group.study Character: name of study group (group of interest).
 #' @param group.ref Character: name of reference group.
@@ -4414,7 +4399,7 @@ log_reg <- function(data,
   }
 
   if (save.to.txt == TRUE) {
-    write.table(data.CI, paste(name.txt, ".txt", sep = ""))
+    write.table(as.data.frame(data.CI), paste(name.txt, ".txt", sep = ""))
   }
 
   return(list(odd.ratio, data.CI))
@@ -4433,7 +4418,7 @@ log_reg <- function(data,
 #' @description
 #' This function creatse heatmap with hierarchical clustering.
 #'
-#' @param data Object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.
+#' @param data Object returned from make_Ct_ready() or delta_Ct() functions.
 #' @param sel.Gene Character vector with names of genes to include, or "all" (default) to use all genes.
 #' @param dist.row,dist.col Character: name of method used for calculation of distances between rows or columns, derived from stats::dist() function,
 #' must be one of "euclidean" (default) , "maximum", "manhattan", "canberra", "binary" or "minkowski".
@@ -4609,14 +4594,14 @@ results_heatmap <- function(data,
 
 
 
-#' @title RQ_volcano
+#' @title results_volcano
 #'
 #' @description
 #' This function creates volcano plot that illustrate the arrangement of genes based on
 #' fold change values and p values. Significant genes can be pointed out using
 #' specified p value and fold change thresholds, and highlighted on the plot by color and (optionally) isolated by thresholds lines.
 #'
-#' @param data Object returned from RQ_exp_Ct_dCt() or RQ_ddCt() functions.
+#' @param data Object returned from RQ_dCt() or RQ_ddCt() functions.
 #' @param mode Character: which p value should be used? One of the "t" (p values from Student's t test), "t.adj" (adjusted p values from Student's t test),
 #' "mw" (p values from Mann-Whitney U test),"mw.adj" (adjusted p values from Mann-Whitney U test),
 #' "depends" (if data in both compared groups were considered as derived from normal distribution
@@ -4625,7 +4610,7 @@ results_heatmap <- function(data,
 #' (if data in both compared groups were considered as derived from normal distribution
 #' (p value from Shapiro_Wilk test > 0.05) - adjusted p values from Student's t test will be used for significance assignment,
 #' otherwise adjusted p values from Mann-Whitney U test will be used), and "user" that can be used
-#' the user intend to use another p values, e.g. obtained from other statistical test. In such situation, before run RQ_plot function, the user should prepare
+#' the user intend to use another p values, e.g. obtained from other statistical test. In such situation, before run FCh_plot function, the user should prepare
 #' data frame object named "user" that contains two columns, the first of them with Gene names and the second with p values.
 #' The order of columns must be kept as described.
 #' @param p.threshold Numeric: threshold of p values for statistical significance.
@@ -4655,7 +4640,7 @@ results_heatmap <- function(data,
 #' @param dpi Integer: resolution of saved .tiff file. Default to 600.
 #' @param width Numeric: width (in cm) of saved .tiff file. Default to 15.
 #' @param height Numeric: height (in cm) of saved .tiff file. Default to 15.
-#' @param name.tiff Character: name of saved .tiff file, without ".tiff" name of extension. Default to "RQ_plot".
+#' @param name.tiff Character: name of saved .tiff file, without ".tiff" name of extension. Default to "FCh_plot".
 #'
 #' @return List containing object with barplot and data frame with results. Created plot is also displayed on graphic device.
 #' @export
@@ -4669,11 +4654,10 @@ results_heatmap <- function(data,
 #'                        remove.Sample = c("Control08","Control16","Control22"))
 #' data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
 #' data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
-#' data.dCt.exp <- exp_Ct_dCt(data.dCt)
-#' data.dCt.expF <- filter_transformed_data(data.dCt.exp, remove.Sample = c("Control11"))
-#' RQ.dCt.exp <- RQ_exp_Ct_dCt(data.dCt.expF, "Disease", "Control")
+#' data.dCtF <- filter_transformed_data(data.dCt, remove.Sample = c("Control11"))
+#' results.dCt <- RQ_dCt(data.dCtF, "Disease", "Control")
 #'
-#' RQ.volcano <- RQ_volcano(data = RQ.dCt.exp,
+#' RQ.volcano <- results_volcano(data = results.dCt,
 #'                          mode = "depends",
 #'                          p.threshold = 0.05,
 #'                          FCh.threshold = 2)
@@ -4686,7 +4670,7 @@ results_heatmap <- function(data,
 #' @import ggplot2
 #' @import tidyverse
 #'
-RQ_volcano <- function(data,
+results_volcano <- function(data,
                        mode,
                        p.threshold = 0.05,
                        FCh.threshold = 2,
@@ -4712,7 +4696,7 @@ RQ_volcano <- function(data,
                        width = 15,
                        height = 15,
                        save.to.tiff = FALSE,
-                       name.tiff = "RQ_volcano") {
+                       name.tiff = "results_volcano") {
   if (sel.Gene[1] != "all") {
     data <- filter(data, Gene %in% sel.Gene)
   }
@@ -4854,7 +4838,7 @@ RQ_volcano <- function(data,
 #' and generate plot that illustrate spatial arrangement of samples based on the two first components and with assignment to k means clusters.
 #' PCA analysis can not deal with missing values, thus all samples with at least one missing value are removed from data before analysis.
 #'
-#' @param data Object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.
+#' @param data Object returned from make_Ct_ready() or delta_Ct() functions.
 #' @param do.k.means Logical: if TRUE (default), k means analysis will be performed.
 #' @param k.clust Integer: number of clusters for k means analysis. Default to 2.
 #' @param clust.names Character vector with names of clusters, must be equal to the number of clusters specified in the k.clust parameter.
@@ -5046,7 +5030,7 @@ pca_kmeans <- function(data,
 #' This function illustrates expression values in a pairwise samples as series of lines connected across each axis.
 #' This function can be used only for a pairwise data.
 #'
-#' @param data Object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.
+#' @param data Object returned from make_Ct_ready() or delta_Ct() functions.
 #' @param sel.Gene Character vector with names of genes to include, or "all" (default) to use all genes.
 #' @param scale Character: a scale used for data presentation, one of the passed to ggparcoord() function.
 #' Generally, scaling is not required since variables are the same units. Default to "globalminmax (no scaling).

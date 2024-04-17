@@ -12,7 +12,7 @@ filter_transformed_data(
 )
 }
 \arguments{
-\item{data}{Object returned from make_Ct_ready(), exp_Ct_dCt() or delta_Ct() functions.}
+\item{data}{Object returned from make_Ct_ready() or delta_Ct() functions.}
 
 \item{remove.Gene}{Character: vector with names of genes to remove from data.}
 
@@ -24,7 +24,8 @@ filter_transformed_data(
 Data frame with filtered data.
 }
 \description{
-This function filters transformed Ct data (2^-Ct, delta Ct, and 2^-dCt data) according to the used filtering criteria (see parameters).
+This function filters transformed Ct data (filtered Ct, delta Ct, and 2^-dCt data)
+according to the used filtering criteria (see parameters).
 }
 \examples{
 library(tidyverse)
@@ -34,11 +35,10 @@ data.CtF <- filter_Ct(data.Ct,
                       remove.Sample = c("Control08","Control16","Control22"))
 data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
 data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
-data.dCt.exp <- exp_Ct_dCt(data.dCt)
-data.dCt.expF <- filter_transformed_data(data.dCt.exp, remove.Sample = c("Control11"))
+data.dCtF <- filter_transformed_data(data.dCt, remove.Sample = c("Control11"))
 
-dim(data.dCt.exp)
-dim(data.dCt.expF)
+dim(data.dCt)
+dim(data.dCtF)
 
 
 }

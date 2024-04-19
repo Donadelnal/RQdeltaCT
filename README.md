@@ -10,15 +10,16 @@ These methods have been designed to analyse gene expression data (Ct values) obt
 * calculate differences in gene expression levels between groups of samples (or technical replicates of a single sample).  
 
 The `RQdeltaCT` package offers functions that encompass all of these steps, together with:
-* importing qPCR datasets, 
-* performing multi-step quality control of data,
-* enabling numerous data visualisations,
-* enrichment of standard workflow with additional useful methods including correlation analysis, Receiver Operating Characteristic analysis, and logistic regression),
-* a convenient export of obtained results in table and image forms.  
-
-#### The package has been designed to be friendly to non-experts in R programming users. No additional, extensive coding steps are necessary in the standard workflow. Detailed demonstration of the package functionalities with examples can be found in the prepared [vignette](https://github.com/Donadelnal/RQdeltaCT/blob/master/vignettes/RQdeltaCT_vignette.pdf).  
+1. importing qPCR datasets, 
+2. performing multi-step quality control of data,
+3. enabling numerous data visualisations,
+4. enrichment of standard workflow with additional useful methods including correlation analysis, Receiver Operating Characteristic analysis, and logistic regression),
+5. a convenient export of obtained results in table and image forms.  
 
 To install and load the `RQdeltaCT` package, simply run in R or RStudio:  
 
 `remotes::install_github("Donadelnal/RQdeltaCT")`
+
 `library(RQdeltaCT)`
+
+**The package has been designed to be friendly to non-experts in R programming users. No additional, extensive coding steps are necessary in the standard workflow. Detailed demonstration of the package functionalities using test data can be found in the prepared [vignette](https://github.com/Donadelnal/RQdeltaCT/blob/master/vignettes/RQdeltaCT_vignette.pdf).**  

@@ -243,7 +243,7 @@ control_Ct_barplot_sample <- function(data,
                                       width = 15,
                                       height = 15,
                                       name.tiff = "Ct_control_barplot_for_samples") {
-  data$Ct[data$Ct == flag.Ct] <- 40
+  data$Ct[data$Ct == flag.Ct] <- 41
   data$Ct <- as.numeric(data$Ct)
 
   if (sum(colnames(data) %in% "Flag") > 0) {
@@ -257,7 +257,7 @@ control_Ct_barplot_sample <- function(data,
   }
 
   bar <- as.data.frame(table(data$Reliable, data$Sample))
-  order <- arrange(filter(bar, Var1 == "Yes"), Freq)$Var2
+  order <- arrange(filter(bar, Var1 == "Yes"), desc(Freq))$Var2
 
   barplot.samples <-
     ggplot(bar, aes(
@@ -301,15 +301,31 @@ control_Ct_barplot_sample <- function(data,
   tab <- table(data$Reliable, data$Sample)
   tab <- tab %>%
     as.data.frame() %>%
-    pivot_wider(names_from = Var1, values_from = Freq) %>%
-    arrange(desc(No)) %>%
-    mutate(Not.reliable.fraction = No / (No + Yes)) %>%
-    rename(Sample = Var2,
-           Not.reliable = No,
-           Reliable = Yes)
+    pivot_wider(names_from = Var1, values_from = Freq)
+
+  if (sum(colnames(tab) %in% "No") > 0) {
+
+    tab <- tab %>%
+      arrange(desc(No)) %>%
+      mutate(Not.reliable.fraction = No / (No + Yes)) %>%
+      rename(Sample = Var2,
+             Not.reliable = No,
+             Reliable = Yes)
+  } else {
+
+    tab <- tab %>%
+      arrange(Yes) %>%
+      rename(Sample = Var2,
+             Reliable = Yes)
+    message("Note: All Ct values were labeled as 'Reliable'.")
+  }
 
   return(list(barplot.samples, tab))
 }
+
+
+
+
 
 
 
@@ -390,7 +406,7 @@ control_Ct_barplot_gene <- function(data,
                                     width = 15,
                                     height = 15,
                                     name.tiff = "Ct_control_barplot_for_genes") {
-  data$Ct[data$Ct == flag.Ct] <- 40
+  data$Ct[data$Ct == flag.Ct] <- 41
   data$Ct <- as.numeric(data$Ct)
 
   if (sum(colnames(data) %in% "Flag") > 0) {
@@ -446,18 +462,31 @@ control_Ct_barplot_gene <- function(data,
   tab <- table(data$Reliable, data$Gene, data$Group)
   tab <- tab %>%
     as.data.frame() %>%
-    pivot_wider(names_from = Var1, values_from = Freq) %>%
-    arrange(desc(No)) %>%
-    mutate(Not.reliable.fraction = No / (No + Yes)) %>%
-    rename(
-      Gene = Var2,
-      Group = Var3,
-      Not.reliable = No,
-      Reliable = Yes
-    )
+    pivot_wider(names_from = Var1, values_from = Freq)
+
+  if (sum(colnames(tab) %in% "No") > 0) {
+
+    tab <- tab %>%
+      arrange(desc(No)) %>%
+      mutate(Not.reliable.fraction = No / (No + Yes)) %>%
+      rename(Gene = Var2,
+             Group = Var3,
+             Not.reliable = No,
+             Reliable = Yes)
+  } else {
+
+    tab <- tab %>%
+      arrange(Yes) %>%
+      rename(Gene = Var2,
+             Group = Var3,
+             Reliable = Yes)
+    message("Note: All Ct values were labeled as 'Reliable'.")
+  }
 
   return(list(barplot.genes, tab))
 }
+
+
 
 
 

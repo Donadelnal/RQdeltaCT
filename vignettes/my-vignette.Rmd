@@ -2,7 +2,7 @@
 title: "RQdeltaCT - Relative Quantification of Gene Expression using Delta Ct Methods"
 output: rmarkdown::html_vignette
 author: "Daniel Zalewski daniel.piotr.zalewski@gmail.com"
-date: "5 April 2024"
+date: "5 October 2024"
 vignette: >
   %\VignetteIndexEntry{RQdeltaCT - Relative Quantification of Gene Expression using Delta Ct Methods}
   %\VignetteEngine{knitr::rmarkdown}
@@ -298,7 +298,7 @@ Three selection criteria can be set for these functions:
 * a maximum of Ct value allowed. Default to 35.
 * a flag used in the Flag column for values which are unreliable. Default to "Undetermined".
 
-**NOTE:** This function does not perform data filtering, but only report numbers of Ct values labelled as reliable or not and presents them graphically.  
+**NOTE:** These functions do not perform data filtering, but only report numbers of Ct values labelled as reliable or not and presents them graphically.  
 
 An example of using these functions is provided below:
 
@@ -335,6 +335,29 @@ head(sample.Ct.control[[2]])
 ```{r cache=FALSE}
 head(gene.Ct.control[[2]])
 ```
+
+To gain deeper insight into number if replicates by genes and samples, `control_heatmap()` function can be used:
+
+```{r fig.dim=c(7.1,8), cache=FALSE}
+library(tidyverse)
+library(pheatmap)
+data(data.Ct)
+
+# Vector of colors to fill the heatmap can be specified to fit the user needings:
+colors <- c("#4575B4","#FFFFBF","#C32B23")
+control_heatmap(data.Ct,
+                sel.Gene = "all",
+                colors = colors,
+                show.colnames = TRUE,
+                show.rownames = TRUE, 
+                fontsize = 9,
+                fontsize.row = 9,
+                angle.col = 45)
+```
+
+The created plot is displayed on the graphic device (if save.to.tiff = FALSE) or saved to .tiff file (if save.to.tiff = TRUE).
+
+**NOTE:** The `control_heatmap()` works only if various numbers of replicates are in the data, otherwise error will appear because inherited `pheatmap()` function can not deal with the situation where all values are equal.
 
 Visual inspection of returned plots and obtained tables gives a clear image of data quality. The results obtained in the examples show that the Disease group contains more samples than the Control group. Some of the samples have more Ct values (more technical replicates) than other samples. Furthermore, in all samples, the majority of Ct values are reliable.  
 
@@ -545,11 +568,12 @@ data.dCtF <- filter_transformed_data(data = data.dCt,
 
 This method is used in studies where samples should be analysed as individual data points, e.g. in analysis of biological replicates. In this method, Ct values are normalised by the endogenous control gene by subtracting the Ct value of the endogenous control from the Ct value of the gene of interest, in the same sample. Obtained delta Ct (dCt) values are subsequently transformed using the 2^-dCt^ formula, summarised by means in the compared study groups, and a ratio of means (fold change) is calculated for the study group (see [Introduction] section).  
 
-The whole process can be done using `RQ_dCt()` function, which performs:  
-  + calculation of means (returned in columns with the "_mean" pattern) and standard deviations (returned in columns with the "_sd" pattern) of transformed dCt values of genes analysed in the compared groups.
-  + normality testing (Shapiro_Wilk test) of transformed dCt values of analysed genes in compared groups and returned p values are stored in columns with the "_norm_p" pattern.
-  + calculation of fold change values for each gene by dividing the mean of transformed dCt values in the study group by the mean of transformed dCt values in the reference group. Fold change values are returned in the "FCh" column.
-  + statistical testing of differences in transformed Ct values between the study group and the reference group. Student's t test and Mann-Whitney U test are implemented and the resulting statistics (in column with the "_test_stat" pattern), p values (in column with the "_test_p" pattern), and adjusted p values (in column with the "_test_p_adj" pattern) are returned. The Benjamini-Hochberg method for adjustment of p values is used in default. If compared groups contain less than three samples, normality and statistical tests are not possible to perform (the `do.test` parameter should be set to FALSE to avoid error).  
+The whole process can be done using `RQ_dCt()` function, which performs:
+
+* calculation of means (returned in columns with the "_mean" pattern) and standard deviations (returned in columns with the "_sd" pattern) of transformed dCt values of genes analysed in the compared groups.
+* normality testing (Shapiro_Wilk test) of transformed dCt values of analysed genes in compared groups and returned p values are stored in columns with the "_norm_p" pattern.
+* calculation of fold change values for each gene by dividing the mean of transformed dCt values in the study group by the mean of transformed dCt values in the reference group. Fold change values are returned in the "FCh" column.
+* statistical testing of differences in transformed Ct values between the study group and the reference group. Student's t test and Mann-Whitney U test are implemented and the resulting statistics (in column with the "_test_stat" pattern), p values (in column with the "_test_p" pattern), and adjusted p values (in column with the "_test_p_adj" pattern) are returned. The Benjamini-Hochberg method for adjustment of p values is used in default. If compared groups contain less than three samples, normality and statistical tests are not possible to perform (the `do.test` parameter should be set to FALSE to avoid error).  
   
 **NOTE:** For this method, delta Ct (dCt) values transformed by the 2^-dCt^ formula using `delta_Ct()` function (called with `transform` = TRUE) should be used.
 
@@ -573,12 +597,13 @@ head(as.data.frame(arrange(results.dCt, MW_test_p)))
 
 Similarly to the 2^-dCt^ method, in the 2^-ddCt^ method Ct values are normalised by the endogenous control gene, obtaining dCt values. Subsequently, dCt values are summarised by means in the compared groups, and for each gene, the obtained mean in the control group is subtracted from the mean in the study group, giving the delta delta Ct (ddCt) value. Finally, the ddCt values are transformed using the 2^-ddCt^ formula to obtain the fold change values. This method is recommended for analysis of technical replicates (see the [Introduction] section).
 
-The whole process can be done using `RQ_ddCt()` function, which performs:  
-   + calculation of means (returned in columns with the "_mean" pattern) and standard deviations (returned in columns with the "_sd" pattern) of delta Ct values of the analyzed genes in the compared groups.
-   + normality testing (Shapiro_Wilk test) of delta Ct values of the analyzed genes in the compared groups and returned p values are stored in columns with the "_norm_p" pattern.
-   + calculation of differences in the mean delta Ct values of genes between compared groups, returned in "ddCt" column,
-   + calculation of fold change values (returned in "FCh" column) for each gene by transforming the ddCt values using the 2^-ddCt^ formula.
-   + statistical testing of differences between the compared groups. Student's t test and Mann-Whitney U test are implemented and the resulted statistics (in column with the "_test_stat" pattern), p values (in column with the "_test_p" pattern) and adjusted p values (in column with the "_test_p_adj" pattern) are returned. The Benjamini-Hochberg method for adjustment of p values is used in default. If compared groups contain less than three samples, normality and statistical tests are not possible to perform and `do.test` parameter should be set to FALSE to avoid error. 
+The whole process can be done using `RQ_ddCt()` function, which performs:
+
+* calculation of means (returned in columns with the "_mean" pattern) and standard deviations (returned in columns with the "_sd" pattern) of delta Ct values of the analyzed genes in the compared groups.
+* normality testing (Shapiro_Wilk test) of delta Ct values of the analyzed genes in the compared groups and returned p values are stored in columns with the "_norm_p" pattern.
+* calculation of differences in the mean delta Ct values of genes between compared groups, returned in "ddCt" column,
+* calculation of fold change values (returned in "FCh" column) for each gene by transforming the ddCt values using the 2^-ddCt^ formula.
+* statistical testing of differences between the compared groups. Student's t test and Mann-Whitney U test are implemented and the resulted statistics (in column with the "_test_stat" pattern), p values (in column with the "_test_p" pattern) and adjusted p values (in column with the "_test_p_adj" pattern) are returned. The Benjamini-Hochberg method for adjustment of p values is used in default. If compared groups contain less than three samples, normality and statistical tests are not possible to perform and `do.test` parameter should be set to FALSE to avoid error. 
    
 **NOTE:** For this method, not transformed delta Ct (dCt) values (obtained from `delta_Ct()` function with `transform` = FALSE) should be used.
 
@@ -764,7 +789,7 @@ results_heatmap(data.dCt,
 # Cellwidth parameter was set to 4 to avoid cropping the image on the right side.
 ```
 
-The created plot is displayed on the graphic device(if save.to.tiff = FALSE) or saved to .tiff file (if save.to.tiff = TRUE).
+The created plot is displayed on the graphic device (if save.to.tiff = FALSE) or saved to .tiff file (if save.to.tiff = TRUE).
 
 ---
 
@@ -954,6 +979,8 @@ head(sample.Ct.control.pairwise[[2]])
 ```{r cache=FALSE}
 head(gene.Ct.control.pairwise[[2]], 10)
 ```
+
+The `control_heatmap()` does not work here, because inherited `pheatmap()` function can not deal with the situation where all values are equal (in this example all values are equal to 2). 
 
 Visual inspection of returned plots and obtained tables gives a clear, preliminary image of data quality. The results obtained in the examples show that the Before group contains the same number of samples as the After group. In all samples, the majority of Ct values are reliable.  
 

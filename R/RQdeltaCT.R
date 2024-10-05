@@ -492,6 +492,162 @@ control_Ct_barplot_gene <- function(data,
 
 
 
+#' @title control_heatmap
+#'
+#' @description
+#' This function creates heatmap with number of replicates for each gene across samples.
+#'
+#' @param data Object returned from read_Ct_long() or read_Ct_wide() function,
+#' or data frame containing at least column named "Sample" with sample names, column named "Gene" with gene names.
+#' @param sel.Gene Character vector with names of genes to include, or "all" (default) to use all genes.
+#' @param display.numbers Logical: if TRUE (default), numeric values will be printed to the cells.
+#' @param show.legend Logical: if TRUE, legend will be shown. Default to FALSE.
+#' @param dist.row,dist.col Character: name of method used for calculation of distances between rows or columns, derived from stats::dist() function,
+#' must be one of "euclidean" (default) , "maximum", "manhattan", "canberra", "binary" or "minkowski".
+#' @param clust.method Character: name of used method for agglomeration, derived from stats::hclust() function,
+#' must be one of "ward.D", "ward.D2", "single", "complete", "average" (default), "mcquitty", "median" or "centroid".
+#' @param colors Vector with colors used to fill created heatmap.
+#' @param show.colnames,show.rownames Logical: of TRUE, names of columns (sample names) and rows (gene names) will be shown. Both default to TRUE.
+#' @param border.color Character: color of cell borders on heatmap. If set to NA (default) no border will be drawn.
+#' @param fontsize Numeric: global fontsize of heatmap. Default to 10.
+#' @param fontsize.col,fontsize.row Numeric: fontsize of colnames and rownames. Default to 10.
+#' @param angle.col Integer: angle of the column labels, one of the 0, 45, 90, 270, and 315.
+#' @param cellwidth,cellheight Numeric: width and height of individual cell. Both default to NA.
+#' These parameters are useful in situations where margins are too small and the plot is cropped (column names and annotation legend are sometimes partially hidden).
+#' Specification of this parameter allows to adjust size of the plot and solve this problem.
+#' @param save.to.tiff Logical: if TRUE, plot will be saved as .tiff file. Default to FALSE.
+#' @param dpi Integer: resolution of saved .tiff file. Default to 600.
+#' @param width Numeric: width (in cm) of saved .tiff file. Default to 15.
+#' @param height Numeric: height (in cm) of saved .tiff file. Default to 15.
+#' @param name.tiff Character: name of saved .tiff file, without ".tiff" name of extension. Default to "heatmap_results".
+#'
+#' @return Heatmap with hierarchical clustering, displayed on the graphic device (if save.to.tiff = FALSE)
+#' or saved to .tiff file (if save.to.tiff = TRUE).
+#' @export
+#'
+#' @examples
+#' library(tidyverse)
+#' library(pheatmap)
+#' data(data.Ct)
+#' # Vector of colors to fill the heatmap can be specified to fit the user needings:
+#' colors <- c("#4575B4","#FFFFBF","#C32B23")
+#' control_heatmap(data.Ct,
+#'                 sel.Gene = "all",
+#'                 colors = colors,
+#'                 show.colnames = TRUE,
+#'                 show.rownames = TRUE,
+#'                 fontsize = 11,
+#'                 fontsize.row = 11)
+#'
+#' @importFrom stats hclust dist
+#' @importFrom grDevices tiff
+#' @importFrom dplyr select ungroup
+#' @importFrom tidyselect any_of
+#' @importFrom pheatmap pheatmap
+#' @import tidyverse
+#'
+control_heatmap <- function(data,
+                            sel.Gene = "all",
+                            display.numbers = TRUE,
+                            dist.row = "euclidean",
+                            dist.col = "euclidean",
+                            clust.method = "average",
+                            colors = c(
+                              "#4575B4",
+                              "#FFFFBF",
+                              "#C32B23"),
+                            show.colnames = TRUE,
+                            show.rownames = TRUE,
+                            border.color = NA,
+                            fontsize = 10,
+                            fontsize.col = 10,
+                            fontsize.row = 10,
+                            angle.col = 0,
+                            cellwidth = NA,
+                            cellheight = NA,
+                            show.legend = FALSE,
+                            save.to.tiff = FALSE,
+                            dpi = 600,
+                            width = 15,
+                            height = 15,
+                            name.tiff = "heatmap_results") {
+  if (sel.Gene[1] == "all") {
+    data <- data
+
+  } else {
+    data <- select(data, Group, Sample, any_of(sel.Gene))
+  }
+
+  data <- as.data.frame(data)
+  data<- table(data$Sample, data$Gene)
+
+  if (save.to.tiff == TRUE) {
+
+    device <- .Device
+
+    if (device == "RStudioGD") {
+      dev.off()
+    }
+
+    tiff(
+      paste(name.tiff, ".tiff", sep = ""),
+      res = dpi,
+      width = width,
+      height = height,
+      units = "cm",
+      compression = "lzw"
+    )
+
+    pheatmap(
+      data,
+      display_numbers = display.numbers,
+      number_format = "%.0f",
+      clustering_method = clust.method,
+      clustering_distance_cols = dist.col,
+      clustering_distance_rows = dist.row,
+      show_colnames = show.colnames,
+      show_rownames = show.rownames,
+      border_color = border.color,
+      fontsize = fontsize,
+      fontsize_col = fontsize.col,
+      fontsize_row = fontsize.row,
+      color = colors,
+      angle_col = angle.col,
+      cellwidth = cellwidth,
+      cellheight = cellheight,
+      legend = show.legend
+    )
+
+    dev.off()
+
+  } else {
+
+    pheatmap(
+      data,
+      display_numbers = display.numbers,
+      number_format = "%.0f",
+      clustering_method = clust.method,
+      clustering_distance_cols = dist.col,
+      clustering_distance_rows = dist.row,
+      show_colnames = show.colnames,
+      show_rownames = show.rownames,
+      border_color = border.color,
+      fontsize = fontsize,
+      fontsize_col = fontsize.col,
+      fontsize_row = fontsize.row,
+      color = colors,
+      angle_col = angle.col,
+      cellwidth = cellwidth,
+      cellheight = cellheight,
+      legend = show.legend
+    )
+  }
+}
+
+
+
+
+
 
 #' @title filter_Ct
 #'
@@ -861,6 +1017,8 @@ norm_finder <- function(data,
 #' @param width Numeric: width (in cm) of saved .tiff file. Default to 15.
 #' @param height Numeric: height (in cm) of saved .tiff file. Default to 15.
 #' @param name.tiff Character: name of saved .tiff file, without ".tiff" name of extension. Default to "Ct_reference_gene_selection".
+#' @param save.to.txt Logical: if TRUE, returned data will be saved to .txt file. Default to FALSE.
+#' @param name.txt Character: name of saved .txt file, without ".txt" name of extension. Default to "data_dCt".
 #'
 #' @return List containing an object with plot and a table with calculated parameters. Created plot is also displayed on the graphic device.
 #'
@@ -891,6 +1049,7 @@ norm_finder <- function(data,
 #' @importFrom ggplot2 ggplot geom_line guides scale_color_manual xlab ylab labs theme_classic theme element_text scale_x_discrete facet_wrap ggsave
 #' @import ggplot2
 #' @import tidyverse
+#' @importFrom utils write.table
 #'
 find_ref_gene <- function(data,
                           groups,
@@ -914,7 +1073,9 @@ find_ref_gene <- function(data,
                           dpi = 600,
                           width = 15,
                           height = 15,
-                          name.tiff = "Ct_reference_gene_selection") {
+                          name.tiff = "Ct_reference_gene_selection",
+                          save.to.txt = FALSE,
+                          name.txt = "reference_gene_selection") {
   if (groups[1] == "all") {
     data <- data
 
@@ -1008,6 +1169,10 @@ find_ref_gene <- function(data,
     ref_var <- ref_var %>%
       full_join(reference.stability.gF, by = join_by(Gene))
 
+  }
+
+if (save.to.txt == TRUE) {
+    write.table(as.data.frame(ref_var), paste(name.txt, ".txt", sep = ""))
   }
 
   return(list(ref_plot, as.data.frame(ref_var)))
@@ -2799,7 +2964,7 @@ RQ_dCt <- function(data,
                           p.adjust.method = "BH",
                           save.to.txt = FALSE,
                           name.txt = "results_dCt") {
-  data_slim <- data %>%
+   data_slim <- data %>%
     filter(Group == group.study | Group == group.ref) %>%
     pivot_longer(
       cols = -c(Group, Sample),
@@ -2917,6 +3082,11 @@ RQ_dCt <- function(data,
         full_join(data_mean_sd_norm_FChmean_FChsd,
                   data_tests,
                   by = c("Gene"))
+
+      if (save.to.txt == TRUE) {
+        write.table(as.data.frame(data_results), paste(name.txt, ".txt", sep = ""))
+      } else {}
+
       return(list(data_results, data_FCh))
 
     } else {
@@ -2924,6 +3094,11 @@ RQ_dCt <- function(data,
         full_join(data_mean_sd_norm, data_FCh, by = c("Gene"))
       data_results <-
         full_join(data_mean_sd_FCh, data_tests, by = c("Gene"))
+
+      if (save.to.txt == TRUE) {
+        write.table(as.data.frame(data_results), paste(name.txt, ".txt", sep = ""))
+      } else {}
+
       return(data_results)
     }
 
@@ -2933,23 +3108,24 @@ RQ_dCt <- function(data,
         full_join(data_mean_sd, data_FCh_mean, by = c("Gene"))
       data_results <-
         full_join(data_mean_sd_FChmean, data_FCh_sd, by = c("Gene"))
+
+      if (save.to.txt == TRUE) {
+        write.table(as.data.frame(data_results), paste(name.txt, ".txt", sep = ""))
+      } else {}
+
       return(list(data_results, data_FCh))
 
     } else {
       data_results <- full_join(data_mean_sd, data_FCh, by = c("Gene"))
+
+      if (save.to.txt == TRUE) {
+        write.table(as.data.frame(data_results), paste(name.txt, ".txt", sep = ""))
+      } else {}
+
       return(data_results)
     }
   }
-
-  if (save.to.txt == TRUE) {
-    write.table(as.data.frame(data_results), paste(name.txt, ".txt", sep = ""))
-  }
 }
-
-
-
-
-
 
 
 
@@ -3649,6 +3825,12 @@ RQ_ddCt <- function(data,
         full_join(data_mean_sd_norm_FChmean_FChsd,
                   data_tests,
                   by = c("Gene"))
+
+if (save.to.txt == TRUE) {
+    write.table(as.data.frame(data_results), paste(name.txt, ".txt", sep = ""))
+  } else {}
+
+
       return(list(data_results, data_FCh))
 
     } else {
@@ -3656,6 +3838,12 @@ RQ_ddCt <- function(data,
         full_join(data_mean_sd_norm, data_ddCt, by = c("Gene"))
       data_results <-
         full_join(data_mean_sd_FCh, data_tests, by = c("Gene"))
+
+if (save.to.txt == TRUE) {
+    write.table(as.data.frame(data_results), paste(name.txt, ".txt", sep = ""))
+  } else {}
+
+
       return(data_results)
     }
 
@@ -3665,15 +3853,23 @@ RQ_ddCt <- function(data,
         full_join(data_mean_sd, data_FCh_mean, by = c("Gene"))
       data_results <-
         full_join(data_mean_sd_FChmean, data_FCh_sd, by = c("Gene"))
+
+if (save.to.txt == TRUE) {
+    write.table(as.data.frame(data_results), paste(name.txt, ".txt", sep = ""))
+  } else {}
+
+
       return(list(data_results, data_FCh))
 
     } else {
       data_results <- full_join(data_mean_sd, data_ddCt, by = c("Gene"))
+
+if (save.to.txt == TRUE) {
+    write.table(as.data.frame(data_results), paste(name.txt, ".txt", sep = ""))
+  } else {}
+
       return(data_results)
     }
-  }
-  if (save.to.txt == TRUE) {
-    write.table(as.data.frame(data_results), paste(name.txt, ".txt", sep = ""))
   }
 }
 
@@ -4564,7 +4760,11 @@ results_heatmap <- function(data,
   colors.to.fill <- colorRampPalette(colors)(255)
 
   if (save.to.tiff == TRUE) {
-    dev.off()
+    device <- .Device
+
+    if (device == "RStudioGD") {
+      dev.off()
+    }
 
     tiff(
       paste(name.tiff, ".tiff", sep = ""),

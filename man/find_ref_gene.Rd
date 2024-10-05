@@ -27,7 +27,9 @@ find_ref_gene(
   dpi = 600,
   width = 15,
   height = 15,
-  name.tiff = "Ct_reference_gene_selection"
+  name.tiff = "Ct_reference_gene_selection",
+  save.to.txt = FALSE,
+  name.txt = "reference_gene_selection"
 )
 }
 \arguments{
@@ -77,6 +79,10 @@ See description for legend.position in ggplot2::theme() function.}
 \item{height}{Numeric: height (in cm) of saved .tiff file. Default to 15.}
 
 \item{name.tiff}{Character: name of saved .tiff file, without ".tiff" name of extension. Default to "Ct_reference_gene_selection".}
+
+\item{save.to.txt}{Logical: if TRUE, returned data will be saved to .txt file. Default to FALSE.}
+
+\item{name.txt}{Character: name of saved .txt file, without ".txt" name of extension. Default to "data_dCt".}
 }
 \value{
 List containing an object with plot and a table with calculated parameters. Created plot is also displayed on the graphic device.

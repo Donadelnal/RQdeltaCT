@@ -15,7 +15,7 @@ A data frame with 410 rows and 5 variables:
 }
 }
 \source{
-Dataset is attached to the `RQdeltaCT` package and can be loaded using `data(data.Ct)` command.
+Dataset is attached to the `RQdeltaCT` package and can be loaded using `data(data.Ct.10vs10)` command.
 }
 \usage{
 data.Ct.10vs10

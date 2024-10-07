@@ -82,7 +82,7 @@ See description for legend.position in ggplot2::theme() function.}
 
 \item{save.to.txt}{Logical: if TRUE, returned data will be saved to .txt file. Default to FALSE.}
 
-\item{name.txt}{Character: name of saved .txt file, without ".txt" name of extension. Default to "data_dCt".}
+\item{name.txt}{Character: name of saved .txt file, without ".txt" name of extension. Default to "ref_gene_results".}
 }
 \value{
 List containing an object with plot and a table with calculated parameters. Created plot is also displayed on the graphic device.

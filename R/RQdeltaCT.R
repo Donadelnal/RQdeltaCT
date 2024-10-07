@@ -1018,7 +1018,7 @@ norm_finder <- function(data,
 #' @param height Numeric: height (in cm) of saved .tiff file. Default to 15.
 #' @param name.tiff Character: name of saved .tiff file, without ".tiff" name of extension. Default to "Ct_reference_gene_selection".
 #' @param save.to.txt Logical: if TRUE, returned data will be saved to .txt file. Default to FALSE.
-#' @param name.txt Character: name of saved .txt file, without ".txt" name of extension. Default to "data_dCt".
+#' @param name.txt Character: name of saved .txt file, without ".txt" name of extension. Default to "ref_gene_results".
 #'
 #' @return List containing an object with plot and a table with calculated parameters. Created plot is also displayed on the graphic device.
 #'

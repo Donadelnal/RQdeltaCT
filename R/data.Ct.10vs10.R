@@ -10,5 +10,5 @@
 #'   \item{\code{Group}}{character COLUMN_DESCRIPTION}
 #'   \item{\code{Flag}}{character COLUMN_DESCRIPTION}
 #'}
-#' @source Dataset is attached to the `RQdeltaCT` package and can be loaded using `data(data.Ct)` command.
+#' @source Dataset is attached to the `RQdeltaCT` package and can be loaded using `data(data.Ct.10vs10)` command.
 "data.Ct.10vs10"

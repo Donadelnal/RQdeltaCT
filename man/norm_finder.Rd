@@ -32,14 +32,9 @@ This function is internally used by other RQdeltaCT package function, find_ref_g
 library(tidyverse)
 data(data.Ct)
 data.CtF <- filter_Ct(data.Ct,
-                      remove.Gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+                      remove.Gene = c("FGF23","ANGPT2","IL1A","CSF2","IL6"),
                       remove.Sample = c("Control08","Control16","Control22"))
 data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
 reference.stability.nF <- norm_finder(data.CtF.ready,
-                                      candidates = c("Gene4",
-                                                     "Gene8",
-                                                     "Gene10",
-                                                     "Gene16",
-                                                     "Gene17",
-                                                     "Gene18"))
+                                      candidates = c("CCL5", "IL1B","GAPDH","TGFB","TNF", "VEGFA"))
 }

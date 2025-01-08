@@ -673,7 +673,7 @@ control_heatmap <- function(data,
 #' library(tidyverse)
 #' data(data.Ct)
 #' data.CtF <- filter_Ct(data.Ct,
-#'                       remove.Gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+#'                       remove.Gene = c("FGF23","ANGPT2","IL1A","CSF2","IL6"),
 #'                       remove.Sample = c("Control08","Control16","Control22"))
 #'
 #' dim(data.Ct)
@@ -732,7 +732,7 @@ filter_Ct <- function(data,
 #' library(tidyverse)
 #' data(data.Ct)
 #' data.CtF <- filter_Ct(data.Ct,
-#'                       remove.Gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+#'                       remove.Gene = c("FGF23","ANGPT2","IL1A","CSF2","IL6"),
 #'                       remove.Sample = c("Control08","Control16","Control22"))
 #'data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
 #'head(data.CtF.ready)
@@ -827,16 +827,11 @@ make_Ct_ready <- function(data,
 #' library(tidyverse)
 #' data(data.Ct)
 #' data.CtF <- filter_Ct(data.Ct,
-#'                       remove.Gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+#'                       remove.Gene = c("FGF23","ANGPT2","IL1A","CSF2","IL6"),
 #'                       remove.Sample = c("Control08","Control16","Control22"))
 #' data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
 #' reference.stability.nF <- norm_finder(data.CtF.ready,
-#'                                       candidates = c("Gene4",
-#'                                                      "Gene8",
-#'                                                      "Gene10",
-#'                                                      "Gene16",
-#'                                                      "Gene17",
-#'                                                      "Gene18"))
+#'                                       candidates = c("CCL5", "IL1B","GAPDH","TGFB","TNF", "VEGFA"))
 #' @importFrom dplyr filter select
 #' @importFrom utils write.table
 #' @importFrom tidyr pivot_longer pivot_wider
@@ -1029,12 +1024,12 @@ norm_finder <- function(data,
 #'library(tidyverse)
 #' data(data.Ct)
 #' data.CtF <- filter_Ct(data.Ct,
-#'                        remove.Gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+#'                        remove.Gene = c("FGF23","ANGPT2","IL1A","CSF2","IL6"),
 #'                        remove.Sample = c("Control08","Control16","Control22"))
 #' data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
 #' ref <- find_ref_gene(data.CtF.ready,
-#'                      groups = c("Disease","Control"),
-#'                      candidates = c("Gene4", "Gene8","Gene10","Gene16","Gene17", "Gene18"),
+#'                      groups = c("AAA","Control"),
+#'                      candidates = c("CCL5", "IL1B","GAPDH","TGFB","TNF", "VEGFA"),
 #'                      col = c("#66c2a5", "#fc8d62","#6A6599", "#D62728", "#1F77B4", "black"),
 #'                      norm.finder.score = TRUE,
 #'                      genorm.score = TRUE)
@@ -1206,12 +1201,12 @@ if (save.to.txt == TRUE) {
 #' library(tidyverse)
 #' data(data.Ct)
 #' data.CtF <- filter_Ct(data.Ct,
-#'                       remove.Gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+#'                       remove.Gene = c("FGF23","ANGPT2","IL1A","CSF2","IL6"),
 #'                       remove.Sample = c("Control08","Control16","Control22"))
 #' data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
-#' data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
+#' data.dCt <- delta_Ct(data.CtF.ready, ref = "GAPDH")
 #' head(data.dCt)
-#' data.dCt.exp <- delta_Ct(data.CtF.ready, ref = "Gene8", transform = TRUE)
+#' data.dCt.exp <- delta_Ct(data.CtF.ready, ref = "GAPDH", transform = TRUE)
 #' head(data.dCt.exp)
 #'
 #' @importFrom utils write.table
@@ -1305,10 +1300,10 @@ delta_Ct <- function(data,
 #' library(tidyverse)
 #' data(data.Ct)
 #' data.CtF <- filter_Ct(data.Ct,
-#'                       remove.Gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+#'                       remove.Gene = c("FGF23","ANGPT2","IL1A","CSF2","IL6"),
 #'                       remove.Sample = c("Control08","Control16","Control22"))
 #' data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
-#' data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
+#' data.dCt <- delta_Ct(data.CtF.ready, ref = "GAPDH")
 #' control.boxplot.sample <- control_boxplot_sample(data.dCt)
 #'
 #' @importFrom dplyr filter select
@@ -1439,10 +1434,10 @@ control_boxplot_sample <- function(data,
 #' library(tidyverse)
 #' data(data.Ct)
 #' data.CtF <- filter_Ct(data.Ct,
-#'                       remove.Gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+#'                       remove.Gene = c("FGF23","ANGPT2","IL1A","CSF2","IL6"),
 #'                       remove.Sample = c("Control08","Control16","Control22"))
 #' data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
-#' data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
+#' data.dCt <- delta_Ct(data.CtF.ready, ref = "GAPDH")
 #' control.boxplot.gene <- control_boxplot_gene(data.dCt)
 #'
 #' @importFrom dplyr filter select
@@ -1586,10 +1581,10 @@ control_boxplot_gene <- function(data,
 #' library(tidyverse)
 #' data(data.Ct)
 #' data.CtF <- filter_Ct(data.Ct,
-#'                       remove.Gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+#'                       remove.Gene = c("FGF23","ANGPT2","IL1A","CSF2","IL6"),
 #'                        remove.Sample = c("Control08","Control16","Control22"))
 #' data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
-#' data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
+#' data.dCt <- delta_Ct(data.CtF.ready, ref = "GAPDH")
 #' control_cluster_sample(data.dCt)
 #'
 #' @importFrom stats hclust dist
@@ -1707,10 +1702,10 @@ control_cluster_sample <- function(data,
 #' library(tidyverse)
 #' data(data.Ct)
 #' data.CtF <- filter_Ct(data.Ct,
-#'                       remove.Gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+#'                       remove.Gene = c("FGF23","ANGPT2","IL1A","CSF2","IL6"),
 #'                       remove.Sample = c("Control08","Control16","Control22"))
 #' data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
-#' data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
+#' data.dCt <- delta_Ct(data.CtF.ready, ref = "GAPDH")
 #' control_cluster_gene(data.dCt)
 #'
 #' @importFrom stats hclust dist
@@ -1835,10 +1830,10 @@ control_cluster_gene <- function (data,
 #' library(tidyverse)
 #' data(data.Ct)
 #' data.CtF <- filter_Ct(data.Ct,
-#'                       remove.Gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+#'                       remove.Gene = c("FGF23","ANGPT2","IL1A","CSF2","IL6"),
 #'                       remove.Sample = c("Control08","Control16","Control22"))
 #' data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
-#' data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
+#' data.dCt <- delta_Ct(data.CtF.ready, ref = "GAPDH")
 #' control_pca_sample(data.dCt)
 #'
 #' @importFrom stats na.omit prcomp
@@ -2031,10 +2026,10 @@ control_pca_sample <- function(data,
 #' library(tidyverse)
 #' data(data.Ct)
 #' data.CtF <- filter_Ct(data.Ct,
-#'                       remove.Gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+#'                       remove.Gene = c("FGF23","ANGPT2","IL1A","CSF2","IL6"),
 #'                       remove.Sample = c("Control08","Control16","Control22"))
 #' data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
-#' data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
+#' data.dCt <- delta_Ct(data.CtF.ready, ref = "GAPDH")
 #' control_pca_gene(data.dCt)
 #'
 #' @importFrom stats na.omit prcomp
@@ -2208,10 +2203,10 @@ control_pca_gene <- function(data,
 #' library(corrplot)
 #' data(data.Ct)
 #' data.CtF <- filter_Ct(data.Ct,
-#'                       remove.Gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+#'                       remove.Gene = c("FGF23","ANGPT2","IL1A","CSF2","IL6"),
 #'                       remove.Sample = c("Control08","Control16","Control22"))
 #' data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
-#' data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
+#' data.dCt <- delta_Ct(data.CtF.ready, ref = "GAPDH")
 #' corr.genes <- corr_gene(data.dCt)
 #' head(corr.genes)
 #'
@@ -2381,10 +2376,10 @@ corr_gene <- function(data,
 #' library(corrplot)
 #' data(data.Ct)
 #' data.CtF <- filter_Ct(data.Ct,
-#'                       remove.Gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+#'                       remove.Gene = c("FGF23","ANGPT2","IL1A","CSF2","IL6"),
 #'                       remove.Sample = c("Control08","Control16","Control22"))
 #' data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
-#' data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
+#' data.dCt <- delta_Ct(data.CtF.ready, ref = "GAPDH")
 #' corr.samples <- corr_sample(data.CtF.ready)
 #' head(corr.samples)
 #'
@@ -2564,11 +2559,11 @@ corr_sample <- function(data,
 #' library(ggpmisc)
 #' data(data.Ct)
 #' data.CtF <- filter_Ct(data.Ct,
-#'                       remove.Gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+#'                       remove.Gene = c("FGF23","ANGPT2","IL1A","CSF2","IL6"),
 #'                       remove.Sample = c("Control08","Control16","Control22"))
 #' data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
-#' data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
-#' single_pair_gene(data.dCt, "Gene16", "Gene17")
+#' data.dCt <- delta_Ct(data.CtF.ready, ref = "GAPDH")
+#' single_pair_gene(data.dCt, "PDGFB", "TGFB")
 #'
 #' @importFrom ggplot2 ggplot geom_point geom_smooth scale_color_manual xlab ylab labs theme_classic theme element_text ggsave
 #' @importFrom ggpmisc stat_poly_eq use_label
@@ -2722,11 +2717,11 @@ single_pair_gene <- function(data,
 #' library(ggpmisc)
 #' data(data.Ct)
 #' data.CtF <- filter_Ct(data.Ct,
-#'                       remove.Gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+#'                       remove.Gene = c("FGF23","ANGPT2","IL1A","CSF2","IL6"),
 #'                       remove.Sample = c("Control08","Control16","Control22"))
 #' data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
-#' data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
-#' single_pair_sample(data.dCt, "Disease6", "Control17")
+#' data.dCt <- delta_Ct(data.CtF.ready, ref = "GAPDH")
+#' single_pair_sample(data.dCt, "AAA6", "Control17")
 #'
 #' @importFrom dplyr select
 #' @importFrom ggplot2 ggplot geom_point geom_smooth xlab ylab labs theme_classic theme element_text ggsave
@@ -2871,10 +2866,10 @@ single_pair_sample <- function(data,
 #' library(tidyverse)
 #' data(data.Ct)
 #' data.CtF <- filter_Ct(data.Ct,
-#'                       remove.Gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+#'                       remove.Gene = c("FGF23","ANGPT2","IL1A","CSF2","IL6"),
 #'                       remove.Sample = c("Control08","Control16","Control22"))
 #' data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
-#' data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
+#' data.dCt <- delta_Ct(data.CtF.ready, ref = "GAPDH")
 #' data.dCtF <- filter_transformed_data(data.dCt, remove.Sample = c("Control11"))
 #'
 #' dim(data.dCt)
@@ -2937,12 +2932,12 @@ filter_transformed_data <- function(data,
 #' library(coin)
 #' data(data.Ct)
 #' data.CtF <- filter_Ct(data.Ct,
-#'                      remove.Gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+#'                      remove.Gene = c("FGF23","ANGPT2","IL1A","CSF2","IL6"),
 #'                      remove.Sample = c("Control08","Control16","Control22"))
 #' data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
-#' data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8", transform = TRUE)
+#' data.dCt <- delta_Ct(data.CtF.ready, ref = "GAPDH", transform = TRUE)
 #' results.dCt <- RQ_dCt(data.dCt,
-#'                            group.study = "Disease",
+#'                            group.study = "AAA",
 #'                            group.ref = "Control")
 #' head(results.dCt)
 #'
@@ -3185,14 +3180,14 @@ RQ_dCt <- function(data,
 #' library(tidyverse)
 #' data(data.Ct)
 #' data.CtF <- filter_Ct(data.Ct,
-#'                       remove.Gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+#'                       remove.Gene = c("FGF23","ANGPT2","IL1A","CSF2","IL6"),
 #'                       remove.Sample = c("Control08","Control16","Control22"))
 #' data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
-#' data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
+#' data.dCt <- delta_Ct(data.CtF.ready, ref = "GAPDH")
 #' data.dCtF <- filter_transformed_data(data.dCt, remove.Sample = c("Control11"))
 #' results_boxplot(data.dCtF,
-#'                 sel.Gene = c("Gene1","Gene16","Gene19","Gene20"),
-#'                 signif.labels = c("****","*","***"," * "),
+#'                 sel.Gene = c("ANGPT1","IL8", "VEGFB"),
+#'                 signif.labels = c("****","**","****"),
 #'                 angle = 30,
 #'                 signif.dist = 1.05,
 #'                 facet.row = 1,
@@ -3448,14 +3443,14 @@ results_boxplot <- function(data,
 #' library(tidyverse)
 #' data(data.Ct)
 #' data.CtF <- filter_Ct(data.Ct,
-#'                       remove.Gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+#'                       remove.Gene = c("FGF23","ANGPT2","IL1A","CSF2","IL6"),
 #'                       remove.Sample = c("Control08","Control16","Control22"))
 #' data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
-#' data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
+#' data.dCt <- delta_Ct(data.CtF.ready, ref = "GAPDH")
 #' data.dCtF <- filter_transformed_data(data.dCt, remove.Sample = c("Control11"))
 #' results_barplot(data.dCtF,
-#'                 sel.Gene = c("Gene1","Gene16","Gene19","Gene20"),
-#'                 signif.labels = c("****","*","***"," * "),
+#'                 sel.Gene = c("ANGPT1","IL8", "VEGFB"),
+#'                 signif.labels = c("****","**","***"),
 #'                 angle = 30,
 #'                 signif.dist = 1.05,
 #'                 facet.row = 1,
@@ -3671,11 +3666,11 @@ results_barplot <- function(data,
 #' library(coin)
 #' data(data.Ct)
 #' data.CtF <- filter_Ct(data.Ct,
-#'                       remove.Gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+#'                       remove.Gene = c("FGF23","ANGPT2","IL1A","CSF2","IL6"),
 #'                       remove.Sample = c("Control08","Control16","Control22"))
 #' data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
-#' data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
-#' results.ddCt <- RQ_ddCt(data.dCt, "Disease", "Control")
+#' data.dCt <- delta_Ct(data.CtF.ready, ref = "GAPDH")
+#' results.ddCt <- RQ_ddCt(data.dCt, "AAA", "Control")
 #' head(results.ddCt)
 #'
 #' @importFrom stats sd shapiro.test t.test p.adjust Pair
@@ -3938,12 +3933,12 @@ if (save.to.txt == TRUE) {
 #' library(tidyverse)
 #' data(data.Ct)
 #' data.CtF <- filter_Ct(data.Ct,
-#'                       remove.Gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+#'                       remove.Gene = c("FGF23","ANGPT2","IL1A","CSF2","IL6"),
 #'                       remove.Sample = c("Control08","Control16","Control22"))
 #' data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
-#' data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
+#' data.dCt <- delta_Ct(data.CtF.ready, ref = "GAPDH")
 #' data.dCtF <- filter_transformed_data(data.dCt, remove.Sample = c("Control11"))
-#' results.ddCt <- RQ_ddCt(data.dCtF, "Disease", "Control")
+#' results.ddCt <- RQ_ddCt(data.dCtF, "AAA", "Control")
 #'
 #' signif.labels <- c("****",
 #'                    "**",
@@ -4259,13 +4254,13 @@ FCh_plot <- function(data,
 #' library(pROC)
 #' data(data.Ct)
 #' data.CtF <- filter_Ct(data.Ct,
-#'                       remove.Gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+#'                       remove.Gene = c("FGF23","ANGPT2","IL1A","CSF2","IL6"),
 #'                       remove.Sample = c("Control08","Control16","Control22"))
 #' data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
-#' data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
+#' data.dCt <- delta_Ct(data.CtF.ready, ref = "GAPDH")
 #' data.dCtF <- filter_transformed_data(data.dCt, remove.Sample = c("Control11"))
-#' roc_parameters <- ROCh(data.dCtF, sel.Gene = c("Gene1","Gene16","Gene19","Gene20"),
-#'                         groups = c("Disease","Control"),
+#' roc_parameters <- ROCh(data.dCtF, sel.Gene = c("ANGPT1","IL8", "VEGFB"),
+#'                         groups = c("AAA","Control"),
 #'                         panels.row = 2,
 #'                         panels.col = 2)
 #'
@@ -4454,14 +4449,14 @@ ROCh <- function(data,
 #' library(oddsratio)
 #' data(data.Ct)
 #' data.CtF <- filter_Ct(data.Ct,
-#'                       remove.Gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+#'                       remove.Gene = c("FGF23","ANGPT2","IL1A","CSF2","IL6"),
 #'                        remove.Sample = c("Control08","Control16","Control22"))
 #' data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
 #' data.dCt <- delta_Ct(data.CtF.ready,
-#'                      ref = "Gene8")
+#'                      ref = "GAPDH")
 #' log.reg.results <- log_reg(data.dCt,
-#'                            sel.Gene = c("Gene1","Gene16","Gene19","Gene20"),
-#'                            group.study = "Disease",
+#'                            sel.Gene = c("ANGPT1","IL8", "VEGFB"),
+#'                            group.study = "AAA",
 #'                            group.ref = "Control",
 #'                            increment = 1)
 #'
@@ -4674,13 +4669,13 @@ log_reg <- function(data,
 #' library(pheatmap)
 #' data(data.Ct)
 #' data.CtF <- filter_Ct(data.Ct,
-#'                       remove.Gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+#'                       remove.Gene = c("FGF23","ANGPT2","IL1A","CSF2","IL6"),
 #'                        remove.Sample = c("Control08","Control16","Control22"))
 #' data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
-#' data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
+#' data.dCt <- delta_Ct(data.CtF.ready, ref = "GAPDH")
 #' # Remember to firstly create named list with colors for groups annotation:
-#' colors.for.groups = list("Group" = c("Disease"="firebrick1","Control"="green3"))
-#' # Vector of colors to fill the heatmap can be also specified to fit the user needings:
+#' colors.for.groups = list("Group" = c("AAA"="firebrick1","Control"="green3"))
+#' # Vector of colors to fill the heatmap can be also specified to fit the user needs:
 #' colors <- c("navy","navy","#313695","#4575B4","#74ADD1","#ABD9E9",
 #'             "#E0F3F8","#FFFFBF","#FEE090","#FDAE61","#F46D43",
 #'             "#D73027","#C32B23","#A50026","#8B0000",
@@ -4879,12 +4874,12 @@ results_heatmap <- function(data,
 #' library(tidyverse)
 #' data(data.Ct)
 #' data.CtF <- filter_Ct(data.Ct,
-#'                        remove.Gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+#'                        remove.Gene = c("FGF23","ANGPT2","IL1A","CSF2","IL6"),
 #'                        remove.Sample = c("Control08","Control16","Control22"))
 #' data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
-#' data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
+#' data.dCt <- delta_Ct(data.CtF.ready, ref = "GAPDH")
 #' data.dCtF <- filter_transformed_data(data.dCt, remove.Sample = c("Control11"))
-#' results.dCt <- RQ_dCt(data.dCtF, "Disease", "Control")
+#' results.dCt <- RQ_dCt(data.dCtF, "AAA", "Control")
 #'
 #' RQ.volcano <- results_volcano(data = results.dCt,
 #'                          mode = "depends",
@@ -5105,11 +5100,11 @@ results_volcano <- function(data,
 #' library(tidyverse)
 #' data(data.Ct)
 #' data.CtF <- filter_Ct(data.Ct,
-#'                       remove.Gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+#'                       remove.Gene = c("FGF23","ANGPT2","IL1A","CSF2","IL6"),
 #'                       remove.Sample = c("Control08","Control16","Control22"))
 #' data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
-#' data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
-#' pca_kmeans(data.dCt, sel.Gene = c("Gene1","Gene16","Gene19","Gene20"))
+#' data.dCt <- delta_Ct(data.CtF.ready, ref = "GAPDH")
+#' pca_kmeans(data.dCt, sel.Gene = c("ANGPT1","IL8","VEGFB"))
 #'
 #' @importFrom stats na.omit prcomp kmeans
 #' @importFrom dplyr select

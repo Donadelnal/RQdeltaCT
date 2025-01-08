@@ -2,7 +2,7 @@
 title: "RQdeltaCT - Relative Quantification of Gene Expression using Delta Ct Methods"
 output: rmarkdown::html_vignette
 author: "Daniel Zalewski daniel.piotr.zalewski@gmail.com"
-date: "5 October 2024"
+date: "8 January 2025"
 vignette: >
   %\VignetteIndexEntry{RQdeltaCT - Relative Quantification of Gene Expression using Delta Ct Methods}
   %\VignetteEngine{knitr::rmarkdown}
@@ -83,6 +83,17 @@ knitr::opts_chunk$set(
   + [Receiver Operating Characteristic (ROC) analysis (a pairwise approach)]
   + [Simple logistic regression (a pairwise approach)]
 
+* [**Analysis of more than two groups**]
+
+  + [Quality control of raw Ct data - a multigroup variant of analysis]
+  + [Filtering of raw Ct data, collapsing technical replicates, and imputation of missing data - a multigroup variant of analysis]
+  + [Reference gene selection - a multigroup variant of analysis]
+  + [Data normalization using reference gene - a multigroup variant of analysis]
+  + [Quality control and filtering of transformed Ct data - a multigroup variant of analysis]
+  + [Data filtering after quality control - a multigroup variant of analysis]
+  + [Relative quantification: 2^-dCt^ and 2^-ddCt^ methods - a multigroup variant of analysis]
+  + [Final visualisations - a multigroup variant of analysis]
+  + [Further analyses - a multigroup variant of analysis]
 * [**Session info**]
 
 ## **Introduction**
@@ -142,7 +153,9 @@ For user convenience, the `RQdeltaCT` package provides two functions useful to i
 * `read_Ct_long()` - to import tables with long-format structure (each information in columns),
 * `read_Ct_wide()` - to import tables with wide-format structure (samples by columns, genes by rows).  
 
-**NOTE:** Imported tables must be free of empty lines.  
+**NOTE:** Imported tables must be free of empty lines. 
+
+All datasets used in this chapter are a part of real data used in article [Zalewski, D.; Chmiel, P.; Kołodziej, P.; Borowski, G.; Feldo, M.; Kocki, J.; Bogucka-Kocka, A. Dysregulations of Key Regulators of Angiogenesis and Inflammation in Abdominal Aortic Aneurysm. Int. J. Mol. Sci. 2023, 24, 12087](https://doi.org/10.3390/ijms241512087). The tables contain samples divided into two groups: AAA group (patients with abdominal aortic aneurysm) and Control group (subjects without AAA). For each sample, the expression of 19 genes were determined as Ct values, obtained using real-time PCR method and TaqMan assays.
 
 #### Reading long-format data using the `read_Ct_long()` function
 
@@ -280,7 +293,8 @@ data(data.Ct.pairwise)
 str(data.Ct.pairwise)
 ```
 
-The `data.Ct.pairwise` data are a part of the `data.Ct` data, with a structure transformed to fit a pairwise analysis: the number of samples in the study group (named "Before") has been equated with the number of the reference group (named "After"). This data are used in this vignette to demonstrate a pairwise approach to the relative quantification of gene expression. 
+The `data.Ct.pairwise` data are a part of the `data.Ct` data, with a structure transformed to fit a pairwise analysis. Due to the fact that the data do not come from paired experiments, the sample names, gene names, and group names were  encoded. The number of samples in the study group (named "Before") has been equated with the number of the reference group (named "After"). This data are used in this vignette to demonstrate a pairwise approach to the relative quantification of gene expression (see [**Part B: A pairwise analysis**] chapter). 
+
 
 ---
 
@@ -359,9 +373,9 @@ The created plot is displayed on the graphic device (if save.to.tiff = FALSE) or
 
 **NOTE:** The `control_heatmap()` works only if various numbers of replicates are in the data, otherwise error will appear because inherited `pheatmap()` function can not deal with the situation where all values are equal.
 
-Visual inspection of returned plots and obtained tables gives a clear image of data quality. The results obtained in the examples show that the Disease group contains more samples than the Control group. Some of the samples have more Ct values (more technical replicates) than other samples. Furthermore, in all samples, the majority of Ct values are reliable.  
+Visual inspection of returned plots and obtained tables gives a clear image of data quality. The results obtained in the examples show that the AAA group contains more samples than the Control group. Some of the samples have more Ct values (more technical replicates) than other samples. Furthermore, in all samples, the majority of Ct values are reliable.  
 
-Regarding genes, Gene6 and Gene8 were investigated in duplicates, other genes have single Ct values. Furthermore, Gene6 was analysed only in the Control group and has all values labeled as unreliable; therefore, it is obvious that this gene should be excluded from the analysis. Some other genes also have many unreliable Ct values (e.g. Gene2, Gene9) and maybe should be considered to be removed from the data.  
+Regarding genes, GAPDH and FGF23 were investigated in duplicates in the Control group, other genes have single Ct values in both groups. Furthermore, FGF23 was analysed only in the Control group and has all values labeled as unreliable; therefore, it is obvious that this gene should be excluded from the analysis. Some other genes also have many unreliable Ct values (e.g. ANGPT2, IL1A) and maybe should be considered to be removed from the data.  
 
 In some situations, a unified fraction of unreliable data need to be established and used to make decision which samples or genes should be excluded from the analysis. It can be done using the following code, in which the second element of object returned by the `control_Ct_barplot_sample()` and `control_Ct_barplot_gene()` functions can be used directly, and a vector with samples or genes for which the fraction of unreliable Ct values is higher than a specified threshold is received: 
 
@@ -379,7 +393,7 @@ low.quality.genes <- unique(as.vector(low.quality.genes))
 low.quality.genes
 ```
 
-In the above examples, there is no sample with more than half of the unreliable data. Furthermore, this criterion was met by 5 genes (Gene2, Gene5, Gene6, Gene9, and Gene11); therefore, these genes will be removed from the data in the next step of analysis. 
+In the above examples, there is no sample with more than half of the unreliable data. Furthermore, this criterion was met by 5 genes (FGF23, ANGPT2, IL1A, CSF2, and IL6); therefore, these genes will be removed from the data in the next step of analysis. 
 
 ---
 
@@ -449,8 +463,8 @@ The created plot is displayed on the graphic device. The returned object is a li
 library(ctrlGene)
 # Remember that the number of colors in col parameter should be equal to the number of tested genes:
 ref <- find_ref_gene(data = data.CtF.ready,
-                     groups = c("Disease","Control"),
-                     candidates = c("Gene4", "Gene8","Gene10","Gene16","Gene17", "Gene18"),
+                     groups = c("AAA","Control"),
+                     candidates = c("CCL5", "IL1B","GAPDH","TGFB","TNF", "VEGFA"),
                      col = c("#66c2a5", "#fc8d62","#6A6599", "#D62728", "#1F77B4", "black"),
                      angle = 60,
                      axis.text.size = 7,
@@ -460,7 +474,7 @@ ref[[2]]
 ```
 
 NA values are presented because geNorm method returns a pair of genes with the highest stability.  
-Among tested genes, Gene8, Gene16, Gene17, and Gene18 seem to have the best characteristics to be a reference gene (they have low variance, low NormFinder and low geNorm scores).
+Among tested genes, GAPDH, TNF, TGFB, and VEGFA seem to have the best characteristics to be a reference gene (they have low variance, low NormFinder and low geNorm scores).
 
 ---
 
@@ -472,7 +486,7 @@ Data normalization can be performed using `delta_Ct()` function that calculates 
 # For 2^-dCt^ method:
 data.dCt.exp <- delta_Ct(data = data.CtF.ready,
                      normalise = TRUE,
-                     ref = "Gene8",
+                     ref = "GAPDH",
                      transform = TRUE)
 ```
 
@@ -482,7 +496,7 @@ If 2^-ddCt^ method is used, `transform` should be set to FALSE to avoid dCt valu
 # For 2^-ddCt^ method:
 data.dCt <- delta_Ct(data = data.CtF.ready,
                      normalise = TRUE,
-                     ref = "Gene8",
+                     ref = "GAPDH",
                      transform = FALSE)
 ```
 
@@ -579,12 +593,12 @@ The whole process can be done using `RQ_dCt()` function, which performs:
 
 ```{r cache=FALSE}
 data.dCt.exp <- delta_Ct(data = data.CtF.ready,
-                         ref = "Gene8",
+                         ref = "GAPDH",
                          transform = TRUE)
 library(coin)
 results.dCt <- RQ_dCt(data = data.dCt.exp,
                             do.tests = TRUE,
-                            group.study = "Disease",
+                            group.study = "AAA",
                             group.ref = "Control")
 
 # Obtained table can be sorted by, e.g. p values from the Mann-Whitney U test:
@@ -609,11 +623,11 @@ The whole process can be done using `RQ_ddCt()` function, which performs:
 
 ```{r cache=FALSE}
 data.dCt <- delta_Ct(data = data.CtF.ready,
-                     ref = "Gene8",
+                     ref = "GAPDH",
                      transform = FALSE)
 library(coin)
 results.ddCt <- RQ_ddCt(data = data.dCt,
-                   group.study = "Disease",
+                   group.study = "AAA",
                    group.ref = "Control",
                    do.tests = TRUE)
 
@@ -696,7 +710,7 @@ FCh.plot <- FCh_plot(data = results.ddCt,
 head(as.data.frame(FCh.plot[[2]]))
 ```
 
-Three genes (Gene1, Gene12, and Gene19) are shown to meet the used significance criteria.
+Three genes (ANGPT1, IL8, and VEGFB) are shown to meet the used significance criteria.
 
 **NOTE:** If p values were not calculated due to the low number of samples, or they are not intended to be used to create a plot, the `use.p` parameter should be set to FALSE.
 
@@ -724,10 +738,10 @@ Data objects returned from the `make_Ct_ready()` and `delta_Ct() functions` can 
 
 ```{r fig.dim=c(5,4.5), fig.align='center', cache=FALSE}
 final_boxplot <- results_boxplot(data = data.dCtF,
-                                 sel.Gene = c("Gene1","Gene12", "Gene16","Gene19"),
+                                 sel.Gene = c("ANGPT1","IL8", "VEGFB"),
                                  by.group = TRUE,
                                  signif.show = TRUE,
-                                 signif.labels = c("****","*","***"," * "),
+                                 signif.labels = c("****","**","***"),
                                  signif.dist = 1.05,
                                  faceting = TRUE,
                                  facet.row = 1,
@@ -747,9 +761,9 @@ Data objects returned from the `make_Ct_ready()` and `delta_Ct() functions` can 
 
 ```{r fig.dim=c(5,4.5), fig.align='center', cache=FALSE}
 final_barplot <- results_barplot(data = data.dCtF,
-                                 sel.Gene = c("Gene1","Gene12","Gene19","Gene20"),
+                                 sel.Gene = c("ANGPT1","IL8", "VEGFB"),
                                  signif.show = TRUE,
-                                 signif.labels = c("****","*","***"," * "),
+                                 signif.labels = c("****","**","***"),
                                  angle = 30,
                                  signif.dist = 1.05,
                                  faceting = TRUE,
@@ -771,7 +785,7 @@ Data objects returned from the `make_Ct_ready()` and `delta_Ct() functions` can 
 
 ```{r fig.dim=c(7.1,5), cache=FALSE}
 # Create named list with colors for groups annotation:
-colors.for.groups = list("Group" = c("Disease"="firebrick1","Control"="green3"))
+colors.for.groups = list("Group" = c("AAA"="firebrick1","Control"="green3"))
 # Vector of colors for heatmap can be also specified to fit the user needings:
 colors <- c("navy","navy","#313695","#4575B4","#74ADD1","#ABD9E9",
             "#E0F3F8","#FFFFBF","#FEE090","#FDAE61","#F46D43",
@@ -811,7 +825,7 @@ This function allows to simultaneously perform principal component analysis (PCA
 
 ```{r fig.dim=c(5,5.5), fig.align='center', cache=FALSE}
 pca.kmeans <- pca_kmeans(data.dCt, 
-                           sel.Gene = c("Gene1","Gene16","Gene19","Gene20"), 
+                           sel.Gene = c("ANGPT1","IL8", "VEGFB"), 
                            legend.position = "top")
 # Access to the confusion matrix:
 pca.kmeans[[2]]
@@ -836,7 +850,8 @@ corr.samples <- corr_sample(data = data.dCt[15:30, ],
                             method = "pearson",
                             order = "hclust",
                             size = 0.7,
-                            p.adjust.method = "BH")
+                            p.adjust.method = "BH",
+                            add.coef = "white")
 ```
 ```{r fig.dim=c(6.5,6.5), fig.align='center', cache=FALSE}
 library(Hmisc)
@@ -858,8 +873,8 @@ Linear relationships between pairs of samples or genes can be further analysed u
 
 ```{r fig.dim=c(4.5,4.5), fig.align='center', cache=FALSE}
 library(ggpmisc)
-Disease6_Control17 <- single_pair_sample(data = data.dCt,
-                                         x = "Disease6",
+AAA6_Control17 <- single_pair_sample(data = data.dCt,
+                                         x = "AAA6",
                                          y = "Control17",
                                          point.size = 3,
                                          labels = TRUE,
@@ -868,9 +883,9 @@ Disease6_Control17 <- single_pair_sample(data = data.dCt,
 ```
 ```{r fig.dim=c(5,4.5), fig.align='center', cache=FALSE}
 library(ggpmisc)
-Gene16_Gene17 <- single_pair_gene(data.dCt,
-                                    x = "Gene16",
-                                    y = "Gene17",
+PDGFB_TGFB <- single_pair_gene(data.dCt,
+                                    x = "PDGFB",
+                                    y = "TGFB",
                                     by.group = TRUE,
                                     point.size = 3,
                                     labels = TRUE,
@@ -889,8 +904,8 @@ The Receiver Operating Characteristic (ROC) analysis is useful for assessing the
 library(pROC)
 # Remember to specify the numbers of rows (panels.row parameter) and columns (panels.col parameter) to be sufficient to arrange panels: 
 roc_parameters <- ROCh(data = data.dCt,
-                       sel.Gene = c("Gene1","Gene12","Gene16","Gene19"),
-                       groups = c("Disease","Control"),
+                       sel.Gene = c("ANGPT1","IL8", "VEGFB"),
+                       groups = c("AAA","Control"),
                        panels.row = 2,
                        panels.col = 2)
 roc_parameters
@@ -910,8 +925,8 @@ library(oddsratio)
 # Remember to set the increment parameter.
 log.reg.results <- log_reg(data = data.dCt,
                            increment = 1,
-                           sel.Gene = c("Gene1","Gene12","Gene16","Gene19"),
-                           group.study = "Disease",
+                           sel.Gene = c("ANGPT1","IL8", "VEGFB"),
+                           group.study = "AAA",
                            group.ref = "Control")
 log.reg.results[[2]]
 ```
@@ -1745,6 +1760,723 @@ log.reg.results[[2]]
 Increase in dCt values by 1 (two-fold decrease in expression) gives the higher chance to be in the "After" group. 
 
 ---
+
+# **Analysis of more than two groups**
+
+Many functions of the `RQdeltaCT` package work well with data containing more than two groups. To demonstrate this
+functionality, an example of analysis regarding data with three groups is presented below 
+(variant with comparison of independent groups). For the purpose of this analysis, 
+the package dataset named `data.Ct.3groups` was used. Of course, data with multiple groups can be imported to R using options previously described in the chapter [**Data import**].
+
+```{r cache=FALSE}
+data("data.Ct.3groups")
+str(data.Ct.3groups)
+table(data.Ct.3groups$Group)
+```
+
+The `data.Ct.3groups` dataset contains a table with gene expression data obtained for 20 genes and 104 samples 
+using qPCR experiments with TaqMan assays. The samples are divided into three groups: Disease AAA (40 samples), 
+Disease VV (40 samples), and Control (24 samples). This dataset is a part of data used in articles: 
+
+* [Zalewski, D.; Chmiel, P.; Kołodziej, P.; Borowski, G.; Feldo, M.; Kocki, J.; Bogucka-Kocka, A. Dysregulations of Key Regulators of Angiogenesis and Inflammation in Abdominal Aortic Aneurysm. Int. J. Mol. Sci. 2023, 24, 12087](https://doi.org/10.3390/ijms241512087) 
+* [Zalewski, D.; Chmiel, P.; Kołodziej, P.; Kocki, M.; Feldo, M.; Kocki, J.; Bogucka-Kocka, A. Key Regulators of Angiogenesis and Inflammation Are Dysregulated in Patients with Varicose Veins. Int. J. Mol. Sci. 2024, 25, 6785](https://doi.org/10.3390/ijms25126785)
+
+This table is a data frame with 2048 rows and 5 variables (Sample, Gene, Ct, Group, and FLAG). 
+
+The workflow for multiple groups presented here is very similar to the variant for two groups presented in chapter [**Part A: The workflow for analysis of independent groups of samples**], therefore we will focus on the most important points and differences, and prior reading of this previous chapter is highly recommended.
+
+#### Quality control of raw Ct data - a multigroup variant of analysis
+
+Two functions for quality control of raw Ct data: `control_Ct_barplot_sample()` (for quality control of samples) and  `control_Ct_barplot_gene()` (for quality control of genes) can be used for data with more than two groups. Both functions label each Ct value as reliable or not, based on the reliability criteria established by the user. The default criteria will be used in this example:
+
+* a flag used for undetermined Ct values - "Undetermined".
+* a maximum of Ct value allowed - 35.
+* a flag used in the Flag column for values that are unreliable - "Undetermined".
+
+```{r fig.dim=c(7.1,9), cache=FALSE}
+sample.Ct.control.3groups <- control_Ct_barplot_sample(data = data.Ct.3groups,
+                                               flag.Ct = "Undetermined",
+                                               maxCt = 35,
+                                               flag = c("Undetermined"),
+                                               axis.title.size = 9,
+                                               axis.text.size = 7,
+                                               plot.title.size = 9,
+                                               legend.title.size = 9,
+                                               legend.text.size = 9)
+
+```
+```{r fig.dim=c(7.1,5.5), cache=FALSE}
+gene.Ct.control.3groups <- control_Ct_barplot_gene(data = data.Ct.3groups,
+                                               flag.Ct = "Undetermined",
+                                               maxCt = 35,
+                                               flag = c("Undetermined"),
+                                               axis.title.size = 9,
+                                               axis.text.size = 9,
+                                               plot.title.size = 9,
+                                               legend.title.size = 9,
+                                               legend.text.size = 9)
+```
+Remember: These functions do not perform data filtering, but only report numbers of Ct values labelled as reliable or not and present them graphically.
+
+**Conclusions:** 
+
+* The results obtained in the examples show that the AAA and VV groups contain more samples than the Control group. 
+* Most Ct values are labelled as reliable.
+* FGF23 was analysed only in the Control group and has all values labeled as unreliable; therefore, it is obvious that this gene should be excluded from the analysis. 
+* Some other genes also have many unreliable Ct values (e.g. ANGPT2, IL1A) and should probably be considered to be removed from the data.
+
+We can access tables with numbers of Ct values labelled as reliable (Yes) or unreliable (No), and with calculated fraction of unreliable Ct values in each gene:
+
+```{r cache=FALSE}
+head(sample.Ct.control.3groups[[2]])
+```
+
+```{r cache=FALSE}
+head(gene.Ct.control.3groups[[2]])
+```
+
+---
+
+The `control_heatmap()` function also can be used for data with multiple groups:
+
+```{r fig.dim=c(7.1,9), cache=FALSE}
+library(tidyverse)
+library(pheatmap)
+data("data.Ct.3groups")
+
+# Vector of colors to fill the heatmap can be specified to fit the user needs:
+colors <- c("#4575B4","#FFFFBF","#C32B23")
+control_heatmap(data.Ct.3groups,
+                sel.Gene = "all",
+                colors = colors,
+                show.colnames = TRUE,
+                show.rownames = TRUE, 
+                fontsize = 9,
+                fontsize.row = 9,
+                angle.col = 45)
+```
+
+On the heatmap we can clearly observe that some of the samples have more Ct values (more technical replicates) than other samples. Genes FGF23 and GAPDH were investigated in duplicates in the Control group, other genes have single Ct values. 
+
+Remember: The `control_heatmap()` works only if various numbers of replicates are in the data, otherwise error will appear, because inherited `pheatmap()` function can not deal with the situation where all values are equal.
+
+In the example below, for filtering purposes, samples and genes with more than half of the unreliable data were identified:
+
+```{r cache=FALSE}
+# Finding samples with more than half of the unreliable Ct values.
+low.quality.samples.3groups <- filter(sample.Ct.control.3groups[[2]], Not.reliable.fraction > 0.5)$Sample
+low.quality.samples.3groups <- as.vector(low.quality.samples.3groups)                        
+low.quality.samples.3groups
+```
+
+```{r}
+# Finding genes with more than half of the unreliable Ct values in given group.
+low.quality.genes.3groups <- filter(gene.Ct.control.3groups[[2]], Not.reliable.fraction > 0.5)$Gene
+low.quality.genes.3groups <- unique(as.vector(low.quality.genes.3groups))                        
+low.quality.genes.3groups
+```
+
+In the above examples, the VV45 and VV39 samples have more than half of the unreliable data. This criterion was also met by 5 genes (FGF23, ANGPT2, IL1A, CSF2, and IL6). Therefore, these samples and genes will be removed from the data in the next step of analysis.
+
+---
+
+#### Filtering of raw Ct data, collapsing technical replicates, and imputation of missing data - a multigroup variant of analysis
+
+For these steps, a similar code can be used to that presented for two groups.
+
+```{r cache=FALSE}
+# Data filtering
+data.CtF.3groups <- filter_Ct(data = data.Ct.3groups,
+                      flag.Ct = "Undetermined",
+                      maxCt = 35,
+                      flag = c("Undetermined"),
+                      remove.Gene = low.quality.genes.3groups,
+                      remove.Sample = low.quality.samples.3groups)
+
+# Collapsing technical replicates without imputation:
+data.CtF.ready.3groups <- make_Ct_ready(data = data.CtF.3groups,
+                                imput.by.mean.within.groups = FALSE)
+# A part of the data with missing values:
+as.data.frame(data.CtF.ready.3groups)[25:30,]
+
+# Collapsing technical replicates with imputation:
+data.CtF.ready.3groups <- make_Ct_ready(data = data.CtF.3groups,
+                                imput.by.mean.within.groups = TRUE)
+# Missing values were imputed:
+as.data.frame(data.CtF.ready.3groups)[25:30,]
+
+
+```
+
+The data imputation process can significantly influence the data; therefore, no default value was set to the `imput.by.mean.within.groups` parameter to force the specification by the user. If there are missing data for a certain gene in the entire group, they will not be imputed and will remain NA.
+
+---
+
+#### Reference gene selection - a multigroup variant of analysis
+
+This step is also similar to that for two groups. You need to provide a list of group names in the `groups` argument. In the example below, five genes are tested for suitability to be a reference gene: 
+
+```{r fig.dim=c(7.1,4), cache=FALSE}
+library(ctrlGene)
+# Remember that the number of colors in col parameter should be equal to the number of tested genes:
+ref.3groups <- find_ref_gene(data = data.CtF.ready.3groups,
+                     groups = c("AAA","Control","VV"),
+                     candidates = c("CCL5", "GAPDH","IL1B","TGFB", "VEGFA"),
+                     col = c("#66c2a5", "#fc8d62","#6A6599", "#1F77B4", "black"),
+                     angle = 60,
+                     axis.text.size = 7,
+                     norm.finder.score = TRUE,
+                     genorm.score = TRUE)
+ref.3groups[[2]]
+```
+
+Among tested genes, VEGFA seems to have the best characteristics to be a reference gene (low variance, sd, NormFinder and geNorm scores).
+
+---
+
+#### Data normalization using reference gene - a multigroup variant of analysis
+
+The code for this step is similar as that for two groups.
+
+```{r cache=FALSE}
+# For 2-dCt method:
+data.dCt.exp.3groups <- delta_Ct(data = data.CtF.ready.3groups,
+                     normalise = TRUE,
+                     ref = "VEGFA",
+                     transform = TRUE)
+
+# For 2-ddCt method:
+data.dCt.3groups <- delta_Ct(data = data.CtF.ready.3groups,
+                     normalise = TRUE,
+                     ref = "VEGFA",
+                     transform = FALSE)
+```
+
+In the scenario where unnormalised data should be analysed, the `normalise` parameter should be set to FALSE.
+
+---
+
+#### Quality control and filtering of transformed Ct data - a multigroup variant of analysis
+
+If more than two groups are present in the data, for proper action of the `control_boxplot_sample()`, `control_boxplot_gene()`, and `control_pca_sample()` functions, the vector of colors must be specified in the `colors` argument. 
+
+```{r fig.dim=c(7.1,8), cache=FALSE}
+control_boxplot_sample_3groups <- control_boxplot_sample(data = data.dCt.3groups,
+                                                         colors = c("#66c2a5", "#fc8d62", "#8DA0CB"),
+                                                         axis.text.size = 7)
+```
+```{r fig.dim=c(7.1,4)}
+control_boxplot_gene_3groups <- control_boxplot_gene(data = data.dCt.3groups,
+                                                     by.group = TRUE,
+                                                     colors = c("#66c2a5", "#fc8d62", "#8DA0CB"),
+                                                     axis.text.size = 10)
+```
+
+```{r fig.dim=c(5,5.5), fig.align='center', cache=FALSE}
+control.pca.sample.3groups <- control_pca_sample(data = data.dCt.3groups,
+                                                 colors = c("#66c2a5", "#fc8d62", "#8DA0CB"),
+                                                 point.size = 3,
+                                                 label.size = 2.5,
+                                                 legend.position = "top")
+```
+```{r fig.dim=c(5,5), fig.align='center', cache=FALSE}
+control.pca.gene.3groups <- control_pca_gene(data = data.dCt.3groups)
+```
+
+**NOTE:** PCA algorithm can not deal with missing data (NAs); therefore, variables with NA values are removed before analysis. If at least one NA value occurs in all variables in at least one of the compared group, the analysis can not be done. Imputation of missing data will avoid this issue. Also, a minimum of three samples or genes in the data are required for analysis.
+
+---
+
+The code for hierarchical clustering also does not need substantial modifications:
+
+```{r fig.dim=c(7.1,4), cache=FALSE}
+control_cluster_sample(data = data.dCt.3groups,
+                       method.dist = "euclidean",
+                       method.clust = "average",
+                       label.size = 0.5)
+control_cluster_gene(data = data.dCt.3groups,
+                     method.dist = "euclidean",
+                     method.clust = "average",
+                     label.size = 0.5)
+```
+
+**NOTE:** Minimum three samples or genes in data is required for clustering analysis.
+
+---
+
+#### Data filtering after quality control - a multigroup variant of analysis
+
+If any sample or gene was decided to be removed from the data with multiple groups, the `filter_transformed_data()` function can be used as previously:
+
+```{r cache=FALSE}
+data.dCtF.3groups <- filter_transformed_data(data = data.dCt.3groups,
+                                             remove.Sample = c("AAA14"))
+```
+
+---
+
+#### Relative quantification: 2^-dCt^ and 2^-ddCt^ methods - a multigroup variant of analysis
+
+Currently, the `RQ_dCt()` and `RQ_ddCt()` functions work only with two groups (study group and reference group) that are specified in the ``group.study` and `group.ref` arguments. The functionalities for the analysis of more than two groups will be extended in the future.
+
+```{r cache=FALSE}
+# Example of 2-dCt method used for comparison VV vs. Control group
+data.dCt.exp.3groups <- delta_Ct(data = data.CtF.ready.3groups,
+                                 ref = "VEGFA",
+                                 transform = TRUE)
+library(coin)
+results.dCt.3groups <- RQ_dCt(data = data.dCt.exp.3groups,
+                              do.tests = TRUE,
+                              group.study = "VV",
+                              group.ref = "Control")
+
+# Obtained table can be sorted by, e.g. p values from the Mann-Whitney U test:
+head(as.data.frame(arrange(results.dCt.3groups, MW_test_p)))
+```
+
+```{r cache=FALSE}
+# Example of 2-ddCt method used for comparison VV vs. Control group
+data.dCt.3groups <- delta_Ct(data = data.CtF.ready.3groups,
+                             ref = "VEGFA",
+                             transform = FALSE)
+library(coin)
+results.ddCt.3groups <- RQ_ddCt(data = data.dCt.3groups,
+                                group.study = "VV",
+                                group.ref = "Control",
+                                do.tests = TRUE)
+
+# Obtained table can be sorted by, e.g. p values from the Mann-Whitney U test:
+head(as.data.frame(arrange(results.ddCt.3groups, MW_test_p)))
+```
+
+---
+
+#### Final visualisations - a multigroup variant of analysis
+
+Five functions:  `FCh_plot()`, `results_volcano()`, `results_barplot()`, `results_boxplot()`, and `results_heatmap()` were created for visualisation of results. Two of them, `FCh_plot()` and `results_volcano()`, process data returned from two group-specific `RQ_dCt()` and `RQ_ddCt()` functions, therefore analysis of data with more two groups is not applicable. 
+
+The remaining three functions (`results_barplot()`, `results_boxplot()`, and `results_heatmap()`) can be used successfully for data with multiple groups, and the user must provide a vector of colors for groups. 
+
+However, the `results_barplot()` and `results_boxplot()` functions are designed to draw the statistical significance labels for two groups (see [The `results_boxplot()` function] chapter). If distributions or bars of three (or more) groups are drawn, the labels will appear above all boxplots. This is not an optimal solution:
+
+```{r fig.dim=c(5,4.5), fig.align='center', cache=FALSE}
+final_boxplot_3groups <- results_boxplot(data = data.dCtF.3groups,
+                                 sel.Gene = c("ANGPT1","VEGFB", "VEGFC"),
+                                 colors = c("#66c2a5", "#fc8d62", "#8DA0CB"),
+                                 by.group = TRUE,
+                                 signif.show = TRUE,
+                                 signif.labels = c("****","***","*"),
+                                 signif.dist = 1.05,
+                                 faceting = TRUE,
+                                 facet.row = 1,
+                                 facet.col = 4,
+                                 y.exp.up = 0.1,
+                                 angle = 20,
+                                 y.axis.title = "dCt")
+```
+
+```{r fig.dim=c(5,4.5), fig.align='center', cache=FALSE}
+final_barplot_3groups <- results_barplot(data = data.dCtF.3groups,
+                                 sel.Gene = c("ANGPT1","VEGFB","VEGFC"),
+                                 colors = c("#66c2a5", "#fc8d62", "#8DA0CB"),
+                                 signif.show = TRUE,
+                                 signif.labels = c("****","***","*"),
+                                 angle = 30,
+                                 signif.dist = 1.05,
+                                 faceting = TRUE,
+                                 facet.row = 1,
+                                 facet.col = 4,
+                                 y.exp.up = 0.1,
+                                 y.axis.title = "dCt")
+```
+
+Typically, statistical significance labels for each pair of groups (above each pair of distributions or bars) are needed to show significance status. To properly locate labels on the plot, customized coordinates for labels must be specified for each pair outside of the `results_boxplot()` or `results_barplot()` functions. 
+
+##### Solution for the `results_boxplot()` function
+Firstly, the `results_boxplot()` function should be run with `signif.show = FALSE` to avoid drawing labels, and then a data frames with coordinates for statistical significance labels are added for each pair (left, right, edges) of distributions: 
+
+```{r fig.dim=c(5,4.5), fig.align='center', cache=FALSE}
+# Draw plot without statistical significance labels:
+final_boxplot_3groups <- results_boxplot(data = data.dCtF.3groups,
+                                 sel.Gene = c("ANGPT1","VEGFB", "VEGFC"),
+                                 colors = c("#66c2a5", "#fc8d62", "#8DA0CB"),
+                                 by.group = TRUE,
+                                 signif.show = FALSE, # It avoids drawing labels
+                                 faceting = TRUE,
+                                 facet.row = 1,
+                                 facet.col = 4,
+                                 y.exp.up = 0.2,
+                                 angle = 20,
+                                 y.axis.title = "dCt")
+```
+
+Three data frames with specified coordinates for each of three pairs of distributions are subsequently prepared:
+
+```{r cache=FALSE}
+# Prepare expression data:
+data <- pivot_longer(data.dCtF.3groups,
+                     !c(Sample, Group),
+                     names_to = "Gene" ,
+                     values_to = "value")
+
+# filter for genes:
+data <- filter(data, Gene %in% c("ANGPT1","VEGFB", "VEGFC"))
+
+# Find maximum value in each group:
+label.height <- data %>%
+        group_by(Gene) %>%
+        summarise(height = max(value), .groups = "keep")
+
+# Prepare empty data frame:
+data.label.empty <- data.frame(matrix(nrow = length(unique(label.height$Gene)), ncol = 4))
+rownames(data.label.empty) <- label.height$Gene
+colnames(data.label.empty) <- c("x", "xend", "y", "annotation")
+data.label.empty$Gene <- rownames(data.label.empty)
+
+# Fill a data frame with coordinates for right pair:
+data.label.right <- data.label.empty
+data.label.right$x <- rep(1.01, nrow(data.label.right))
+data.label.right$xend <- rep(1.25, nrow(data.label.right))
+data.label.right$y <- label.height$height + 0.5
+data.label.right$annotation <- c("right1","right2","right3")
+
+# Fill a data frame with coordinates for left pair:
+data.label.left <- data.label.empty
+data.label.left$x <- rep(0.98, nrow(data.label.left))
+data.label.left$xend <- rep(0.75, nrow(data.label.left))
+data.label.left$y <- label.height$height + 0.5
+data.label.left$annotation <- c("left1","left2","left3")
+
+# Fill a data frame with coordinates for edge pair:
+data.label.edge <- data.label.empty
+data.label.edge$x <- rep(0.75, nrow(data.label.edge))
+data.label.edge$xend <- rep(1.25, nrow(data.label.edge))
+data.label.edge$y <- label.height$height + 1.2
+data.label.edge$annotation <- c("edge1","edge2","edge3")
+```
+
+And finally, the plot with customized localization of labels can be drawn using three prepared data frames:
+
+```{r fig.dim=c(6.5,4.5), fig.align='center', cache=FALSE}
+final_boxplot_3groups +
+  geom_signif(
+          stat = "identity",
+          data = data.label.right,
+          aes(x = x,
+              xend = xend,
+              y = y,
+              yend = y,
+              annotation = annotation),
+          color = "black",
+          manual = TRUE) +
+  
+  geom_signif(
+          stat = "identity",
+          data = data.label.left,
+          aes(x = x,
+              xend = xend,
+              y = y,
+              yend = y,
+              annotation = annotation),
+          color = "black",
+          manual = TRUE) +
+  
+   geom_signif(
+          stat = "identity",
+          data = data.label.edge,
+          aes(x = x,
+              xend = xend,
+              y = y,
+              yend = y,
+              annotation = annotation),
+          color = "black",
+          manual = TRUE) +
+
+  scale_y_continuous(expand = expansion(mult = c(0.1, 0.12))) # it makes space for labels
+```
+
+##### Solution for the `results_barplot()` function
+Firstly, the `results_barplot()` function should be run with `signif.show = FALSE` to avoid drawing labels, and then data frames with coordinates for statistical significance labels are added for each pair (left, right, edges) of distributions: 
+
+Plot without default labels:
+
+```{r fig.dim=c(5,4.5), fig.align='center', cache=FALSE}
+final_barplot_3groups <- results_barplot(data = data.dCtF.3groups,
+                                 sel.Gene = c("ANGPT1","VEGFB","VEGFC"),
+                                 colors = c("#66c2a5", "#fc8d62", "#8DA0CB"),
+                                 signif.show = FALSE,
+                                 angle = 30,
+                                 faceting = TRUE,
+                                 facet.row = 1,
+                                 facet.col = 4,
+                                 y.exp.up = 0.1,
+                                 y.axis.title = "dCt")
+```
+
+Preparation of data frames with specified coordinates:
+
+```{r cache=FALSE}
+# Prepare expression data:
+data <- pivot_longer(data.dCtF.3groups,
+                     !c(Sample, Group),
+                     names_to = "Gene" ,
+                     values_to = "value")
+
+# filter for genes:
+data <- filter(data, Gene %in% c("ANGPT1","VEGFB", "VEGFC"))
+
+# Calculate mean and standard deviation for each group:
+data.mean <- data %>%
+             group_by(Group, Gene) %>%
+             summarise(mean = mean(value, na.rm = TRUE), .groups = "keep")
+
+data.sd <- data %>%
+           group_by(Group, Gene) %>%
+           summarise(sd = sd(value, na.rm = TRUE), .groups = "keep")
+
+data.mean$sd <- data.sd$sd
+
+#Find the highest values:
+label.height <- data.mean %>%
+                mutate(max = mean + sd) %>%
+                group_by(Gene) %>%
+                summarise(height = max(max, na.rm = TRUE), .groups = "keep")
+
+# Prepare empty data frame:
+data.label.empty <- data.frame(matrix(nrow = length(unique(data.mean$Gene)), ncol = 4))
+rownames(data.label.empty) <- unique(data.mean$Gene)
+colnames(data.label.empty) <- c("x", "xend", "y", "annotation")
+data.label.empty$Gene <- rownames(data.label.empty)
+
+# Fill a data frame with coordinates for left pair:
+data.label.left <- data.label.empty
+data.label.left$x <- rep(0.97, nrow(data.label.left))
+data.label.left$xend <- rep(0.7, nrow(data.label.left))
+data.label.left$y <- label.height$height + 0.3
+data.label.left$annotation <- c("left1","left2","left3")
+
+# Fill a data frame with coordinates for left pair:
+data.label.right <- data.label.empty
+data.label.right$x <- rep(1.01, nrow(data.label.right))
+data.label.right$xend <- rep(1.28, nrow(data.label.right))
+data.label.right$y <- label.height$height + 0.3
+data.label.right$annotation <- c("right1","right2","right3")
+
+# Fill a data frame with coordinates for edge pair:
+data.label.edge <- data.label.empty
+data.label.edge$x <- rep(0.7, nrow(data.label.edge))
+data.label.edge$xend <- rep(1.28, nrow(data.label.edge))
+data.label.edge$y <- label.height$height + 1
+data.label.edge$annotation <- c("edge1","edge2","edge3")
+```
+
+And finally the plot with labels can be drawn:
+
+```{r fig.dim=c(6,4.5), fig.align='center', cache=FALSE}
+final_barplot_3groups +
+  geom_signif(
+          stat = "identity",
+          data = data.label.left,
+          aes(x = x,
+              xend = xend,
+              y = y,
+              yend = y,
+              annotation = annotation),
+          color = "black",
+          manual = TRUE) +
+  
+   geom_signif(
+          stat = "identity",
+          data = data.label.right,
+          aes(x = x,
+              xend = xend,
+              y = y,
+              yend = y,
+              annotation = annotation),
+          color = "black",
+          manual = TRUE) +
+  
+   geom_signif(
+          stat = "identity",
+          data = data.label.edge,
+          aes(x = x,
+              xend = xend,
+              y = y,
+              yend = y,
+              annotation = annotation),
+          color = "black",
+          manual = TRUE) +
+  
+  scale_y_continuous(expand = expansion(mult = c(0.1, 0.12)))
+```
+
+The `results_heatmap()` function also works well with data containing more than two groups. Remember to create a named list with colors for the group annotation and pass it into `col.groups` argument.
+
+```{r fig.dim=c(9,5), cache=FALSE}
+# Create named list with colors for groups annotation:
+colors.for.groups = list("Group" = c("AAA"="#f98517","Control"="#33b983", "VV"="#bf8cfc"))
+# Vector of colors for heatmap:
+colors <- c("navy","navy","#313695","#4575B4","#74ADD1","#ABD9E9",
+            "#E0F3F8","#FFFFBF","#FEE090","#FDAE61","#F46D43",
+            "#D73027","#C32B23","#A50026","#8B0000", 
+            "#7E0202","#000000")
+results_heatmap(data.dCtF.3groups,
+                sel.Gene = "all",
+                col.groups = colors.for.groups,
+                colors = colors,
+                show.colnames = FALSE,
+                show.rownames = TRUE,
+                fontsize = 11,
+                fontsize.row = 11,
+                cellwidth = 4)
+# Cellwidth parameter was set to 4 to avoid cropping the image on the right side.
+```
+
+---
+
+#### Further analyses - a multigroup variant of analysis
+
+Principal component analysis (PCA) and k means clustering works well with multiple groups, but the number of colors for points must be equal to the number of groups.
+
+```{r fig.dim=c(5,5.5), fig.align='center', cache=FALSE}
+pca.kmeans <- pca_kmeans(data.dCtF.3groups, 
+                         sel.Gene = c("ANGPT1","VEGFB", "VEGFC"),
+                         k.clust = 3,
+                         clust.names = c("Cluster1", "Cluster2", "Cluster3"),
+                         point.shape = c(19, 17, 18),
+                         point.color = c("#66c2a5", "#fc8d62", "#8DA0CB"),
+                         legend.position = "top")
+# Access to the confusion matrix:
+pca.kmeans[[2]]
+```
+
+If the legend is to wide and is cropped, setting a vertical position of legend should solve this problem:
+
+```{r fig.dim=c(5,6), fig.align='center', cache=FALSE}
+pca.kmeans[[1]] + theme(legend.box = "vertical")
+```
+
+---
+
+The functions performing correlation analysis of samples (`corr_sample()` function) and genes (`corr_gene()` function) are group-independent and can be used for multigroup data.
+
+```{r fig.dim=c(6.5,6.5), fig.align='center', cache=FALSE}
+library(Hmisc)
+library(corrplot)
+# To make the plot more readable, only part of the data was used:
+corr.samples <- corr_sample(data = data.dCtF.3groups[15:30, ],
+                            method = "pearson",
+                            order = "hclust",
+                            size = 0.7,
+                            p.adjust.method = "BH",
+                            add.coef = "white")
+```
+```{r fig.dim=c(6.5,6.5), fig.align='center', cache=FALSE}
+library(Hmisc)
+library(corrplot)
+corr.genes <- corr_gene(data = data.dCtF.3groups,
+                            method = "spearman",
+                            order = "FPC",
+                            size = 0.7,
+                            p.adjust.method = "BH")
+```
+
+**Remember:** A minimum of 5 samples/target are required for correlation analysis.
+
+---
+
+The function designed for simple linear regression analysis of samples (`single_pair_sample()`) is group independent. 
+
+```{r fig.dim=c(4.5,4.5), fig.align='center', cache=FALSE}
+library(ggpmisc)
+AAA6_AAA43 <- single_pair_sample(data = data.dCtF.3groups,
+                                         x = "AAA6",
+                                         y = "AAA43",
+                                         point.size = 3,
+                                         labels = TRUE,
+                                         label = c("eq", "R2", "p"),
+                                         label.position.x = 0.05)
+```
+
+However, the function for simple linear regression analysis of genes (`single_pair_gene()`) is group-independent only in ungrouped mode (`by.group = FALSE`).
+
+```{r fig.dim=c(5,4.5), fig.align='center', cache=FALSE}
+library(ggpmisc)
+PDGFB_TGFB <- single_pair_gene(data.dCtF.3groups,
+                                    x = "PDGFB",
+                                    y = "TGFB",
+                                    by.group = FALSE,
+                                    point.size = 3,
+                                    labels = TRUE,
+                                    label = c("eq", "R2", "p"),
+                                    label.position.x = c(0.05),
+                                    label.position.y = c(1,0.95))
+```
+
+If the analysis is performed with stratification by groups, a vector with colors must be provided in `colors` arguments, and the position of labels should be adjusted.
+
+```{r fig.dim=c(6,5.5), fig.align='center', cache=FALSE}
+library(ggpmisc)
+PDGFB_TGFB <- single_pair_gene(data.dCtF.3groups,
+                               x = "PDGFB",
+                               y = "TGFB",
+                               by.group = TRUE,
+                               colors = c("#66c2a5", "#fc8d62", "#8DA0CB"), # Vector of colors
+                               point.size = 3,
+                               labels = TRUE,
+                               label = c("eq", "R2", "p"),
+                               label.position.x = c(0.05),
+                               label.position.y = c(1,0.95,0.9)) # Labels position
+```
+
+---
+
+The Receiver Operating Characteristic method works with only two groups, thus the `ROCh()` function requires also two groups, specified in `groups` argument.
+
+```{r cache=FALSE}
+library(pROC)
+# Remember to specify the numbers of rows (panels.row parameter) and columns (panels.col parameter) to be sufficient to arrange panels: 
+roc_parameters <- ROCh(data = data.dCtF.3groups,
+                       sel.Gene = c("ANGPT1","VEGFB", "VEGFC"),
+                       groups = c("Control","VV"),
+                       panels.row = 2,
+                       panels.col = 2)
+roc_parameters
+```
+
+**Remember:** The created plot is not displayed on the graphic device, but should be saved as .tiff image (`save.to.txt` = TRUE) and can be opened directly from the file in the working directory.
+
+```{r echo=FALSE, out.width="500px", fig.align="center", warning=FALSE, message=FALSE, cache=FALSE}
+knitr::include_graphics("ROC_plot_3groups.png")
+```
+
+---
+
+Similarly to the Receiver Operating Characteristic method, logistic regression also works with only two groups, thus the `log_reg()` function requires also two groups, specified in `group.study` and `group.ref` arguments.
+
+```{r fig.dim=c(5,4), fig.align='center', cache=FALSE}
+library(oddsratio)
+
+# Remember to set the increment parameter.
+log.reg.results <- log_reg(data = data.dCtF.3groups,
+                           increment = 1,
+                           sel.Gene = c("ANGPT1","VEGFB", "VEGFC"),
+                           group.study = "VV",
+                           group.ref = "Control")
+log.reg.results[[2]]
+```
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

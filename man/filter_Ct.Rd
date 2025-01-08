@@ -43,7 +43,7 @@ This function filters Ct data according to the used filtering criteria (see para
 library(tidyverse)
 data(data.Ct)
 data.CtF <- filter_Ct(data.Ct,
-                      remove.Gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+                      remove.Gene = c("FGF23","ANGPT2","IL1A","CSF2","IL6"),
                       remove.Sample = c("Control08","Control16","Control22"))
 
 dim(data.Ct)

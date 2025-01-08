@@ -81,13 +81,13 @@ library(tidyverse)
 library(pheatmap)
 data(data.Ct)
 data.CtF <- filter_Ct(data.Ct,
-                      remove.Gene = c("Gene2","Gene5","Gene6","Gene9","Gene11"),
+                      remove.Gene = c("FGF23","ANGPT2","IL1A","CSF2","IL6"),
                        remove.Sample = c("Control08","Control16","Control22"))
 data.CtF.ready <- make_Ct_ready(data.CtF, imput.by.mean.within.groups = TRUE)
-data.dCt <- delta_Ct(data.CtF.ready, ref = "Gene8")
+data.dCt <- delta_Ct(data.CtF.ready, ref = "GAPDH")
 # Remember to firstly create named list with colors for groups annotation:
-colors.for.groups = list("Group" = c("Disease"="firebrick1","Control"="green3"))
-# Vector of colors to fill the heatmap can be also specified to fit the user needings:
+colors.for.groups = list("Group" = c("AAA"="firebrick1","Control"="green3"))
+# Vector of colors to fill the heatmap can be also specified to fit the user needs:
 colors <- c("navy","navy","#313695","#4575B4","#74ADD1","#ABD9E9",
             "#E0F3F8","#FFFFBF","#FEE090","#FDAE61","#F46D43",
             "#D73027","#C32B23","#A50026","#8B0000",

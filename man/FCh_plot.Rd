@@ -18,6 +18,7 @@ FCh_plot(
   signif.labels,
   signif.length = 0.2,
   signif.dist = 0.5,
+  signif.size = 3.88,
   y.exp.low = 0.1,
   y.exp.up = 0.1,
   angle = 0,
@@ -80,6 +81,8 @@ symmetrically white spaces to repeated labels must be add to the same labels, e.
 \item{signif.length}{Numeric: length of horizontal bars under statistical significance labels, values from 0 to 1.}
 
 \item{signif.dist}{Numeric: distance between errorbar and statistical significance labels.}
+
+\item{signif.size}{Numeric: size of significance labels.}
 
 \item{y.exp.low, y.exp.up}{Numeric: space between data on the plot and lower or upper axis. Useful to add extra space for statistical significance labels when faceting = TRUE.}
 
@@ -158,6 +161,7 @@ FCh.plot <- FCh_plot(results.ddCt,
                    mode = "depends",
                    use.FCh = TRUE,
                    FCh.threshold = 2.5,
+                   signif.show = TRUE,
                    signif.labels = signif.labels,
                    angle = 30)
 head(FCh.plot[[2]])
@@ -172,6 +176,7 @@ FCh.plot <- FCh_plot(results.ddCt,
                    mode = "user",
                    use.FCh = TRUE,
                    FCh.threshold = 2,
+                   signif.show = TRUE,
                    signif.labels = signif.labels,
                    angle = 30)
 head(FCh.plot[[2]])

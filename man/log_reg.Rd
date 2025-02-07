@@ -12,6 +12,8 @@ log_reg(
   increment,
   centerline = 1,
   ci = 0.95,
+  p.adjust = FALSE,
+  p.adjust.method = "BH",
   log.axis = FALSE,
   x.axis.title = "Odds ratio",
   y.axis.title = "",
@@ -50,6 +52,11 @@ calculated for the situation where gene expression increases by mean of gene exp
 \item{centerline}{Numeric: position of vertical centerline on the plot. Default to 1.}
 
 \item{ci}{Numeric: confidence level used for computation of confidence interval. Default to 0.95.}
+
+\item{p.adjust}{Logical: if TRUE, p values adjusted using a method provided in p.adjust.method parameter will be shown on the plot. Default to FALSE.}
+
+\item{p.adjust.method}{Character: p value correction method for multiple testing, one of the "holm", "hochberg", "hommel",
+"bonferroni", "BH" (default), "BY","fdr", or "none". See documentation for stats::p.adjust() function for details.}
 
 \item{log.axis}{Logical: if TRUE, axis with odds ratio values will be in log10 scale. Default to FALSE.}
 

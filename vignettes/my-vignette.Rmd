@@ -2,7 +2,7 @@
 title: "RQdeltaCT - Relative Quantification of Gene Expression using Delta Ct Methods"
 output: rmarkdown::html_vignette
 author: "Daniel Zalewski daniel.piotr.zalewski@gmail.com"
-date: "8 January 2025"
+date: "7 February 2025"
 vignette: >
   %\VignetteIndexEntry{RQdeltaCT - Relative Quantification of Gene Expression using Delta Ct Methods}
   %\VignetteEngine{knitr::rmarkdown}
@@ -553,13 +553,13 @@ The created plots are displayed on the graphic device.
 
 Principal component analysis (PCA) is a data exploratory method, that is commonly used to investigate similarities between variables based on the first principal components that contain the most information about variance. In the `RQdeltaCT` package, the `control_pca_sample()` and `control_pca_gene()` functions are developed to perform PCA analysis for samples and genes, respectively. These functions return objects with a plot. Created plots are also displayed on the graphic device.
 
-```{r fig.dim=c(5,5.5), fig.align='center', cache=FALSE}
+```{r fig.dim=c(4,4.5), fig.align='center', cache=FALSE}
 control.pca.sample <- control_pca_sample(data = data.dCt,
                                          point.size = 3,
                                          label.size = 2.5,
                                          legend.position = "top")
 ```
-```{r fig.dim=c(5,5), fig.align='center', cache=FALSE}
+```{r fig.dim=c(4,4), fig.align='center', cache=FALSE}
 control.pca.gene <- control_pca_gene(data = data.dCt)
 ```
 
@@ -720,7 +720,7 @@ This function creates a volcano plot that illustrates the arrangement of genes b
 
 The created plot is displayed on the graphic device. The returned object is a lists that contain two elements: an object with plot and a table with results. 
 
-```{r fig.dim=c(5,5.5), fig.align='center', cache=FALSE}
+```{r fig.dim=c(4,4.5), fig.align='center', cache=FALSE}
 # Genes with p < 0.05 and 2-fold changed expression between compared groups are considered significant: 
 volcano <- results_volcano(data = results.ddCt,
                          mode = "depends",
@@ -753,6 +753,130 @@ final_boxplot <- results_boxplot(data = data.dCtF,
 
 **NOTE:** If missing values are present in the data, they will be automatically removed, and a warning will appear.
 
+**IMPORTANT NOTE:** Significance labels are properly located on the plot only if faceting is used (`faceting = TRUE`). For plots without faceting, coordinates of significance labels depends on the data on y axis and must be individually provided (can not be added automatically). In such a situations, the following solution can be used.
+
+Step 1: Prepare object that contain plot without faceting and significance labels: 
+```{r fig.dim=c(5,4.5), fig.align='center', cache=FALSE}
+final_boxplot_no_fac <- results_boxplot(data = data.dCtF,
+                                 sel.Gene = c("ANGPT1","IL8", "VEGFB"),
+                                 by.group = TRUE,
+                                 signif.show = FALSE,  # Hide significance labels
+                                 faceting = FALSE, # Disable faceting
+                                 y.axis.title = "dCt") +
+                                 theme(axis.text.x = element_text(size = 5, colour = "black"))
+
+# Add x axis annotations and ticks:
+final_boxplot_no_fac <- final_boxplot_no_fac + 
+                         theme(axis.text.x = element_text(size = 11, colour = "black"),
+                               axis.ticks.x = element_line(colour = "black"))
+
+final_boxplot_no_fac
+```
+
+Step 2: Prepare tables with coordinates for significance labels:
+
+```{r cache=FALSE}
+data.label <- data.frame(matrix(nrow = 3, ncol = 4)) # Number of rows is equal to number of genes 
+rownames(data.label) <- c("ANGPT1","IL8","VEGFB")
+colnames(data.label) <- c("x", "xend", "y", "annotation")
+data.label$Gene <- rownames(data.label)
+
+data.label$y <- 1 + c(max(data.dCtF$ANGPT1), max(data.dCtF$IL8), max(data.dCtF$VEGFB))
+data.label$x <- c(0.81,1.81,2.81)
+data.label$xend <- c(1.19,2.19,3.19)
+data.label$annotation <- c("****","**","***")
+```
+
+Step 3: Add significance labels to the plot:
+
+```{r fig.dim=c(5,4.5), fig.align='center', cache=FALSE}
+final_boxplot_no_fac_ok <- final_boxplot_no_fac +
+                            geom_signif(annotation = data.label$annotation, 
+                                        y_position = data.label$y, 
+                                        xmin = data.label$x, 
+                                        xmax = data.label$xend,
+                                        tip_length = 0.01,
+                                        textsize = 5)
+final_boxplot_no_fac_ok
+```
+
+Step 4: Some minor improvements and the plot is ready! 
+
+```{r fig.dim=c(5,4.5), fig.align='center', cache=FALSE}
+final_boxplot_no_fac_ok <- final_boxplot_no_fac_ok +
+                            theme(axis.text.x = element_text(face="italic")) + # For human gene symbols, italic font was used
+                            scale_y_continuous(expand = expansion(mult = c(0.1, 0.15))) # Make room for the first label
+                            
+final_boxplot_no_fac_ok
+```
+
+A situation may arise in which the user prefers to generate a faceted plot without a color legend, displaying group names as annotations on the x-axis. This is the solution for this situation:
+
+```{r fig.dim=c(5,3.5), fig.align='center', cache=FALSE}
+library(tidyverse)
+colnames(data.dCtF)
+data.dCtF.slim <- pivot_longer(data.dCtF, cols = ANGPT1:VEGFC, names_to = "gene", values_to = "exp")
+
+# Select genes
+data.dCtF.slim_sel <- data.dCtF.slim[data.dCtF.slim$gene %in% c("ANGPT1","IL8","VEGFB"), ]
+
+# Change order of groups if needed
+data.dCtF.slim_sel$Group <- factor(data.dCtF.slim_sel$Group, levels = c("Control","AAA"))
+
+# Create plot
+final_boxplot_no_colors <- ggplot(data.dCtF.slim_sel, aes(x = Group, y = exp)) + 
+  geom_boxplot(outlier.shape = NA, coef = 2) +
+  theme_bw() +
+  ylab("dCt") +
+  xlab("") +
+  theme(axis.text = element_text(size = 8, color = "black")) + 
+  theme(axis.title = element_text(size = 10, color = "black")) +
+  theme(panel.grid.major.x = element_blank()) +
+  facet_wrap(vars(gene), nrow = 1, dir = "h", scales = "free")
+
+final_boxplot_no_colors
+```
+
+To add significance labels, the following code can be used:
+
+```{r fig.dim=c(5,3.5), fig.align='center', cache=FALSE}
+data.label <- data.frame(matrix(nrow = 3, ncol = 4)) # Number of rows is equal to number of genes 
+rownames(data.label) <- c("ANGPT1","IL8","VEGFB")
+colnames(data.label) <- c("x", "xend", "y", "annotation")
+data.label$gene <- rownames(data.label) # Name of column with gene symbols in this table must be the same as name of the column with gene symbols in data used for create the plot.
+
+data.label$y <- 0.5 + c(max(data.dCtF$ANGPT1), max(data.dCtF$IL8), max(data.dCtF$VEGFB))
+data.label$x <- c(1,1,1)
+data.label$xend <- c(1.98,1.98,1.98)
+data.label$annotation <- c("****","**","***")
+
+final_boxplot_no_colors_labels <- final_boxplot_no_colors +
+ geom_signif(
+    stat = "identity",
+    data = data.label,
+    aes(x = x,
+        xend = xend,
+        y = y,
+        yend = y,
+        annotation = annotation),
+    color = "black",
+    manual = TRUE) +
+   scale_y_continuous(expand = expansion(mult = c(0.1, 0.1)))
+
+final_boxplot_no_colors_labels
+```
+
+If points of individual samples need to be added, it can be simply run:
+
+```{r fig.dim=c(5,3.5), fig.align='center', cache=FALSE}
+final_boxplot_no_colors_labels_points <- final_boxplot_no_colors_labels +
+                                          geom_point(position=position_jitter(w=0.1,h=0), alpha = 0.7, size = 1.5)
+                            
+final_boxplot_no_colors_labels_points
+```
+
+
+
 #### The `results_barplot()` function
 
 This function creates a barplot that illustrates mean and standard deviation values of the data for all or selected genes.
@@ -774,6 +898,108 @@ final_barplot <- results_barplot(data = data.dCtF,
 ```
 
 **NOTE:** At least two samples in each group are required to calculate the standard deviation and properly generate the plot.
+
+If faceting is not needed, simply run this function with `faceting = FALSE`:
+
+```{r fig.dim=c(5,4.5), fig.align='center', cache=FALSE}
+final_barplot <- results_barplot(data = data.dCtF,
+                                 sel.Gene = c("ANGPT1","IL8", "VEGFB"),
+                                 signif.show = TRUE,
+                                 signif.labels = c("****","**","***"),
+                                 angle = 0,
+                                 signif.dist = 1.05,
+                                 faceting = FALSE,
+                                 y.exp.up = 0.1,
+                                 y.axis.title = "dCt")
+
+# Add italic font to the x axis:
+final_barplot <- final_barplot + 
+                  theme(axis.text.x = element_text(face="italic")) 
+
+final_barplot
+```
+
+A situation may arise in which the user prefers to generate a faceted plot without a color legend, displaying group names as annotations on the x-axis. This is the solution for this situation:
+
+```{r fig.dim=c(5,3.5), fig.align='center', cache=FALSE}
+library(tidyverse)
+colnames(data.dCtF)
+data.dCtF.slim <- pivot_longer(data.dCtF, cols = ANGPT1:VEGFC, names_to = "gene", values_to = "exp")
+
+# Select genes
+data.dCtF.slim_sel <- data.dCtF.slim[data.dCtF.slim$gene %in% c("ANGPT1","IL8","VEGFB"), ]
+
+# Change order of groups if needed
+data.dCtF.slim_sel$Group <- factor(data.dCtF.slim_sel$Group, levels = c("Control","AAA"))
+
+data.mean <- data.dCtF.slim_sel %>%
+              group_by(Group, gene) %>%
+              summarise(mean = mean(exp, na.rm = TRUE), .groups = "keep")
+
+data.sd <- data.dCtF.slim_sel %>%
+            group_by(Group, gene) %>%
+            summarise(sd = sd(exp, na.rm = TRUE), .groups = "keep")
+
+data.mean$sd <- data.sd$sd
+
+final_barplot_no_colors <- ggplot(data.mean, aes(x = Group, y = mean)) +
+                              geom_errorbar(aes(group = Group,
+                                                y = mean,
+                                                ymin = ifelse(mean < 0, mean - abs(sd), mean),
+                                                ymax = ifelse(mean > 0, mean + abs(sd), mean)),
+                                            width = .2,
+                                            position = position_dodge(0.9)) +
+                
+                              geom_col(aes(group = Group),
+                                       position = position_dodge(0.9),
+                                       width = 0.7,
+                                       color = "black") +
+                  xlab("") +
+                  ylab("dCt") +
+                  theme_bw() +
+                  #theme(axis.text = element_text(size = axis.text.size, colour = "black")) +
+                  #theme(axis.title = element_text(size = axis.title.size, colour = "black")) +
+                  #theme(legend.text = element_text(size = legend.text.size, colour ="black")) +
+                  #theme(legend.title = element_text(size = legend.title.size, colour =  "black")) +
+                  theme(panel.grid.major.x = element_blank()) +
+  facet_wrap(vars(gene), scales = "free", nrow = 1)
+
+final_barplot_no_colors
+```
+
+Significance labels can be added similarly as regarding `results_boxplot()` function:
+
+```{r fig.dim=c(5,3.5), fig.align='center', cache=FALSE}
+data.label <- data.frame(matrix(nrow = 3, ncol = 4)) # Number of rows is equal to number of genes 
+rownames(data.label) <- c("ANGPT1","IL8","VEGFB")
+colnames(data.label) <- c("x", "xend", "y", "annotation")
+data.label$gene <- rownames(data.label) # Name of column with gene symbols in this table must be the same as name of the column with gene symbols in data used for create the plot.
+
+data.mean <- data.mean %>%
+               mutate(max = mean + sd) %>%
+               group_by(gene) %>%
+               summarise(height = max(max, na.rm = TRUE), .groups = "keep")
+data.label$y <- 0.5 + data.mean$height
+data.label$x <- c(1,1,1)
+data.label$xend <- c(1.98,1.98,1.98)
+data.label$annotation <- c("****","**","***")
+
+final_barplot_no_colors_labels <- final_barplot_no_colors +
+ geom_signif(
+    stat = "identity",
+    data = data.label,
+    aes(x = x,
+        xend = xend,
+        y = y,
+        yend = y,
+        annotation = annotation,
+        textsize = 5),
+    color = "black",
+    manual = TRUE) +
+   scale_y_continuous(expand = expansion(mult = c(0.1, 0.1)))
+
+final_barplot_no_colors_labels
+```
 
 #### The `results_heatmap()` function
 
@@ -930,6 +1156,17 @@ log.reg.results <- log_reg(data = data.dCt,
                            group.ref = "Control")
 log.reg.results[[2]]
 ```
+
+If genes should be displayed in the alphabetical order, simply sort them:
+
+```{r fig.dim=c(5,4), fig.align='center', cache=FALSE}
+log.reg.results.sorted <- log.reg.results[[1]] +
+                           scale_y_discrete(limits = rev(sort(log.reg.results[[2]]$Gene)))
+log.reg.results.sorted
+```
+
+
+
 
 ---
 
@@ -1328,7 +1565,7 @@ If any sample or gene was decided to be removed from the data, the `filter_trans
 
 ```{r cache=FALSE}
 data.dCt.pairwise.F <- filter_transformed_data(data = data.dCt.pairwise,
-                                     remove.Sample = c("Sample22", "Sample23", "Sample15","Sample03"))
+                                               remove.Sample = c("Sample22", "Sample23", "Sample15","Sample03"))
 dim(data.dCt.pairwise)
 dim(data.dCt.pairwise.F)
 ```
@@ -1530,13 +1767,102 @@ final.boxplot.pairwise <- results_boxplot(data = data.dCt.pairwise.F,
 
 **NOTE:** If missing values are present in the data, they will be automatically removed, and a warning will appear.
 
+
+For plots without faceting, x axis annotations should be added:
+
+```{r fig.dim=c(5,4.5), fig.align='center', cache=FALSE}
+final.boxplot.pairwise <- results_boxplot(data = data.dCt.pairwise.F,
+                                 sel.Gene = c("Gene8","Gene19"),
+                                 by.group = TRUE,
+                                 signif.show = TRUE,
+                                 signif.labels = c("***","*"),
+                                 signif.dist = 1.2,
+                                 faceting = FALSE,
+                                 y.exp.up = 0.1,
+                                 y.axis.title = "dCt")
+# Add x axis annotations and ticks:
+final.boxplot.pairwise <- final.boxplot.pairwise + 
+                            theme(axis.text.x = element_text(size = 11, colour = "black"),
+                                  axis.ticks.x = element_line(colour = "black"))
+
+final.boxplot.pairwise
+```
+
+A situation may arise in which the user prefers to generate a faceted plot without a color legend, displaying group names as annotations on the x-axis. This is the solution for this situation:
+
+```{r fig.dim=c(4,3.5), fig.align='center', cache=FALSE}
+library(tidyverse)
+colnames(data.dCt.pairwise.F)
+data.dCt.pairwise.F.slim <- pivot_longer(data.dCt.pairwise.F, cols = Gene10:Gene8, names_to = "gene", values_to = "exp")
+
+# Select genes
+data.dCt.pairwise.F.slim.sel <- data.dCt.pairwise.F.slim[data.dCt.pairwise.F.slim$gene %in% c("Gene19","Gene8"), ]
+
+# Change order of groups if needed
+data.dCt.pairwise.F.slim.sel$Group <- factor(data.dCt.pairwise.F.slim.sel$Group, levels = c("Before","After"))
+
+# Create plot
+final_boxplot_no_colors <- ggplot(data.dCt.pairwise.F.slim.sel, aes(x = Group, y = exp)) + 
+  geom_boxplot(outlier.shape = NA, coef = 2) +
+  theme_bw() +
+  ylab("dCt") +
+  xlab("") +
+  theme(axis.text = element_text(size = 8, color = "black")) + 
+  theme(axis.title = element_text(size = 10, color = "black")) +
+  theme(panel.grid.major.x = element_blank()) +
+  facet_wrap(vars(gene), nrow = 1, dir = "h", scales = "free")
+
+final_boxplot_no_colors
+
+
+```
+
+To add significance labels, the following code can be used:
+
+```{r fig.dim=c(5,3.5), fig.align='center', cache=FALSE}
+data.label <- data.frame(matrix(nrow = 2, ncol = 4)) # Number of rows is equal to number of genes 
+rownames(data.label) <- c("Gene19","Gene8")
+colnames(data.label) <- c("x", "xend", "y", "annotation")
+data.label$gene <- rownames(data.label) # Name of column with gene symbols in this table must be the same as name of the column with gene symbols in data used for create the plot.
+
+data.label$y <- 0.5 + c(max(data.dCt.pairwise.F$Gene19), max(data.dCt.pairwise.F$Gene8))
+data.label$x <- c(1,1)
+data.label$xend <- c(1.98,1.98)
+data.label$annotation <- c("***","*")
+
+final_boxplot_no_colors_labels <- final_boxplot_no_colors +
+ geom_signif(
+    stat = "identity",
+    data = data.label,
+    aes(x = x,
+        xend = xend,
+        y = y,
+        yend = y,
+        annotation = annotation),
+    color = "black",
+    manual = TRUE) +
+   scale_y_continuous(expand = expansion(mult = c(0.1, 0.1)))
+
+final_boxplot_no_colors_labels
+```
+
+If points of individual samples need to be added, it can be simply run:
+
+```{r fig.dim=c(5,3.5), fig.align='center', cache=FALSE}
+final_boxplot_no_colors_labels_points <- final_boxplot_no_colors_labels +
+                                          geom_point(position=position_jitter(w=0.1,h=0), alpha = 0.7, size = 1.5)
+                            
+final_boxplot_no_colors_labels_points
+```
+
+
 #### The `results_barplot()` function (a pairwise approach)
 
 This function creates a barplot that illustrates mean and standard deviation values of the data for all or selected genes.
 
 Data objects returned from the `make_Ct_ready()` and `delta_Ct() functions` can be directly applied to this function (see [The summary of standard workflow]).
 
-```{r fig.dim=c(5,4.5), fig.align='center', cache=FALSE}
+```{r fig.dim=c(4,4.5), fig.align='center', cache=FALSE}
 final.barplot.pairwise <- results_barplot(data = data.dCt.pairwise.F,
                                  sel.Gene = c("Gene8","Gene19"),
                                  signif.show = TRUE,
@@ -1551,6 +1877,105 @@ final.barplot.pairwise <- results_barplot(data = data.dCt.pairwise.F,
 ```
 
 **NOTE:** At least two samples in each group are required to calculate the standard deviation and properly generate the plot.
+
+If faceting is not needed, simply run this function with `faceting = FALSE`:
+
+```{r fig.dim=c(5,4.5), fig.align='center', cache=FALSE}
+final.barplot.pairwise <- results_barplot(data = data.dCt.pairwise.F,
+                                 sel.Gene = c("Gene8","Gene19"),
+                                 signif.show = TRUE,
+                                 signif.labels = c("***","*"),
+                                 angle = 0,
+                                 signif.dist = 1.05,
+                                 faceting = FALSE,
+                                 y.exp.up = 0.1,
+                                 y.axis.title = "dCt")
+
+# Add italic font to the x axis:
+final.barplot.pairwise <- final.barplot.pairwise + 
+                            theme(axis.text.x = element_text(face="italic")) 
+
+final.barplot.pairwise
+```
+
+A situation may arise in which the user prefers to generate a faceted plot without a color legend, displaying group names as annotations on the x-axis. This is the solution for this situation:
+
+```{r fig.dim=c(5,3.5), fig.align='center', cache=FALSE}
+library(tidyverse)
+colnames(data.dCt.pairwise.F)
+data.dCt.pairwise.F.slim <- pivot_longer(data.dCt.pairwise.F, cols = Gene10:Gene8, names_to = "gene", values_to = "exp")
+
+# Select genes
+data.dCt.pairwise.F.slim.sel <- data.dCt.pairwise.F.slim[data.dCt.pairwise.F.slim$gene %in% c("Gene19","Gene8"), ]
+
+# Change order of groups if needed
+data.dCt.pairwise.F.slim.sel$Group <- factor(data.dCt.pairwise.F.slim.sel$Group, levels = c("Before","After"))
+
+data.mean <- data.dCt.pairwise.F.slim.sel %>%
+              group_by(Group, gene) %>%
+              summarise(mean = mean(exp, na.rm = TRUE), .groups = "keep")
+
+data.sd <- data.dCt.pairwise.F.slim.sel %>%
+            group_by(Group, gene) %>%
+            summarise(sd = sd(exp, na.rm = TRUE), .groups = "keep")
+
+data.mean$sd <- data.sd$sd
+
+final_barplot_no_colors <- ggplot(data.mean, aes(x = Group, y = mean)) +
+                              geom_errorbar(aes(group = Group,
+                                                y = mean,
+                                                ymin = ifelse(mean < 0, mean - abs(sd), mean),
+                                                ymax = ifelse(mean > 0, mean + abs(sd), mean)),
+                                            width = .2,
+                                            position = position_dodge(0.9)) +
+                
+                              geom_col(aes(group = Group),
+                                       position = position_dodge(0.9),
+                                       width = 0.7,
+                                       color = "black") +
+                              xlab("") +
+                              ylab("dCt") +
+                              theme_bw() +
+                              theme(panel.grid.major.x = element_blank()) +
+                              facet_wrap(vars(gene), scales = "free", nrow = 1)
+
+final_barplot_no_colors
+```
+
+Significance labels can be added similarly as regarding `results_boxplot()` function:
+
+```{r fig.dim=c(5,3.5), fig.align='center', cache=FALSE}
+data.label <- data.frame(matrix(nrow = 2, ncol = 4)) # Number of rows is equal to number of genes 
+rownames(data.label) <- c("Gene19","Gene8")
+colnames(data.label) <- c("x", "xend", "y", "annotation")
+data.label$gene <- rownames(data.label) # Name of column with gene symbols in this table must be the same as name of the column with gene symbols in data used for create the plot.
+
+data.mean <- data.mean %>%
+               mutate(max = mean + sd) %>%
+               group_by(gene) %>%
+               summarise(height = max(max, na.rm = TRUE), .groups = "keep")
+data.label$y <- 0.5 + data.mean$height
+data.label$x <- c(1,1)
+data.label$xend <- c(1.98,1.98)
+data.label$annotation <- c("***","*")
+
+final_barplot_no_colors_labels <- final_barplot_no_colors +
+                                   geom_signif(
+                                   stat = "identity",
+                                   data = data.label,
+                                   aes(x = x,
+                                      xend = xend,
+                                      y = y,
+                                      yend = y,
+                                      annotation = annotation,
+                                      textsize = 5),
+                                   color = "black",
+                                   manual = TRUE) +
+                                   scale_y_continuous(expand = expansion(mult = c(0.1, 0.1)))
+
+final_barplot_no_colors_labels
+```
+
 
 #### The `results_heatmap()` function (a pairwise approach)
 
@@ -1753,11 +2178,22 @@ log.reg.results <- log_reg(data = data.dCt.pairwise.F,
                            sel.Gene = c("Gene8","Gene19"),
                            group.study = "After",
                            group.ref = "Before",
-                           log.axis = TRUE)
+                           log.axis = TRUE,
+                           p.adjust = FALSE)
 log.reg.results[[2]]
 ```
 
 Increase in dCt values by 1 (two-fold decrease in expression) gives the higher chance to be in the "After" group. 
+
+If genes should be displayed in the alphabetical order, simply sort them:
+
+```{r fig.dim=c(5,4), fig.align='center', cache=FALSE}
+log.reg.results.sorted <- log.reg.results[[1]] +
+                           scale_y_discrete(limits = rev(sort(log.reg.results[[2]]$Gene)))
+log.reg.results.sorted
+```
+
+
 
 ---
 
@@ -2090,10 +2526,10 @@ final_barplot_3groups <- results_barplot(data = data.dCtF.3groups,
                                  y.axis.title = "dCt")
 ```
 
-Typically, statistical significance labels for each pair of groups (above each pair of distributions or bars) are needed to show significance status. To properly locate labels on the plot, customized coordinates for labels must be specified for each pair outside of the `results_boxplot()` or `results_barplot()` functions. 
+Typically, statistical significance labels for each **pair** of groups (above each pair of distributions or bars) are needed to show significance status. To properly locate labels on the plot, customized coordinates for labels must be specified for each pair outside of the `results_boxplot()` or `results_barplot()` functions. 
 
 ##### Solution for the `results_boxplot()` function
-Firstly, the `results_boxplot()` function should be run with `signif.show = FALSE` to avoid drawing labels, and then a data frames with coordinates for statistical significance labels are added for each pair (left, right, edges) of distributions: 
+Step 1: The `results_boxplot()` function should be run with `signif.show = FALSE` to avoid drawing labels: 
 
 ```{r fig.dim=c(5,4.5), fig.align='center', cache=FALSE}
 # Draw plot without statistical significance labels:
@@ -2110,7 +2546,7 @@ final_boxplot_3groups <- results_boxplot(data = data.dCtF.3groups,
                                  y.axis.title = "dCt")
 ```
 
-Three data frames with specified coordinates for each of three pairs of distributions are subsequently prepared:
+Step2: Data frames with coordinates for statistical significance labels for each pair (left, right, edges) of distributions are subsequently prepared:
 
 ```{r cache=FALSE}
 # Prepare expression data:
@@ -2155,7 +2591,7 @@ data.label.edge$y <- label.height$height + 1.2
 data.label.edge$annotation <- c("edge1","edge2","edge3")
 ```
 
-And finally, the plot with customized localization of labels can be drawn using three prepared data frames:
+Step 3: Plot with customized localization of labels can be drawn using three prepared data frames:
 
 ```{r fig.dim=c(6.5,4.5), fig.align='center', cache=FALSE}
 final_boxplot_3groups +
@@ -2309,6 +2745,9 @@ final_barplot_3groups +
   
   scale_y_continuous(expand = expansion(mult = c(0.1, 0.12)))
 ```
+
+**Note** For generating a faceted plot without a color legend, but with group names displaying as annotations on the x-axis, the solutions provided in chapters [The `results_boxplot()` function] and [The `results_barplot()` function] can be adapted.
+
 
 The `results_heatmap()` function also works well with data containing more than two groups. Remember to create a named list with colors for the group annotation and pass it into `col.groups` argument.
 
@@ -2466,7 +2905,13 @@ log.reg.results <- log_reg(data = data.dCtF.3groups,
 log.reg.results[[2]]
 ```
 
+If genes should be displayed in the alphabetical order, simply sort them:
 
+```{r fig.dim=c(5,4), fig.align='center', cache=FALSE}
+log.reg.results.sorted <- log.reg.results[[1]] +
+                           scale_y_discrete(limits = rev(sort(log.reg.results[[2]]$Gene)))
+log.reg.results.sorted
+```
 
 
 

@@ -13,6 +13,7 @@ results_boxplot(
   signif.labels,
   signif.length = 0.2,
   signif.dist = 0.2,
+  signif.size = 3.88,
   faceting = TRUE,
   facet.row,
   facet.col,
@@ -50,7 +51,9 @@ results_boxplot(
 
 \item{by.group}{Logical: if TRUE (default), distributions will be drawn by compared groups of samples.}
 
-\item{signif.show}{Logical: if TRUE, labels for statistical significance will be added to the plot. Default to FALSE.}
+\item{signif.show}{Logical: if TRUE, labels for statistical significance will be added to the plot (default to FALSE).
+It should be used if faceting parameter is set to TRUE. If faceting is not used, the solution to properly show
+significance labels is provide in vignette.}
 
 \item{signif.labels}{Character vector with statistical significance labels (e.g. "ns.","***", etc.). The number
 of elements must be equal to the number of genes used for plotting. All elements in the vector must be different; therefore,
@@ -60,6 +63,8 @@ symmetrically white spaces to repeated labels must be add to the same labels, e.
 
 \item{signif.dist}{Numeric: distance between the highest value and statistical significance labels.
 Can be in y axis units (if faceting = FALSE) or fraction of y axis value reached by the highest value (if faceting = TRUE).}
+
+\item{signif.size}{Numeric: size of significance labels.}
 
 \item{faceting}{Logical: if TRUE (default), plot will be drawn with facets with free scales.}
 
@@ -134,6 +139,7 @@ results_boxplot(data.dCtF,
                 sel.Gene = c("ANGPT1","IL8", "VEGFB"),
                 signif.labels = c("****","**","****"),
                 angle = 30,
+                signif.show = TRUE,
                 signif.dist = 1.05,
                 facet.row = 1,
                 facet.col = 4,

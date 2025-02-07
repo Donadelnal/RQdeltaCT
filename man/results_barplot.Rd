@@ -12,6 +12,7 @@ results_barplot(
   signif.labels,
   signif.length = 0.2,
   signif.dist = 0.2,
+  signif.size = 3.88,
   faceting = FALSE,
   facet.row,
   facet.col,
@@ -54,6 +55,8 @@ symmetrically white spaces to repeated labels must be add to the same labels, e.
 
 \item{signif.dist}{Numeric: distance between errorbar and statistical significance labels.
 Can be in y axis units (if faceting = FALSE) or fraction of y axis value reached by errorbar (mean + sd value) (if faceting = TRUE).}
+
+\item{signif.size}{Numeric: size of significance labels.}
 
 \item{faceting}{Logical: if TRUE (default), plot will be drawn with facets with free scales.}
 
@@ -120,6 +123,7 @@ data.dCtF <- filter_transformed_data(data.dCt, remove.Sample = c("Control11"))
 results_barplot(data.dCtF,
                 sel.Gene = c("ANGPT1","IL8", "VEGFB"),
                 signif.labels = c("****","**","***"),
+                signif.show = TRUE,
                 angle = 30,
                 signif.dist = 1.05,
                 facet.row = 1,

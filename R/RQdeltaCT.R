@@ -1669,7 +1669,6 @@ control_cluster_sample <- function(data,
 
 
 
-
 #' @title control_cluster_gene
 #'
 #' @description
@@ -3138,13 +3137,16 @@ RQ_dCt <- function(data,
 #' @param coef Numeric: how many times of interquartile range should be used to determine range point for whiskers. Default to 1.5.
 #' @param sel.Gene Character vector with names of genes to include, or "all" (default) to use all genes.
 #' @param by.group Logical: if TRUE (default), distributions will be drawn by compared groups of samples.
-#' @param signif.show Logical: if TRUE, labels for statistical significance will be added to the plot. Default to FALSE.
+#' @param signif.show Logical: if TRUE, labels for statistical significance will be added to the plot (default to FALSE).
+#'  It should be used if faceting parameter is set to TRUE. If faceting is not used, the solution to properly show
+#'  significance labels is provide in vignette.
 #' @param signif.labels Character vector with statistical significance labels (e.g. "ns.","***", etc.). The number
 #' of elements must be equal to the number of genes used for plotting. All elements in the vector must be different; therefore,
 #' symmetrically white spaces to repeated labels must be add to the same labels, e.g. "ns.", " ns. ", "  ns.  ".
 #' @param signif.length Numeric: length of horizontal bars under statistical significance labels, values from 0 to 1.
 #' @param signif.dist Numeric: distance between the highest value and statistical significance labels.
 #' Can be in y axis units (if faceting = FALSE) or fraction of y axis value reached by the highest value (if faceting = TRUE).
+#' @param signif.size Numeric: size of significance labels.
 #' @param faceting Logical: if TRUE (default), plot will be drawn with facets with free scales.
 #' @param facet.row,facet.col Integer: number of rows and columns to arrange facets.
 #' @param angle Integer: value of angle in which names of genes are displayed. Default to 0.
@@ -3189,6 +3191,7 @@ RQ_dCt <- function(data,
 #'                 sel.Gene = c("ANGPT1","IL8", "VEGFB"),
 #'                 signif.labels = c("****","**","****"),
 #'                 angle = 30,
+#'                 signif.show = TRUE,
 #'                 signif.dist = 1.05,
 #'                 facet.row = 1,
 #'                 facet.col = 4,
@@ -3211,6 +3214,7 @@ results_boxplot <- function(data,
                             signif.labels,
                             signif.length = 0.2,
                             signif.dist = 0.2,
+                            signif.size = 3.88,
                             faceting = TRUE,
                             facet.row,
                             facet.col,
@@ -3291,7 +3295,8 @@ results_boxplot <- function(data,
             xend = xend,
             y = y,
             yend = y,
-            annotation = annotation
+            annotation = annotation,
+            textsize = signif.size
           ),
           color = "black",
           manual = TRUE
@@ -3333,7 +3338,8 @@ results_boxplot <- function(data,
     theme(legend.text = element_text(size = legend.text.size, colour = "black")) +
     theme(legend.title = element_text(size = legend.title.size, colour = "black")) +
     theme(plot.title = element_text(size = plot.title.size)) +
-    theme(panel.grid.major.x = element_blank())
+    theme(panel.grid.major.x = element_blank()) +
+    theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
 
 
   if (rotate == TRUE) {
@@ -3365,13 +3371,6 @@ results_boxplot <- function(data,
       )
   }
 
-
-  if (faceting == TRUE) {
-    box_results <- box_results +
-      theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
-  }
-
-
   print(box_results)
 
   if (save.to.tiff == TRUE) {
@@ -3387,8 +3386,6 @@ results_boxplot <- function(data,
   }
   return(box_results)
 }
-
-
 
 
 
@@ -3411,6 +3408,7 @@ results_boxplot <- function(data,
 #' @param signif.length Numeric: length of horizontal bars under statistical significance labels, values from 0 to 1.
 #' @param signif.dist Numeric: distance between errorbar and statistical significance labels.
 #' Can be in y axis units (if faceting = FALSE) or fraction of y axis value reached by errorbar (mean + sd value) (if faceting = TRUE).
+#' @param signif.size Numeric: size of significance labels.
 #' @param faceting Logical: if TRUE (default), plot will be drawn with facets with free scales.
 #' @param facet.row,facet.col Integer: number of rows and columns to arrange facets.
 #' @param y.exp.low,y.exp.up Numeric: space between data on the plot and lower or upper axis. Useful to add extra space for statistical significance labels when faceting = TRUE.
@@ -3451,6 +3449,7 @@ results_boxplot <- function(data,
 #' results_barplot(data.dCtF,
 #'                 sel.Gene = c("ANGPT1","IL8", "VEGFB"),
 #'                 signif.labels = c("****","**","***"),
+#'                 signif.show = TRUE,
 #'                 angle = 30,
 #'                 signif.dist = 1.05,
 #'                 facet.row = 1,
@@ -3473,6 +3472,7 @@ results_barplot <- function(data,
                             signif.labels,
                             signif.length = 0.2,
                             signif.dist = 0.2,
+                            signif.size = 3.88,
                             faceting = FALSE,
                             facet.row,
                             facet.col,
@@ -3598,7 +3598,8 @@ results_barplot <- function(data,
           xend = xend,
           y = y,
           yend = y,
-          annotation = annotation
+          annotation = annotation,
+          textsize = signif.size
         ),
         color = "black",
         manual = TRUE
@@ -3903,6 +3904,7 @@ if (save.to.txt == TRUE) {
 #' symmetrically white spaces to repeated labels must be add to the same labels, e.g. "ns.", " ns. ", "  ns.  ".
 #' @param signif.length Numeric: length of horizontal bars under statistical significance labels, values from 0 to 1.
 #' @param signif.dist Numeric: distance between errorbar and statistical significance labels.
+#' @param signif.size Numeric: size of significance labels.
 #' @param y.exp.low,y.exp.up Numeric: space between data on the plot and lower or upper axis. Useful to add extra space for statistical significance labels when faceting = TRUE.
 #' @param angle Integer: value of angle in which names of genes are displayed. Default to 0.
 #' @param rotate Logical: if TRUE, bars will be arranged horizontally. Deafault to FALSE.
@@ -3958,6 +3960,7 @@ if (save.to.txt == TRUE) {
 #'                    mode = "depends",
 #'                    use.FCh = TRUE,
 #'                    FCh.threshold = 2.5,
+#'                    signif.show = TRUE,
 #'                    signif.labels = signif.labels,
 #'                    angle = 30)
 #' head(FCh.plot[[2]])
@@ -3972,6 +3975,7 @@ if (save.to.txt == TRUE) {
 #'                    mode = "user",
 #'                    use.FCh = TRUE,
 #'                    FCh.threshold = 2,
+#'                    signif.show = TRUE,
 #'                    signif.labels = signif.labels,
 #'                    angle = 30)
 #' head(FCh.plot[[2]])
@@ -3997,6 +4001,7 @@ FCh_plot <- function(data,
                     signif.labels,
                     signif.length = 0.2,
                     signif.dist = 0.5,
+                    signif.size = 3.88,
                     y.exp.low = 0.1,
                     y.exp.up = 0.1,
                     angle = 0,
@@ -4184,7 +4189,8 @@ FCh_plot <- function(data,
           xend = xend,
           y = y,
           yend = y,
-          annotation = annotation
+          annotation = annotation,
+          textsize = signif.size
         ),
         color = "black",
         manual = TRUE
@@ -4421,6 +4427,9 @@ ROCh <- function(data,
 #' (more suitable where data were transformed using 2^-value formula).
 #' @param centerline Numeric: position of vertical centerline on the plot. Default to 1.
 #' @param ci Numeric: confidence level used for computation of confidence interval. Default to 0.95.
+#' @param p.adjust.method Character: p value correction method for multiple testing, one of the "holm", "hochberg", "hommel",
+#' "bonferroni", "BH" (default), "BY","fdr", or "none". See documentation for stats::p.adjust() function for details.
+#' @param p.adjust Logical: if TRUE, p values adjusted using a method provided in p.adjust.method parameter will be shown on the plot. Default to FALSE.
 #' @param log.axis Logical: if TRUE, axis with odds ratio values will be in log10 scale. Default to FALSE.
 #' @param x.axis.title Character: title of x axis. Default to "Gene".
 #' @param y.axis.title Character: title of y axis. Default to "value".
@@ -4475,6 +4484,8 @@ log_reg <- function(data,
                     increment,
                     centerline = 1,
                     ci = 0.95,
+                    p.adjust = FALSE,
+                    p.adjust.method = "BH",
                     log.axis = FALSE,
                     x.axis.title = "Odds ratio",
                     y.axis.title = "",
@@ -4541,6 +4552,7 @@ log_reg <- function(data,
       data.CI[x, 6:7] <- m$coefficients
       data.CI[x, 8:9] <- coef(summary(m))[, 4]
     }
+
   } else{
     for (x in 1:n.genes) {
       data.m <- data %>%
@@ -4563,15 +4575,31 @@ log_reg <- function(data,
 
   }
 
-  od_df <- data.frame(
+
+  data.CI$p_coef_adj <- p.adjust(data.CI$p_coef, method = p.adjust.method)
+
+  if (p.adjust == TRUE) {
+
+    od_df <- data.frame(
     yAxis = 1:nrow(data.CI),
     boxOdds = data.CI$oddsratio,
     boxCILow = data.CI$CI_low,
     boxCIHigh = data.CI$CI_high,
     boxLabels = data.CI$Gene,
-    p = data.CI$p_coef
-  )
+    p = data.CI$p_coef_adj)
 
+  } else {
+
+    od_df <- data.frame(
+      yAxis = 1:nrow(data.CI),
+      boxOdds = data.CI$oddsratio,
+      boxCILow = data.CI$CI_low,
+      boxCIHigh = data.CI$CI_high,
+      boxLabels = data.CI$Gene,
+      p = data.CI$p_coef
+
+  )
+}
   odd.ratio <-
     ggplot(od_df, aes(x = boxOdds, y = boxLabels, label = boxOdds)) +
     geom_vline(aes(xintercept = centerline),
@@ -4624,11 +4652,6 @@ log_reg <- function(data,
 
   return(list(odd.ratio, data.CI))
 }
-
-
-
-
-
 
 
 
@@ -4870,7 +4893,6 @@ results_heatmap <- function(data,
 #' @export
 #'
 #' @examples
-#' library(ggsignif)
 #' library(tidyverse)
 #' data(data.Ct)
 #' data.CtF <- filter_Ct(data.Ct,

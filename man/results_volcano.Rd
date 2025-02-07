@@ -111,7 +111,6 @@ fold change values and p values. Significant genes can be pointed out using
 specified p value and fold change thresholds, and highlighted on the plot by color and (optionally) isolated by thresholds lines.
 }
 \examples{
-library(ggsignif)
 library(tidyverse)
 data(data.Ct)
 data.CtF <- filter_Ct(data.Ct,

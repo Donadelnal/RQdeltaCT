@@ -32,4 +32,4 @@ To install and load the `RQdeltaCT` package, simply run in R or RStudio:
 
 `library(RQdeltaCT)`
 
-**The package has been designed to be friendly to non-experts in R programming users. No additional, extensive coding steps are necessary in the standard workflow. Detailed demonstration of the package functionalities using test data can be found in the prepared [vignette](https://donadelnal.r-universe.dev/articles/RQdeltaCT/my-vignette.html).**  
+**The package has been designed to be friendly to non-experts in R programming users. No additional, extensive coding steps are necessary in the standard workflow. Detailed demonstration of the package functionalities using test data can be found in the prepared [vignette](https://cran.r-project.org/web/packages/RQdeltaCT/vignettes/my-vignette.html).**  

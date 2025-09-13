@@ -1,7 +1,7 @@
 citHeader("To cite RQdeltaCT in publications use:")
 
-citEntry(
-  entry    = "Manual",
+bibentry(
+  bibtype  = "Article",
   title    = "RQdeltaCT: an open-source R package for relative quantification of gene expression using delta Ct methods",
   author   = "Daniel Zalewski, Anna Bogucka-Kocka",
   journal  = "Scientific Reports",

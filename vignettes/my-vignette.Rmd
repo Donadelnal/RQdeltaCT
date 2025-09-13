@@ -152,7 +152,7 @@ This vignette includes instructions and examples of the usage of the main parame
 ## **Data import**
 Data analysed using the `RQdeltaCT` package should be in tabular form and contain the following information: group names, sample names, gene names, and Ct values. Flag information can also be included for data-filtering purposes. Any other information could exist in the data (the user does not have to remove them), but will not be used for analysis.
 
-Files with such tables can typically be exported from software coupled with PCR devices and used to analyse raw data files generated during real-time PCR experiments. Such files are also returned by external software, such as [SDS](https://www.thermofisher.com/de/de/home/technical-resources/software-downloads/applied-biosystems-7900ht-fast-real-timespcr-system.html), or even R packages, e.g. [qpcR](https://doi.org/10.1093/bioinformatics/btn227)   
+Files with such tables can typically be exported from software coupled with PCR devices and used to analyse raw data files generated during real-time PCR experiments. Such files are also returned by external software, such as ExpressionSuite Software, or even R packages, e.g. [qpcR](https://doi.org/10.1093/bioinformatics/btn227)   
 
 For user convenience, the `RQdeltaCT` package provides two functions that are useful to importing tables in .txt or csv. format:
 

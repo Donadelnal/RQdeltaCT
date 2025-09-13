@@ -1,0 +1,15 @@
+citHeader("To cite RQdeltaCT in publications use:")
+
+citEntry(
+  entry    = "Manual",
+  title    = "RQdeltaCT: an open-source R package for relative quantification of gene expression using delta Ct methods",
+  author   = "Daniel Zalewski, Anna Bogucka-Kocka",
+  journal  = "Scientific Reports",
+  year     = 2025,
+  volume   = 15,
+  number   = 2962,
+  url      = "https://www.nature.com/articles/s41598-025-11822-0",
+  textVersion = paste("Zalewski, D., Bogucka-Kocka, A. RQdeltaCT: an open-source R package for relative quantification of gene expression using delta Ct methods. Sci Rep 15, 29762 (2025). https://doi.org/10.1038/s41598-025-11822-0"
+
+  )
+)

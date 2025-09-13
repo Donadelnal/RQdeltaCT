@@ -2,7 +2,7 @@
 title: "RQdeltaCT - Relative Quantification of Gene Expression using Delta Ct Methods"
 output: rmarkdown::html_vignette
 author: "Daniel Zalewski daniel.piotr.zalewski@gmail.com"
-date: "11 February 2025"
+date: "13 September 2025"
 vignette: >
   %\VignetteIndexEntry{RQdeltaCT - Relative Quantification of Gene Expression using Delta Ct Methods}
   %\VignetteEngine{knitr::rmarkdown}
@@ -18,6 +18,11 @@ knitr::opts_chunk$set(
   cache = FALSE
 )
 ```
+
+If you use RQdeltaCT package in your work, please cite this related article:
+
+**Zalewski, D., Bogucka-Kocka, A. RQdeltaCT: an open-source R package for relative quantification of gene expression using delta Ct methods. Sci Rep 15, 29762 (2025). https://doi.org/10.1038/s41598-025-11822-0**
+
 
 ## Table of contents
 
@@ -97,7 +102,7 @@ knitr::opts_chunk$set(
 * [**Session info**]
 
 ## **Introduction**
-`RQdeltaCT` is an R package developed to perform relative quantification of gene expression using delta Ct methods proposed by Kenneth J. Livak and Thomas D. Schmittgen in [Article1](https://www.sciencedirect.com/science/article/pii/S1046202301912629?via%3Dihub) and [Article2](https://www.nature.com/articles/nprot.2008.73).
+`RQdeltaCT` is an R package developed to perform relative quantification of gene expression using delta Ct methods proposed by Kenneth J. Livak and Thomas D. Schmittgen in [Article1](https://doi.org/10.1006/meth.2001.1262) and [Article2](https://www.nature.com/articles/nprot.2008.73).
 
 These methods were designed to analyse gene expression data (Ct values) obtained from real-time PCR experiments. The main idea is to normalise gene expression values using endogenous control gene (or genes), present gene expression levels in linear form using the 2^-(value)^ transformation, and calculate differences in gene expression levels between groups of samples (or technical replicates of a single sample).
 
@@ -147,7 +152,7 @@ This vignette includes instructions and examples of the usage of the main parame
 ## **Data import**
 Data analysed using the `RQdeltaCT` package should be in tabular form and contain the following information: group names, sample names, gene names, and Ct values. Flag information can also be included for data-filtering purposes. Any other information could exist in the data (the user does not have to remove them), but will not be used for analysis.
 
-Files with such tables can typically be exported from software coupled with PCR devices and used to analyse raw data files generated during real-time PCR experiments. Such files are also returned by external software, such as [SDS](https://www.thermofisher.com/de/de/home/technical-resources/software-downloads/applied-biosystems-7900ht-fast-real-timespcr-system.html), or even R packages, e.g. [qpcR](https://academic.oup.com/bioinformatics/article/24/13/1549/238435)   
+Files with such tables can typically be exported from software coupled with PCR devices and used to analyse raw data files generated during real-time PCR experiments. Such files are also returned by external software, such as [SDS](https://www.thermofisher.com/de/de/home/technical-resources/software-downloads/applied-biosystems-7900ht-fast-real-timespcr-system.html), or even R packages, e.g. [qpcR](https://doi.org/10.1093/bioinformatics/btn227)   
 
 For user convenience, the `RQdeltaCT` package provides two functions that are useful to importing tables in .txt or csv. format:
 
@@ -456,7 +461,7 @@ In general, a majority of functions in the `RQdeltaCT` package can deal with mis
 
 Ideally, the reference gene should have an identical expression level in all samples, but in many situations it is not possible to achieve this, especially when biological replicates are analysed. Therefore, differences between samples are allowed, but the variance should be as low as possible, and it is also recommended that Ct values should not be very low (below 15) or very high (above 30) [Article](https://link.springer.com/article/10.1007/s13353-013-0173-x).  
 
-The `RQdeltaCT` package includes `find_ref_gene()` function that can be used to select the best reference gene for normalisation. This function calculates descriptive statistics, such as minimum, maximum, standard deviation, and variance, as well as stability scores calculated using the [NormFinder](https://www.moma.dk/software/normfinder) ([Article](https://aacrjournals.org/cancerres/article/64/15/5245/511517/Normalization-of-Real-Time-Quantitative-Reverse)) and [geNorm](https://genorm.cmgg.be/) ([Article](https://genomebiology.biomedcentral.com/articles/10.1186/gb-2002-3-7-research0034)) algorithms. Ct values are also presented on a line plot.  
+The `RQdeltaCT` package includes `find_ref_gene()` function that can be used to select the best reference gene for normalisation. This function calculates descriptive statistics, such as minimum, maximum, standard deviation, and variance, as well as stability scores calculated using the [NormFinder](https://www.moma.dk/software/normfinder) ([Article](https://doi.org/10.1158/0008-5472.CAN-04-0496)) and [geNorm](https://genorm.cmgg.be/) ([Article](https://genomebiology.biomedcentral.com/articles/10.1186/gb-2002-3-7-research0034)) algorithms. Ct values are also presented on a line plot.  
 
 NormFinder scores are computed using the internal `RQdeltaCT::norm_finder()` function working on the code adapted from the original NormFinder code. To calculate NormFinder scores, at least two samples must be present in each group. For the geNorm score, the `geNorm()` function of the `ctrlGene` package is used. 
 
@@ -1342,7 +1347,7 @@ In general, a majority of functions in `RQdeltaCT` package can deal with missing
 
 ## Reference gene selection (a pairwise approach)
 
-The `RQdeltaCT` package includes `find_ref_gene()` function that can be used to select the best reference gene for normalisation. This function calculates descriptive statistics such as minimum, maximum, standard deviation, and variance, as well as stability scores calculated using the [NormFinder](https://www.moma.dk/software/normfinder) ([Article](https://aacrjournals.org/cancerres/article/64/15/5245/511517/Normalization-of-Real-Time-Quantitative-Reverse)) and [geNorm](https://genorm.cmgg.be/) ([Article](https://genomebiology.biomedcentral.com/articles/10.1186/gb-2002-3-7-research0034)) algorithms. Ct values are also presented on a line plot.  
+The `RQdeltaCT` package includes `find_ref_gene()` function that can be used to select the best reference gene for normalisation. This function calculates descriptive statistics such as minimum, maximum, standard deviation, and variance, as well as stability scores calculated using the [NormFinder](https://www.moma.dk/software/normfinder) ([Article](https://doi.org/10.1158/0008-5472.CAN-04-0496)) and [geNorm](https://genorm.cmgg.be/) ([Article](https://genomebiology.biomedcentral.com/articles/10.1186/gb-2002-3-7-research0034)) algorithms. Ct values are also presented on a line plot.  
 
 NormFinder scores are computed using internal `RQdeltaCT::norm_finder()` function working on the code adapted from the original NormFinder code. To calculate NormFinder scores, at least two samples must be present in each group. For the geNorm score, the `geNorm()` function of the `ctrlGene` package is used. The `find_ref_gene()` function allows one to choose which of these algorithms should be done by setting the logical parameters: `norm.finder.score` and `genorm.score`.
 
